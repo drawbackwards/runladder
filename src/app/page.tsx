@@ -70,6 +70,12 @@ const PRODUCTS = [
     href: "/api",
     cta: "View docs",
   },
+  {
+    name: "Drawbackwards Consulting",
+    desc: "Ladder workshops, custom intelligence builds, and Pulse deployments for your team. The human experts behind the engine.",
+    href: "https://drawbackwards.com/ladder",
+    cta: "Work with us",
+  },
 ];
 
 export default function Home() {

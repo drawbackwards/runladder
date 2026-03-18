@@ -78,6 +78,24 @@ const TIERS = [
       "Executive reports",
     ],
   },
+  {
+    name: "Pulse",
+    price: "$100K",
+    period: "per year",
+    desc: "Score your experience from real customer data.",
+    cta: "Talk to us",
+    href: "/contact",
+    highlight: false,
+    features: [
+      "Ingest customer feedback at scale",
+      "App reviews, NPS, surveys, support logs",
+      "Real-time Ladder score from lived experience",
+      "Segment by audience, product area, or channel",
+      "Trend tracking over time",
+      "Executive reporting",
+      "Dedicated onboarding + support",
+    ],
+  },
 ];
 
 export default function PricingPage() {
@@ -96,7 +114,7 @@ export default function PricingPage() {
         </div>
 
         {/* Tiers */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {TIERS.map((tier) => (
             <div
               key={tier.name}
@@ -140,6 +158,29 @@ export default function PricingPage() {
               </Link>
             </div>
           ))}
+        </div>
+
+        {/* Drawbackwards Consulting */}
+        <div className="mt-8 border border-border rounded-2xl p-8 bg-card">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <h3 className="font-mono text-sm font-semibold mb-2">
+                Drawbackwards Consulting
+              </h3>
+              <p className="text-sm text-muted max-w-lg leading-relaxed">
+                Need more than software? The team behind Ladder runs workshops,
+                builds custom Ladder intelligence for your domain, and deploys
+                Pulse for your in-house teams, customer base, call centers, or
+                field service operations. Enterprise-grade, white-glove.
+              </p>
+            </div>
+            <Link
+              href="https://drawbackwards.com/ladder"
+              className="shrink-0 text-center text-sm font-semibold border border-border text-foreground hover:bg-card-hover py-2.5 px-6 rounded-full transition-colors"
+            >
+              Work with Drawbackwards
+            </Link>
+          </div>
         </div>
 
         {/* API pricing */}
