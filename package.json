@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.79.0",
+    "@sparticuz/chromium-min": "^143.0.4",
     "next": "16.1.7",
+    "puppeteer-core": "^24.39.1",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },

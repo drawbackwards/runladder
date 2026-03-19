@@ -4,143 +4,138 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Pricing — Ladder",
   description:
-    "Score your first screen free. Pro for 100 scores/month. Team for unlimited with dashboards and leaderboards.",
+    "Score your first screen free. Professional for $19/mo. Organization for $35/seat/mo. One subscription across all surfaces.",
 };
 
 const TIERS = [
   {
-    name: "Free",
+    badge: "Free",
+    name: "Starter",
     price: "$0",
     period: "forever",
-    desc: "Get started. Score anything.",
+    tagline: "See where you stand",
+    highlight: false,
+    limit: "5 scores / month across any surface",
+    features: [
+      "Overall Ladder score + coaching",
+      "UX copy suggestions",
+      "Accessibility audit",
+      "Web, Figma, or Claude",
+    ],
     cta: "Start free",
     href: "/score",
-    highlight: false,
-    features: [
-      "10 scores per month",
-      "All surfaces (web, Figma, Claude)",
-      "Score history",
-      "Shareable score cards",
-      "Community access",
-    ],
   },
   {
-    name: "Pro",
-    price: "$29",
-    period: "per month",
-    desc: "For designers who score daily.",
-    cta: "Start free trial",
-    href: "/score",
+    badge: "Most popular",
+    name: "Professional",
+    price: "$19",
+    period: "/ mo",
+    periodNote: "billed annually \u00b7 $25 month-to-month",
+    tagline: "Full pipeline for one designer",
     highlight: true,
+    limit: "Unlimited scores \u00b7 50 URL analyses / mo",
     features: [
-      "100 scores per month",
-      "Everything in Free",
-      "API access",
-      "Export reports",
-      "Priority scoring",
-      "Score comparisons",
-      "Advanced findings",
+      "Everything in Starter",
+      "Per-dimension scoring (hierarchy, spacing, copy, a11y, navigation, visual)",
+      "Full score history + trend line",
+      "Fix suggestions with score uplift",
+      "Competitor site analysis",
+      "Shareable score cards",
     ],
+    cta: "Start 14-day free trial",
+    href: "/score",
   },
   {
-    name: "Team",
-    price: "$29",
-    period: "per seat / month",
-    desc: "For design teams tracking quality.",
+    badge: "Team",
+    name: "Organization",
+    price: "$35",
+    period: "/ seat / mo",
+    periodNote: "billed annually",
+    tagline: "Quality across the whole team",
+    highlight: false,
+    limit: "Unlimited everything",
+    features: [
+      "Everything in Professional",
+      "Team leaderboard + portfolio score",
+      "Design system compliance scoring",
+      "Manager dashboard + performance tracking",
+      "Training, coaching, and custom scoring via Drawbackwards Consulting",
+    ],
     cta: "Contact us",
     href: "/contact",
-    highlight: false,
-    features: [
-      "Unlimited scores",
-      "Everything in Pro",
-      "Team dashboard",
-      "Portfolio score",
-      "Leaderboard",
-      "Dimension trends",
-      "Weekly digest",
-    ],
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    desc: "For organizations setting standards.",
-    cta: "Talk to us",
-    href: "/contact",
-    highlight: false,
-    features: [
-      "Unlimited everything",
-      "SSO (Okta, Azure AD)",
-      "Custom Ladder calibration",
-      "API volume pricing",
-      "Dedicated support",
-      "Cross-team dashboards",
-      "Executive reports",
-    ],
-  },
-  {
-    name: "Pulse",
-    price: "$100K",
-    period: "per year",
-    desc: "Score your experience from real customer data.",
-    cta: "Talk to us",
-    href: "/contact",
-    highlight: false,
-    features: [
-      "Ingest customer feedback at scale",
-      "App reviews, NPS, surveys, support logs",
-      "Real-time Ladder score from lived experience",
-      "Segment by audience, product area, or channel",
-      "Trend tracking over time",
-      "Executive reporting",
-      "Dedicated onboarding + support",
-    ],
   },
 ];
 
 export default function PricingPage() {
   return (
-    <div className="pt-24 pb-20 px-6">
+    <div className="pt-32 pb-24 px-6">
       <div className="max-w-5xl mx-auto">
         {/* Hero */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-4">
+        <div className="text-center mb-20">
+          <h1 className="text-[2.5rem] font-bold mb-6">
             Simple pricing. Score your first screen free.
           </h1>
-          <p className="text-muted max-w-lg mx-auto">
-            No signup required for your first score. Upgrade when you need more.
-            One subscription works across all Ladder surfaces.
+          <p className="text-body max-w-lg mx-auto leading-relaxed">
+            One subscription works across every Ladder surface — web, Figma,
+            and Claude. Start free, upgrade when you need more.
           </p>
         </div>
 
         {/* Tiers */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {TIERS.map((tier) => (
             <div
               key={tier.name}
-              className={`rounded-2xl p-6 flex flex-col ${
+              className={`rounded-2xl p-8 flex flex-col ${
                 tier.highlight
                   ? "border-2 border-ladder-green bg-ladder-green/5"
                   : "border border-border bg-card"
               }`}
             >
-              <div className="mb-6">
-                <h2 className="font-mono text-sm font-semibold mb-2">
-                  {tier.name}
-                </h2>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold">{tier.price}</span>
-                  {tier.period && (
-                    <span className="text-sm text-muted">/{tier.period}</span>
-                  )}
-                </div>
-                <p className="text-sm text-muted mt-2">{tier.desc}</p>
+              {/* Badge */}
+              <span
+                className={`self-start text-[11px] font-mono uppercase tracking-widest px-3 py-1 mb-6 ${
+                  tier.highlight
+                    ? "bg-ladder-green/15 text-ladder-green"
+                    : "bg-border/50 text-muted"
+                }`}
+              >
+                {tier.badge}
+              </span>
+
+              {/* Name */}
+              <h2 className="text-lg font-bold text-foreground mb-4">
+                {tier.name}
+              </h2>
+
+              {/* Price */}
+              <div className="flex items-baseline gap-1.5 mb-1">
+                <span className="text-[2.5rem] font-bold text-foreground leading-none">
+                  {tier.price}
+                </span>
+                <span className="text-sm text-muted">{tier.period}</span>
+              </div>
+              {tier.periodNote ? (
+                <p className="text-xs text-muted mb-6">{tier.periodNote}</p>
+              ) : (
+                <div className="mb-6" />
+              )}
+
+              {/* Tagline */}
+              <p className="text-sm text-body mb-8">{tier.tagline}</p>
+
+              {/* Usage limit */}
+              <div className="border border-border rounded-lg px-4 py-3 mb-8">
+                <p className="font-mono text-xs text-ladder-green">
+                  {tier.limit}
+                </p>
               </div>
 
-              <ul className="space-y-2 mb-8 flex-1">
+              {/* Features */}
+              <ul className="space-y-3 mb-10 flex-1">
                 {tier.features.map((f) => (
-                  <li key={f} className="text-sm text-muted flex items-start gap-2">
-                    <span className="text-ladder-green mt-0.5">+</span>
+                  <li key={f} className="text-sm text-body flex items-start gap-2.5">
+                    <span className="text-ladder-green text-xs mt-1 flex-shrink-0">+</span>
                     {f}
                   </li>
                 ))}
@@ -148,7 +143,7 @@ export default function PricingPage() {
 
               <Link
                 href={tier.href}
-                className={`text-center text-sm font-semibold py-2.5 rounded-full transition-colors ${
+                className={`text-center text-sm font-semibold py-3 rounded-full transition-colors ${
                   tier.highlight
                     ? "bg-ladder-green text-background hover:bg-ladder-green/90"
                     : "border border-border text-foreground hover:bg-card-hover"
@@ -160,85 +155,108 @@ export default function PricingPage() {
           ))}
         </div>
 
-        {/* Drawbackwards Consulting */}
-        <div className="mt-8 border border-border rounded-2xl p-8 bg-card">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        {/* Enterprise + API */}
+        <div className="mt-8 border border-border rounded-2xl p-10 bg-card">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
             <div>
-              <h3 className="font-mono text-sm font-semibold mb-2">
-                Drawbackwards Consulting
+              <h3 className="font-mono text-sm font-semibold text-foreground mb-3">
+                Ladder API &amp; Enterprise
               </h3>
-              <p className="text-sm text-muted max-w-lg leading-relaxed">
-                Need more than software? The team behind Ladder runs workshops,
-                builds custom Ladder intelligence for your domain, and deploys
-                Pulse for your in-house teams, customer base, call centers, or
-                field service operations. Enterprise-grade, white-glove.
+              <p className="text-sm text-body max-w-lg leading-relaxed">
+                Need programmatic access or organization-wide deployment? API
+                access, SSO, custom Ladder calibration, cross-team dashboards,
+                executive reporting, and dedicated support. Priced for your
+                scale.
               </p>
             </div>
             <Link
-              href="https://drawbackwards.com/ladder"
-              className="shrink-0 text-center text-sm font-semibold border border-border text-foreground hover:bg-card-hover py-2.5 px-6 rounded-full transition-colors"
+              href="/contact"
+              className="shrink-0 text-center text-sm font-semibold border border-border text-foreground hover:bg-card-hover py-3 px-8 rounded-full transition-colors"
+            >
+              Talk to us
+            </Link>
+          </div>
+        </div>
+
+        {/* Pulse */}
+        <div className="mt-4 border border-border rounded-2xl p-10 bg-card">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+            <div>
+              <h3 className="font-mono text-sm font-semibold text-foreground mb-1">
+                Ladder Pulse
+              </h3>
+              <p className="text-xs text-muted mb-3">Starting at $100K / year</p>
+              <p className="text-sm text-body max-w-lg leading-relaxed">
+                Turn customer feedback, field reports, internal ops signals, and
+                support transcripts into a single Ladder score. Custom bespoke
+                interfaces, real-time tracking, dedicated onboarding.
+              </p>
+            </div>
+            <Link
+              href="/pulse"
+              className="shrink-0 text-center text-sm font-semibold border border-border text-foreground hover:bg-card-hover py-3 px-8 rounded-full transition-colors"
+            >
+              Learn about Pulse
+            </Link>
+          </div>
+        </div>
+
+        {/* Drawbackwards Consulting */}
+        <div className="mt-4 border border-border rounded-2xl p-10 bg-card">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+            <div>
+              <h3 className="font-mono text-sm font-semibold text-foreground mb-3">
+                Drawbackwards Consulting
+              </h3>
+              <p className="text-sm text-body max-w-lg leading-relaxed">
+                The team behind Ladder embeds with yours. Ideation workshops,
+                design thinking studios, sprint-by-sprint UI/UX execution, team
+                mentoring, skill evaluation, and custom Pulse deployments.
+                20 years of doing the work, not just scoring it.
+              </p>
+            </div>
+            <Link
+              href="https://drawbackwards.com"
+              className="shrink-0 text-center text-sm font-semibold border border-border text-foreground hover:bg-card-hover py-3 px-8 rounded-full transition-colors"
             >
               Work with Drawbackwards
             </Link>
           </div>
         </div>
 
-        {/* API pricing */}
-        <div className="mt-16 border-t border-border pt-16">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold mb-3">API Pricing</h2>
-            <p className="text-muted max-w-lg mx-auto">
-              For developers and AI tools that call Ladder programmatically.
-              Usage-based pricing on top of any plan.
-            </p>
-          </div>
-          <div className="max-w-md mx-auto">
-            <div className="bg-card border border-border rounded-xl p-6 space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted">Free tier</span>
-                <span className="font-mono">50 calls/month</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted">Growth</span>
-                <span className="font-mono">$0.08/score</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted">Scale (1,000+/mo)</span>
-                <span className="font-mono">$0.04/score</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted">Enterprise</span>
-                <span className="font-mono">Custom</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* FAQ */}
-        <div className="mt-16 border-t border-border pt-16 max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold mb-8 text-center">Questions</h2>
-          <div className="space-y-6">
+        <div className="mt-24 border-t border-border pt-24 max-w-2xl mx-auto">
+          <h2 className="text-[2rem] font-bold mb-10 text-center">Questions</h2>
+          <div className="space-y-8">
             {[
               {
                 q: "Do I need to sign up to score a screen?",
-                a: "No. Your first score is completely free with no signup. Create an account to save your scores and get 10 free every month.",
+                a: "No. Your first score is completely free with no signup. Create an account to save your history and get 5 free scores per month across any surface.",
               },
               {
                 q: "Does one subscription cover all surfaces?",
-                a: "Yes. Your Ladder account works on runladder.com, in the Figma plugin, the Claude Skill, and the API. One subscription, one usage meter.",
+                a: "Yes. Your Ladder account works on runladder.com, in the Figma plugin, and the Claude Skill. One subscription, one usage meter.",
               },
               {
                 q: "What counts as a score?",
-                a: "Each time you submit a screenshot or feedback data for Ladder analysis, that's one score. Viewing your history, sharing results, or browsing the Top 100 doesn't count.",
+                a: "Each time you submit a screenshot or URL for Ladder analysis — on any surface — that\u2019s one score. Viewing history, sharing results, or browsing the Top 100 doesn\u2019t count.",
               },
               {
-                q: "Can I try Pro before paying?",
-                a: "Yes. Pro comes with a 14-day free trial. No credit card required to start.",
+                q: "Can I try Professional before paying?",
+                a: "Yes. Professional comes with a 14-day free trial. No credit card required to start.",
+              },
+              {
+                q: "What\u2019s the difference between Organization and Enterprise?",
+                a: "Organization gives your team leaderboards, compliance scoring, and manager dashboards at $35/seat. Enterprise adds SSO, API access, custom calibration, and dedicated support \u2014 contact us for pricing.",
+              },
+              {
+                q: "What is Ladder Pulse?",
+                a: "Pulse is our enterprise experience measurement platform. It ingests feedback from any source \u2014 customer reviews, field reports, internal ops, employee surveys \u2014 and maps it to a Ladder score with custom dashboards. Starting at $100K/year.",
               },
             ].map((faq) => (
               <div key={faq.q}>
-                <h3 className="text-sm font-semibold mb-1">{faq.q}</h3>
-                <p className="text-sm text-muted">{faq.a}</p>
+                <h3 className="text-sm font-semibold text-foreground mb-2">{faq.q}</h3>
+                <p className="text-sm text-body leading-relaxed">{faq.a}</p>
               </div>
             ))}
           </div>
