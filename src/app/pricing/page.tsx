@@ -71,17 +71,19 @@ export default function PricingPage() {
           </p>
         </div>
 
-        {/* Section headers above columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
-          <div className="lg:col-span-3">
-            <p className="font-mono text-xs uppercase tracking-widest text-ladder-green">
-              Get your Screen Score
-            </p>
+        {/* Section headers with extending lines */}
+        <div className="hidden lg:grid grid-cols-4 gap-6 mb-4">
+          <div className="col-span-3 flex items-center gap-4">
+            <span className="font-mono text-xs uppercase tracking-widest text-ladder-green whitespace-nowrap">
+              Ladder Screen Scoring
+            </span>
+            <div className="flex-1 h-px bg-ladder-green/30" />
           </div>
-          <div className="hidden lg:block">
-            <p className="font-mono text-xs uppercase tracking-widest text-ladder-purple">
-              Pulse Score
-            </p>
+          <div className="flex items-center gap-4">
+            <span className="font-mono text-xs uppercase tracking-widest text-ladder-purple whitespace-nowrap">
+              Ladder Pulse Scoring
+            </span>
+            <div className="flex-1 h-px bg-ladder-purple/30" />
           </div>
         </div>
 
@@ -149,7 +151,7 @@ export default function PricingPage() {
           <div className="rounded-2xl p-8 flex flex-col border-2 border-ladder-purple bg-ladder-purple/5">
             {/* Mobile-only section label */}
             <p className="font-mono text-xs uppercase tracking-widest text-ladder-purple mb-4 lg:hidden">
-              Pulse Score
+              Ladder Pulse Scoring
             </p>
 
             {/* Name */}
