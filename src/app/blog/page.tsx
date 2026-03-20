@@ -5,11 +5,11 @@ import { BLOG_POSTS } from "./posts";
 export const metadata: Metadata = {
   title: "Blog | Ladder",
   description:
-    "Ladder Pulse intelligence: what our proprietary scoring engine reveals about the world's most-used digital products.",
+    "Screen Scores, Pulse Scores, and the real experience stories behind the world's most-used digital products.",
   openGraph: {
-    title: "Ladder Blog | Pulse Intelligence & Product Teardowns",
+    title: "Ladder Blog | Scores, Teardowns & Intelligence",
     description:
-      "Ladder Pulse intelligence: what our proprietary scoring engine reveals about the world's most-used digital products.",
+      "Screen Scores, Pulse Scores, and the real experience stories behind the world's most-used digital products.",
   },
 };
 
@@ -23,17 +23,17 @@ export default function BlogPage() {
         {/* Hero */}
         <div className="mb-16">
           <p className="font-mono text-xs text-ladder-green uppercase tracking-[0.2em] mb-6">
-            Pulse Intelligence
+            Ladder Blog
           </p>
           <h1 className="text-3xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-6 text-foreground">
             Scores don&apos;t lie.
             <br />
-            <span className="text-muted">Neither does Pulse.</span>
+            <span className="text-muted">Neither does Ladder.</span>
           </h1>
           <p className="text-base text-body max-w-xl leading-relaxed">
-            Ladder Pulse is our proprietary intelligence engine. It scores the
-            real experience behind every product. These are the stories it
-            uncovers.
+            Ladder&apos;s Screen and Pulse proprietary intelligence scoring
+            engine tells the real experience story behind every offering. These
+            are the stories it uncovers.
           </p>
         </div>
 
