@@ -213,7 +213,7 @@ export default async function ProductPage({ params }: Props) {
                 </p>
               </>
             ) : (
-              <p className="text-xs text-muted">Pending: will aggregate G2, Reddit, App Store, and more</p>
+              <p className="text-xs text-muted">Pending: will aggregate data from 3,000+ online sources</p>
             )}
           </div>
 

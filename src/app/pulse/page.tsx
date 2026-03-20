@@ -308,12 +308,12 @@ export default function PulsePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { source: "Customer reviews", detail: "App Store, Google Play, G2, Trustpilot, Yelp. Wherever your users talk about you." },
-              { source: "Support transcripts", detail: "Zendesk, Intercom, Freshdesk, call center logs. The raw voice of frustration or delight." },
-              { source: "NPS and surveys", detail: "Qualtrics, SurveyMonkey, Typeform, Alchemer, in-app surveys. Structured sentiment at scale." },
-              { source: "Field reports", detail: "Technicians, officers, nurses, inspectors. People in the field telling HQ what\u2019s really happening." },
-              { source: "Internal operations", detail: "Manufacturing lines, logistics teams, satellite feeds, warehouse ops. The experience of the people who keep the machine running." },
-              { source: "Employee feedback", detail: "Slack channels, retros, engagement surveys, exit interviews. The internal experience is an experience too." },
+              { source: "3,000+ online sources", detail: "Public reviews, forums, communities, social media, ratings platforms, and discussion boards. Wherever humans talk about products, Pulse is listening." },
+              { source: "Support transcripts", detail: "Zendesk, Intercom, Freshdesk, call center logs. The raw voice of frustration or delight. Available to Pulse subscribers." },
+              { source: "NPS and surveys", detail: "CSAT, NPS responses, in-app feedback, onboarding surveys, churn interviews. Structured sentiment at scale. Available to Pulse subscribers." },
+              { source: "Field reports", detail: "Technicians, officers, nurses, inspectors. People in the field telling HQ what\u2019s really happening. Available to Pulse subscribers." },
+              { source: "Internal operations", detail: "Manufacturing lines, logistics teams, warehouse ops, sales call transcripts. The experience of the people who keep the machine running. Available to Pulse subscribers." },
+              { source: "Employee feedback", detail: "Engagement surveys, retros, exit interviews, internal forums. The internal experience is an experience too. Available to Pulse subscribers." },
             ].map((s) => (
               <div
                 key={s.source}

@@ -59,8 +59,7 @@ export default function Top100Page() {
             digital experience quality.
           </h1>
           <p className="text-base text-body max-w-xl mx-auto leading-relaxed">
-            Ladder Pulse scans thousands of sources, including G2, Reddit, Trustpilot,
-            App Store, Hacker News, and Product Hunt, then combines that
+            Ladder Pulse scans 3,000+ online sources, then combines that
             intelligence with interface analysis to produce one score no other
             system can. No sponsorships. No paid placements. Just the truth.
           </p>
@@ -253,7 +252,7 @@ export default function Top100Page() {
           {[
             {
               title: "Pulse Intelligence",
-              body: "Pulse ingests thousands of data points per product from G2, Capterra, Trustpilot, App Store, Reddit, Hacker News, Product Hunt, and community forums. Our AI maps every signal to the Ladder framework's five levels of experience quality. This is the lived experience score.",
+              body: "Pulse ingests thousands of data points per product from 3,000+ online sources. Our AI maps every signal to the Ladder framework's five levels of experience quality. This is the lived experience score. Ladder Pulse subscribers can also feed internal data: support tickets, NPS responses, field reports, employee surveys, and more.",
             },
             {
               title: "Screen Score",
