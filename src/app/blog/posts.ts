@@ -71,9 +71,9 @@ The Screen-to-Pulse delta isn't a quality score. It's a trust score. Products wi
 
 This is exactly what Pulse was designed to reveal. Traditional metrics like NPS or CSAT give you a single sentiment number. Pulse maps customer voice data against the five levels of the Ladder framework and tells you not just *how* people feel, but *why*, and what to fix first.
 
-A beautiful interface with a low Pulse score is a warning: this team invests in appearance over substance. An unremarkable interface with a high Pulse score is an opportunity: this team builds things that work, and hasn't yet invested in making them look as good as they feel.
+A beautiful interface with a low Pulse Score is a warning: this team invests in appearance over substance. An unremarkable interface with a high Pulse Score is an opportunity: this team builds things that work, and hasn't yet invested in making them look as good as they feel.
 
-The gap is where the real story lives. [Explore all 36 products and their Pulse scores on the Ladder Top 100.](/top-100)
+The gap is where the real story lives. [Explore all 36 products and their Pulse Scores on the Ladder Top 100.](/top-100)
 
 ## How Pulse works
 
@@ -81,7 +81,7 @@ The gap is where the real story lives. [Explore all 36 products and their Pulse 
 
 **Ladder mapping:** Our AI, trained on 20 years of experience evaluation at Drawbackwards, analyzes sentiment, identifies friction patterns, and maps the quality of the described experience to Ladder's 1.0-5.0 scale. Not just positive or negative. Five distinct levels of experience quality.
 
-**Continuous scoring:** Pulse scores update as new signal flows in. Both scores in this study will be updated monthly. The [Top 100](/top-100) is a living dataset.
+**Continuous scoring:** Pulse Scores update as new signal flows in. Both scores in this study will be updated monthly. The [Top 100](/top-100) is a living dataset.
 
 Want to see what Pulse reveals about your product or organization? [Request a Pulse demo](/contact) and see your real score from the people who use what you build.`,
   },
@@ -94,7 +94,7 @@ Want to see what Pulse reveals about your product or organization? [Request a Pu
     category: "Pulse Teardown",
     featured: true,
     excerpt:
-      "Pulse scored Linear's lived experience at 4.2, within 0.1 of its screen score. That's the smallest gap in our dataset. Here's what Pulse found inside 3,200+ reviews, forum posts, and community discussions.",
+      "Pulse scored Linear's lived experience at 4.2, within 0.1 of its Screen Score. That's the smallest gap in our dataset. Here's what Pulse found inside 3,200+ reviews, forum posts, and community discussions.",
     products: ["linear", "jira", "notion"],
     content: `[Linear](/top-100/linear) sits at #1 on the [Ladder Top 100](/top-100) with a 4.3. Not because it's the most visually impressive product, and not because it's the most feature-rich. Linear is #1 because when [Pulse](/pulse) analyzed 3,200+ data points from G2, Reddit, developer forums, and community discussions, it found something rare: the experience matches the interface almost exactly.
 
@@ -122,7 +122,7 @@ The mobile experience trails the desktop product significantly. Pulse found that
 
 ## The Jira comparison: what Pulse reveals
 
-[Jira](/top-100/jira) scores 2.1 on Ladder. Pulse analyzed 15,000+ data points from G2, Capterra, Atlassian's own community forums, Reddit, Hacker News, and developer sentiment platforms, and found overwhelming evidence that this is a product users tolerate because of switching costs, not because of experience quality. [See Jira's full Pulse score on the Top 100.](/top-100/jira)
+[Jira](/top-100/jira) scores 2.1 on Ladder. Pulse analyzed 15,000+ data points from G2, Capterra, Atlassian's own community forums, Reddit, Hacker News, and developer sentiment platforms, and found overwhelming evidence that this is a product users tolerate because of switching costs, not because of experience quality. [See Jira's full Pulse Score on the Top 100.](/top-100/jira)
 
 The comparison is instructive: Jira was built to serve methodologies (Scrum, Kanban, SAFe). Linear was built to serve humans. Pulse can measure the difference. Products designed for process consistently score lower on lived experience because humans aren't processes.
 
@@ -152,7 +152,7 @@ Then we pointed [Pulse](/pulse) at it.
 
 Pulse ingested reviews from G2, threads from Reddit and Hacker News, App Store ratings, and community forum discussions, totaling over 4,100 individual data points. Our intelligence engine analyzed the sentiment, identified recurring friction patterns, and mapped the lived experience to the [Ladder framework](/framework).
 
-The result: a Pulse Score of 2.8. Upper Usable. A -1.3 gap from the screen score.
+The result: a Pulse Score of 2.8. Upper Usable. A -1.3 gap from the Screen Score.
 
 Here's what Pulse surfaced as the dominant themes:
 
@@ -166,7 +166,7 @@ Here's what Pulse surfaced as the dominant themes:
 
 Pulse identified something deeper than individual complaints: a structural pattern. The more flexible the product, the more the experience depends on how you configure it. A well-structured Notion workspace is genuinely powerful. A poorly structured one is a maze.
 
-This means Notion's quality varies by user in a way most products don't. Your Notion and my Notion are different products. The 4.1 screen score reflects the best Notion can be. The 2.8 Pulse score reflects what Notion actually is for most people, as measured by thousands of real voices.
+This means Notion's quality varies by user in a way most products don't. Your Notion and my Notion are different products. The 4.1 Screen Score reflects the best Notion can be. The 2.8 Pulse Score reflects what Notion actually is for most people, as measured by thousands of real voices.
 
 ## What Pulse would tell Notion's product team
 
@@ -240,7 +240,7 @@ This is exactly the problem Pulse was built to solve. Traditional review platfor
 
 The enterprise UX crisis isn't about technology. It's about incentives. When the buyer isn't the user, the user's experience becomes secondary. Pulse makes that gap visible. And measurable. And impossible to ignore.
 
-But the pressure is building. Pulse scores prove that tools like [Linear](/top-100/linear) (4.2), [Mercury](/top-100/mercury) (3.2), and [Figma](/top-100/figma) (3.8) deliver business-class capability at Comfortable-or-better experience levels. As the generation that grew up with consumer-grade software moves into decision-making roles, the tolerance for 1.4-level experiences will evaporate.
+But the pressure is building. Pulse Scores prove that tools like [Linear](/top-100/linear) (4.2), [Mercury](/top-100/mercury) (3.2), and [Figma](/top-100/figma) (3.8) deliver business-class capability at Comfortable-or-better experience levels. As the generation that grew up with consumer-grade software moves into decision-making roles, the tolerance for 1.4-level experiences will evaporate.
 
 The scores won't lie. Pulse will make sure of it. [Explore the full Ladder Top 100](/top-100) and see where every product stands.
 
@@ -256,7 +256,7 @@ If your organization relies on enterprise tools and wants to measure the real ex
     excerpt:
       "Airbnb's interface scores 3.7: emotional design, beautiful photography, discovery that feels like exploring. Pulse analyzed 42,000+ real user signals and scored the lived experience at 2.3. The gap is about trust.",
     products: ["airbnb", "shopify"],
-    content: `[Airbnb](/top-100/airbnb) wrote the playbook on emotional design. The listing photography, the map integration, the category browsing (OMG!, Icons, Treehouses). Every pixel is engineered to make you feel something. It works. The screen score is 3.7.
+    content: `[Airbnb](/top-100/airbnb) wrote the playbook on emotional design. The listing photography, the map integration, the category browsing (OMG!, Icons, Treehouses). Every pixel is engineered to make you feel something. It works. The Screen Score is 3.7.
 
 Then we ran it through [Pulse](/pulse).
 
@@ -264,7 +264,7 @@ Then we ran it through [Pulse](/pulse).
 
 Pulse ingested data from Trustpilot, the App Store, Google Play, Reddit, and travel community forums, totaling over 42,000 individual data points. Our intelligence engine analyzed the sentiment, identified experience patterns, and mapped the lived experience to the [Ladder framework](/framework).
 
-The Pulse Score: 2.3. Usable. A -1.4 gap from the screen, one of the largest in the entire Top 100.
+The Pulse Score: 2.3. Usable. A -1.4 gap from the Screen Score, one of the largest in the entire Top 100.
 
 Here's what Pulse surfaced as the three dominant signals:
 

@@ -140,6 +140,23 @@ export default async function ProductPage({ params }: Props) {
             </div>
 
             <div className="mt-6 pt-4 border-t border-border w-full">
+              <div className="flex justify-center gap-6 mb-4">
+                <div className="text-center">
+                  <span className="text-[9px] text-muted uppercase tracking-widest">Screen</span>
+                  <div className="text-sm font-bold mt-0.5" style={{ color: product.screenScore ? getScoreColor(product.screenScore.score) : undefined }}>
+                    {product.screenScore ? product.screenScore.score.toFixed(1) : "—"}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <span className="text-[9px] text-muted uppercase tracking-widest">Pulse</span>
+                  <div className="text-sm font-bold mt-0.5" style={{ color: product.pulseScore ? getScoreColor(product.pulseScore.score) : undefined }}>
+                    {product.pulseScore ? product.pulseScore.score.toFixed(1) : <span className="text-muted text-xs">Pending</span>}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-border w-full">
               <span className="text-[10px] text-muted uppercase tracking-widest">
                 Gap to {nextLevel}
               </span>
@@ -164,9 +181,10 @@ export default async function ProductPage({ params }: Props) {
         {/* ── Score layers ── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
           <div className="border border-border p-5">
-            <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-2">
+            <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-1">
               Screen Score
             </p>
+            <p className="text-[9px] text-muted/60 mb-2">AI analysis of public interface screenshots</p>
             {product.screenScore ? (
               <>
                 <span className="text-2xl font-bold" style={{ color: getScoreColor(product.screenScore.score) }}>
@@ -180,9 +198,10 @@ export default async function ProductPage({ params }: Props) {
           </div>
 
           <div className="border border-border p-5">
-            <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-2">
+            <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-1">
               Pulse Score
             </p>
+            <p className="text-[9px] text-muted/60 mb-2">Lived experience scored from real user signals</p>
             {product.pulseScore ? (
               <>
                 <span className="text-2xl font-bold" style={{ color: getScoreColor(product.pulseScore.score) }}>

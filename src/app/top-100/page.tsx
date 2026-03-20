@@ -256,8 +256,8 @@ export default function Top100Page() {
               body: "Pulse ingests thousands of data points per product from G2, Capterra, Trustpilot, App Store, Reddit, Hacker News, Product Hunt, and community forums. Our AI maps every signal to the Ladder framework's five levels of experience quality. This is the lived experience score.",
             },
             {
-              title: "Screen Analysis",
-              body: "Public screenshots from marketing sites, review platforms, and product tours, analyzed by AI against the Ladder framework. This measures what the product looks like. The gap between Screen and Pulse scores is where the real insight lives.",
+              title: "Screen Score",
+              body: "Public screenshots from marketing sites, review platforms, and product tours, analyzed by AI against the Ladder framework. This measures what the product looks like. The gap between Screen Score and Pulse Score is where the real insight lives.",
             },
             {
               title: "Company Verified",
@@ -280,7 +280,7 @@ export default function Top100Page() {
               body: "Rankings are determined entirely by Pulse. No company can pay for placement, boost their ranking, or suppress a low score. The intelligence is what it is.",
             },
             {
-              title: "Updated quarterly",
+              title: "Updated monthly",
               body: "Pulse re-scores every product each month as new data flows in. Scores go up and down. The delta column shows real movement.",
             },
             {

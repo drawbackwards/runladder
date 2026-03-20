@@ -85,7 +85,7 @@ function AnimatedScore({ target }: { target: number }) {
 
 /* ── Social share helpers ── */
 function ShareButtons({ score, label, summary }: { score: number; label: string; summary: string }) {
-  const text = `My Ladder Score: ${score.toFixed(1)} (${label}). ${summary}`;
+  const text = `My Screen Score: ${score.toFixed(1)} (${label}). ${summary}`;
   const url = "https://runladder.com/score";
 
   return (
@@ -652,7 +652,7 @@ export default function ScorePage() {
 
               {/* Right: score panel */}
               <div className="border border-[#333] bg-[#1e1e1e] p-8 flex flex-col">
-                <span className="text-[10px] text-muted uppercase tracking-widest mb-6">Ladder Score</span>
+                <span className="text-[10px] text-muted uppercase tracking-widest mb-6">Screen Score</span>
                 <div className="flex-1 flex flex-col items-start justify-center">
                   <AnimatedScore target={result.score} />
                   <span className="text-sm font-bold uppercase tracking-widest mt-1" style={{ color: getScoreColor(result.score) }}>
@@ -682,6 +682,10 @@ export default function ScorePage() {
 
                 <p className="text-xs text-body leading-relaxed mt-6 border-t border-[#333] pt-4">
                   {result.summary}
+                </p>
+                <p className="text-[10px] text-muted mt-3">
+                  This is a Screen Score: what the interface shows. Want to know how it actually feels?{" "}
+                  <a href="/pulse" className="text-ladder-green hover:text-ladder-green/80 transition-colors">That takes Pulse.</a>
                 </p>
               </div>
             </div>

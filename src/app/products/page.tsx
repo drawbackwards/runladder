@@ -47,11 +47,11 @@ const SURFACES = [
     badge: "Feedback Intelligence",
     tagline: "Score the lived experience, not just the screen.",
     description:
-      "Screens only tell half the story. Pulse ingests what real people say: customer reviews, support logs, survey responses, field reports, NPS comments. It scores the actual lived experience against the Ladder framework. The gap between your screen score and your Pulse score is where the real work lives.",
+      "Screens only tell half the story. Pulse ingests what real people say: customer reviews, support logs, survey responses, field reports, NPS comments. It scores the actual lived experience against the Ladder framework. The gap between your Screen Score and your Pulse Score is where the real work lives.",
     features: [
       "Ingest reviews, surveys, support tickets, field reports",
       "Per-rung scoring from real human language",
-      "AI-to-screen gap analysis (screen score vs lived experience)",
+      "Gap analysis (Screen Score vs. Pulse Score)",
       "Domain-specific rubrics (B2B, B2C, Process, Service)",
       "Trend tracking across feedback windows",
     ],

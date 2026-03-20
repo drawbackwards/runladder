@@ -234,21 +234,30 @@ export default function Home() {
                 Get the truth.
               </h2>
               <p className="text-body leading-relaxed mb-6">
-                Ladder evaluates every screen against the same five-level
-                framework that Drawbackwards has used on thousands of real
-                projects. The AI has been trained on two decades of design
-                judgment. Not generic best practices, but the specific patterns
+                Upload a screenshot and get a <strong className="text-foreground">Screen Score</strong>: an
+                AI evaluation of the interface against the same five-level
+                framework Drawbackwards has used on thousands of real projects.
+                Not generic best practices, but the specific patterns
                 that separate products people tolerate from products people love.
               </p>
-              <p className="text-body leading-relaxed">
+              <p className="text-body leading-relaxed mb-6">
                 You get an honest score, the specific issues holding you back,
                 and exactly how much each fix would improve your score.
                 No flattery. No vague advice. Just the truth.
               </p>
+              <p className="text-body leading-relaxed">
+                Want to measure the lived experience, not just the interface?{" "}
+                <a href="/pulse" className="text-ladder-green hover:text-ladder-green/80 transition-colors">
+                  Ladder Pulse
+                </a>{" "}
+                ingests real customer signals from across the internet and scores
+                what people actually feel. The gap between Screen Score and
+                Pulse Score is where the real insight lives.
+              </p>
             </div>
             <div className="bg-card border border-border rounded-2xl p-12 text-center">
               <p className="font-mono text-xs text-muted uppercase tracking-wider mb-6">
-                Ladder Score
+                Screen Score
               </p>
               <LadderScore score={2.4} size="xl" />
               <p className="text-sm text-body mt-8 leading-relaxed">
