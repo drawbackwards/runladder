@@ -305,6 +305,71 @@ export default function FrameworkPage() {
           </div>
         </div>
 
+        {/* ── Two score types ── */}
+        <div className="mb-24">
+          <div className="flex items-center gap-4 mb-12">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-[10px] font-semibold text-muted uppercase tracking-[0.2em]">
+              Two ways to measure
+            </span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <p className="text-sm text-body text-center max-w-lg mx-auto mb-10 leading-relaxed">
+            The Ladder framework powers two distinct types of analysis.
+            Each produces a score on the same 1.0 to 5.0 scale.
+            Together, they tell the full story.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="border border-border bg-card/30 p-8">
+              <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-3">
+                Screen Score
+              </p>
+              <p className="text-sm font-bold text-foreground mb-2">
+                What the interface shows
+              </p>
+              <p className="text-xs text-body leading-relaxed mb-4">
+                AI evaluates a screenshot of your product against the five
+                levels. Design, hierarchy, layout, patterns, accessibility.
+                The score reflects what a user sees the moment they land.
+              </p>
+              <a
+                href="/score"
+                className="text-[11px] text-ladder-green hover:text-ladder-green/80 transition-colors"
+              >
+                Try the free scorer &rarr;
+              </a>
+            </div>
+
+            <div className="border border-border bg-card/30 p-8">
+              <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-3">
+                Pulse Score
+              </p>
+              <p className="text-sm font-bold text-foreground mb-2">
+                What real users feel
+              </p>
+              <p className="text-xs text-body leading-relaxed mb-4">
+                Ladder Pulse ingests thousands of real customer signals:
+                reviews, forums, support tickets, social sentiment. It
+                scores the lived experience, not the interface.
+              </p>
+              <a
+                href="/pulse"
+                className="text-[11px] text-ladder-green hover:text-ladder-green/80 transition-colors"
+              >
+                Learn about Pulse &rarr;
+              </a>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted text-center mt-6 max-w-md mx-auto leading-relaxed">
+            The gap between Screen Score and Pulse Score is where the
+            real insight lives. A high Screen Score with a low Pulse Score
+            means the product looks better than it feels.
+          </p>
+        </div>
+
         {/* ── CTA ── */}
         <div className="text-center pt-8 border-t border-border">
           <p className="text-lg font-bold text-foreground mb-3">
