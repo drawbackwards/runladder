@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Products | Ladder",
   description:
-    "One quality score across every surface. Score in your browser, in Figma, from customer feedback, through Claude, or via API.",
+    "One quality score across every surface. Score in your browser, in Figma, from customer feedback, or through Claude.",
 };
 
 const SURFACES = [
@@ -76,23 +76,6 @@ const SURFACES = [
     available: false,
   },
   {
-    name: "Ladder API",
-    badge: "Infrastructure",
-    tagline: "Bake quality into your pipeline.",
-    description:
-      "Every deploy, every PR, every AI-generated screen, automatically scored before it reaches users. The API is the backbone that powers every Ladder surface and is available for you to integrate into your own tools, CI/CD pipelines, and AI workflows.",
-    features: [
-      "REST API with per-rung scoring",
-      "MCP server for AI agent integration",
-      "Batch scoring for portfolios and audits",
-      "Webhook support for CI/CD pipelines",
-      "Per-call pricing with generous free tier",
-    ],
-    cta: "View the docs",
-    href: "/api",
-    available: true,
-  },
-  {
     name: "Drawbackwards Consulting",
     badge: "Expert Services",
     tagline: "The team behind Ladder, embedded with yours.",
@@ -125,9 +108,9 @@ export default function ProductsPage() {
             <span className="text-ladder-green">Every surface.</span>
           </h1>
           <p className="text-lg text-body max-w-2xl mx-auto leading-relaxed">
-            Score in your browser, in Figma, from customer feedback, through
-            Claude, or via API. Every score feeds the same account, the same
-            history, the same truth.
+            Score in your browser, in Figma, from customer feedback, or through
+            Claude. Every score feeds the same account, the same history, the
+            same truth.
           </p>
         </div>
       </section>
@@ -163,12 +146,6 @@ export default function ProductsPage() {
                 <span className="text-muted">Ladder for Claude</span>
                 <span className="flex-1 border-b border-dashed border-border" />
                 <span className="text-muted text-xs">coming soon</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="w-2 h-2 rounded-full bg-ladder-green flex-shrink-0" />
-                <span>Ladder API</span>
-                <span className="flex-1 border-b border-dashed border-border" />
-                <span className="text-muted text-xs">infrastructure</span>
               </div>
             </div>
             <div className="mt-8 pt-6 border-t border-border text-center">
@@ -251,9 +228,9 @@ export default function ProductsPage() {
             <span className="text-body">Everywhere.</span>
           </h2>
           <p className="text-body leading-relaxed max-w-xl mx-auto mb-10">
-            Score a screen on the web, check it in Figma, reference it in
-            Claude, pull it from the API. It&apos;s the same score, the same
-            history, the same account. One subscription unlocks every surface.
+            Score a screen on the web, check it in Figma, or reference it in
+            Claude. It&apos;s the same score, the same history, the same
+            account. One subscription unlocks every surface.
           </p>
           <div className="flex items-center justify-center gap-6">
             <Link

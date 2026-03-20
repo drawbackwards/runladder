@@ -160,13 +160,12 @@ export default function PricingPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
             <div>
               <h3 className="font-mono text-sm font-semibold text-foreground mb-3">
-                Ladder API &amp; Enterprise
+                Enterprise
               </h3>
               <p className="text-sm text-body max-w-lg leading-relaxed">
-                Need programmatic access or organization-wide deployment? API
-                access, SSO, custom Ladder calibration, cross-team dashboards,
-                executive reporting, and dedicated support. Priced for your
-                scale.
+                Organization-wide deployment with SSO, custom Ladder
+                calibration, cross-team dashboards, executive reporting, and
+                dedicated support. Priced for your scale.
               </p>
             </div>
             <Link

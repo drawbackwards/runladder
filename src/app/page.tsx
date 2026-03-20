@@ -65,12 +65,6 @@ const PRODUCTS = [
     cta: "Coming soon",
   },
   {
-    name: "Ladder API",
-    desc: "Bake quality scoring into your pipeline. Every deploy, every PR, every AI-generated screen, automatically scored before it reaches users.",
-    href: "/api",
-    cta: "View the docs",
-  },
-  {
     name: "Drawbackwards Consulting",
     desc: "The team behind Ladder embeds with yours, sprint by sprint. Ideation workshops, design thinking studios, UI/UX execution, team mentoring, skill evaluation, and custom Pulse deployments. 20 years of doing the work, not just scoring it.",
     href: "https://drawbackwards.com",

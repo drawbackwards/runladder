@@ -349,7 +349,7 @@ export default function OrganizationsPage() {
               {[
                 { surface: "runladder.com", desc: "Upload a screenshot and get a score in seconds. No installs, no configuration." },
                 { surface: "Ladder for Figma", desc: "Score screens without leaving your design tool. Built into the workflow designers already use." },
-                { surface: "Ladder API", desc: "Bake quality scoring into CI/CD. Every deploy, every PR, automatically scored before it reaches users." },
+                { surface: "Ladder for Claude", desc: "Get a quality check mid-conversation. Know if what you generated is a 2.1 or a 3.8 before anyone else sees it." },
                 { surface: "Ladder Pulse", desc: "Turn customer feedback, support logs, and field reports into a quality score that tracks real experience." },
               ].map((s) => (
                 <div
