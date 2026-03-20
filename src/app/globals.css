@@ -1,12 +1,16 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #0a0a0a;
-  --color-foreground: #ededed;
-  --color-muted: #888888;
-  --color-border: #222222;
-  --color-card: #141414;
-  --color-card-hover: #1a1a1a;
+  /* Core palette — matches drawbackwards.com */
+  --color-background: #1a1a1a;
+  --color-foreground: #ffffff;
+  --color-body: #A0A0A0;
+  --color-muted: #666666;
+  --color-border: #333333;
+  --color-card: #2a2a2a;
+  --color-card-hover: #333333;
+
+  /* Ladder score colors */
   --color-ladder-green: #6AC89B;
   --color-ladder-green-dim: #6AC89B33;
   --color-ladder-red: #ef4444;
@@ -14,16 +18,147 @@
   --color-ladder-yellow: #eab308;
   --color-ladder-delightful: #22c55e;
   --color-ladder-white: #ffffff;
+
+  /* Fonts */
   --font-sans: var(--font-inter);
   --font-mono: var(--font-ibm-plex-mono);
+
+  /* Type scale — drawbackwards.com system */
+  --text-display: 5rem;
+  --text-hero: 3.5rem;
+  --text-h1: 2.5rem;
+  --text-h2: 2rem;
+  --text-h3: 1.5rem;
+  --text-body-lg: 1.125rem;
+  --text-body: 1rem;
+  --text-body-sm: 0.875rem;
+  --text-caption: 0.75rem;
 }
 
 body {
   background: var(--color-background);
+  color: var(--color-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
   color: var(--color-foreground);
 }
 
 ::selection {
   background: var(--color-ladder-green);
-  color: #0a0a0a;
+  color: #1a1a1a;
+}
+
+/* ── Analysis interface (score page) ── */
+
+.analysis-grid {
+  background-image:
+    linear-gradient(rgba(106, 200, 155, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(106, 200, 155, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+  min-height: calc(100vh - 5rem);
+}
+
+.analysis-grid::before {
+  content: "";
+  position: fixed;
+  inset: 5rem 0 0 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(106, 200, 155, 0.04) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Scanner line animation */
+@keyframes scan-line {
+  0% { top: 0; opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+@keyframes scan-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes scan-grid-pulse {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.08; }
+}
+
+.scanner-active {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanner-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #6AC89B, transparent);
+  box-shadow: 0 0 12px 2px rgba(106, 200, 155, 0.4);
+  animation: scan-line 2.5s ease-in-out infinite;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.scanner-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-color: #6AC89B;
+  opacity: 0.5;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.scanner-corner-tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
+.scanner-corner-tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; }
+.scanner-corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; }
+.scanner-corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
+
+/* Typing dots for loading */
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
+}
+
+.typing-dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #6AC89B;
+  animation: typing-bounce 1s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+/* Score counter animation */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s ease-out forwards;
+}
+
+.animate-fade-up-delay-1 { animation-delay: 0.1s; opacity: 0; }
+.animate-fade-up-delay-2 { animation-delay: 0.2s; opacity: 0; }
+.animate-fade-up-delay-3 { animation-delay: 0.3s; opacity: 0; }
+.animate-fade-up-delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+/* Shimmer loading for skeleton cards */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #222 25%, #2a2a2a 50%, #222 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
 }
