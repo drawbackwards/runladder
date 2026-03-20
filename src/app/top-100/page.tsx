@@ -64,7 +64,12 @@ export default function Top100Page() {
             framework.
           </p>
           <p className="text-xs text-muted mt-4">
-            Last updated Q1 2026 &middot; {PRODUCTS.length} products scored
+            {PRODUCTS.length} products &middot; Real scoring pipeline coming Q2 2026
+          </p>
+          <p className="text-[10px] text-muted mt-2 max-w-md mx-auto">
+            Current scores are editorial estimates based on known product
+            quality. Each product will be formally scored with screenshots,
+            Pulse feedback data, and optional company-submitted materials.
           </p>
         </div>
 
@@ -245,16 +250,40 @@ export default function Top100Page() {
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             {
-              title: "How we score",
-              body: "Every product is evaluated against the Ladder framework — a 5-level scale built on twenty years of product design. AI analyzes the actual interface, not marketing materials.",
+              title: "Screen Score",
+              body: "Public screenshots from the product's marketing site, review platforms (G2, Capterra), and YouTube product tours — scored by AI against the Ladder framework. This measures what the product looks like.",
             },
+            {
+              title: "Pulse Score",
+              body: "Aggregated sentiment from G2, Capterra, Trustpilot, App Store, Reddit, X, Hacker News, and Product Hunt — mapped to rung-level quality signals. This measures what the product feels like to use over time.",
+            },
+            {
+              title: "Company Verified",
+              body: "Companies can submit demo links and real product screenshots for a more accurate score. Verified scores are flagged and replace the public screenshot score. The delta between Screen and Pulse tells the real story.",
+            },
+          ].map((item) => (
+            <div key={item.title} className="border-t border-border pt-6">
+              <h3 className="text-sm font-bold text-foreground mb-2">
+                {item.title}
+              </h3>
+              <p className="text-xs text-body leading-relaxed">{item.body}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
             {
               title: "No pay-to-play",
               body: "Rankings are determined entirely by score. No company can pay for placement, boost their ranking, or suppress a low score. The list is what it is.",
             },
             {
               title: "Updated quarterly",
-              body: "Products are re-scored every quarter. Scores go up and down. The delta column shows movement since last period — proof that design quality is a moving target.",
+              body: "Products are re-scored every quarter. Scores go up and down. The delta column shows movement since last period.",
+            },
+            {
+              title: "Three lenses",
+              body: "The gap between a product's Screen Score and its Pulse Score is the most valuable insight. A beautiful product with a low Pulse score is a warning. An ugly product with a high Pulse score is an opportunity.",
             },
           ].map((item) => (
             <div key={item.title} className="border-t border-border pt-6">
