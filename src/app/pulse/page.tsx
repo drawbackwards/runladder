@@ -3,9 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "Ladder Pulse — Customer data in. Quality score out.",
+  title: "Ladder Pulse | Customer data in. Quality score out.",
   description:
-    "AI-driven experience measurement from real customer and operational data. Reviews, field reports, support logs, employee feedback — all mapped to a single Ladder score.",
+    "AI-driven experience measurement from real customer and operational data. Reviews, field reports, support logs, employee feedback, all mapped to a single Ladder score.",
 };
 
 export default function PulsePage() {
@@ -79,14 +79,14 @@ export default function PulsePage() {
               what specifically would make it better.
             </p>
             <p>
-              Organizations have spent decades collecting feedback — app
+              Organizations have spent decades collecting feedback: app
               reviews, surveys, support tickets, field reports, employee
-              sentiment — and pouring it into dashboards full of charts.
+              sentiment. And pouring it into dashboards full of charts.
               The data is everywhere. The clarity is nowhere.
             </p>
             <p className="text-foreground font-medium text-xl leading-snug">
-              What if you could take all of that signal — every source, every
-              format, every voice — and distill it into one honest score that
+              What if you could take all of that signal, every source, every
+              format, every voice, and distill it into one honest score that
               tells you exactly where the experience stands and what to fix
               first?
             </p>
@@ -123,8 +123,8 @@ export default function PulsePage() {
                 AI-driven experience scoring
               </h3>
               <p className="text-xs text-body leading-relaxed">
-                Applies the Ladder framework — five levels of experience
-                quality, refined over 20 years — to every piece of feedback.
+                Applies the Ladder framework, five levels of experience
+                quality refined over 20 years, to every piece of feedback.
               </p>
             </div>
 
@@ -279,7 +279,7 @@ export default function PulsePage() {
             </p>
             <p>
               Their experience matters just as much. And they&apos;re already
-              telling you about it — in field reports, dispatch logs, incident
+              telling you about it. In field reports, dispatch logs, incident
               tickets, internal surveys, and break room conversations that
               never make it to a dashboard.
             </p>
@@ -308,12 +308,12 @@ export default function PulsePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { source: "Customer reviews", detail: "App Store, Google Play, G2, Trustpilot, Yelp — wherever your users talk about you" },
-              { source: "Support transcripts", detail: "Zendesk, Intercom, Freshdesk, call center logs — the raw voice of frustration or delight" },
-              { source: "NPS and surveys", detail: "Qualtrics, SurveyMonkey, Typeform, Alchemer, in-app surveys — structured sentiment at scale" },
-              { source: "Field reports", detail: "Technicians, officers, nurses, inspectors — people in the field telling HQ what\u2019s really happening" },
-              { source: "Internal operations", detail: "Manufacturing lines, logistics teams, satellite feeds, warehouse ops — the experience of the people who keep the machine running" },
-              { source: "Employee feedback", detail: "Slack channels, retros, engagement surveys, exit interviews — the internal experience is an experience too" },
+              { source: "Customer reviews", detail: "App Store, Google Play, G2, Trustpilot, Yelp. Wherever your users talk about you." },
+              { source: "Support transcripts", detail: "Zendesk, Intercom, Freshdesk, call center logs. The raw voice of frustration or delight." },
+              { source: "NPS and surveys", detail: "Qualtrics, SurveyMonkey, Typeform, Alchemer, in-app surveys. Structured sentiment at scale." },
+              { source: "Field reports", detail: "Technicians, officers, nurses, inspectors. People in the field telling HQ what\u2019s really happening." },
+              { source: "Internal operations", detail: "Manufacturing lines, logistics teams, satellite feeds, warehouse ops. The experience of the people who keep the machine running." },
+              { source: "Employee feedback", detail: "Slack channels, retros, engagement surveys, exit interviews. The internal experience is an experience too." },
             ].map((s) => (
               <div
                 key={s.source}
@@ -346,7 +346,7 @@ export default function PulsePage() {
               <div>
                 <h3 className="text-lg font-bold text-foreground mb-3">Connect your signals</h3>
                 <p className="text-body leading-relaxed">
-                  We ingest data from wherever your people talk — review
+                  We ingest data from wherever your people talk: review
                   platforms, support tools, CRM systems, internal channels,
                   field reporting systems. Qualtrics, Salesforce, Zendesk,
                   Podium, and dozens more. No format requirements. No
@@ -360,7 +360,7 @@ export default function PulsePage() {
               <div>
                 <h3 className="text-lg font-bold text-foreground mb-3">Map to the Ladder</h3>
                 <p className="text-body leading-relaxed">
-                  Our AI — trained on 20 years of experience evaluation —
+                  Our AI, trained on 20 years of experience evaluation,
                   analyzes sentiment, identifies friction patterns, and scores
                   the quality of the experience being described. Not just
                   positive or negative. Five levels of quality. The same
@@ -379,7 +379,7 @@ export default function PulsePage() {
                   Your teams, your segments, your vocabulary, your reporting
                   cadence. A hospital system sees clinician experience. A
                   manufacturer sees production lines. A police department sees
-                  precincts. Not a generic analytics tool — a purpose-built
+                  precincts. Not a generic analytics tool. A purpose-built
                   experience scorecard.
                 </p>
               </div>
@@ -390,8 +390,8 @@ export default function PulsePage() {
               <div>
                 <h3 className="text-lg font-bold text-foreground mb-3">Watch the score move</h3>
                 <p className="text-body leading-relaxed">
-                  As your organization makes changes — new tools, new
-                  workflows, new policies — Pulse shows whether the experience
+                  As your organization makes changes (new tools, new
+                  workflows, new policies), Pulse shows whether the experience
                   is actually improving. Not vanity metrics. A Ladder score that
                   moves when real things change. Track it weekly. Report it
                   quarterly. Prove that the investment is working.
@@ -462,14 +462,14 @@ export default function PulsePage() {
               assumptions and a score that challenges them.
             </p>
             <p>
-              When you know your Ladder score — from the people who actually
-              live the experience — you stop guessing. You stop debating. You
+              When you know your Ladder score, from the people who actually
+              live the experience, you stop guessing. You stop debating. You
               start improving with precision. And when the score moves, you
               know the improvement is real, because it came from the people
               you serve.
             </p>
             <p>
-              Drawbackwards spent 20 years inside these organizations — at the
+              Drawbackwards spent 20 years inside these organizations: at the
               bedside, on the factory floor, in the field, at the front desk.
               We didn&apos;t build Pulse from a conference room. We built it
               because we kept seeing the same thing: the signal was already

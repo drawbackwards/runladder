@@ -3,11 +3,11 @@ import Link from "next/link";
 import { BLOG_POSTS } from "./posts";
 
 export const metadata: Metadata = {
-  title: "Blog — Ladder",
+  title: "Blog | Ladder",
   description:
     "Ladder Pulse intelligence: what our proprietary scoring engine reveals about the world's most-used digital products.",
   openGraph: {
-    title: "Ladder Blog — Pulse Intelligence & Product Teardowns",
+    title: "Ladder Blog | Pulse Intelligence & Product Teardowns",
     description:
       "Ladder Pulse intelligence: what our proprietary scoring engine reveals about the world's most-used digital products.",
   },
@@ -26,13 +26,13 @@ export default function BlogPage() {
             Pulse Intelligence
           </p>
           <h1 className="text-3xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-6 text-foreground">
-            What Pulse sees.
+            Scores don&apos;t lie.
             <br />
-            <span className="text-muted">What others miss.</span>
+            <span className="text-muted">Neither does Pulse.</span>
           </h1>
           <p className="text-base text-body max-w-xl leading-relaxed">
             Ladder Pulse is our proprietary intelligence engine. It scores the
-            real experience behind every product — and these are the stories it
+            real experience behind every product. These are the stories it
             uncovers.
           </p>
         </div>
@@ -140,7 +140,7 @@ export default function BlogPage() {
             What would Pulse reveal about your product?
           </h2>
           <p className="text-sm text-body max-w-md mx-auto mb-6">
-            The same AI intelligence engine behind every score on this blog — pointed at your customer data. One honest score.
+            The same AI intelligence engine behind every score on this blog, pointed at your customer data. One honest score.
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <Link

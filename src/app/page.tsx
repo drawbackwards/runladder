@@ -42,7 +42,7 @@ const LEVELS = [
 const PRODUCTS = [
   {
     name: "runladder.com",
-    desc: "You shipped a screen. Is it actually good? Get a trusted quality score in seconds — no installs, no signup, no second-guessing.",
+    desc: "You shipped a screen. Is it actually good? Get a trusted quality score in seconds. No installs, no signup, no second-guessing.",
     href: "/score",
     cta: "Score a screen free",
   },
@@ -54,7 +54,7 @@ const PRODUCTS = [
   },
   {
     name: "Ladder Pulse",
-    desc: "Every organization generates signals — customer reviews, field reports, internal ops feedback, support logs. Pulse turns all of it into a quality score that tracks whether the people you serve are actually better off.",
+    desc: "Every organization generates signals: customer reviews, field reports, internal ops feedback, support logs. Pulse turns all of it into a quality score that tracks whether the people you serve are actually better off.",
     href: "/pulse",
     cta: "Learn about Pulse",
   },
@@ -66,13 +66,13 @@ const PRODUCTS = [
   },
   {
     name: "Ladder API",
-    desc: "Bake quality scoring into your pipeline. Every deploy, every PR, every AI-generated screen — automatically scored before it reaches users.",
+    desc: "Bake quality scoring into your pipeline. Every deploy, every PR, every AI-generated screen, automatically scored before it reaches users.",
     href: "/api",
     cta: "View the docs",
   },
   {
     name: "Drawbackwards Consulting",
-    desc: "The team behind Ladder embeds with yours — sprint by sprint. Ideation workshops, design thinking studios, UI/UX execution, team mentoring, skill evaluation, and custom Pulse deployments. 20 years of doing the work, not just scoring it.",
+    desc: "The team behind Ladder embeds with yours, sprint by sprint. Ideation workshops, design thinking studios, UI/UX execution, team mentoring, skill evaluation, and custom Pulse deployments. 20 years of doing the work, not just scoring it.",
     href: "https://drawbackwards.com",
     cta: "Work with Drawbackwards",
   },
@@ -108,7 +108,7 @@ export default function Home() {
               href="/score"
               className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-base"
             >
-              Score a screen — free
+              Score a screen, free
             </Link>
             <Link
               href="/framework"
@@ -141,7 +141,7 @@ export default function Home() {
             <p>
               There was never a universal standard for experience quality. No
               credit score for design. Teams shipped and hoped. Users suffered
-              and churned. The only feedback loop was revenue — and by then it
+              and churned. The only feedback loop was revenue, and by then it
               was too late.
             </p>
             <p className="text-foreground font-medium">
@@ -170,14 +170,14 @@ export default function Home() {
                 Ward Andrews founded Drawbackwards in 2003. Over two decades,
                 his team designed products for healthcare systems, energy
                 companies, financial institutions, hospitality brands, and
-                consumer startups — creating billions of dollars in measurable
+                consumer startups, creating billions of dollars in measurable
                 value along the way.
               </p>
             </div>
             <div className="space-y-6 text-body leading-relaxed">
               <p>
                 Through thousands of projects, Ward noticed the same pattern:
-                the best products weren&apos;t just usable — they climbed through
+                the best products weren&apos;t just usable. They climbed through
                 distinct levels of quality. Functional. Usable. Comfortable.
                 Delightful. Meaningful. Every product sat somewhere on that
                 ladder, and knowing where it sat was the key to knowing what to
@@ -185,7 +185,7 @@ export default function Home() {
               </p>
               <p>
                 He codified this into a framework and began using it internally
-                at Drawbackwards — first as a workshop tool, then as a scoring
+                at Drawbackwards: first as a workshop tool, then as a scoring
                 methodology, then as the lens through which every design
                 decision was evaluated. Clients started asking for it by name.
               </p>
@@ -237,7 +237,7 @@ export default function Home() {
                 Ladder evaluates every screen against the same five-level
                 framework that Drawbackwards has used on thousands of real
                 projects. The AI has been trained on two decades of design
-                judgment — not generic best practices, but the specific patterns
+                judgment. Not generic best practices, but the specific patterns
                 that separate products people tolerate from products people love.
               </p>
               <p className="text-body leading-relaxed">
@@ -273,7 +273,7 @@ export default function Home() {
             </h2>
             <p className="text-body max-w-lg mx-auto leading-relaxed">
               Every experience is scored from 1.0 to 5.0. Most products are
-              Level 1 or 2. Level 3 is the modern minimum bar — it must be
+              Level 1 or 2. Level 3 is the modern minimum bar. It must be
               earned. Level 5 is the ceiling.
             </p>
           </div>
@@ -325,7 +325,7 @@ export default function Home() {
             <p>
               There are plenty of AI tools that will tell you your button
               should be bigger. Ladder is different because the intelligence
-              behind it isn&apos;t generic — it&apos;s the product of 20 years of
+              behind it isn&apos;t generic. It&apos;s the product of 20 years of
               designing for healthcare workers on 12-hour shifts, energy
               technicians in the field, hotel guests in a hurry, and millions
               of consumers who just want something that works.
@@ -400,7 +400,7 @@ export default function Home() {
             href="/score"
             className="inline-block bg-ladder-green text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-lg"
           >
-            Score a screen — free
+            Score a screen, free
           </Link>
         </div>
       </section>

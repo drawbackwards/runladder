@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = getProductBySlug(slug);
   if (!product) return {};
   return {
-    title: `${product.name} — Ladder Score ${product.score.toFixed(1)} (${getLevel(product.score)})`,
+    title: `${product.name} | Ladder Score ${product.score.toFixed(1)} (${getLevel(product.score)})`,
     description: product.verdict,
     openGraph: {
       title: `${product.name} scored ${product.score.toFixed(1)} on Ladder`,
@@ -175,7 +175,7 @@ export default async function ProductPage({ params }: Props) {
                 <p className="text-[10px] text-muted mt-1">{product.screenScore.source}</p>
               </>
             ) : (
-              <p className="text-xs text-muted">Pending — will be scored from public screenshots</p>
+              <p className="text-xs text-muted">Pending: will be scored from public screenshots</p>
             )}
           </div>
 
@@ -194,7 +194,7 @@ export default async function ProductPage({ params }: Props) {
                 </p>
               </>
             ) : (
-              <p className="text-xs text-muted">Pending — will aggregate G2, Reddit, App Store, and more</p>
+              <p className="text-xs text-muted">Pending: will aggregate G2, Reddit, App Store, and more</p>
             )}
           </div>
 

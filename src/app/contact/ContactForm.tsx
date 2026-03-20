@@ -52,7 +52,7 @@ export function ContactForm() {
         <p className="text-sm text-body leading-relaxed max-w-md mx-auto">
           Thanks for reaching out. Someone from our team will get back to
           you within one business day. In the meantime, try scoring a
-          screen — it&apos;s free.
+          screen. It&apos;s free.
         </p>
         <a
           href="/score"

@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Ladder for Teams — The quality standard for design organizations",
+  title: "Ladder for Teams | The quality standard for design organizations",
   description:
-    "Give your design team a shared quality bar. Brand standards, custom rubrics, designer dashboards, and score trends — all managed from one place. $12,000/year.",
+    "Give your design team a shared quality bar. Brand standards, custom rubrics, designer dashboards, and score trends, all managed from one place. $12,000/year.",
 };
 
 const CAPABILITIES = [
   {
     name: "Team Dashboard",
-    desc: "Every designer, every score, every trend — one view. See who's improving, who's shipping, and where your team's quality stands right now.",
+    desc: "Every designer, every score, every trend in one view. See who's improving, who's shipping, and where your team's quality stands right now.",
     detail: "Portfolio score, individual trends, activity feed, improvement velocity",
   },
   {
@@ -25,7 +25,7 @@ const CAPABILITIES = [
   },
   {
     name: "Design System Compliance",
-    desc: "Connect your design system. Ladder checks every screen against your tokens, components, and patterns — and tells designers exactly where they drifted.",
+    desc: "Connect your design system. Ladder checks every screen against your tokens, components, and patterns, then tells designers exactly where they drifted.",
     detail: "Figma library sync, token validation, component coverage, drift detection",
   },
   {
@@ -51,7 +51,7 @@ const WHAT_CHANGES = [
   },
   {
     before: "You find out about quality problems at review time",
-    after: "Dashboard shows drift in real time — intervene early, not late",
+    after: "Dashboard shows drift in real time. Intervene early, not late",
   },
   {
     before: "Design system compliance is a manual audit",
@@ -93,7 +93,7 @@ export default function TeamsPage() {
           </h1>
           <p className="text-lg text-body max-w-2xl mx-auto mb-12 leading-relaxed">
             Load your brand standards, encode your design leadership's
-            priorities, connect your design system — and every Ladder score
+            priorities, connect your design system, and every Ladder score
             your team runs reflects what quality means to{" "}
             <em>your</em> organization. Not generic. Yours.
           </p>
@@ -139,7 +139,7 @@ export default function TeamsPage() {
               A Ladder score is already honest. But a Ladder score
               calibrated to your organization is transformative. It
               doesn't just tell a designer &ldquo;this screen is a
-              2.4&rdquo; — it tells them &ldquo;this screen is a 2.4
+              2.4.&rdquo; It tells them &ldquo;this screen is a 2.4
               because it violates your brand's density principles and
               drifts from your design system's spacing tokens.&rdquo;
             </p>
@@ -256,7 +256,7 @@ export default function TeamsPage() {
               The difference: behind the scenes, their score now factors
               in your brand standards, your leadership's priorities, and
               your design system. The coaching cards don't just say
-              &ldquo;improve spacing&rdquo; — they say &ldquo;your 12px
+              &ldquo;improve spacing.&rdquo; They say &ldquo;your 12px
               gap doesn't match your system's 16px base unit.&rdquo;
             </p>
             <p className="text-foreground font-medium">

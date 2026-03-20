@@ -24,12 +24,12 @@ const ROLES = [
   },
   {
     role: "CTO / CIO",
-    pain: "You're investing millions in digital products but have no quality metric equivalent to what manufacturing has had for decades. You measure uptime, performance, and security — but not whether people can actually use the thing.",
+    pain: "You're investing millions in digital products but have no quality metric equivalent to what manufacturing has had for decades. You measure uptime, performance, and security, but not whether people can actually use the thing.",
     solve: "Ladder is the quality metric you've been missing. Bake it into your CI/CD pipeline. Gate deployments. Track quality trends alongside your technical metrics. Finally measure the human side of your technology investment.",
   },
   {
     role: "CEO / COO",
-    pain: "Customer satisfaction surveys arrive quarterly. By the time you see the data, the damage is done. You know experience matters but have no leading indicator — only lagging ones.",
+    pain: "Customer satisfaction surveys arrive quarterly. By the time you see the data, the damage is done. You know experience matters but have no leading indicator, only lagging ones.",
     solve: "Ladder scores are a leading indicator of customer satisfaction. You see quality before users do. Set organizational policy: nothing ships below a 3. Watch NPS follow.",
   },
 ];
@@ -105,7 +105,7 @@ export default function OrganizationsPage() {
               Design thinks the product is polished. Engineering thinks
               it matches spec. Product thinks it&apos;s ready to ship. The CEO
               sees it and asks why it feels clunky. Users churn and nobody
-              knows why — because nobody was measuring the same thing.
+              knows why, because nobody was measuring the same thing.
             </p>
             <p>
               Manufacturing solved this decades ago with Six Sigma and
@@ -142,7 +142,7 @@ export default function OrganizationsPage() {
                 3.2, they know the investment is working.
               </p>
               <p className="text-body leading-relaxed">
-                The five rungs of the Ladder aren&apos;t arbitrary — they
+                The five rungs of the Ladder aren&apos;t arbitrary. They
                 represent distinct levels of experience quality that have been
                 validated across thousands of real products over two decades.
                 This isn&apos;t a framework someone invented last year. It&apos;s
@@ -253,7 +253,7 @@ export default function OrganizationsPage() {
               means, and a system that only works inside your walls. Ladder
               gives you an external, objective standard that your teams
               can adopt immediately and that benchmarks you against the
-              industry — not just against yourselves.
+              industry, not just against yourselves.
             </p>
             <p className="text-foreground font-medium">
               You don&apos;t build your own credit scoring system. You
@@ -339,7 +339,7 @@ export default function OrganizationsPage() {
                 <span className="text-ladder-green">your team works.</span>
               </h2>
               <p className="text-body leading-relaxed">
-                Ladder isn&apos;t a destination — it&apos;s a layer that sits
+                Ladder isn&apos;t a destination. It&apos;s a layer that sits
                 on top of your existing tools and workflows. Designers score
                 in Figma. Engineers gate deploys via API. PMs track trends
                 on the dashboard. Leadership sees the portfolio view.
@@ -349,7 +349,7 @@ export default function OrganizationsPage() {
               {[
                 { surface: "runladder.com", desc: "Upload a screenshot and get a score in seconds. No installs, no configuration." },
                 { surface: "Ladder for Figma", desc: "Score screens without leaving your design tool. Built into the workflow designers already use." },
-                { surface: "Ladder API", desc: "Bake quality scoring into CI/CD. Every deploy, every PR — automatically scored before it reaches users." },
+                { surface: "Ladder API", desc: "Bake quality scoring into CI/CD. Every deploy, every PR, automatically scored before it reaches users." },
                 { surface: "Ladder Pulse", desc: "Turn customer feedback, support logs, and field reports into a quality score that tracks real experience." },
               ].map((s) => (
                 <div

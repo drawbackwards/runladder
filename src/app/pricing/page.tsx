@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Pricing — Ladder",
+  title: "Pricing | Ladder",
   description:
     "Score your first screen free. Professional for $19/mo. Organization for $35/seat/mo. One subscription across all surfaces.",
 };
@@ -76,7 +76,7 @@ export default function PricingPage() {
             Simple pricing. Score your first screen free.
           </h1>
           <p className="text-body max-w-lg mx-auto leading-relaxed">
-            One subscription works across every Ladder surface — web, Figma,
+            One subscription works across every Ladder surface: web, Figma,
             and Claude. Start free, upgrade when you need more.
           </p>
         </div>
@@ -239,7 +239,7 @@ export default function PricingPage() {
               },
               {
                 q: "What counts as a score?",
-                a: "Each time you submit a screenshot or URL for Ladder analysis — on any surface — that\u2019s one score. Viewing history, sharing results, or browsing the Top 100 doesn\u2019t count.",
+                a: "Each time you submit a screenshot or URL for Ladder analysis on any surface, that\u2019s one score. Viewing history, sharing results, or browsing the Top 100 doesn\u2019t count.",
               },
               {
                 q: "Can I try Professional before paying?",
@@ -247,11 +247,11 @@ export default function PricingPage() {
               },
               {
                 q: "What\u2019s the difference between Organization and Enterprise?",
-                a: "Organization gives your team leaderboards, compliance scoring, and manager dashboards at $35/seat. Enterprise adds SSO, API access, custom calibration, and dedicated support \u2014 contact us for pricing.",
+                a: "Organization gives your team leaderboards, compliance scoring, and manager dashboards at $35/seat. Enterprise adds SSO, API access, custom calibration, and dedicated support. Contact us for pricing.",
               },
               {
                 q: "What is Ladder Pulse?",
-                a: "Pulse is our enterprise experience measurement platform. It ingests feedback from any source \u2014 customer reviews, field reports, internal ops, employee surveys \u2014 and maps it to a Ladder score with custom dashboards. Starting at $100K/year.",
+                a: "Pulse is our enterprise experience measurement platform. It ingests feedback from any source, including customer reviews, field reports, internal ops, and employee surveys, then maps it to a Ladder score with custom dashboards. Starting at $100K/year.",
               },
             ].map((faq) => (
               <div key={faq.q}>
