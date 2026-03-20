@@ -112,21 +112,49 @@ export default function BlogPage() {
           </div>
         </div>
 
-        {/* Subscribe CTA */}
-        <div className="mt-16 border border-border bg-card/30 p-8 text-center">
+        {/* Top 100 CTA */}
+        <div className="mt-16 border border-border bg-card/30 p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-bold text-foreground">
+              Explore the Ladder Top 100
+            </p>
+            <p className="text-xs text-body mt-1">
+              Pulse scores, Screen scores, and the reality gap for 36 of the world&apos;s most-used products.
+            </p>
+          </div>
+          <Link
+            href="/top-100"
+            className="whitespace-nowrap text-sm font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors"
+          >
+            View the Top 100 &rarr;
+          </Link>
+        </div>
+
+        {/* Pulse CTA */}
+        <div className="mt-4 border border-ladder-green/20 bg-ladder-green/5 p-8 text-center">
+          <p className="font-mono text-[10px] text-ladder-green uppercase tracking-widest mb-3">
+            Ladder Pulse
+          </p>
           <h2 className="text-lg font-bold text-foreground mb-2">
-            New scores drop every quarter
+            What would Pulse reveal about your product?
           </h2>
           <p className="text-sm text-body max-w-md mx-auto mb-6">
-            Product teardowns, scoring updates, and framework insights. No spam,
-            no fluff — just honest measurement.
+            The same AI intelligence engine behind every score on this blog — pointed at your customer data. One honest score.
           </p>
-          <Link
-            href="/contact"
-            className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
-          >
-            Get notified
-          </Link>
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            <Link
+              href="/contact"
+              className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
+            >
+              Request a Pulse demo
+            </Link>
+            <Link
+              href="/score"
+              className="inline-block font-semibold text-sm text-ladder-green hover:text-ladder-green/80 transition-colors"
+            >
+              Or score a screen free &rarr;
+            </Link>
+          </div>
         </div>
       </div>
     </div>

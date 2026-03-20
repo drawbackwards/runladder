@@ -241,19 +241,58 @@ export default async function BlogPostPage({ params }: Props) {
           )}
         </div>
 
-        {/* CTA */}
-        <div className="border border-ladder-green/20 bg-ladder-green/5 p-8 text-center">
-          <p className="text-lg font-bold text-foreground mb-2">
-            How does your product score?
+        {/* Top 100 CTA */}
+        <div className="border border-border bg-card/30 p-8 mb-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-bold text-foreground">
+                Explore the Ladder Top 100
+              </p>
+              <p className="text-xs text-body mt-1">
+                See Pulse scores, Screen scores, and the gap for 36 of the world&apos;s most-used products.
+              </p>
+            </div>
+            <Link
+              href="/top-100"
+              className="whitespace-nowrap text-sm font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors"
+            >
+              View the Top 100 &rarr;
+            </Link>
+          </div>
+        </div>
+
+        {/* Pulse Demo CTA */}
+        <div className="border border-ladder-green/20 bg-ladder-green/5 p-8 mb-6 text-center">
+          <p className="font-mono text-[10px] text-ladder-green uppercase tracking-widest mb-3">
+            Ladder Pulse
           </p>
-          <p className="text-sm text-body mb-6">
-            Same framework, same honesty. Free, no signup.
+          <p className="text-lg font-bold text-foreground mb-2">
+            What would Pulse reveal about your organization?
+          </p>
+          <p className="text-sm text-body max-w-md mx-auto mb-6">
+            The same intelligence engine behind every score in this article — pointed at your customer data, your reviews, your support tickets. One honest score.
+          </p>
+          <Link
+            href="/contact"
+            className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
+          >
+            Request a Pulse demo
+          </Link>
+        </div>
+
+        {/* Score CTA */}
+        <div className="border border-border bg-card/30 p-8 text-center">
+          <p className="text-sm font-bold text-foreground mb-2">
+            Score a screen right now
+          </p>
+          <p className="text-xs text-body mb-4">
+            Upload a screenshot and get a Ladder Score in seconds. Free, no signup.
           </p>
           <Link
             href="/score"
-            className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
+            className="inline-block font-semibold text-sm text-ladder-green hover:text-ladder-green/80 transition-colors"
           >
-            Score your product
+            Try the free scorer &rarr;
           </Link>
         </div>
 
