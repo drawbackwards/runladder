@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Ladder for Teams — The quality standard for design organizations",
   description:
-    "Give your design team a shared quality bar. Brand standards, custom rubrics, designer dashboards, and score trends — all managed from one place. Starting at $8,000/year.",
+    "Give your design team a shared quality bar. Brand standards, custom rubrics, designer dashboards, and score trends — all managed from one place. $12,000/year.",
 };
 
 const CAPABILITIES = [
