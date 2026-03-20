@@ -14,13 +14,13 @@ export default function PulsePage() {
       {/* ── Hero ── */}
       <section className="pt-40 pb-36 px-6">
         <div className="max-w-4xl mx-auto">
-          <p className="font-mono text-xs text-ladder-green uppercase tracking-widest mb-8">
+          <p className="font-mono text-xs text-ladder-purple uppercase tracking-widest mb-8">
             Ladder Pulse
           </p>
           <h1 className="text-[2.5rem] md:text-[4.5rem] font-bold tracking-tight leading-[1.05] mb-8">
             Customer data in.
             <br />
-            <span className="text-ladder-green">Quality score out.</span>
+            <span className="text-ladder-purple">Quality score out.</span>
           </h1>
           <p className="text-xl text-body max-w-2xl leading-relaxed mb-12">
             Every organization generates signals about the quality of the
@@ -30,7 +30,7 @@ export default function PulsePage() {
           <div className="flex items-center gap-6 flex-wrap">
             <Link
               href="/contact"
-              className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-base"
+              className="bg-ladder-purple text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-purple/90 transition-colors text-base"
             >
               Talk to us about Pulse
             </Link>
@@ -267,7 +267,7 @@ export default function PulsePage() {
           <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
             Everyone you serve has a voice.
             <br />
-            <span className="text-ladder-green">Pulse makes it count.</span>
+            <span className="text-ladder-purple">Pulse makes it count.</span>
           </h2>
           <div className="space-y-6 text-body leading-relaxed">
             <p>
@@ -302,7 +302,7 @@ export default function PulsePage() {
             </p>
             <h2 className="text-[2rem] font-bold mb-6">
               Pulse listens to{" "}
-              <span className="text-ladder-green">everything</span>
+              <span className="text-ladder-purple">everything</span>
             </h2>
           </div>
 
@@ -337,12 +337,12 @@ export default function PulsePage() {
           </p>
           <h2 className="text-[2rem] font-bold mb-16">
             From raw signal to{" "}
-            <span className="text-ladder-green">trusted score</span>
+            <span className="text-ladder-purple">trusted score</span>
           </h2>
 
           <div className="space-y-16">
             <div className="grid grid-cols-[60px_1fr] gap-6 items-start">
-              <span className="font-mono text-3xl font-bold text-ladder-green/30">01</span>
+              <span className="font-mono text-3xl font-bold text-ladder-purple/30">01</span>
               <div>
                 <h3 className="text-lg font-bold text-foreground mb-3">Connect your signals</h3>
                 <p className="text-body leading-relaxed">
@@ -356,7 +356,7 @@ export default function PulsePage() {
             </div>
 
             <div className="grid grid-cols-[60px_1fr] gap-6 items-start">
-              <span className="font-mono text-3xl font-bold text-ladder-green/30">02</span>
+              <span className="font-mono text-3xl font-bold text-ladder-purple/30">02</span>
               <div>
                 <h3 className="text-lg font-bold text-foreground mb-3">Map to the Ladder</h3>
                 <p className="text-body leading-relaxed">
@@ -371,7 +371,7 @@ export default function PulsePage() {
             </div>
 
             <div className="grid grid-cols-[60px_1fr] gap-6 items-start">
-              <span className="font-mono text-3xl font-bold text-ladder-green/30">03</span>
+              <span className="font-mono text-3xl font-bold text-ladder-purple/30">03</span>
               <div>
                 <h3 className="text-lg font-bold text-foreground mb-3">Your interface, your context</h3>
                 <p className="text-body leading-relaxed">
@@ -386,7 +386,7 @@ export default function PulsePage() {
             </div>
 
             <div className="grid grid-cols-[60px_1fr] gap-6 items-start">
-              <span className="font-mono text-3xl font-bold text-ladder-green/30">04</span>
+              <span className="font-mono text-3xl font-bold text-ladder-purple/30">04</span>
               <div>
                 <h3 className="text-lg font-bold text-foreground mb-3">Watch the score move</h3>
                 <p className="text-body leading-relaxed">
@@ -429,13 +429,13 @@ export default function PulsePage() {
                 className="border border-border rounded-xl p-8 bg-card"
               >
                 <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-6">
-                  <span className="font-mono text-xs text-ladder-green uppercase tracking-widest">
+                  <span className="font-mono text-xs text-ladder-purple uppercase tracking-widest">
                     {uc.industry}
                   </span>
                   <div className="space-y-4">
                     <p className="text-sm text-foreground font-semibold">{uc.problem}</p>
                     <p className="text-sm text-body leading-relaxed">{uc.how}</p>
-                    <p className="text-sm text-ladder-green">{uc.outcome}</p>
+                    <p className="text-sm text-ladder-purple">{uc.outcome}</p>
                   </div>
                 </div>
               </div>
@@ -453,7 +453,7 @@ export default function PulsePage() {
           <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
             Transform the way you improve
             <br />
-            <span className="text-ladder-green">every experience you deliver.</span>
+            <span className="text-ladder-purple">every experience you deliver.</span>
           </h2>
           <div className="space-y-6 text-body leading-relaxed">
             <p>
@@ -507,7 +507,7 @@ export default function PulsePage() {
               "Dedicated onboarding and ongoing support",
             ].map((item) => (
               <p key={item} className="text-sm text-body flex items-start gap-2">
-                <span className="text-ladder-green mt-0.5 flex-shrink-0">+</span>
+                <span className="text-ladder-purple mt-0.5 flex-shrink-0">+</span>
                 {item}
               </p>
             ))}
@@ -515,7 +515,7 @@ export default function PulsePage() {
           <div>
             <Link
               href="/contact"
-              className="inline-block bg-ladder-green text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-lg"
+              className="inline-block bg-ladder-purple text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-purple/90 transition-colors text-lg"
             >
               Talk to us about Pulse
             </Link>
