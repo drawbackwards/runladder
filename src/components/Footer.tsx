@@ -13,7 +13,6 @@ export function Footer() {
               <li><Link href="/score" className="hover:text-foreground transition-colors">Score a screen</Link></li>
               <li><Link href="/framework" className="hover:text-foreground transition-colors">Framework</Link></li>
               <li><Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
-              <li><Link href="/api" className="hover:text-foreground transition-colors">API</Link></li>
             </ul>
           </div>
           <div>
@@ -22,9 +21,8 @@ export function Footer() {
             </h4>
             <ul className="space-y-3 text-sm text-body">
               <li><Link href="/products" className="hover:text-foreground transition-colors">Ladder for Figma</Link></li>
-              <li><Link href="/products" className="hover:text-foreground transition-colors">Ladder Pulse</Link></li>
               <li><Link href="/products" className="hover:text-foreground transition-colors">Ladder for Claude</Link></li>
-              <li><Link href="/products" className="hover:text-foreground transition-colors">Ladder API</Link></li>
+              <li><Link href="/pulse" className="hover:text-foreground transition-colors">Ladder Pulse</Link></li>
             </ul>
           </div>
           <div>

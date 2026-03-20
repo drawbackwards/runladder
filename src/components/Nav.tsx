@@ -26,9 +26,6 @@ export function Nav() {
           <Link href="/pricing" className="hover:text-foreground transition-colors">
             Pricing
           </Link>
-          <Link href="/api" className="hover:text-foreground transition-colors">
-            API
-          </Link>
         </div>
 
         <div className="flex items-center gap-6">
