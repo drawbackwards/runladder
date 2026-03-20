@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Products — Ladder",
+  title: "Products | Ladder",
   description:
     "One quality score across every surface. Score in your browser, in Figma, from customer feedback, through Claude, or via API.",
 };
@@ -13,7 +13,7 @@ const SURFACES = [
     badge: "Web",
     tagline: "Upload a screenshot. Get the truth.",
     description:
-      "The fastest path to knowing where your product stands. Drop a screenshot, paste a URL, or upload a design — and get an honest Ladder score in seconds. No installs, no plugins, no friction. Just the truth about your experience quality.",
+      "The fastest path to knowing where your product stands. Drop a screenshot, paste a URL, or upload a design and get an honest Ladder score in seconds. No installs, no plugins, no friction. Just the truth about your experience quality.",
     features: [
       "Overall Ladder score with per-rung breakdown",
       "Ranked findings with exact fix instructions",
@@ -30,9 +30,9 @@ const SURFACES = [
     badge: "Plugin",
     tagline: "Know your score before you hand off.",
     description:
-      "Score any frame while you design. The plugin sees your actual layout, typography, color, spacing, and hierarchy — and scores it against the Ladder framework in context. Stop shipping screens that look done but feel broken.",
+      "Score any frame while you design. The plugin sees your actual layout, typography, color, spacing, and hierarchy, then scores it against the Ladder framework in context. Stop shipping screens that look done but feel broken.",
     features: [
-      "In-canvas scoring — select a frame, get a score",
+      "In-canvas scoring: select a frame, get a score",
       "Per-rung breakdown (Meaningful through Functional)",
       "Coaching cards with fix-by-fix guidance",
       "Design system generation from your existing patterns",
@@ -47,7 +47,7 @@ const SURFACES = [
     badge: "Feedback Intelligence",
     tagline: "Score the lived experience, not just the screen.",
     description:
-      "Screens only tell half the story. Pulse ingests what real people say — customer reviews, support logs, survey responses, field reports, NPS comments — and scores the actual lived experience against the Ladder framework. The gap between your screen score and your Pulse score is where the real work lives.",
+      "Screens only tell half the story. Pulse ingests what real people say: customer reviews, support logs, survey responses, field reports, NPS comments. It scores the actual lived experience against the Ladder framework. The gap between your screen score and your Pulse score is where the real work lives.",
     features: [
       "Ingest reviews, surveys, support tickets, field reports",
       "Per-rung scoring from real human language",
@@ -80,7 +80,7 @@ const SURFACES = [
     badge: "Infrastructure",
     tagline: "Bake quality into your pipeline.",
     description:
-      "Every deploy, every PR, every AI-generated screen — automatically scored before it reaches users. The API is the backbone that powers every Ladder surface and is available for you to integrate into your own tools, CI/CD pipelines, and AI workflows.",
+      "Every deploy, every PR, every AI-generated screen, automatically scored before it reaches users. The API is the backbone that powers every Ladder surface and is available for you to integrate into your own tools, CI/CD pipelines, and AI workflows.",
     features: [
       "REST API with per-rung scoring",
       "MCP server for AI agent integration",
@@ -97,7 +97,7 @@ const SURFACES = [
     badge: "Expert Services",
     tagline: "The team behind Ladder, embedded with yours.",
     description:
-      "Some problems need more than a score — they need the people who built the scoring system. Drawbackwards brings 20 years of design execution to your team: sprint-by-sprint design work, Ladder-powered audits, design system builds, team mentoring, and custom Pulse deployments for enterprise feedback intelligence.",
+      "Some problems need more than a score. They need the people who built the scoring system. Drawbackwards brings 20 years of design execution to your team: sprint-by-sprint design work, Ladder-powered audits, design system builds, team mentoring, and custom Pulse deployments for enterprise feedback intelligence.",
     features: [
       "Ladder-scored UX audits with prioritized roadmaps",
       "Design system creation and migration",
@@ -252,7 +252,7 @@ export default function ProductsPage() {
           </h2>
           <p className="text-body leading-relaxed max-w-xl mx-auto mb-10">
             Score a screen on the web, check it in Figma, reference it in
-            Claude, pull it from the API — it&apos;s the same score, the same
+            Claude, pull it from the API. It&apos;s the same score, the same
             history, the same account. One subscription unlocks every surface.
           </p>
           <div className="flex items-center justify-center gap-6">
@@ -266,7 +266,7 @@ export default function ProductsPage() {
               href="/score"
               className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-base"
             >
-              Score a screen — free
+              Score a screen, free
             </Link>
           </div>
         </div>

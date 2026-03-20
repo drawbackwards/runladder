@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { ContactForm } from "./ContactForm";
 
 export const metadata: Metadata = {
-  title: "Let's build something worth measuring — Ladder",
+  title: "Let's build something worth measuring | Ladder",
   description:
-    "Talk to the team behind Ladder. Whether you need enterprise scoring, Pulse deployment, or a design partner — we're ready.",
+    "Talk to the team behind Ladder. Whether you need enterprise scoring, Pulse deployment, or a design partner, we're ready.",
 };
 
 export default function ContactPage() {
@@ -24,7 +24,7 @@ export default function ContactPage() {
           <p className="text-lg text-body leading-relaxed">
             You&apos;ve built the product. You&apos;ve shipped the features.
             But how do you know it&apos;s actually good? Ladder gives your
-            entire team a shared definition of quality — one score, one
+            entire team a shared definition of quality: one score, one
             framework, one language from design to the boardroom.
           </p>
         </div>
@@ -45,7 +45,7 @@ export default function ContactPage() {
                 {[
                   {
                     title: "Designers stop debating taste",
-                    body: "Every critique is anchored to the Ladder. No more subjective arguments — just measurable quality gaps and a clear path up.",
+                    body: "Every critique is anchored to the Ladder. No more subjective arguments, just measurable quality gaps and a clear path up.",
                   },
                   {
                     title: "PMs ship with confidence",
@@ -99,7 +99,7 @@ export default function ContactPage() {
                 , a product design agency that&apos;s spent two decades
                 helping Fortune 50 companies and ambitious startups ship
                 better experiences. We didn&apos;t build a scoring tool
-                from theory — we built it from 10,000+ screens reviewed,
+                from theory. We built it from 10,000+ screens reviewed,
                 hundreds of products shipped, and billions of dollars in
                 value created for our clients.
               </p>

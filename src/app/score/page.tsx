@@ -85,7 +85,7 @@ function AnimatedScore({ target }: { target: number }) {
 
 /* ── Social share helpers ── */
 function ShareButtons({ score, label, summary }: { score: number; label: string; summary: string }) {
-  const text = `My Ladder Score: ${score.toFixed(1)} (${label}) — ${summary}`;
+  const text = `My Ladder Score: ${score.toFixed(1)} (${label}). ${summary}`;
   const url = "https://runladder.com/score";
 
   return (
@@ -362,7 +362,7 @@ export default function ScorePage() {
                 <span className="text-ladder-green">earned its score.</span>
               </h1>
               <p className="text-sm text-body mt-4 max-w-md mx-auto leading-relaxed">
-                Drop a screen. Get the number. See exactly what to fix — and what level your experience is really at.
+                Drop a screen. Get the number. See exactly what to fix, and what level your experience is really at.
               </p>
             </div>
 

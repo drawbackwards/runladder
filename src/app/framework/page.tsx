@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LEVELS as LADDER_LEVELS } from "@/lib/ladder";
 
 export const metadata: Metadata = {
-  title: "The Ladder Framework — How UX Quality Is Measured",
+  title: "The Ladder Framework | How UX Quality Is Measured",
   description:
     "Five levels from Meaningful to Functional. Learn how Ladder scores every experience on a 1.0 to 5.0 scale.",
 };
@@ -22,7 +22,7 @@ const LEVELS = [
       "Unique value that can't be replicated",
       "Deep integration into workflow or life",
       "Emotional attachment to the product",
-      "Active advocacy — users recruit others",
+      "Active advocacy: users recruit others",
       "The product defines its category",
     ],
     truth:
@@ -45,7 +45,7 @@ const LEVELS = [
       "Moments of surprise and satisfaction",
     ],
     truth:
-      "This is where products become loved. The team isn't just removing friction — they're adding intelligence.",
+      "This is where products become loved. The team isn't just removing friction. They're adding intelligence.",
   },
   {
     score: "3",
@@ -53,7 +53,7 @@ const LEVELS = [
     color: LADDER_LEVELS[2].color,
     tagline: "No thinking required.",
     oneLiner:
-      "Everything where expected. The interface is intuitive — users feel their way through without conscious thought. This is the modern minimum bar.",
+      "Everything where expected. The interface is intuitive, and users feel their way through without conscious thought. This is the modern minimum bar.",
     experienceTest:
       "Does the interface feel intuitive? Can users navigate by feel rather than by reading?",
     signals: [
@@ -83,7 +83,7 @@ const LEVELS = [
       "User succeeds despite the design",
     ],
     truth:
-      "Most apps and websites score here. The work is functional, sometimes even pretty — but the experience still costs the user energy.",
+      "Most apps and websites score here. The work is functional, sometimes even pretty, but the experience still costs the user energy.",
   },
   {
     score: "1",
@@ -123,7 +123,7 @@ export default function FrameworkPage() {
           <p className="text-base text-body max-w-xl mx-auto leading-relaxed">
             One number. Five levels. Twenty years of product design distilled
             into a universal quality score that tells you exactly where your
-            experience stands — and what it takes to reach the next level.
+            experience stands, and what it takes to reach the next level.
           </p>
         </div>
 
@@ -133,8 +133,8 @@ export default function FrameworkPage() {
             <span className="text-foreground font-semibold">
               Ladder doesn&apos;t flatter.
             </span>{" "}
-            Most products are Level 1 or 2. Level 3 is the modern minimum —
-            it must be earned. Level 5 is the ceiling. If you want an honest
+            Most products are Level 1 or 2. Level 3 is the modern minimum,
+            and it must be earned. Level 5 is the ceiling. If you want an honest
             answer, you&apos;re in the right place.
           </p>
         </div>
@@ -247,7 +247,7 @@ export default function FrameworkPage() {
               {
                 step: "02",
                 title: "AI evaluates against the framework",
-                body: "Visual hierarchy, interaction patterns, spacing, feedback, accessibility — scored against twenty years of product design criteria.",
+                body: "Visual hierarchy, interaction patterns, spacing, feedback, accessibility: scored against twenty years of product design criteria.",
               },
               {
                 step: "03",
@@ -282,7 +282,7 @@ export default function FrameworkPage() {
 
           <p className="text-sm text-body text-center max-w-lg mx-auto mb-10 leading-relaxed">
             Ladder adapts to any domain where humans interact with a designed
-            experience. The framework is universal — the evaluation is specific.
+            experience. The framework is universal. The evaluation is specific.
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

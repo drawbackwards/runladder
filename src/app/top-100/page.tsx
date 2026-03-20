@@ -59,8 +59,8 @@ export default function Top100Page() {
             digital experience quality.
           </h1>
           <p className="text-base text-body max-w-xl mx-auto leading-relaxed">
-            Ladder Pulse scans thousands of sources — G2, Reddit, Trustpilot,
-            App Store, Hacker News, Product Hunt, and more — and combines that
+            Ladder Pulse scans thousands of sources, including G2, Reddit, Trustpilot,
+            App Store, Hacker News, and Product Hunt, then combines that
             intelligence with interface analysis to produce one score no other
             system can. No sponsorships. No paid placements. Just the truth.
           </p>
@@ -223,7 +223,7 @@ export default function Top100Page() {
             Think your product belongs here?
           </h2>
           <p className="text-sm text-body max-w-md mx-auto leading-relaxed mb-6">
-            Every product on this list was scored by Pulse — the same
+            Every product on this list was scored by Pulse, the same
             intelligence engine, the same framework, no exceptions. Score yours
             and see where you stand.
           </p>
@@ -253,15 +253,15 @@ export default function Top100Page() {
           {[
             {
               title: "Pulse Intelligence",
-              body: "Pulse ingests thousands of data points per product — G2, Capterra, Trustpilot, App Store, Reddit, Hacker News, Product Hunt, and community forums. Our AI maps every signal to the Ladder framework's five levels of experience quality. This is the lived experience score.",
+              body: "Pulse ingests thousands of data points per product from G2, Capterra, Trustpilot, App Store, Reddit, Hacker News, Product Hunt, and community forums. Our AI maps every signal to the Ladder framework's five levels of experience quality. This is the lived experience score.",
             },
             {
               title: "Screen Analysis",
-              body: "Public screenshots from marketing sites, review platforms, and product tours — analyzed by AI against the Ladder framework. This measures what the product looks like. The gap between Screen and Pulse scores is where the real insight lives.",
+              body: "Public screenshots from marketing sites, review platforms, and product tours, analyzed by AI against the Ladder framework. This measures what the product looks like. The gap between Screen and Pulse scores is where the real insight lives.",
             },
             {
               title: "Company Verified",
-              body: "Companies can submit demo links and real product screenshots for a more accurate screen analysis. Verified scores are flagged. But Pulse scores can't be influenced — they come directly from real users.",
+              body: "Companies can submit demo links and real product screenshots for a more accurate screen analysis. Verified scores are flagged. But Pulse scores can't be influenced. They come directly from real users.",
             },
           ].map((item) => (
             <div key={item.title} className="border-t border-border pt-6">
@@ -285,7 +285,7 @@ export default function Top100Page() {
             },
             {
               title: "The gap is the story",
-              body: "A beautiful product with a low Pulse score is a warning — the team invests in appearance over substance. An unremarkable product with a high Pulse score is an opportunity. Pulse finds both.",
+              body: "A beautiful product with a low Pulse score is a warning: the team invests in appearance over substance. An unremarkable product with a high Pulse score is an opportunity. Pulse finds both.",
             },
           ].map((item) => (
             <div key={item.title} className="border-t border-border pt-6">

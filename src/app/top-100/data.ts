@@ -55,7 +55,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 4.3, source: "Marketing site and product screenshots" },
     pulseScore: { score: 4.2, source: "G2 4.6/5 (2.1K reviews), Reddit sentiment very positive, Product Hunt highly rated", sourceCount: 3200 },
     scoreDisclaimer: "Pulse score from 3,200+ data points",
-    description: "Linear has become the benchmark that other developer tools measure themselves against. The interface is fast — not marketing-fast, but perceptibly instant. Every interaction feels like it was designed by someone who uses the product daily. The keyboard-first philosophy isn't a gimmick; it's woven into every workflow. Where most project management tools add features by adding screens, Linear adds features by making existing screens smarter.",
+    description: "Linear has become the benchmark that other developer tools measure themselves against. The interface is fast. Not marketing-fast, but perceptibly instant. Every interaction feels like it was designed by someone who uses the product daily. The keyboard-first philosophy isn't a gimmick; it's woven into every workflow. Where most project management tools add features by adding screens, Linear adds features by making existing screens smarter.",
     strengths: [
       "Sub-100ms response on every interaction",
       "Keyboard shortcuts that form a coherent language",
@@ -80,7 +80,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 4.1, source: "Marketing site and product screenshots" },
     pulseScore: { score: 2.8, source: "G2 4.5/5 (2.5K reviews), Reddit mixed (performance complaints), App Store 3.2/5", sourceCount: 4100 },
     scoreDisclaimer: "Pulse score from 4,100+ data points",
-    description: "Notion took the radical bet that one tool could replace many — and largely won. The block-based editor is genuinely flexible, and the database system enables workflows that would require three other tools. The learning curve is real, but the payoff is a workspace that shapes itself around how you think. The gap between 'getting started' and 'getting productive' is where Notion still loses people.",
+    description: "Notion took the radical bet that one tool could replace many, and largely won. The block-based editor is genuinely flexible, and the database system enables workflows that would require three other tools. The learning curve is real, but the payoff is a workspace that shapes itself around how you think. The gap between 'getting started' and 'getting productive' is where Notion still loses people.",
     strengths: [
       "Block-based editing that actually works",
       "Database views that replace spreadsheets and project tools",
@@ -100,11 +100,11 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     url: "dashboard.stripe.com",
     category: "Fintech",
     score: 4.0,
-    verdict: "Complexity made legible — developer-grade clarity for finance",
+    verdict: "Complexity made legible: developer-grade clarity for finance",
     screenScore: { score: 4.0, source: "Dashboard screenshots and product tours" },
     pulseScore: { score: 3.1, source: "G2 4.3/5 (1.1K reviews), Reddit developer sentiment positive, Trustpilot 1.6/5 (merchant complaints)", sourceCount: 2800 },
     scoreDisclaimer: "Pulse score from 2,800+ data points",
-    description: "Stripe's dashboard handles an extraordinary amount of complexity — payments, subscriptions, invoicing, fraud detection, tax compliance — and makes most of it navigable. The information architecture is remarkably clear for the density of data presented. Where it falls short of a higher score is in progressive disclosure; some workflows still require too many clicks to reach critical information.",
+    description: "Stripe's dashboard handles an extraordinary amount of complexity (payments, subscriptions, invoicing, fraud detection, tax compliance) and makes most of it navigable. The information architecture is remarkably clear for the density of data presented. Where it falls short of a higher score is in progressive disclosure; some workflows still require too many clicks to reach critical information.",
     strengths: [
       "Information architecture handles massive complexity",
       "Developer-oriented precision in every data display",
@@ -128,7 +128,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 3.9, source: "Dashboard screenshots and deploy UI" },
     pulseScore: { score: 3.4, source: "G2 4.5/5 (400+ reviews), Reddit developer sentiment positive, HN mixed on pricing", sourceCount: 1200 },
     scoreDisclaimer: "Pulse score from 1,200+ data points",
-    description: "Vercel has turned deployment into a design problem and solved it with taste. The dashboard communicates complex infrastructure states — builds, domains, environments, logs — through a visual language that feels calm even when things go wrong. The biggest delta this quarter reflects their investment in making the analytics and monitoring surfaces match the quality of the deploy experience.",
+    description: "Vercel has turned deployment into a design problem and solved it with taste. The dashboard communicates complex infrastructure states (builds, domains, environments, logs) through a visual language that feels calm even when things go wrong. The biggest delta this quarter reflects their investment in making the analytics and monitoring surfaces match the quality of the deploy experience.",
     strengths: [
       "Deployment feedback loop is best-in-class",
       "Error states are informative, not alarming",
@@ -150,7 +150,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 3.9, source: "Product screenshots and design workflows" },
     pulseScore: { score: 3.8, source: "G2 4.7/5 (1.1K reviews), Reddit very positive, Product Hunt top-rated", sourceCount: 2600 },
     scoreDisclaimer: "Pulse score from 2,600+ data points",
-    description: "Figma proved that design tools could be multiplayer. The real-time collaboration isn't a feature — it's the foundation everything else is built on. The plugin ecosystem, component system, and prototyping tools are all strong. Where Figma loses points is in the growing complexity of its own interface; features added since the Adobe acquisition attempt have started to create navigation overhead.",
+    description: "Figma proved that design tools could be multiplayer. The real-time collaboration isn't a feature. It's the foundation everything else is built on. The plugin ecosystem, component system, and prototyping tools are all strong. Where Figma loses points is in the growing complexity of its own interface; features added since the Adobe acquisition attempt have started to create navigation overhead.",
     strengths: [
       "Real-time collaboration that actually works at scale",
       "Component and variant system enables true design systems",
@@ -174,7 +174,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 3.8, source: "Product screenshots and browser UI" },
     pulseScore: { score: 2.6, source: "Reddit polarized (love/hate), Product Hunt 4.2/5, App Store 3.1/5, stability complaints", sourceCount: 1800 },
     scoreDisclaimer: "Pulse score from 1,800+ data points",
-    description: "Arc made the bold bet that the browser's frame — the chrome around the web — deserved a complete rethink. Spaces, Boosts, and the sidebar model genuinely improve how you organize browsing. The slight downward movement reflects stability issues in recent updates and the tension between innovation and reliability in a tool people depend on every minute of the day.",
+    description: "Arc made the bold bet that the browser's frame, the chrome around the web, deserved a complete rethink. Spaces, Boosts, and the sidebar model genuinely improve how you organize browsing. The slight downward movement reflects stability issues in recent updates and the tension between innovation and reliability in a tool people depend on every minute of the day.",
     strengths: [
       "Sidebar navigation is genuinely better than tab bars",
       "Spaces concept maps to how people actually work",
@@ -193,11 +193,11 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     url: "raycast.com",
     category: "Productivity",
     score: 3.8,
-    verdict: "Speed is the feature — every interaction under 200ms",
+    verdict: "Speed is the feature: every interaction under 200ms",
     screenScore: { score: 3.8, source: "Product screenshots and extension UI" },
     pulseScore: { score: 4.2, source: "Product Hunt 4.8/5, Reddit overwhelmingly positive, HN enthusiastic adoption", sourceCount: 1500 },
     scoreDisclaimer: "Pulse score from 1,500+ data points",
-    description: "Raycast treats speed as its core design principle, and it shows. Every interaction — launching, searching, executing — feels instantaneous. The extension ecosystem turns it from a launcher into a command center. Where it excels is making complex workflows feel like one step. Where it struggles is in discoverability; the power is there, but finding it requires exploration.",
+    description: "Raycast treats speed as its core design principle, and it shows. Every interaction (launching, searching, executing) feels instantaneous. The extension ecosystem turns it from a launcher into a command center. Where it excels is making complex workflows feel like one step. Where it struggles is in discoverability; the power is there, but finding it requires exploration.",
     strengths: [
       "Perceptive speed across every interaction",
       "Extension ecosystem that replaces entire apps",
@@ -243,7 +243,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 3.8, source: "Product screenshots and email UI" },
     pulseScore: { score: 3.8, source: "G2 4.6/5 (400+ reviews), Reddit positive, price complaints balanced by speed praise", sourceCount: 900 },
     scoreDisclaimer: "Pulse score from 900+ data points",
-    description: "Superhuman proved that email — the most commoditized software category — could be reimagined through speed and intentional design constraints. The keyboard-first model, combined with AI features that actually save time, creates an experience that makes free alternatives feel sluggish. The premium pricing is justified by the time saved.",
+    description: "Superhuman proved that email, the most commoditized software category, could be reimagined through speed and intentional design constraints. The keyboard-first model, combined with AI features that actually save time, creates an experience that makes free alternatives feel sluggish. The premium pricing is justified by the time saved.",
     strengths: [
       "Email speed that makes alternatives feel broken",
       "Keyboard shortcuts that form muscle memory within days",
@@ -266,7 +266,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 3.6, source: "App screenshots and product UI" },
     pulseScore: { score: 2.4, source: "App Store 2.4/5 (iOS), Reddit mixed, discovery complaints vs Spotify", sourceCount: 8500 },
     scoreDisclaimer: "Pulse score from 8,500+ data points",
-    description: "Apple Music is visually polished — every screen feels considered and premium. The typography, album art presentation, and spatial audio features are best-in-class. But navigation remains the weak point. Finding your library, managing playlists, and discovering new music all require more taps and more memory than they should. Beauty without friction reduction caps the score.",
+    description: "Apple Music is visually polished. Every screen feels considered and premium. The typography, album art presentation, and spatial audio features are best-in-class. But navigation remains the weak point. Finding your library, managing playlists, and discovering new music all require more taps and more memory than they should. Beauty without friction reduction caps the score.",
     strengths: [
       "Visual design and typography set the standard for media apps",
       "Spatial audio implementation is genuinely immersive",
@@ -288,7 +288,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 3.6, source: "Admin dashboard screenshots" },
     pulseScore: { score: 2.9, source: "G2 4.4/5 (4.5K reviews), Trustpilot 1.7/5 (6K+ reviews), App Store 4.3/5, merchant frustrations", sourceCount: 15000 },
     scoreDisclaimer: "Pulse score from 15,000+ data points",
-    description: "Shopify's admin panel manages an absurd amount of functionality — inventory, orders, shipping, analytics, marketing, apps — and keeps it navigable for merchants who aren't technical. The progressive disclosure model works: simple stores see simple tools, complex stores unlock complexity. The Polaris design system ensures consistency across a massive surface area.",
+    description: "Shopify's admin panel manages an absurd amount of functionality (inventory, orders, shipping, analytics, marketing, apps) and keeps it navigable for merchants who aren't technical. The progressive disclosure model works: simple stores see simple tools, complex stores unlock complexity. The Polaris design system ensures consistency across a massive surface area.",
     strengths: [
       "Progressive disclosure matches complexity to merchant maturity",
       "Polaris design system ensures remarkable consistency",
@@ -307,7 +307,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     url: "duolingo.com",
     category: "Consumer",
     score: 3.6,
-    verdict: "Gamification done right — habit loops that actually teach",
+    verdict: "Gamification done right: habit loops that actually teach",
     screenScore: { score: 3.6, source: "App screenshots and lesson UI" },
     pulseScore: { score: 3.2, source: "App Store 4.7/5 (2.5M+ ratings), Reddit mixed on monetization, G2 4.5/5", sourceCount: 35000 },
     scoreDisclaimer: "Pulse score from 35,000+ data points",
@@ -330,11 +330,11 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     url: "github.com",
     category: "Developer Tools",
     score: 3.5,
-    verdict: "Dense but navigable — information architecture does the heavy lifting",
+    verdict: "Dense but navigable: information architecture does the heavy lifting",
     screenScore: { score: 3.5, source: "Product UI and workflow screenshots" },
     pulseScore: { score: 3.4, source: "G2 4.7/5 (12K reviews), Trustpilot 2.4/5 polarized, 2025 reliability crisis eroding trust", sourceCount: 50000 },
     scoreDisclaimer: "Pulse score from 50,000+ data points",
-    description: "GitHub manages an enormous information space — code, issues, pull requests, actions, packages, discussions — and keeps it usable through strong information architecture rather than visual simplicity. It's dense by necessity. The score reflects that density is well-managed but rarely delightful; most workflows are functional and efficient without ever feeling effortless.",
+    description: "GitHub manages an enormous information space (code, issues, pull requests, actions, packages, discussions) and keeps it usable through strong information architecture rather than visual simplicity. It's dense by necessity. The score reflects that density is well-managed but rarely delightful; most workflows are functional and efficient without ever feeling effortless.",
     strengths: [
       "Information architecture handles massive scale",
       "Code review workflow is the industry standard for a reason",
@@ -358,7 +358,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 3.5, source: "App screenshots and listening UI" },
     pulseScore: { score: 2.8, source: "Trustpilot 1.6/5 (5K reviews), App Store 4.8/5, Reddit frustrated, ConsumerAffairs mixed", sourceCount: 5000000 },
     scoreDisclaimer: "Pulse score from 5M+ data points",
-    description: "Spotify's recommendation engine remains its strongest UX feature — Discover Weekly, Daily Mixes, and algorithmic playlists genuinely surface music people love. The listening experience itself is solid. The downward delta reflects increasing frustration with library management, settings buried behind too many taps, and podcast integration that clutters the music experience.",
+    description: "Spotify's recommendation engine remains its strongest UX feature. Discover Weekly, Daily Mixes, and algorithmic playlists genuinely surface music people love. The listening experience itself is solid. The downward delta reflects increasing frustration with library management, settings buried behind too many taps, and podcast integration that clutters the music experience.",
     strengths: [
       "Discovery algorithms are best-in-class in any consumer app",
       "Listening experience across devices is seamless",
@@ -399,7 +399,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     url: "netflix.com",
     category: "Media",
     score: 3.4,
-    verdict: "Content discovery peaked years ago — the UI hasn't kept up",
+    verdict: "Content discovery peaked years ago. The UI hasn't kept up",
     screenScore: { score: 3.4, source: "App screenshots and browsing UI" },
     pulseScore: { score: 2.4, source: "Trustpilot 1.3/5 (25K+ reviews), App Store 3.8/5, Reddit frustrated with discovery/ads", sourceCount: 120000 },
     scoreDisclaimer: "Pulse score from 120,000+ data points",
@@ -421,11 +421,11 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     url: "loom.com",
     category: "Productivity",
     score: 3.4,
-    verdict: "Record-to-share in seconds — the core loop is pristine",
+    verdict: "Record-to-share in seconds: the core loop is pristine",
     screenScore: { score: 3.4, source: "Product screenshots and recording UI" },
     pulseScore: { score: 3.2, source: "G2 4.7/5 (2.3K reviews), Trustpilot 2.5/5, core record-share loop earns Comfortable but Atlassian migration eroding trust", sourceCount: 3000 },
     scoreDisclaimer: "Pulse score from 3,000+ data points",
-    description: "Loom's core interaction — record screen, get shareable link — is one of the tightest product loops in SaaS. Three clicks from thought to shared video. Where the score is held back: the viewing experience, organization of recorded content, and workspace management all feel like they were designed after the core recording feature shipped.",
+    description: "Loom's core interaction (record screen, get shareable link) is one of the tightest product loops in SaaS. Three clicks from thought to shared video. Where the score is held back: the viewing experience, organization of recorded content, and workspace management all feel like they were designed after the core recording feature shipped.",
     strengths: [
       "Recording-to-sharing flow is remarkably frictionless",
       "Viewer experience loads fast and works everywhere",
@@ -513,7 +513,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 3.2, source: "Dashboard screenshots and banking UI" },
     pulseScore: { score: 3.2, source: "G2 4.5/5 (119 reviews), Trustpilot 3.7/5, account closure complaints", sourceCount: 1750 },
     scoreDisclaimer: "Pulse score from 1,750+ data points",
-    description: "Mercury brought consumer-grade design to business banking — a category that historically looked like it was designed in 2005. Account management, transactions, and treasury features are clean and navigable. The score reflects that while the core banking experience is strong, some workflows (multi-entity management, complex permissions) still require too many steps.",
+    description: "Mercury brought consumer-grade design to business banking, a category that historically looked like it was designed in 2005. Account management, transactions, and treasury features are clean and navigable. The score reflects that while the core banking experience is strong, some workflows (multi-entity management, complex permissions) still require too many steps.",
     strengths: [
       "Clean, modern interface for business banking",
       "Transaction management is fast and searchable",
@@ -531,11 +531,11 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     url: "calendly.com",
     category: "Productivity",
     score: 3.2,
-    verdict: "The booking flow is flawless — everything around it is furniture",
+    verdict: "The booking flow is flawless. Everything around it is furniture",
     screenScore: { score: 3.2, source: "Booking flow and dashboard screenshots" },
     pulseScore: { score: 3.2, source: "G2 4.7/5 (2.6K reviews), Trustpilot 3.0/5, core loop is Comfortable but broken defaults and support cap it", sourceCount: 3500 },
     scoreDisclaimer: "Pulse score from 3,500+ data points",
-    description: "Calendly's booker-facing experience is one of the best single-purpose flows in SaaS: see availability, pick a time, done. It's the gold standard for reducing a multi-step process to its minimum. The scheduler-facing dashboard, however, doesn't match that quality — event type management, team settings, and analytics all feel like they were designed with less care.",
+    description: "Calendly's booker-facing experience is one of the best single-purpose flows in SaaS: see availability, pick a time, done. It's the gold standard for reducing a multi-step process to its minimum. The scheduler-facing dashboard, however, doesn't match that quality. Event type management, team settings, and analytics all feel like they were designed with less care.",
     strengths: [
       "Booking flow is the gold standard for scheduling",
       "Calendar integrations are reliable and fast",
@@ -579,7 +579,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 3.1, source: "Product screenshots and chat UI" },
     pulseScore: { score: 2.8, source: "App Store 4.8/5, Reddit mixed on quality decline, Trustpilot 2.1/5, reliability complaints", sourceCount: 85000 },
     scoreDisclaimer: "Pulse score from 85,000+ data points",
-    description: "ChatGPT's core interaction — type a question, get an answer — is one of the most intuitive product experiences in recent memory. The blank input box is inviting. The problem is everything that's been added around it: GPTs, plugins, memory settings, model selection, file uploads, image generation. Each feature individually makes sense; together they're creating navigation complexity that undermines the original simplicity.",
+    description: "ChatGPT's core interaction (type a question, get an answer) is one of the most intuitive product experiences in recent memory. The blank input box is inviting. The problem is everything that's been added around it: GPTs, plugins, memory settings, model selection, file uploads, image generation. Each feature individually makes sense; together they're creating navigation complexity that undermines the original simplicity.",
     strengths: [
       "Core conversational interface is instantly intuitive",
       "Response formatting and code rendering are well-done",
@@ -601,7 +601,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 3.1, source: "App screenshots and trading UI" },
     pulseScore: { score: 2.4, source: "App Store 4.3/5 (4.7M), Trustpilot 1.3/5 (4.2K), PissedConsumer 1.7/5, FINRA fines", sourceCount: 5300000 },
     scoreDisclaimer: "Pulse score from 5.3M+ data points",
-    description: "Robinhood succeeded at making investing feel approachable — the clean interface, confetti celebrations, and simplified flows brought millions of new investors into the market. The design challenge now is that those same simplifications can feel patronizing as users become more sophisticated, and the addition of crypto, options, and cash management has added complexity without proportional design investment.",
+    description: "Robinhood succeeded at making investing feel approachable. The clean interface, confetti celebrations, and simplified flows brought millions of new investors into the market. The design challenge now is that those same simplifications can feel patronizing as users become more sophisticated, and the addition of crypto, options, and cash management has added complexity without proportional design investment.",
     strengths: [
       "Stock purchase flow is remarkably simple",
       "Portfolio visualization is clean and accessible",
@@ -646,7 +646,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 2.9, source: "Product screenshots and trading UI" },
     pulseScore: { score: 2.7, source: "App Store 4.7/5, Trustpilot 1.5/5 (11K reviews), BBB 1.1/5, fee and support complaints", sourceCount: 50000 },
     scoreDisclaimer: "Pulse score from 50,000+ data points",
-    description: "Coinbase's onboarding and initial purchase flow are clean — buying your first crypto is straightforward. The experience degrades from there. The addition of DeFi features, NFTs, staking, and Coinbase Wallet has created a product that serves too many audiences without a coherent experience for any of them. The downward delta reflects recent UI changes that added complexity without solving existing navigation problems.",
+    description: "Coinbase's onboarding and initial purchase flow are clean. Buying your first crypto is straightforward. The experience degrades from there. The addition of DeFi features, NFTs, staking, and Coinbase Wallet has created a product that serves too many audiences without a coherent experience for any of them. The downward delta reflects recent UI changes that added complexity without solving existing navigation problems.",
     strengths: [
       "Initial onboarding and first purchase are clean",
       "Security features are well-communicated",
@@ -668,7 +668,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 2.9, source: "Product screenshots and database UI" },
     pulseScore: { score: 2.7, source: "G2 4.5/5 (2.3K reviews), Trustpilot 2.4/5, Reddit mixed on performance", sourceCount: 5000 },
     scoreDisclaimer: "Pulse score from 5,000+ data points",
-    description: "Airtable's pitch — a database that feels like a spreadsheet — is genuinely compelling when it works. Views, automations, and the interface designer enable powerful workflows. The problem: the gap between 'this is a nice spreadsheet' and 'this is a powerful app platform' creates confusion about what Airtable even is. Enterprise features have added layers that the core interaction model wasn't designed to support.",
+    description: "Airtable's pitch (a database that feels like a spreadsheet) is genuinely compelling when it works. Views, automations, and the interface designer enable powerful workflows. The problem: the gap between 'this is a nice spreadsheet' and 'this is a powerful app platform' creates confusion about what Airtable even is. Enterprise features have added layers that the core interaction model wasn't designed to support.",
     strengths: [
       "Core grid and view system is flexible and intuitive",
       "Automation builder is powerful for non-technical users",
@@ -690,7 +690,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 2.8, source: "Web app screenshots and generation UI" },
     pulseScore: { score: 3.2, source: "G2 4.4/5 (94 reviews), Trustpilot 2.0/5, Reddit/Discord 65% positive on output quality", sourceCount: 550 },
     scoreDisclaimer: "Pulse score from 550+ data points",
-    description: "Midjourney produces the best AI-generated images available. The output is stunning. The interface — originally Discord-only, now a web app — is not. The web experience is functional but feels like it was designed by engineers solving technical problems rather than designers solving human ones. The score reflects that output quality and interface quality are two different things.",
+    description: "Midjourney produces the best AI-generated images available. The output is stunning. The interface (originally Discord-only, now a web app) is not. The web experience is functional but feels like it was designed by engineers solving technical problems rather than designers solving human ones. The score reflects that output quality and interface quality are two different things.",
     strengths: [
       "Image generation quality is best-in-class",
       "Prompt system rewards creativity and experimentation",
@@ -712,7 +712,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 2.8, source: "Product screenshots and server UI" },
     pulseScore: { score: 3.4, source: "Capterra 4.7/5, App Store 4.8/5 (232K), Trustpilot 1.2/5 (2K), Google Play 4.3/5 (6.3M)", sourceCount: 6600000 },
     scoreDisclaimer: "Pulse score from 6.6M+ data points",
-    description: "Discord's core value — real-time community communication — is strong. Voice channels, text channels, and the server model create genuine community infrastructure. But the settings are bewildering: server settings, channel settings, notification settings, privacy settings, each with dozens of options. For a product used by millions of non-technical users, the configuration complexity is a serious accessibility issue.",
+    description: "Discord's core value, real-time community communication, is strong. Voice channels, text channels, and the server model create genuine community infrastructure. But the settings are bewildering: server settings, channel settings, notification settings, privacy settings, each with dozens of options. For a product used by millions of non-technical users, the configuration complexity is a serious accessibility issue.",
     strengths: [
       "Voice and text channel model is genuinely innovative",
       "Bot and integration ecosystem enables powerful automation",
@@ -730,11 +730,11 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     url: "zoom.us",
     category: "SaaS",
     score: 2.7,
-    verdict: "The core meeting is reliable — everything else feels bolted on",
+    verdict: "The core meeting is reliable. Everything else feels bolted on",
     screenScore: { score: 2.7, source: "Product screenshots and meeting UI" },
     pulseScore: { score: 3.2, source: "G2 4.5/5 (55.7K reviews), Trustpilot 1.4/5 (78% one-star), Workplace redesign friction", sourceCount: 56000 },
     scoreDisclaimer: "Pulse score from 56,000+ data points",
-    description: "Zoom's core meeting experience is reliable and familiar — that's its strength and its ceiling. Joining a meeting is easy. Being in a meeting works. Everything Zoom has added since — Zoom Phone, Zoom Whiteboard, Zoom Chat, Zoom Mail — feels like it belongs to a different product with a different design team. The experience is fragmented.",
+    description: "Zoom's core meeting experience is reliable and familiar. That's its strength and its ceiling. Joining a meeting is easy. Being in a meeting works. Everything Zoom has added since (Zoom Phone, Zoom Whiteboard, Zoom Chat, Zoom Mail) feels like it belongs to a different product with a different design team. The experience is fragmented.",
     strengths: [
       "Meeting join flow is the simplest in the category",
       "Video and audio quality are reliable",
@@ -756,7 +756,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 2.6, source: "Product screenshots and streaming UI" },
     pulseScore: { score: 2.1, source: "Trustpilot 1.3/5 (1.1K reviews), Google Play 3.95/5 (5.3M), broken mobile/TV apps, hostile ads", sourceCount: 5300000 },
     scoreDisclaimer: "Pulse score from 15,000+ data points",
-    description: "Watching a stream on Twitch is a good experience — the player is solid, chat is engaging, and discovery has improved. Creating on Twitch is a different story. The creator dashboard, monetization settings, moderation tools, and analytics are spread across interfaces that feel like they were designed by different teams in different years. The viewer/creator gap is the defining UX problem.",
+    description: "Watching a stream on Twitch is a good experience. The player is solid, chat is engaging, and discovery has improved. Creating on Twitch is a different story. The creator dashboard, monetization settings, moderation tools, and analytics are spread across interfaces that feel like they were designed by different teams in different years. The viewer/creator gap is the defining UX problem.",
     strengths: [
       "Stream player and chat experience are well-integrated",
       "Discovery and recommendation have improved significantly",
@@ -778,7 +778,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 2.5, source: "Product screenshots and file management UI" },
     pulseScore: { score: 2.6, source: "G2 4.4/5 (38.4K reviews), Trustpilot 1.3/5 (1.5K), billing complaints, forced upgrades", sourceCount: 40000 },
     scoreDisclaimer: "Pulse score from 40,000+ data points",
-    description: "Dropbox invented a category and then watched the category commoditize around it. The core sync experience is still reliable, but the product has been unable to articulate why you'd choose it over Google Drive, iCloud, or OneDrive — which come free with products you already use. Recent additions (Paper, Capture, Sign) feel disconnected. The interface works; the product story doesn't.",
+    description: "Dropbox invented a category and then watched the category commoditize around it. The core sync experience is still reliable, but the product has been unable to articulate why you'd choose it over Google Drive, iCloud, or OneDrive, which come free with products you already use. Recent additions (Paper, Capture, Sign) feel disconnected. The interface works; the product story doesn't.",
     strengths: [
       "File sync is still reliable and fast",
       "Shared folder collaboration is straightforward",
@@ -796,11 +796,11 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     url: "atlassian.com/software/jira",
     category: "SaaS",
     score: 2.1,
-    verdict: "More process than product — the UI serves the methodology, not the human",
+    verdict: "More process than product: the UI serves the methodology, not the human",
     screenScore: { score: 2.1, source: "Product screenshots and project management UI" },
     pulseScore: { score: 2.1, source: "G2 4.3/5 (7.5K reviews), Reddit/HN overwhelmingly negative UX, 86% market lock-in", sourceCount: 15000 },
     scoreDisclaimer: "Pulse score from 15,000+ data points",
-    description: "Jira is powerful. Jira is also the canonical example of enterprise software that prioritizes process configuration over user experience. The interface serves Scrum and Kanban methodologies before it serves the humans using it. Every simple action — creating an issue, checking a sprint, finding a dashboard — requires more steps and more cognitive load than it should. Power at the cost of usability.",
+    description: "Jira is powerful. Jira is also the canonical example of enterprise software that prioritizes process configuration over user experience. The interface serves Scrum and Kanban methodologies before it serves the humans using it. Every simple action (creating an issue, checking a sprint, finding a dashboard) requires more steps and more cognitive load than it should. Power at the cost of usability.",
     strengths: [
       "Configurability covers virtually any workflow",
       "Integration ecosystem is massive",
@@ -845,7 +845,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     screenScore: { score: 1.6, source: "Product screenshots and HR/finance UI" },
     pulseScore: { score: 1.4, source: "G2 4.2/5 (2.8K reviews), Yahoo News 'most hated workplace software', Team Blind/Reddit universal hatred", sourceCount: 5000 },
     scoreDisclaimer: "Pulse score from 5,000+ data points",
-    description: "Workday is the product most people point to when they talk about why enterprise software has a bad reputation. The interface is functional in the strictest sense — you can complete tasks — but every interaction requires more effort than it should. Finding information requires memorizing navigation paths. Basic tasks like submitting time off or finding a pay stub involve more clicks than they do on any consumer app. The score reflects that users endure Workday; they don't use it.",
+    description: "Workday is the product most people point to when they talk about why enterprise software has a bad reputation. The interface is functional in the strictest sense. You can complete tasks, but every interaction requires more effort than it should. Finding information requires memorizing navigation paths. Basic tasks like submitting time off or finding a pay stub involve more clicks than they do on any consumer app. The score reflects that users endure Workday; they don't use it.",
     strengths: [
       "Handles complex HR and finance workflows at enterprise scale",
       "Data model is comprehensive for large organizations",
@@ -863,7 +863,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
 // All current scores are editorial estimates — real scoring pipeline coming Q2 2026
 export const PRODUCTS: Product[] = [...RAW_PRODUCTS]
   .sort((a, b) => b.score - a.score)
-  .map((p, i) => ({ ...p, rank: i + 1, scoreDisclaimer: p.scoreDisclaimer ?? "Editorial estimate — real Ladder scoring coming soon" }));
+  .map((p, i) => ({ ...p, rank: i + 1, scoreDisclaimer: p.scoreDisclaimer ?? "Editorial estimate. Real Ladder scoring coming soon" }));
 
 export function getProductBySlug(slug: string): Product | undefined {
   return PRODUCTS.find((p) => p.slug === slug);

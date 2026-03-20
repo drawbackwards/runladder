@@ -18,11 +18,11 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ladder — The quality score for every experience",
+  title: "Ladder | The quality score for every experience",
   description:
     "Score any screen against the Ladder framework. Track UX quality over time. The universal standard for experience measurement.",
   openGraph: {
-    title: "Ladder — The quality score for every experience",
+    title: "Ladder | The quality score for every experience",
     description:
       "Score any screen against the Ladder framework. Track UX quality over time.",
     siteName: "Ladder",

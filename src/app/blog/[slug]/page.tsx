@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = getPostBySlug(slug);
   if (!post) return {};
   return {
-    title: `${post.title} — Ladder`,
+    title: `${post.title} | Ladder`,
     description: post.excerpt,
     openGraph: {
       title: post.title,
@@ -270,7 +270,7 @@ export default async function BlogPostPage({ params }: Props) {
             What would Pulse reveal about your organization?
           </p>
           <p className="text-sm text-body max-w-md mx-auto mb-6">
-            The same intelligence engine behind every score in this article — pointed at your customer data, your reviews, your support tickets. One honest score.
+            The same intelligence engine behind every score in this article, pointed at your customer data, your reviews, your support tickets. One honest score.
           </p>
           <Link
             href="/contact"

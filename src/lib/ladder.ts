@@ -46,7 +46,7 @@ export const LEVELS: LadderLevel[] = [
     cssBg: "bg-ladder-orange",
     tagline: "Tasks complete with effort.",
     description:
-      "Basic structure exists. Users can accomplish goals, but it takes more effort than it should. The interface doesn't guide — it presents. Users tolerate it but would switch.",
+      "Basic structure exists. Users can accomplish goals, but it takes more effort than it should. The interface doesn't guide, it presents. Users tolerate it but would switch.",
     experienceTest:
       "Can the user complete their task without stopping to think about the interface?",
   },
@@ -60,7 +60,7 @@ export const LEVELS: LadderLevel[] = [
     cssBg: "bg-ladder-yellow",
     tagline: "No thinking required. The modern minimum.",
     description:
-      "Everything is where expected. The interface is intuitive — users feel their way through without conscious thought. Friction is removed. This is the modern minimum bar.",
+      "Everything is where expected. The interface is intuitive. Users feel their way through without conscious thought. Friction is removed. This is the modern minimum bar.",
     experienceTest:
       "Does the interface feel intuitive? Can users navigate by feel rather than by reading?",
   },
