@@ -287,18 +287,75 @@ export default function TeamsPage() {
             </p>
           </div>
 
-          <div className="max-w-md mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {/* Try it out — single designer */}
+            <div className="rounded-2xl p-8 flex flex-col border border-border bg-card">
+              <span className="self-start text-[11px] font-mono uppercase tracking-widest px-3 py-1 mb-6 bg-border/50 text-muted">
+                Try it out
+              </span>
+              <h3 className="text-lg font-bold text-foreground mb-4">
+                One Designer
+              </h3>
+
+              <div className="flex items-baseline gap-1.5 mb-1">
+                <span className="text-[2.5rem] font-bold text-foreground leading-none">
+                  $29
+                </span>
+                <span className="text-sm text-muted">/ mo</span>
+              </div>
+              <p className="text-xs text-muted mb-6">Test it out with one designer</p>
+
+              <div className="border border-border rounded-lg px-4 py-3 mb-8">
+                <p className="font-mono text-xs text-ladder-green">
+                  Unlimited scores on all surfaces
+                </p>
+              </div>
+
+              <ul className="space-y-3 mb-10 flex-1">
+                {[
+                  "Ladder score with coaching cards",
+                  "Per-dimension scoring breakdown",
+                  "Full score history + trend line",
+                  "Design system compliance scoring",
+                  "Shareable score cards and reports",
+                  "Web, Figma, and Claude access",
+                ].map((f: string) => (
+                  <li
+                    key={f}
+                    className="text-sm text-body flex items-start gap-2.5"
+                  >
+                    <span className="text-ladder-green text-xs mt-1 flex-shrink-0">
+                      +
+                    </span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/score"
+                className="text-center text-sm font-semibold py-3 rounded-full transition-colors border border-border text-foreground hover:bg-card-hover"
+              >
+                Start scoring
+              </Link>
+            </div>
+
+            {/* Teams */}
             <div className="rounded-2xl p-8 flex flex-col border-2 border-ladder-green bg-ladder-green/5">
+              <span className="self-start text-[11px] font-mono uppercase tracking-widest px-3 py-1 mb-6 bg-ladder-green/15 text-ladder-green">
+                Full team
+              </span>
               <h3 className="text-lg font-bold text-foreground mb-4">
                 {TIER.name}
               </h3>
 
-              <div className="flex items-baseline gap-1.5 mb-6">
+              <div className="flex items-baseline gap-1.5 mb-1">
                 <span className="text-[2.5rem] font-bold text-foreground leading-none">
                   {TIER.price}
                 </span>
                 <span className="text-sm text-muted">{TIER.period}</span>
               </div>
+              <p className="text-xs text-muted mb-6">Everything your design org needs</p>
 
               <div className="border border-border rounded-lg px-4 py-3 mb-8">
                 <p className="font-mono text-xs text-ladder-green">
