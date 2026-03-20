@@ -65,7 +65,7 @@ export default function Top100Page() {
             system can. No sponsorships. No paid placements. Just the truth.
           </p>
           <p className="text-xs text-muted mt-4">
-            {PRODUCTS.length} products scored &middot; Updated quarterly
+            {PRODUCTS.length} products scored &middot; Updated monthly
           </p>
         </div>
 
@@ -213,7 +213,7 @@ export default function Top100Page() {
         {/* ── "More coming" ── */}
         <div className="text-center py-12 border-b border-border">
           <p className="text-sm text-muted">
-            {PRODUCTS.length} of 100 scored by Pulse &middot; New products added quarterly
+            {PRODUCTS.length} of 100 scored by Pulse &middot; New products added monthly
           </p>
         </div>
 
@@ -281,7 +281,7 @@ export default function Top100Page() {
             },
             {
               title: "Updated quarterly",
-              body: "Pulse re-scores every product each quarter as new data flows in. Scores go up and down. The delta column shows real movement.",
+              body: "Pulse re-scores every product each month as new data flows in. Scores go up and down. The delta column shows real movement.",
             },
             {
               title: "The gap is the story",
