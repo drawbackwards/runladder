@@ -55,21 +55,17 @@ export default function Top100Page() {
             Ladder Top 100
           </p>
           <h1 className="text-3xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-6 text-foreground">
-            The best digital experiences<br />
-            in the world, <span className="text-ladder-green">ranked.</span>
+            The definitive ranking of<br />
+            digital experience quality.
           </h1>
           <p className="text-base text-body max-w-xl mx-auto leading-relaxed">
-            Every product scored on a 1.0 to 5.0 scale. No sponsorships, no
-            paid placements. Just honest measurement against the Ladder
-            framework.
+            Ladder Pulse scans thousands of sources — G2, Reddit, Trustpilot,
+            App Store, Hacker News, Product Hunt, and more — and combines that
+            intelligence with interface analysis to produce one score no other
+            system can. No sponsorships. No paid placements. Just the truth.
           </p>
           <p className="text-xs text-muted mt-4">
-            {PRODUCTS.length} products &middot; Real scoring pipeline coming Q2 2026
-          </p>
-          <p className="text-[10px] text-muted mt-2 max-w-md mx-auto">
-            Current scores are editorial estimates based on known product
-            quality. Each product will be formally scored with screenshots,
-            Pulse feedback data, and optional company-submitted materials.
+            {PRODUCTS.length} products scored &middot; Updated quarterly
           </p>
         </div>
 
@@ -217,7 +213,7 @@ export default function Top100Page() {
         {/* ── "More coming" ── */}
         <div className="text-center py-12 border-b border-border">
           <p className="text-sm text-muted">
-            {PRODUCTS.length} of 100 scored &middot; Full list coming Q2 2026
+            {PRODUCTS.length} of 100 scored by Pulse &middot; New products added quarterly
           </p>
         </div>
 
@@ -227,8 +223,9 @@ export default function Top100Page() {
             Think your product belongs here?
           </h2>
           <p className="text-sm text-body max-w-md mx-auto leading-relaxed mb-6">
-            Every product on this list was scored by the same AI framework — no
-            exceptions, no favoritism. Score yours and see where you stand.
+            Every product on this list was scored by Pulse — the same
+            intelligence engine, the same framework, no exceptions. Score yours
+            and see where you stand.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -247,19 +244,24 @@ export default function Top100Page() {
         </div>
 
         {/* ── Methodology ── */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="mt-16 mb-4">
+          <p className="font-mono text-[10px] text-muted uppercase tracking-widest mb-6">
+            How Pulse scores every product
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             {
-              title: "Screen Score",
-              body: "Public screenshots from the product's marketing site, review platforms (G2, Capterra), and YouTube product tours — scored by AI against the Ladder framework. This measures what the product looks like.",
+              title: "Pulse Intelligence",
+              body: "Pulse ingests thousands of data points per product — G2, Capterra, Trustpilot, App Store, Reddit, Hacker News, Product Hunt, and community forums. Our AI maps every signal to the Ladder framework's five levels of experience quality. This is the lived experience score.",
             },
             {
-              title: "Pulse Score",
-              body: "Aggregated sentiment from G2, Capterra, Trustpilot, App Store, Reddit, X, Hacker News, and Product Hunt — mapped to rung-level quality signals. This measures what the product feels like to use over time.",
+              title: "Screen Analysis",
+              body: "Public screenshots from marketing sites, review platforms, and product tours — analyzed by AI against the Ladder framework. This measures what the product looks like. The gap between Screen and Pulse scores is where the real insight lives.",
             },
             {
               title: "Company Verified",
-              body: "Companies can submit demo links and real product screenshots for a more accurate score. Verified scores are flagged and replace the public screenshot score. The delta between Screen and Pulse tells the real story.",
+              body: "Companies can submit demo links and real product screenshots for a more accurate screen analysis. Verified scores are flagged. But Pulse scores can't be influenced — they come directly from real users.",
             },
           ].map((item) => (
             <div key={item.title} className="border-t border-border pt-6">
@@ -275,15 +277,15 @@ export default function Top100Page() {
           {[
             {
               title: "No pay-to-play",
-              body: "Rankings are determined entirely by score. No company can pay for placement, boost their ranking, or suppress a low score. The list is what it is.",
+              body: "Rankings are determined entirely by Pulse. No company can pay for placement, boost their ranking, or suppress a low score. The intelligence is what it is.",
             },
             {
               title: "Updated quarterly",
-              body: "Products are re-scored every quarter. Scores go up and down. The delta column shows movement since last period.",
+              body: "Pulse re-scores every product each quarter as new data flows in. Scores go up and down. The delta column shows real movement.",
             },
             {
-              title: "Three lenses",
-              body: "The gap between a product's Screen Score and its Pulse Score is the most valuable insight. A beautiful product with a low Pulse score is a warning. An ugly product with a high Pulse score is an opportunity.",
+              title: "The gap is the story",
+              body: "A beautiful product with a low Pulse score is a warning — the team invests in appearance over substance. An unremarkable product with a high Pulse score is an opportunity. Pulse finds both.",
             },
           ].map((item) => (
             <div key={item.title} className="border-t border-border pt-6">
