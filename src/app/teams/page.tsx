@@ -69,14 +69,11 @@ const TIER = {
   period: "/ year",
   features: [
     "Team leader dashboard on runladder.com",
-    "Add and manage designers",
+    "Add and manage up to ten designers",
     "Team knowledge base (brand standards + leadership lens)",
-    "Design system spec ingestion",
-    "Custom rubric weights",
     "Per-designer scores, trends, and leaderboard",
     "Design system compliance scoring",
     "Unlimited scores on all surfaces (web, Figma, Claude)",
-    "Shareable score cards and reports",
     "Priority support",
   ],
 };
@@ -316,8 +313,6 @@ export default function TeamsPage() {
                   "Ladder score with coaching cards",
                   "Per-dimension scoring breakdown",
                   "Full score history + trend line",
-                  "Design system compliance scoring",
-                  "Shareable score cards and reports",
                   "Web, Figma, and Claude access",
                 ].map((f: string) => (
                   <li
