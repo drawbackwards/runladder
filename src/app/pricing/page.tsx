@@ -42,14 +42,15 @@ const SCREEN_SCORE_TIERS = [
     name: "Team",
     price: "$500",
     period: "/ mo",
-    periodNote: "Up to 5 team members \u00b7 $100 / additional seat",
     highlight: false,
     limit: "Unlimited everything",
     features: [
       "Everything in Professional",
+      "Up to 5 team members, $100 / additional seat",
       "Team leaderboard + portfolio score",
       "Design system compliance scoring",
       "Manager dashboard + performance tracking",
+      "Access to Pulse data if subscribed",
     ],
     cta: "Subscribe",
     href: "/score",
@@ -96,7 +97,7 @@ export default function PricingPage() {
               className={`rounded-2xl p-8 flex flex-col ${
                 tier.highlight
                   ? "border-2 border-ladder-green bg-ladder-green/5"
-                  : "border border-border bg-card"
+                  : "border-2 border-ladder-green/30 bg-card"
               }`}
             >
               {/* Name */}
@@ -111,11 +112,7 @@ export default function PricingPage() {
                 </span>
                 <span className="text-sm text-muted">{tier.period}</span>
               </div>
-              {tier.periodNote ? (
-                <p className="text-xs text-muted mb-6">{tier.periodNote}</p>
-              ) : (
-                <div className="mb-6" />
-              )}
+              <div className="mb-6" />
 
               {/* Usage limit */}
               <div className="border border-border rounded-lg px-4 py-3 mb-8">
@@ -166,7 +163,7 @@ export default function PricingPage() {
               </span>
               <span className="text-sm text-muted">/ mo</span>
             </div>
-            <p className="text-xs text-muted mb-6">Custom pricing at scale</p>
+            <div className="mb-6" />
 
             {/* Usage limit */}
             <div className="border border-ladder-purple/30 rounded-lg px-4 py-3 mb-8">
