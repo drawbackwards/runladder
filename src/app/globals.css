@@ -18,6 +18,8 @@
   --color-ladder-yellow: #eab308;
   --color-ladder-delightful: #22c55e;
   --color-ladder-white: #ffffff;
+  --color-ladder-purple: #A78BFA;
+  --color-ladder-purple-dim: #A78BFA33;
 
   /* Fonts */
   --font-sans: var(--font-inter);

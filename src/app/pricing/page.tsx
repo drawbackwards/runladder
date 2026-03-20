@@ -39,7 +39,7 @@ const SCREEN_SCORE_TIERS = [
       "Full score history + trend line",
       "Fix suggestions with score uplift",
     ],
-    cta: "Start 14-day free trial",
+    cta: "Subscribe",
     href: "/score",
   },
   {
@@ -156,13 +156,13 @@ export default function PricingPage() {
             </div>
           ))}
 
-          {/* Pulse column */}
-          <div className="rounded-2xl p-8 flex flex-col border border-border bg-card">
-            <span className="self-start text-[11px] font-mono uppercase tracking-widest px-3 py-1 mb-4 bg-border/50 text-muted">
-              Measurement
+          {/* Pulse column — purple treatment, visually distinct product */}
+          <div className="rounded-2xl p-8 flex flex-col border-2 border-ladder-purple bg-ladder-purple/5">
+            <span className="self-start text-[11px] font-mono uppercase tracking-widest px-3 py-1 mb-4 bg-ladder-purple/15 text-ladder-purple">
+              Different product
             </span>
 
-            <p className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-ladder-purple/60 mb-3">
               Ladder Pulse
             </p>
 
@@ -182,8 +182,8 @@ export default function PricingPage() {
               Measure experience quality across your entire organization
             </p>
 
-            <div className="border border-border rounded-lg px-4 py-3 mb-8">
-              <p className="font-mono text-xs text-ladder-green">
+            <div className="border border-ladder-purple/30 rounded-lg px-4 py-3 mb-8">
+              <p className="font-mono text-xs text-ladder-purple">
                 Real-time experience scoring
               </p>
             </div>
@@ -197,17 +197,17 @@ export default function PricingPage() {
                 "Dedicated onboarding and support",
               ].map((f) => (
                 <li key={f} className="text-sm text-body flex items-start gap-2.5">
-                  <span className="text-ladder-green text-xs mt-1 flex-shrink-0">+</span>
+                  <span className="text-ladder-purple text-xs mt-1 flex-shrink-0">+</span>
                   {f}
                 </li>
               ))}
             </ul>
 
             <Link
-              href="/pulse"
-              className="text-center text-sm font-semibold border border-border text-foreground hover:bg-card-hover py-3 rounded-full transition-colors"
+              href="/contact"
+              className="text-center text-sm font-semibold border border-ladder-purple/40 text-ladder-purple hover:bg-ladder-purple/10 py-3 rounded-full transition-colors"
             >
-              Learn about Pulse
+              Talk to us about Pulse
             </Link>
           </div>
         </div>
@@ -275,8 +275,8 @@ export default function PricingPage() {
                 a: "Each time you submit a screenshot or URL for Ladder analysis on any surface, that\u2019s one score. Viewing history, sharing results, or browsing the Top 100 doesn\u2019t count.",
               },
               {
-                q: "Can I try Professional before paying?",
-                a: "Yes. Professional comes with a 14-day free trial. No credit card required to start.",
+                q: "Can I cancel anytime?",
+                a: "Yes. Professional and Organization are month-to-month. Cancel anytime from your account settings, no questions asked.",
               },
               {
                 q: "How does Organization seat pricing work?",
