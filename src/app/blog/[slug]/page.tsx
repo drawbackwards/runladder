@@ -76,7 +76,11 @@ function renderContent(content: string) {
               /\*\*(.+?)\*\*/g,
               '<strong class="text-foreground font-semibold">$1</strong>'
             )
-            .replace(/\*(.+?)\*/g, "<em>$1</em>"),
+            .replace(/\*(.+?)\*/g, "<em>$1</em>")
+            .replace(
+              /\[(.+?)\]\((.+?)\)/g,
+              '<a href="$2" class="text-ladder-green hover:text-ladder-green/80 transition-colors">$1</a>'
+            ),
         }}
       />
     );
