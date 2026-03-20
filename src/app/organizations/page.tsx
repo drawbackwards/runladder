@@ -25,12 +25,12 @@ const ROLES = [
   {
     role: "CTO / CIO",
     pain: "You're investing millions in digital products but have no quality metric equivalent to what manufacturing has had for decades. You measure uptime, performance, and security, but not whether people can actually use the thing.",
-    solve: "Ladder is the quality metric you've been missing. Bake it into your CI/CD pipeline. Gate deployments. Track quality trends alongside your technical metrics. Finally measure the human side of your technology investment.",
+    solve: "Ladder is the quality metric you've been missing. Screen Scores measure what you're shipping. Pulse Scores measure what users actually experience. Track both alongside your technical metrics. Finally measure the human side of your technology investment.",
   },
   {
     role: "CEO / COO",
     pain: "Customer satisfaction surveys arrive quarterly. By the time you see the data, the damage is done. You know experience matters but have no leading indicator, only lagging ones.",
-    solve: "Ladder scores are a leading indicator of customer satisfaction. You see quality before users do. Set organizational policy: nothing ships below a 3. Watch NPS follow.",
+    solve: "Screen Scores are a leading indicator. Pulse Scores are the proof. Together, they show you quality before users churn. Set organizational policy: nothing ships below a 3. When Screen Score and Pulse Score converge, NPS follows.",
   },
 ];
 
@@ -67,10 +67,11 @@ export default function OrganizationsPage() {
             <span className="text-ladder-green">whole org speaks</span>
           </h1>
           <p className="text-lg text-body max-w-2xl mx-auto mb-12 leading-relaxed">
-            Designers, engineers, PMs, and executives all looking at the same
-            five-point scale. No more subjective debates. No more &ldquo;it
-            looks good to me.&rdquo; One honest number that everyone
-            understands.
+            A Screen Score tells you what your interface shows. A Pulse Score
+            tells you what your users feel. Together, they give every
+            designer, engineer, PM, and executive the same honest number on
+            the same five-point scale. No more &ldquo;it looks good to
+            me.&rdquo;
           </p>
           <div className="flex items-center justify-center gap-6">
             <Link
@@ -117,6 +118,75 @@ export default function OrganizationsPage() {
               Ladder is the quality standard your organization has been
               missing. Five levels. One score. A shared language that turns
               subjective design debates into objective quality decisions.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Two Scores, One Truth */}
+      <section className="py-36 px-6 border-t border-border">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-20">
+            <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
+              The full picture
+            </p>
+            <h2 className="text-[2rem] md:text-[2.5rem] font-bold mb-6">
+              Screen Score is the starting line.{" "}
+              <span className="text-ladder-green">Pulse changes the trajectory.</span>
+            </h2>
+            <p className="text-body max-w-2xl mx-auto leading-relaxed">
+              A Screen Score tells your team exactly where the interface stands
+              today. It&apos;s immediate, actionable, and powerful on its own. But
+              it only measures what users see, not what they feel.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <div className="border border-border rounded-xl p-8 bg-card">
+              <p className="font-mono text-[10px] text-muted uppercase tracking-widest mb-3">
+                Screen Score
+              </p>
+              <p className="text-base font-semibold text-foreground mb-3">
+                What the interface shows
+              </p>
+              <p className="text-sm text-body leading-relaxed mb-4">
+                AI evaluates your product&apos;s visual design, hierarchy,
+                layout, patterns, and accessibility against the five levels of
+                the Ladder framework. Score any screen in seconds. Set quality
+                gates before handoff. Track improvement sprint over sprint.
+              </p>
+              <p className="text-sm text-foreground font-medium">
+                Impact: immediate quality bar for every team.
+              </p>
+            </div>
+            <div className="border border-ladder-green/30 rounded-xl p-8 bg-ladder-green/5">
+              <p className="font-mono text-[10px] text-ladder-green uppercase tracking-widest mb-3">
+                Pulse Score
+              </p>
+              <p className="text-base font-semibold text-foreground mb-3">
+                What real users feel
+              </p>
+              <p className="text-sm text-body leading-relaxed mb-4">
+                Pulse ingests what your customers actually say: reviews, support
+                tickets, field reports, NPS comments, forum threads. It scores
+                the lived experience against the same framework. The gap between
+                Screen Score and Pulse Score reveals whether your product is
+                keeping its promises.
+              </p>
+              <p className="text-sm text-ladder-green font-medium">
+                Impact: transforms organizational decision-making.
+              </p>
+            </div>
+          </div>
+
+          <div className="border border-border rounded-xl p-8 bg-card text-center">
+            <p className="text-sm text-body leading-relaxed max-w-2xl mx-auto">
+              <span className="text-foreground font-semibold">The gap between the two is where transformation happens.</span>{" "}
+              A high Screen Score with a low Pulse Score means your product
+              looks better than it feels. That&apos;s the signal that shifts
+              roadmap priorities, reallocates resources, and aligns every team
+              around what actually matters: the experience your users have, not
+              the experience your interface promises.
             </p>
           </div>
         </div>
@@ -341,8 +411,8 @@ export default function OrganizationsPage() {
               <p className="text-body leading-relaxed">
                 Ladder isn&apos;t a destination. It&apos;s a layer that sits
                 on top of your existing tools and workflows. Designers score
-                in Figma. Engineers gate deploys via API. PMs track trends
-                on the dashboard. Leadership sees the portfolio view.
+                screens in Figma. PMs track trends on the dashboard. Leadership
+                pairs Screen Scores with Pulse Scores to see the full picture.
               </p>
             </div>
             <div className="space-y-4">
