@@ -20,6 +20,9 @@ export function Nav() {
           <Link href="/top-100" className="hover:text-foreground transition-colors">
             Top 100
           </Link>
+          <Link href="/blog" className="hover:text-foreground transition-colors">
+            Blog
+          </Link>
           <Link href="/pricing" className="hover:text-foreground transition-colors">
             Pricing
           </Link>

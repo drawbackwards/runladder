@@ -150,6 +150,71 @@ export default async function ProductPage({ params }: Props) {
                 <span className="text-[11px] text-muted">points</span>
               </div>
             </div>
+
+            {product.scoreDisclaimer && (
+              <div className="mt-4 pt-3 border-t border-border w-full text-center">
+                <span className="text-[9px] text-muted uppercase tracking-wider">
+                  {product.scoreDisclaimer}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Score layers ── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
+          <div className="border border-border p-5">
+            <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-2">
+              Screen Score
+            </p>
+            {product.screenScore ? (
+              <>
+                <span className="text-2xl font-bold" style={{ color: getScoreColor(product.screenScore.score) }}>
+                  {product.screenScore.score.toFixed(1)}
+                </span>
+                <p className="text-[10px] text-muted mt-1">{product.screenScore.source}</p>
+              </>
+            ) : (
+              <p className="text-xs text-muted">Pending — will be scored from public screenshots</p>
+            )}
+          </div>
+
+          <div className="border border-border p-5">
+            <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-2">
+              Pulse Score
+            </p>
+            {product.pulseScore ? (
+              <>
+                <span className="text-2xl font-bold" style={{ color: getScoreColor(product.pulseScore.score) }}>
+                  {product.pulseScore.score.toFixed(1)}
+                </span>
+                <p className="text-[10px] text-muted mt-1">
+                  {product.pulseScore.source}
+                  {product.pulseScore.sourceCount && ` (${product.pulseScore.sourceCount.toLocaleString()} data points)`}
+                </p>
+              </>
+            ) : (
+              <p className="text-xs text-muted">Pending — will aggregate G2, Reddit, App Store, and more</p>
+            )}
+          </div>
+
+          <div className="border border-border p-5">
+            <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-2">
+              Company Verified
+            </p>
+            {product.verified ? (
+              <p className="text-xs text-ladder-green font-semibold">Verified by {product.name}</p>
+            ) : (
+              <p className="text-xs text-muted">
+                Work at {product.name}? Submit product screenshots or a demo link for a more accurate score.
+              </p>
+            )}
+            <Link
+              href={`/contact?subject=${encodeURIComponent(`Verify ${product.name}'s Ladder score`)}&product=${product.slug}`}
+              className="inline-block text-[10px] font-semibold text-ladder-green mt-2 hover:underline"
+            >
+              {product.verified ? "Update your submission" : "Submit for verification"} &rarr;
+            </Link>
           </div>
         </div>
 
