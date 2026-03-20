@@ -81,7 +81,7 @@ The gap is where the real story lives. Explore all 36 products and their Pulse s
 
 **Ladder mapping:** Our AI — trained on 20 years of experience evaluation at Drawbackwards — analyzes sentiment, identifies friction patterns, and maps the quality of the described experience to Ladder's 1.0-5.0 scale. Not just positive or negative. Five distinct levels of experience quality.
 
-**Continuous scoring:** Pulse scores update as new signal flows in. Both scores in this study will be updated quarterly. The Top 100 is a living dataset.
+**Continuous scoring:** Pulse scores update as new signal flows in. Both scores in this study will be updated monthly. The Top 100 is a living dataset.
 
 Want to see what Pulse reveals about your product or organization? Request a Pulse demo and see your real score from the people who use what you build.`,
   },
