@@ -9,11 +9,9 @@ export const metadata: Metadata = {
 
 const SCREEN_SCORE_TIERS = [
   {
-    badge: "Free",
-    name: "Starter",
+    name: "Free",
     price: "$0",
     period: "forever",
-    tagline: "See where you stand",
     highlight: false,
     limit: "5 scores / month",
     features: [
@@ -26,15 +24,13 @@ const SCREEN_SCORE_TIERS = [
     href: "/score",
   },
   {
-    badge: "Most popular",
     name: "Professional",
     price: "$50",
     period: "/ mo",
-    tagline: "Full pipeline for one designer",
     highlight: true,
     limit: "Unlimited scores",
     features: [
-      "Everything in Starter",
+      "Everything in Free",
       "Per-dimension scoring (hierarchy, spacing, copy, a11y, navigation, visual)",
       "Full score history + trend line",
       "Fix suggestions with score uplift",
@@ -43,12 +39,10 @@ const SCREEN_SCORE_TIERS = [
     href: "/score",
   },
   {
-    badge: "Team",
-    name: "Organization",
+    name: "Team",
     price: "$500",
     period: "/ mo",
     periodNote: "Up to 5 team members \u00b7 $100 / additional seat",
-    tagline: "Quality across the whole team",
     highlight: false,
     limit: "Unlimited everything",
     features: [
@@ -57,8 +51,8 @@ const SCREEN_SCORE_TIERS = [
       "Design system compliance scoring",
       "Manager dashboard + performance tracking",
     ],
-    cta: "Contact us",
-    href: "/contact",
+    cta: "Subscribe",
+    href: "/score",
   },
 ];
 
@@ -77,6 +71,20 @@ export default function PricingPage() {
           </p>
         </div>
 
+        {/* Section headers above columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
+          <div className="lg:col-span-3">
+            <p className="font-mono text-xs uppercase tracking-widest text-ladder-green">
+              Get your Screen Score
+            </p>
+          </div>
+          <div className="hidden lg:block">
+            <p className="font-mono text-xs uppercase tracking-widest text-ladder-purple">
+              Pulse Score
+            </p>
+          </div>
+        </div>
+
         {/* Four-column grid: 3 Screen Score + 1 Pulse */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Screen Score tiers */}
@@ -89,22 +97,6 @@ export default function PricingPage() {
                   : "border border-border bg-card"
               }`}
             >
-              {/* Badge */}
-              <span
-                className={`self-start text-[11px] font-mono uppercase tracking-widest px-3 py-1 mb-4 ${
-                  tier.highlight
-                    ? "bg-ladder-green/15 text-ladder-green"
-                    : "bg-border/50 text-muted"
-                }`}
-              >
-                {tier.badge}
-              </span>
-
-              {/* Section label */}
-              <p className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">
-                Screen Score
-              </p>
-
               {/* Name */}
               <h2 className="text-lg font-bold text-foreground mb-4">
                 {tier.name}
@@ -122,9 +114,6 @@ export default function PricingPage() {
               ) : (
                 <div className="mb-6" />
               )}
-
-              {/* Tagline */}
-              <p className="text-sm text-body mb-8">{tier.tagline}</p>
 
               {/* Usage limit */}
               <div className="border border-border rounded-lg px-4 py-3 mb-8">
@@ -156,20 +145,19 @@ export default function PricingPage() {
             </div>
           ))}
 
-          {/* Pulse column — purple treatment, visually distinct product */}
+          {/* Pulse column */}
           <div className="rounded-2xl p-8 flex flex-col border-2 border-ladder-purple bg-ladder-purple/5">
-            <span className="self-start text-[11px] font-mono uppercase tracking-widest px-3 py-1 mb-4 bg-ladder-purple/15 text-ladder-purple">
-              Different product
-            </span>
-
-            <p className="font-mono text-[10px] uppercase tracking-widest text-ladder-purple/60 mb-3">
-              Ladder Pulse
+            {/* Mobile-only section label */}
+            <p className="font-mono text-xs uppercase tracking-widest text-ladder-purple mb-4 lg:hidden">
+              Pulse Score
             </p>
 
+            {/* Name */}
             <h2 className="text-lg font-bold text-foreground mb-4">
               Pulse
             </h2>
 
+            {/* Price */}
             <div className="flex items-baseline gap-1.5 mb-1">
               <span className="text-[2.5rem] font-bold text-foreground leading-none">
                 $5,000
@@ -178,16 +166,14 @@ export default function PricingPage() {
             </div>
             <p className="text-xs text-muted mb-6">Custom pricing at scale</p>
 
-            <p className="text-sm text-body mb-8">
-              Measure experience quality across your entire organization
-            </p>
-
+            {/* Usage limit */}
             <div className="border border-ladder-purple/30 rounded-lg px-4 py-3 mb-8">
               <p className="font-mono text-xs text-ladder-purple">
                 Real-time experience scoring
               </p>
             </div>
 
+            {/* Features */}
             <ul className="space-y-3 mb-10 flex-1">
               {[
                 "Customer feedback, reviews, and support transcripts mapped to Ladder scores",
@@ -276,11 +262,11 @@ export default function PricingPage() {
               },
               {
                 q: "Can I cancel anytime?",
-                a: "Yes. Professional and Organization are month-to-month. Cancel anytime from your account settings, no questions asked.",
+                a: "Yes. Professional and Team are month-to-month. Cancel anytime from your account settings, no questions asked.",
               },
               {
-                q: "How does Organization seat pricing work?",
-                a: "Organization is $500/mo and includes up to 5 team members. Each additional seat is $100/mo. You get team leaderboards, compliance scoring, and manager dashboards.",
+                q: "How does Team seat pricing work?",
+                a: "Team is $500/mo and includes up to 5 team members. Each additional seat is $100/mo. You get team leaderboards, compliance scoring, and manager dashboards.",
               },
               {
                 q: "What\u2019s the difference between Screen Score and Pulse?",
