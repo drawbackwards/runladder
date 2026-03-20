@@ -63,45 +63,23 @@ const WHAT_CHANGES = [
   },
 ];
 
-const TIERS = [
-  {
-    name: "Teams",
-    price: "$8,000",
-    period: "/ year",
-    capacity: "Up to 10 designers",
-    highlight: true,
-    features: [
-      "Team leader dashboard on runladder.com",
-      "Add and manage up to 10 designers",
-      "Team knowledge base (brand standards + leadership lens)",
-      "Design system spec ingestion",
-      "Custom rubric weights",
-      "Per-designer scores, trends, and leaderboard",
-      "Design system compliance scoring",
-      "Unlimited scores on all surfaces (web, Figma, Claude)",
-      "Shareable score cards and reports",
-    ],
-    cta: "Get started",
-    href: "/contact",
-  },
-  {
-    name: "Teams Pro",
-    price: "$18,000",
-    period: "/ year",
-    capacity: "Up to 25 designers",
-    highlight: false,
-    features: [
-      "Everything in Teams",
-      "Efficiency analysis (design quality vs. build cost)",
-      "Priority support",
-      "Quarterly calibration call with Drawbackwards",
-      "Multi-product portfolio view",
-      "Custom onboarding for your team",
-    ],
-    cta: "Talk to us",
-    href: "/contact",
-  },
-];
+const TIER = {
+  name: "Teams",
+  price: "$12,000",
+  period: "/ year",
+  features: [
+    "Team leader dashboard on runladder.com",
+    "Add and manage designers",
+    "Team knowledge base (brand standards + leadership lens)",
+    "Design system spec ingestion",
+    "Custom rubric weights",
+    "Per-designer scores, trends, and leaderboard",
+    "Design system compliance scoring",
+    "Unlimited scores on all surfaces (web, Figma, Claude)",
+    "Shareable score cards and reports",
+    "Priority support",
+  ],
+};
 
 export default function TeamsPage() {
   return (
@@ -309,60 +287,46 @@ export default function TeamsPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            {TIERS.map((tier) => (
-              <div
-                key={tier.name}
-                className={`rounded-2xl p-8 flex flex-col ${
-                  tier.highlight
-                    ? "border-2 border-ladder-green bg-ladder-green/5"
-                    : "border border-border bg-card"
-                }`}
-              >
-                <h3 className="text-lg font-bold text-foreground mb-4">
-                  {tier.name}
-                </h3>
+          <div className="max-w-md mx-auto">
+            <div className="rounded-2xl p-8 flex flex-col border-2 border-ladder-green bg-ladder-green/5">
+              <h3 className="text-lg font-bold text-foreground mb-4">
+                {TIER.name}
+              </h3>
 
-                <div className="flex items-baseline gap-1.5 mb-1">
-                  <span className="text-[2.5rem] font-bold text-foreground leading-none">
-                    {tier.price}
-                  </span>
-                  <span className="text-sm text-muted">{tier.period}</span>
-                </div>
-                <p className="text-xs text-muted mb-6">{tier.capacity}</p>
-
-                <div className="border border-border rounded-lg px-4 py-3 mb-8">
-                  <p className="font-mono text-xs text-ladder-green">
-                    Unlimited scores on all surfaces
-                  </p>
-                </div>
-
-                <ul className="space-y-3 mb-10 flex-1">
-                  {tier.features.map((f) => (
-                    <li
-                      key={f}
-                      className="text-sm text-body flex items-start gap-2.5"
-                    >
-                      <span className="text-ladder-green text-xs mt-1 flex-shrink-0">
-                        +
-                      </span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href={tier.href}
-                  className={`text-center text-sm font-semibold py-3 rounded-full transition-colors ${
-                    tier.highlight
-                      ? "bg-ladder-green text-background hover:bg-ladder-green/90"
-                      : "border border-border text-foreground hover:bg-card-hover"
-                  }`}
-                >
-                  {tier.cta}
-                </Link>
+              <div className="flex items-baseline gap-1.5 mb-6">
+                <span className="text-[2.5rem] font-bold text-foreground leading-none">
+                  {TIER.price}
+                </span>
+                <span className="text-sm text-muted">{TIER.period}</span>
               </div>
-            ))}
+
+              <div className="border border-border rounded-lg px-4 py-3 mb-8">
+                <p className="font-mono text-xs text-ladder-green">
+                  Unlimited scores on all surfaces
+                </p>
+              </div>
+
+              <ul className="space-y-3 mb-10 flex-1">
+                {TIER.features.map((f: string) => (
+                  <li
+                    key={f}
+                    className="text-sm text-body flex items-start gap-2.5"
+                  >
+                    <span className="text-ladder-green text-xs mt-1 flex-shrink-0">
+                      +
+                    </span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/contact"
+                className="text-center text-sm font-semibold py-3 rounded-full transition-colors bg-ladder-green text-background hover:bg-ladder-green/90"
+              >
+                Talk to us about Teams
+              </Link>
+            </div>
           </div>
 
           {/* Enterprise */}
