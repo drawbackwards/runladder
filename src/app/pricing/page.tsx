@@ -39,8 +39,6 @@ const TIERS = [
       "Per-dimension scoring (hierarchy, spacing, copy, a11y, navigation, visual)",
       "Full score history + trend line",
       "Fix suggestions with score uplift",
-      "Competitor site analysis",
-      "Shareable score cards",
     ],
     cta: "Start 14-day free trial",
     href: "/score",
