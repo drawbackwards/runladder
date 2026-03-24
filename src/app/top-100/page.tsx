@@ -2,49 +2,15 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { PRODUCTS, CATEGORIES, SORT_OPTIONS, getScoreColor, getLevel } from "./data";
-import type { Product } from "./data";
-
-function sortProducts(products: Product[], sort: string): Product[] {
-  const sorted = [...products];
-  switch (sort) {
-    case "score-desc":
-      return sorted.sort((a, b) => b.score - a.score);
-    case "score-asc":
-      return sorted.sort((a, b) => a.score - b.score);
-    case "movers":
-      return sorted.sort(
-        (a, b) => Math.abs(b.delta || 0) - Math.abs(a.delta || 0)
-      );
-    case "name":
-      return sorted.sort((a, b) => a.name.localeCompare(b.name));
-    case "rank":
-    default:
-      return sorted.sort((a, b) => a.rank - b.rank);
-  }
-}
+import { PRODUCTS, CATEGORIES, getScoreColor, getLevel } from "./data";
 
 export default function Top100Page() {
   const [category, setCategory] = useState("All");
-  const [sort, setSort] = useState("rank");
-  const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
-    let list = PRODUCTS;
-    if (category !== "All") {
-      list = list.filter((p) => p.category === category);
-    }
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.verdict.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q)
-      );
-    }
-    return sortProducts(list, sort);
-  }, [category, sort, search]);
+    if (category === "All") return PRODUCTS;
+    return PRODUCTS.filter((p) => p.category === category);
+  }, [category]);
 
   return (
     <div className="pt-32 pb-24 px-6">
@@ -92,36 +58,6 @@ export default function Top100Page() {
             ))}
           </div>
 
-          {/* Search + sort row */}
-          <div className="flex items-center gap-3 max-w-lg mx-auto">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search products..."
-              className="flex-1 bg-card border border-border text-sm text-foreground px-4 py-2.5 rounded-lg placeholder:text-muted focus:border-ladder-green/50 focus:outline-none transition-colors"
-            />
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="bg-card border border-border text-sm text-body px-3 py-2.5 rounded-lg focus:border-ladder-green/50 focus:outline-none transition-colors appearance-none cursor-pointer"
-            >
-              {SORT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* ── Result count ── */}
-        <div className="text-center mb-8">
-          <span className="text-[11px] text-muted">
-            {filtered.length} product{filtered.length !== 1 ? "s" : ""}
-            {category !== "All" ? ` in ${category}` : ""}
-            {search.trim() ? ` matching "${search}"` : ""}
-          </span>
         </div>
 
         {/* ── The list ── */}
@@ -209,10 +145,10 @@ export default function Top100Page() {
           ))}
         </div>
 
-        {/* ── "More coming" ── */}
+        {/* ── Updated note ── */}
         <div className="text-center py-12 border-b border-border">
           <p className="text-sm text-muted">
-            {PRODUCTS.length} of 100 scored by Pulse &middot; New products added monthly
+            100 products scored by Pulse &middot; Rankings updated monthly
           </p>
         </div>
 
