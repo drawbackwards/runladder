@@ -1,13 +1,12 @@
 import Link from "next/link";
+import { LadderLogo } from "./LadderLogo";
 
 export function Nav() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
       <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="font-mono font-bold text-base tracking-tight text-ladder-green">
-            LADDER
-          </span>
+        <Link href="/" className="flex items-center">
+          <LadderLogo height={22} className="text-white" />
         </Link>
 
         <div className="hidden md:flex items-center gap-10 text-sm font-bold text-body">
