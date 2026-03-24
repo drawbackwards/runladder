@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { existsSync } from "fs";
+import { join } from "path";
 import { ScreenshotGallery } from "./screenshot-gallery";
 import {
   PRODUCTS,
@@ -61,6 +63,7 @@ export default async function ProductPage({ params }: Props) {
   const related = getRelatedProducts(product);
   const nextLevel = getNextLevel(product.score);
   const gap = getGapToNext(product.score).toFixed(1);
+  const hasScreenshots = existsSync(join(process.cwd(), "public", "screenshots", product.slug, "hero.png"));
 
   return (
     <div className="pt-32 pb-24 px-6">
@@ -118,11 +121,13 @@ export default async function ProductPage({ params }: Props) {
             </a>
 
             {/* Product screenshots */}
-            <ScreenshotGallery
-              slug={product.slug}
-              productName={product.name}
-              url={product.url}
-            />
+            {hasScreenshots && (
+              <ScreenshotGallery
+                slug={product.slug}
+                productName={product.name}
+                url={product.url}
+              />
+            )}
           </div>
 
           {/* Right: score card */}
