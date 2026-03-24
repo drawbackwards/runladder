@@ -41,11 +41,27 @@ export function ScreenshotGallery({
         <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-3">
           Interface screenshots
         </p>
-        <div className="grid grid-cols-3 gap-2">
-          {SECTIONS.map((section, i) => (
+        <div className="grid grid-cols-[2fr_1fr] gap-2 h-auto">
+          {/* Hero — large left */}
+          <button
+            onClick={() => setLightbox(0)}
+            className="border border-border rounded overflow-hidden bg-card/30 hover:border-muted transition-colors cursor-pointer group row-span-2"
+          >
+            <Image
+              src={`/screenshots/${slug}/hero.png`}
+              alt={`${productName} above the fold`}
+              width={960}
+              height={600}
+              className="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
+              unoptimized
+            />
+          </button>
+
+          {/* Mid + Lower — stacked right */}
+          {SECTIONS.slice(1).map((section, i) => (
             <button
               key={section.key}
-              onClick={() => setLightbox(i)}
+              onClick={() => setLightbox(i + 1)}
               className="border border-border rounded overflow-hidden bg-card/30 hover:border-muted transition-colors cursor-pointer group"
             >
               <Image
@@ -53,7 +69,7 @@ export function ScreenshotGallery({
                 alt={`${productName} ${section.label.toLowerCase()}`}
                 width={480}
                 height={300}
-                className="w-full h-auto group-hover:opacity-80 transition-opacity"
+                className="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
                 unoptimized
               />
             </button>
