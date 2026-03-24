@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import type { Metadata } from "next";
+import { ScreenshotGallery } from "./screenshot-gallery";
 import {
   PRODUCTS,
   getProductBySlug,
@@ -118,31 +118,11 @@ export default async function ProductPage({ params }: Props) {
             </a>
 
             {/* Product screenshots */}
-            <div className="mt-8 space-y-3">
-              <p className="text-[10px] font-semibold text-muted uppercase tracking-widest">
-                Interface screenshots
-              </p>
-              <div className="space-y-2">
-                {["hero", "mid", "lower"].map((section) => (
-                  <div
-                    key={section}
-                    className="border border-border rounded-lg overflow-hidden bg-card/30"
-                  >
-                    <Image
-                      src={`/screenshots/${product.slug}/${section}.png`}
-                      alt={`${product.name} ${section === "hero" ? "above the fold" : section === "mid" ? "mid-page" : "lower page"}`}
-                      width={1440}
-                      height={900}
-                      className="w-full h-auto"
-                      unoptimized
-                    />
-                  </div>
-                ))}
-              </div>
-              <p className="text-[10px] text-muted">
-                Captured from {product.url} at 1440px viewport
-              </p>
-            </div>
+            <ScreenshotGallery
+              slug={product.slug}
+              productName={product.name}
+              url={product.url}
+            />
           </div>
 
           {/* Right: score card */}
