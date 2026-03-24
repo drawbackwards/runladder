@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { existsSync } from "fs";
 import { join } from "path";
 import { ScreenshotGallery } from "./screenshot-gallery";
+import { CommunityVote } from "./community-vote";
 import {
   PRODUCTS,
   getProductBySlug,
@@ -25,6 +26,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${product.name} | Ladder Score ${product.score.toFixed(1)} (${getLevel(product.score)})`,
     description: product.verdict,
     openGraph: {
+      title: `${product.name} scored ${product.score.toFixed(1)} on Ladder`,
+      description: product.verdict,
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
       title: `${product.name} scored ${product.score.toFixed(1)} on Ladder`,
       description: product.verdict,
     },
@@ -295,6 +302,15 @@ export default async function ProductPage({ params }: Props) {
               </ul>
             </div>
           )}
+        </div>
+
+        {/* ── Community vote ── */}
+        <div className="mb-16">
+          <CommunityVote
+            slug={product.slug}
+            productName={product.name}
+            ladderScore={product.score}
+          />
         </div>
 
         {/* ── Share ── */}
