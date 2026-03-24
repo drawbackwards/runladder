@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LadderLogo } from "./LadderLogo";
 
 export function Footer() {
   return (
@@ -49,9 +50,7 @@ export function Footer() {
         </div>
 
         <div className="flex items-center gap-4 pt-8 border-t border-border">
-          <span className="font-mono text-sm font-bold text-ladder-green">
-            LADDER
-          </span>
+          <LadderLogo height={16} className="text-white/70" />
           <span className="text-xs text-muted">
             Made with love by <a href="https://drawbackwards.com" className="text-body hover:text-foreground transition-colors">Drawbackwards</a> since 2003
           </span>
