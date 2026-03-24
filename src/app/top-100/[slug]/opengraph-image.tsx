@@ -40,11 +40,11 @@ export default async function OGImage({
     >
       {/* Top bar */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#6AC89B", fontSize: 18, fontWeight: 700, letterSpacing: "0.15em" }}>
+        <div style={{ display: "flex", color: "#6AC89B", fontSize: 18, fontWeight: 700, letterSpacing: "0.15em" }}>
           LADDER
         </div>
-        <div style={{ color: "#555", fontSize: 16 }}>
-          runladder.com/top-100/{product.slug}
+        <div style={{ display: "flex", color: "#555", fontSize: 16 }}>
+          {`runladder.com/top-100/${product.slug}`}
         </div>
       </div>
 
@@ -53,19 +53,19 @@ export default async function OGImage({
         {/* Left: product info */}
         <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-            <span style={{ color: "#555", fontSize: 14, border: "1px solid #333", padding: "4px 12px" }}>
+            <span style={{ display: "flex", color: "#555", fontSize: 14, border: "1px solid #333", padding: "4px 12px" }}>
               {product.category}
             </span>
-            <span style={{ color: "#555", fontSize: 14 }}>
-              #{product.rank} of 100
+            <span style={{ display: "flex", color: "#555", fontSize: 14 }}>
+              {`#${product.rank} of 100`}
             </span>
           </div>
 
-          <div style={{ color: "#fff", fontSize: 48, fontWeight: 800, lineHeight: 1.1, marginBottom: 16 }}>
+          <div style={{ display: "flex", color: "#fff", fontSize: 48, fontWeight: 800, lineHeight: 1.1, marginBottom: 16 }}>
             {product.name}
           </div>
 
-          <div style={{ color: "#999", fontSize: 20, lineHeight: 1.5, maxWidth: 500 }}>
+          <div style={{ display: "flex", color: "#999", fontSize: 20, lineHeight: 1.5, maxWidth: 500 }}>
             {product.verdict}
           </div>
         </div>
@@ -83,10 +83,10 @@ export default async function OGImage({
             borderRadius: 16,
           }}
         >
-          <div style={{ color, fontSize: 80, fontWeight: 800, lineHeight: 1 }}>
+          <div style={{ display: "flex", color, fontSize: 80, fontWeight: 800, lineHeight: 1 }}>
             {product.score.toFixed(1)}
           </div>
-          <div style={{ color, fontSize: 18, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 4 }}>
+          <div style={{ display: "flex", color, fontSize: 18, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, marginTop: 4 }}>
             {level}
           </div>
         </div>
@@ -95,14 +95,14 @@ export default async function OGImage({
       {/* Score bar */}
       <div style={{ display: "flex", flexDirection: "column", marginTop: 20 }}>
         <div style={{ display: "flex", width: "100%", height: 8, background: "#222", borderRadius: 4, overflow: "hidden" }}>
-          <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 4 }} />
+          <div style={{ display: "flex", width: `${pct}%`, height: "100%", background: color, borderRadius: 4 }} />
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, color: "#444", fontSize: 12 }}>
-          <span>1.0 Functional</span>
-          <span>2.0 Usable</span>
-          <span>3.0 Comfortable</span>
-          <span>4.0 Delightful</span>
-          <span>5.0 Meaningful</span>
+          <span style={{ display: "flex" }}>1.0 Functional</span>
+          <span style={{ display: "flex" }}>2.0 Usable</span>
+          <span style={{ display: "flex" }}>3.0 Comfortable</span>
+          <span style={{ display: "flex" }}>4.0 Delightful</span>
+          <span style={{ display: "flex" }}>5.0 Meaningful</span>
         </div>
       </div>
     </div>,
