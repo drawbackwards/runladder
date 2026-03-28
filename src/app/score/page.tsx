@@ -393,6 +393,11 @@ export default function ScorePage() {
                 <p className="text-[11px] text-muted tracking-wide">
                   PNG / JPG / WebP &middot; up to 10MB
                 </p>
+                <p className="text-[10px] text-[#555] mt-4 max-w-xs mx-auto leading-relaxed">
+                  Free scores may be published on runladder.com.{" "}
+                  <a href="/pricing" className="text-ladder-green hover:text-ladder-green/80 transition-colors">Upgrade</a>{" "}
+                  for private evaluations.
+                </p>
               </div>
               <input
                 ref={fileRef}

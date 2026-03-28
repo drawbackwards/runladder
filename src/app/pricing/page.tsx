@@ -19,6 +19,7 @@ const SCREEN_SCORE_TIERS = [
       "UX copy suggestions",
       "Accessibility audit",
       "Web, Figma, or Claude",
+      "Scores may be published publicly",
     ],
     cta: "Start free",
     href: "/score",
@@ -31,6 +32,7 @@ const SCREEN_SCORE_TIERS = [
     limit: "Unlimited scores",
     features: [
       "Everything in Free",
+      "All scores are private",
       "Per-dimension scoring (hierarchy, spacing, copy, a11y, navigation, visual)",
       "Full score history + trend line",
       "Fix suggestions with score uplift",
@@ -46,6 +48,7 @@ const SCREEN_SCORE_TIERS = [
     limit: "Unlimited everything",
     features: [
       "Everything in Professional",
+      "All scores are private",
       "Up to 5 team members, $100 / additional seat",
       "Team leaderboard + portfolio score",
       "Design system compliance scoring",
