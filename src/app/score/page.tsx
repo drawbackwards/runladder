@@ -394,6 +394,10 @@ export default function ScorePage() {
                   PNG / JPG / WebP &middot; up to 10MB
                 </p>
                 <p className="text-[10px] text-[#555] mt-4 max-w-xs mx-auto leading-relaxed">
+                  By scoring, you agree to our{" "}
+                  <a href="/terms" className="text-ladder-green hover:text-ladder-green/80 transition-colors">Terms</a>{" "}
+                  and{" "}
+                  <a href="/privacy" className="text-ladder-green hover:text-ladder-green/80 transition-colors">Privacy Policy</a>.
                   Free scores may be published on runladder.com.{" "}
                   <a href="/pricing" className="text-ladder-green hover:text-ladder-green/80 transition-colors">Upgrade</a>{" "}
                   for private evaluations.
