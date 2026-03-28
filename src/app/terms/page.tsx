@@ -343,7 +343,7 @@ export default function TermsPage() {
               13. Governing Law
             </h2>
             <p>
-              These Terms are governed by the laws of the State of New York,
+              These Terms are governed by the laws of the State of Arizona,
               without regard to conflict of law provisions.
             </p>
           </section>
