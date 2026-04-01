@@ -166,14 +166,100 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ── Clerk auth component overrides ── */
-/* Clerk uses inline styles that can't be overridden with Tailwind classes */
-.cl-card {
-  background: #111111 !important;
-  border: 1px solid #2a2a2a !important;
+/* Clerk uses inline styles that require !important to override. */
+/* Covers: SignIn, SignUp, UserButton, UserProfile, account management */
+
+/* ─ Global resets ─ */
+.cl-card,
+.cl-modalContent,
+.cl-userProfile-root,
+.cl-profilePage,
+.cl-profileSection {
+  background: #111 !important;
+  border-color: #2a2a2a !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 }
 
+.cl-navbar {
+  background: #0d0d0d !important;
+  border-color: #2a2a2a !important;
+}
+
+.cl-navbarButton {
+  color: #999 !important;
+  border-radius: 0 !important;
+}
+
+.cl-navbarButton:hover,
+.cl-navbarButton[data-active="true"] {
+  background: #1a1a1a !important;
+  color: #e5e5e5 !important;
+}
+
+/* ─ Typography — make ALL text readable ─ */
+.cl-headerTitle,
+.cl-profileSectionTitle,
+.cl-profileSectionTitleText,
+.cl-userPreviewMainIdentifier,
+.cl-formFieldLabel,
+.cl-menuItem,
+.cl-breadcrumbsItemText {
+  color: #e5e5e5 !important;
+}
+
+.cl-headerSubtitle,
+.cl-profileSectionSubtitle,
+.cl-userPreviewSecondaryIdentifier,
+.cl-formFieldHintText,
+.cl-footerActionText,
+.cl-breadcrumbsItemDivider,
+.cl-menuItemDescription {
+  color: #777 !important;
+}
+
+/* Profile details — the text that was unreadable */
+.cl-profileSectionContent,
+.cl-profileSectionContent__profile,
+.cl-profileSectionContent__emailAddresses,
+.cl-profileSectionContent__connectedAccounts,
+.cl-profileSectionContent__danger,
+.cl-profileSectionContent__activeDevices {
+  color: #ccc !important;
+}
+
+/* All generic text and paragraphs inside Clerk */
+[class^="cl-"] p,
+[class^="cl-"] span,
+[class^="cl-"] label,
+[class^="cl-"] div {
+  color: inherit;
+}
+
+.cl-profileSection {
+  border-color: #2a2a2a !important;
+}
+
+.cl-profileSectionItem {
+  border-color: #2a2a2a !important;
+  color: #ccc !important;
+}
+
+.cl-profileSectionItem__profile,
+.cl-profileSectionItem__emailAddresses,
+.cl-profileSectionItem__connectedAccounts {
+  color: #ccc !important;
+}
+
+/* ─ Badges ─ */
+.cl-badge {
+  background: #6AC89B20 !important;
+  color: #6AC89B !important;
+  border: 1px solid #6AC89B40 !important;
+  border-radius: 0 !important;
+}
+
+/* ─ Form inputs ─ */
 .cl-formFieldInput,
 .cl-phoneNumberInput,
 .cl-otpCodeFieldInput {
@@ -189,6 +275,11 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: none !important;
 }
 
+.cl-formFieldLabel {
+  color: #777 !important;
+}
+
+/* ─ Buttons ─ */
 .cl-formButtonPrimary {
   background: #6AC89B !important;
   color: #111 !important;
@@ -200,24 +291,36 @@ h1, h2, h3, h4, h5, h6 {
   background: #5ab88b !important;
 }
 
-.cl-socialButtonsBlockButton {
+.cl-formButtonReset,
+.cl-formButtonSecondary {
+  color: #6AC89B !important;
+}
+
+.cl-socialButtonsBlockButton,
+.cl-alternativeMethodsBlockButton {
   background: #1a1a1a !important;
   border-color: #2a2a2a !important;
   border-radius: 0 !important;
-}
-
-.cl-socialButtonsBlockButton:hover {
-  background: #222 !important;
-}
-
-.cl-headerTitle {
   color: #e5e5e5 !important;
 }
 
-.cl-headerSubtitle {
-  color: #777 !important;
+.cl-socialButtonsBlockButton:hover,
+.cl-alternativeMethodsBlockButton:hover {
+  background: #222 !important;
 }
 
+/* Action links and buttons in profile */
+.cl-profileSectionPrimaryButton,
+.cl-accordionTriggerButton,
+.cl-navbarMobileMenuButton {
+  color: #6AC89B !important;
+}
+
+.cl-profileSectionPrimaryButton:hover {
+  color: #5ab88b !important;
+}
+
+/* ─ Dividers ─ */
 .cl-dividerLine {
   background: #2a2a2a !important;
 }
@@ -226,10 +329,7 @@ h1, h2, h3, h4, h5, h6 {
   color: #555 !important;
 }
 
-.cl-formFieldLabel {
-  color: #777 !important;
-}
-
+/* ─ Footer ─ */
 .cl-footerActionLink {
   color: #6AC89B !important;
 }
@@ -238,26 +338,90 @@ h1, h2, h3, h4, h5, h6 {
   color: #555 !important;
 }
 
-.cl-internal-b9gtce {
-  background: #111 !important;
-}
-
-.cl-alternativeMethodsBlockButton {
-  background: #1a1a1a !important;
-  border-color: #2a2a2a !important;
-  border-radius: 0 !important;
-}
-
+/* ─ User button popover ─ */
 .cl-userButtonPopoverCard {
   background: #111 !important;
   border: 1px solid #2a2a2a !important;
   border-radius: 0 !important;
 }
 
-.cl-userButtonPopoverActionButton {
+.cl-userButtonPopoverActionButton,
+.cl-userButtonPopoverActionButtonText {
   color: #e5e5e5 !important;
 }
 
 .cl-userButtonPopoverActionButton:hover {
   background: #1a1a1a !important;
+}
+
+.cl-userButtonPopoverActionButtonIcon {
+  color: #777 !important;
+}
+
+/* ─ Modal / overlay ─ */
+.cl-modalBackdrop {
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+
+.cl-modalContent {
+  border: 1px solid #2a2a2a !important;
+}
+
+/* ─ Menu items (dropdown menus, context menus) ─ */
+.cl-menuList {
+  background: #111 !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 0 !important;
+}
+
+.cl-menuItem {
+  color: #e5e5e5 !important;
+}
+
+.cl-menuItem:hover {
+  background: #1a1a1a !important;
+}
+
+/* ─ Danger zone ─ */
+.cl-profileSectionContent__danger .cl-profileSectionPrimaryButton {
+  color: #ef4444 !important;
+}
+
+/* ─ Scrollbar inside Clerk panels ─ */
+[class^="cl-"] ::-webkit-scrollbar {
+  width: 6px;
+}
+
+[class^="cl-"] ::-webkit-scrollbar-track {
+  background: #111;
+}
+
+[class^="cl-"] ::-webkit-scrollbar-thumb {
+  background: #333;
+}
+
+/* ─ Close button ─ */
+.cl-modalCloseButton {
+  color: #777 !important;
+}
+
+.cl-modalCloseButton:hover {
+  color: #e5e5e5 !important;
+}
+
+/* ─ Active devices, sessions ─ */
+.cl-activeDevice,
+.cl-activeDeviceListItem {
+  border-color: #2a2a2a !important;
+  color: #ccc !important;
+}
+
+/* ─ Catch-all for any remaining internal elements ─ */
+[class*="cl-internal"] {
+  color: #ccc !important;
+}
+
+[class*="cl-internal"][class*="bg"],
+[class*="cl-internal"][style*="background"] {
+  background: #111 !important;
 }
