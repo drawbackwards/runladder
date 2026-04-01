@@ -41,13 +41,21 @@ export function Nav() {
             </SignInButton>
           )}
           {isLoaded && isSignedIn && (
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: "w-8 h-8",
-                },
-              }}
-            />
+            <>
+              <Link
+                href="/dashboard"
+                className="text-sm font-bold text-body hover:text-foreground transition-colors"
+              >
+                Dashboard
+              </Link>
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "w-8 h-8",
+                  },
+                }}
+              />
+            </>
           )}
           <Link
             href="/score"
