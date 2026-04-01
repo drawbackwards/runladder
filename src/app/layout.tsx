@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { IBM_Plex_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -38,24 +39,37 @@ export default function RootLayout({
   const gateEnabled = !!process.env.SITE_PASSWORD;
 
   return (
-    <html lang="en">
-      <body
-        className={`${inter.variable} ${ibmPlexMono.variable} font-sans antialiased`}
-      >
-        {gateEnabled ? (
-          <PasswordGate>
-            <Nav />
-            <main className="min-h-screen">{children}</main>
-            <Footer />
-          </PasswordGate>
-        ) : (
-          <>
-            <Nav />
-            <main className="min-h-screen">{children}</main>
-            <Footer />
-          </>
-        )}
-      </body>
-    </html>
+    <ClerkProvider
+      appearance={{
+        variables: {
+          colorPrimary: "#6AC89B",
+          colorBackground: "#1a1a1a",
+          colorText: "#ffffff",
+          colorTextSecondary: "#999999",
+          colorInputBackground: "#111111",
+          colorInputText: "#ffffff",
+        },
+      }}
+    >
+      <html lang="en">
+        <body
+          className={`${inter.variable} ${ibmPlexMono.variable} font-sans antialiased`}
+        >
+          {gateEnabled ? (
+            <PasswordGate>
+              <Nav />
+              <main className="min-h-screen">{children}</main>
+              <Footer />
+            </PasswordGate>
+          ) : (
+            <>
+              <Nav />
+              <main className="min-h-screen">{children}</main>
+              <Footer />
+            </>
+          )}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

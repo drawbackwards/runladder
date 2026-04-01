@@ -289,12 +289,20 @@ export default function ScorePage() {
       const res = await fetch("/api/score", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: imageToScore }),
+        body: JSON.stringify({ image: imageToScore, source: fileName || "Upload" }),
       });
       const text = await res.text();
       let data;
       try { data = JSON.parse(text); } catch { throw new Error("Scoring service returned an unexpected response. Please try again."); }
-      if (!res.ok) throw new Error(data.error || "Scoring failed");
+      if (!res.ok) {
+        if (data.signup) {
+          throw new Error("Sign up for free to get 5 scores per month. Log in at runladder.com/login");
+        }
+        if (data.upgrade) {
+          throw new Error("You've used all 5 free scores this month. Upgrade at runladder.com/pricing for unlimited scoring.");
+        }
+        throw new Error(data.error || "Scoring failed");
+      }
       setResult(data);
 
       // Save to past scores
