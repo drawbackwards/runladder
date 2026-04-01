@@ -1,25 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFile, writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-
-const DATA_DIR = join(process.cwd(), ".data");
-const VOTES_FILE = join(DATA_DIR, "votes.json");
-
-type VoteData = Record<string, { total: number; count: number }>;
-
-async function getVotes(): Promise<VoteData> {
-  try {
-    const raw = await readFile(VOTES_FILE, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return {};
-  }
-}
-
-async function saveVotes(votes: VoteData): Promise<void> {
-  await mkdir(DATA_DIR, { recursive: true });
-  await writeFile(VOTES_FILE, JSON.stringify(votes, null, 2));
-}
+import { redis } from "@/lib/redis";
 
 // GET /api/vote?slug=linear
 export async function GET(req: NextRequest) {
@@ -28,16 +8,18 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing slug" }, { status: 400 });
   }
 
-  const votes = await getVotes();
-  const data = votes[slug];
+  const [total, count] = await Promise.all([
+    redis.hget<number>(`votes:${slug}`, "total"),
+    redis.hget<number>(`votes:${slug}`, "count"),
+  ]);
 
-  if (!data || data.count === 0) {
+  if (!count) {
     return NextResponse.json({ average: null, count: 0 });
   }
 
   return NextResponse.json({
-    average: Math.round((data.total / data.count) * 10) / 10,
-    count: data.count,
+    average: Math.round(((total ?? 0) / count) * 10) / 10,
+    count,
   });
 }
 
@@ -52,18 +34,20 @@ export async function POST(req: NextRequest) {
 
   // Round to nearest 0.5
   const rounded = Math.round(score * 2) / 2;
+  const key = `votes:${slug}`;
 
-  const votes = await getVotes();
-  if (!votes[slug]) {
-    votes[slug] = { total: 0, count: 0 };
-  }
-  votes[slug].total += rounded;
-  votes[slug].count += 1;
+  await Promise.all([
+    redis.hincrbyfloat(key, "total", rounded),
+    redis.hincrby(key, "count", 1),
+  ]);
 
-  await saveVotes(votes);
+  const [total, count] = await Promise.all([
+    redis.hget<number>(key, "total"),
+    redis.hget<number>(key, "count"),
+  ]);
 
   return NextResponse.json({
-    average: Math.round((votes[slug].total / votes[slug].count) * 10) / 10,
-    count: votes[slug].count,
+    average: Math.round(((total ?? 0) / (count ?? 1)) * 10) / 10,
+    count: count ?? 1,
   });
 }

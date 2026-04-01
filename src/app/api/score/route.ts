@@ -1,21 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { redis } from "@/lib/redis";
 
-/* ── Rate limiting (in-memory, per-IP) ── */
-const rateMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT = 20; // requests per window
-const RATE_WINDOW = 60 * 60 * 1000; // 1 hour
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateMap.get(ip);
-  if (!entry || now > entry.resetAt) {
-    rateMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW });
-    return false;
-  }
-  entry.count++;
-  return entry.count > RATE_LIMIT;
-}
+const FREE_MONTHLY_LIMIT = 5;
+const ANON_LIMIT = 1;
 
 /* ── Content moderation prompt ── */
 const MODERATION_PROMPT = `Look at this image. Is it a UI/UX screen, website, app interface, or design mockup?
@@ -102,7 +91,7 @@ FINDING RULES:
 
 export async function POST(req: NextRequest) {
   try {
-    /* ── Bot detection: block known automation tools ── */
+    /* ── Bot detection ── */
     const ua = req.headers.get("user-agent") || "";
     if (/curl|wget|python-requests|httpie|postman|scrapy|phantomjs/i.test(ua)) {
       return NextResponse.json(
@@ -111,19 +100,46 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    /* ── Rate limiting ── */
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-      || req.headers.get("x-real-ip")
-      || "unknown";
-    if (isRateLimited(ip)) {
-      return NextResponse.json(
-        { error: "Too many requests. Please try again later." },
-        { status: 429 }
-      );
+    /* ── Auth (optional — anonymous users allowed with lower limit) ── */
+    const { userId } = await auth();
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("x-real-ip") ||
+      "unknown";
+
+    /* ── Rate limiting via Redis ── */
+    const monthKey = new Date().toISOString().slice(0, 7); // "2026-04"
+
+    if (userId) {
+      // Authenticated: 5 scores/month on free tier
+      const countKey = `user:${userId}:usage:${monthKey}`;
+      const count = (await redis.get<number>(countKey)) ?? 0;
+      if (count >= FREE_MONTHLY_LIMIT) {
+        return NextResponse.json(
+          {
+            error: `Free tier limit reached (${FREE_MONTHLY_LIMIT} scores/month). Upgrade for unlimited scoring.`,
+            upgrade: true,
+          },
+          { status: 429 }
+        );
+      }
+    } else {
+      // Anonymous: 1 score per 24 hours per IP
+      const anonKey = `rate:anon:${ip}`;
+      const count = (await redis.get<number>(anonKey)) ?? 0;
+      if (count >= ANON_LIMIT) {
+        return NextResponse.json(
+          {
+            error: "Sign up for free to get 5 scores per month.",
+            signup: true,
+          },
+          { status: 429 }
+        );
+      }
     }
 
     const body = await req.json();
-    const { image } = body;
+    const { image, source } = body;
 
     if (!image || typeof image !== "string") {
       return NextResponse.json(
@@ -259,6 +275,44 @@ export async function POST(req: NextRequest) {
         { error: "Invalid scoring response shape" },
         { status: 500 }
       );
+    }
+
+    /* ── Persist score + increment usage ── */
+    if (userId) {
+      const scoreEntry = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        score: result.score,
+        label: result.label,
+        summary: result.summary,
+        source: source || "upload",
+        timestamp: Date.now(),
+      };
+
+      const countKey = `user:${userId}:usage:${monthKey}`;
+
+      await Promise.all([
+        // Save score to user history
+        redis.zadd(`user:${userId}:scores`, {
+          score: Date.now(),
+          member: JSON.stringify(scoreEntry),
+        }),
+        // Increment monthly usage
+        redis.incr(countKey),
+      ]);
+
+      // Set TTL on usage counter (~35 days) if not already set
+      const ttl = await redis.ttl(countKey);
+      if (ttl < 0) {
+        await redis.expire(countKey, 60 * 60 * 24 * 35);
+      }
+    } else {
+      // Anonymous: set rate limit
+      const anonKey = `rate:anon:${ip}`;
+      await redis.incr(anonKey);
+      const ttl = await redis.ttl(anonKey);
+      if (ttl < 0) {
+        await redis.expire(anonKey, 60 * 60 * 24); // 24 hours
+      }
     }
 
     return NextResponse.json(result);
