@@ -164,3 +164,100 @@ h1, h2, h3, h4, h5, h6 {
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }
+
+/* ── Clerk auth component overrides ── */
+/* Clerk uses inline styles that can't be overridden with Tailwind classes */
+.cl-card {
+  background: #111111 !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.cl-formFieldInput,
+.cl-phoneNumberInput,
+.cl-otpCodeFieldInput {
+  background: #1a1a1a !important;
+  border-color: #2a2a2a !important;
+  color: #e5e5e5 !important;
+  border-radius: 0 !important;
+}
+
+.cl-formFieldInput:focus,
+.cl-phoneNumberInput:focus {
+  border-color: #6AC89B !important;
+  box-shadow: none !important;
+}
+
+.cl-formButtonPrimary {
+  background: #6AC89B !important;
+  color: #111 !important;
+  border-radius: 0 !important;
+  font-weight: 600 !important;
+}
+
+.cl-formButtonPrimary:hover {
+  background: #5ab88b !important;
+}
+
+.cl-socialButtonsBlockButton {
+  background: #1a1a1a !important;
+  border-color: #2a2a2a !important;
+  border-radius: 0 !important;
+}
+
+.cl-socialButtonsBlockButton:hover {
+  background: #222 !important;
+}
+
+.cl-headerTitle {
+  color: #e5e5e5 !important;
+}
+
+.cl-headerSubtitle {
+  color: #777 !important;
+}
+
+.cl-dividerLine {
+  background: #2a2a2a !important;
+}
+
+.cl-dividerText {
+  color: #555 !important;
+}
+
+.cl-formFieldLabel {
+  color: #777 !important;
+}
+
+.cl-footerActionLink {
+  color: #6AC89B !important;
+}
+
+.cl-footerActionText {
+  color: #555 !important;
+}
+
+.cl-internal-b9gtce {
+  background: #111 !important;
+}
+
+.cl-alternativeMethodsBlockButton {
+  background: #1a1a1a !important;
+  border-color: #2a2a2a !important;
+  border-radius: 0 !important;
+}
+
+.cl-userButtonPopoverCard {
+  background: #111 !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 0 !important;
+}
+
+.cl-userButtonPopoverActionButton {
+  color: #e5e5e5 !important;
+}
+
+.cl-userButtonPopoverActionButton:hover {
+  background: #1a1a1a !important;
+}
