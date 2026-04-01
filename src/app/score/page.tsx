@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
@@ -166,6 +167,7 @@ function timeAgo(ts: number): string {
 }
 
 export default function ScorePage() {
+  const { isSignedIn, isLoaded } = useAuth();
   const [image, setImage] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [urlInput, setUrlInput] = useState("");
@@ -178,6 +180,7 @@ export default function ScorePage() {
   const [scanPhase, setScanPhase] = useState(0);
   const [isDragOver, setIsDragOver] = useState(false);
   const [pastScores, setPastScores] = useState<PastScore[]>([]);
+  const [isPublic, setIsPublic] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Load past scores on mount
@@ -289,7 +292,7 @@ export default function ScorePage() {
       const res = await fetch("/api/score", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: imageToScore, source: fileName || "Upload" }),
+        body: JSON.stringify({ image: imageToScore, source: fileName || "Upload", isPublic }),
       });
       const text = await res.text();
       let data;
@@ -401,15 +404,39 @@ export default function ScorePage() {
                 <p className="text-[11px] text-muted tracking-wide">
                   PNG / JPG / WebP &middot; up to 10MB
                 </p>
-                <p className="text-[10px] text-[#555] mt-4 max-w-xs mx-auto leading-relaxed">
-                  By scoring, you agree to our{" "}
-                  <a href="/terms" className="text-ladder-green hover:text-ladder-green/80 transition-colors">Terms</a>{" "}
-                  and{" "}
-                  <a href="/privacy" className="text-ladder-green hover:text-ladder-green/80 transition-colors">Privacy Policy</a>.
-                  Free scores may be published on runladder.com.{" "}
-                  <a href="/pricing" className="text-ladder-green hover:text-ladder-green/80 transition-colors">Upgrade</a>{" "}
-                  for private evaluations.
-                </p>
+                {isLoaded && isSignedIn ? (
+                  <div className="mt-4 max-w-sm mx-auto">
+                    <div className="flex items-center justify-center gap-3 mb-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setIsPublic(!isPublic); }}
+                        className={`relative w-8 h-[18px] rounded-full transition-colors ${
+                          isPublic ? "bg-ladder-green" : "bg-[#333]"
+                        }`}
+                      >
+                        <span className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white transition-transform ${
+                          isPublic ? "left-[16px]" : "left-[2px]"
+                        }`} />
+                      </button>
+                      <span className="text-[10px] text-[#555]">
+                        {isPublic ? "Public score — visible on runladder.com" : "Private score — only you can see this"}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-[#444] leading-relaxed text-center">
+                      Signed in. Scores saved to your{" "}
+                      <a href="/dashboard" className="text-ladder-green hover:text-ladder-green/80 transition-colors">dashboard</a>.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-[10px] text-[#555] mt-4 max-w-xs mx-auto leading-relaxed">
+                    By scoring, you agree to our{" "}
+                    <a href="/terms" className="text-ladder-green hover:text-ladder-green/80 transition-colors">Terms</a>{" "}
+                    and{" "}
+                    <a href="/privacy" className="text-ladder-green hover:text-ladder-green/80 transition-colors">Privacy Policy</a>.
+                    Free scores may be published on runladder.com.{" "}
+                    <a href="/login" className="text-ladder-green hover:text-ladder-green/80 transition-colors">Sign in</a>{" "}
+                    for private scoring.
+                  </p>
+                )}
               </div>
               <input
                 ref={fileRef}

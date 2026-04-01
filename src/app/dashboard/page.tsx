@@ -59,6 +59,7 @@ export default function DashboardPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isSignedIn) return;
@@ -79,6 +80,27 @@ export default function DashboardPage() {
 
     fetchData();
   }, [isSignedIn]);
+
+  async function deleteScore(scoreId: string) {
+    setDeleting(scoreId);
+    try {
+      const res = await fetch("/api/dashboard/scores", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scoreId }),
+      });
+      if (res.ok && data) {
+        setData({
+          ...data,
+          scores: data.scores.filter((s) => s.id !== scoreId),
+        });
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setDeleting(null);
+    }
+  }
 
   if (!isLoaded) return null;
   if (!isSignedIn) return <RedirectToSignIn />;
@@ -201,10 +223,22 @@ export default function DashboardPage() {
                       <p className="text-xs text-muted font-sans mt-1 truncate">{entry.summary}</p>
                     </div>
 
-                    {/* Time */}
-                    <span className="text-[10px] text-[#444] flex-shrink-0">
-                      {timeAgo(entry.timestamp)}
-                    </span>
+                    {/* Time + delete */}
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <span className="text-[10px] text-[#444]">
+                        {timeAgo(entry.timestamp)}
+                      </span>
+                      <button
+                        onClick={() => deleteScore(entry.id)}
+                        disabled={deleting === entry.id}
+                        className="text-[#444] hover:text-ladder-red transition-colors disabled:opacity-30"
+                        title="Delete score"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
