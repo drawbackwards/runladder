@@ -269,11 +269,11 @@ export default function PricingPage() {
               },
               {
                 q: "Can I cancel anytime?",
-                a: "Yes. Professional is month-to-month with a 3-day money-back guarantee. If you cancel within 3 days, we refund you in full. After that, cancel anytime from your account settings, no questions asked.",
+                a: "Professional is month-to-month with a 3-day money-back guarantee. If you cancel your Pro subscription within 3 days, we refund you in full. After that, cancel anytime from your account settings, no questions asked. Team and Pulse require a contract — contact us for terms.",
               },
               {
                 q: "How does Team seat pricing work?",
-                a: "Team pricing is custom. It includes up to 5 team members with additional seats available. You get team leaderboards, compliance scoring, and manager dashboards. Contact us for details.",
+                a: "Team pricing is custom and requires a contract. It includes up to 5 team members with additional seats available. You get team leaderboards, compliance scoring, and manager dashboards. Contact us for details.",
               },
               {
                 q: "What\u2019s the difference between Screen Score and Pulse?",
