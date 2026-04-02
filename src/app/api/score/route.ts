@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { image, source } = body;
+    const { image, source, isPublic } = body;
 
     if (!image || typeof image !== "string") {
       return NextResponse.json(
@@ -285,6 +285,7 @@ export async function POST(req: NextRequest) {
         label: result.label,
         summary: result.summary,
         source: source || "upload",
+        isPublic: !!isPublic,
         timestamp: Date.now(),
       };
 
