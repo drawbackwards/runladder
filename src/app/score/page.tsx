@@ -885,7 +885,7 @@ export default function ScorePage() {
                     href="/pricing"
                     className="inline-block mt-6 text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest"
                   >
-                    $50/mo — Upgrade to Pro
+                    $250/mo — Upgrade to Pro
                   </Link>
                 </div>
 
