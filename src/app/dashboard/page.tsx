@@ -13,6 +13,7 @@ type ScoreEntry = {
   summary: string;
   source: string;
   thumbnail?: string;
+  isPublic?: boolean;
   timestamp: number;
 };
 
@@ -189,58 +190,71 @@ export default function DashboardPage() {
               {scores.map((entry) => (
                 <div
                   key={entry.id}
-                  className="border border-[#333] bg-[#1e1e1e] p-5 hover:border-muted transition-colors"
+                  className="border border-[#333] bg-[#1e1e1e] hover:border-muted transition-colors"
                 >
-                  <div className="flex items-center gap-5">
-                    {/* Thumbnail */}
-                    {entry.thumbnail ? (
-                      <div className="flex-shrink-0 w-16 h-16 border border-[#333] bg-[#111] overflow-hidden">
-                        <img src={entry.thumbnail} alt="" className="w-full h-full object-cover object-top" />
+                  <Link
+                    href={`/dashboard/scores/${entry.id}`}
+                    className="block p-5"
+                  >
+                    <div className="flex items-center gap-5">
+                      {/* Thumbnail */}
+                      {entry.thumbnail ? (
+                        <div className="flex-shrink-0 w-16 h-16 border border-[#333] bg-[#111] overflow-hidden">
+                          <img src={entry.thumbnail} alt="" className="w-full h-full object-cover object-top" />
+                        </div>
+                      ) : (
+                        <div className="flex-shrink-0 w-16 h-16 border border-[#333] bg-[#111] flex items-center justify-center">
+                          <span className="text-[#333] text-xs">--</span>
+                        </div>
+                      )}
+
+                      {/* Score */}
+                      <div className="flex-shrink-0 w-14 text-center">
+                        <span
+                          className="text-2xl font-bold tabular-nums"
+                          style={{ color: getScoreColor(entry.score) }}
+                        >
+                          {entry.score.toFixed(1)}
+                        </span>
+                        <span
+                          className="block text-[9px] uppercase tracking-widest mt-0.5"
+                          style={{ color: getScoreColor(entry.score) }}
+                        >
+                          {entry.label}
+                        </span>
                       </div>
-                    ) : (
-                      <div className="flex-shrink-0 w-16 h-16 border border-[#333] bg-[#111] flex items-center justify-center">
-                        <span className="text-[#333] text-xs">--</span>
+
+                      {/* Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm text-foreground font-sans truncate">{entry.screenName || entry.source}</p>
+                          {entry.isPublic === false && (
+                            <span className="text-[8px] text-muted uppercase tracking-widest border border-[#333] px-1.5 py-0.5 flex-shrink-0">
+                              Private
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted font-sans mt-1 truncate">{entry.summary}</p>
                       </div>
-                    )}
 
-                    {/* Score */}
-                    <div className="flex-shrink-0 w-14 text-center">
-                      <span
-                        className="text-2xl font-bold tabular-nums"
-                        style={{ color: getScoreColor(entry.score) }}
-                      >
-                        {entry.score.toFixed(1)}
-                      </span>
-                      <span
-                        className="block text-[9px] uppercase tracking-widest mt-0.5"
-                        style={{ color: getScoreColor(entry.score) }}
-                      >
-                        {entry.label}
-                      </span>
-                    </div>
-
-                    {/* Details */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground font-sans truncate">{entry.screenName || entry.source}</p>
-                      <p className="text-xs text-muted font-sans mt-1 truncate">{entry.summary}</p>
-                    </div>
-
-                    {/* Time + delete */}
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className="text-[10px] text-[#444]">
+                      {/* Time */}
+                      <span className="text-[10px] text-[#444] flex-shrink-0">
                         {timeAgo(entry.timestamp)}
                       </span>
-                      <button
-                        onClick={() => deleteScore(entry.id)}
-                        disabled={deleting === entry.id}
-                        className="text-[#444] hover:text-ladder-red transition-colors disabled:opacity-30"
-                        title="Delete score"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14" />
-                        </svg>
-                      </button>
                     </div>
+                  </Link>
+                  {/* Delete button outside the link */}
+                  <div className="flex justify-end px-5 pb-3 -mt-2">
+                    <button
+                      onClick={() => deleteScore(entry.id)}
+                      disabled={deleting === entry.id}
+                      className="text-[#444] hover:text-ladder-red transition-colors disabled:opacity-30"
+                      title="Delete score"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               ))}
