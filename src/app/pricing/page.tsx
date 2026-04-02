@@ -9,18 +9,19 @@ export const metadata: Metadata = {
 
 const SCREEN_SCORE_TIERS = [
   {
-    name: "Free",
+    name: "Web and Claude",
     price: "$0",
     period: "forever",
     highlight: false,
     limit: "5 scores / month",
     features: [
       "Overall Ladder score + coaching",
-      "Web or Claude",
+      "Score from the web or Claude",
       "Scores may be published publicly",
     ],
     cta: "Start free",
     href: "/score",
+    solidCta: true,
   },
   {
     name: "Professional",
@@ -36,14 +37,16 @@ const SCREEN_SCORE_TIERS = [
       "Per-dimension scoring (hierarchy, spacing, copy, a11y, navigation, visual)",
       "Full score history + trend line",
       "Fix suggestions with score uplift",
+      "Access to Pulse data (if subscribed)",
     ],
     cta: "Subscribe",
     href: "/score",
+    solidCta: false,
   },
   {
     name: "Team",
-    price: "$500",
-    period: "/ mo",
+    price: "Custom",
+    period: "",
     highlight: false,
     limit: "Unlimited everything",
     features: [
@@ -53,10 +56,11 @@ const SCREEN_SCORE_TIERS = [
       "Team leaderboard + portfolio score",
       "Design system compliance scoring",
       "Manager dashboard + performance tracking",
-      "Access to Pulse data if subscribed",
+      "Access to Pulse data (if subscribed)",
     ],
-    cta: "Subscribe",
-    href: "/score",
+    cta: "Talk to us about Ladder",
+    href: "/contact",
+    solidCta: false,
   },
 ];
 
@@ -139,6 +143,8 @@ export default function PricingPage() {
                 className={`text-center text-sm font-semibold py-3 rounded-full transition-colors ${
                   tier.highlight
                     ? "bg-ladder-green text-background hover:bg-ladder-green/90"
+                    : tier.solidCta
+                    ? "bg-foreground text-background hover:bg-foreground/90"
                     : "border border-border text-foreground hover:bg-card-hover"
                 }`}
               >
@@ -162,9 +168,8 @@ export default function PricingPage() {
             {/* Price */}
             <div className="flex items-baseline gap-1.5 mb-1">
               <span className="text-[2.5rem] font-bold text-foreground leading-none">
-                $5,000
+                Custom
               </span>
-              <span className="text-sm text-muted">/ mo</span>
             </div>
             <div className="mb-6" />
 
