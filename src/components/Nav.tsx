@@ -56,12 +56,14 @@ export function Nav() {
                     },
                   }}
                 />
+                <span className="text-[9px] uppercase tracking-widest font-semibold text-muted border border-[#333] px-2 py-1">
+                  Free
+                </span>
                 <Link
                   href="/pricing"
-                  className="flex items-center gap-1.5 text-[9px] uppercase tracking-widest font-semibold border border-[#333] px-2 py-1 hover:border-ladder-green transition-colors group"
+                  className="text-[9px] uppercase tracking-widest font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors"
                 >
-                  <span className="text-muted group-hover:text-foreground transition-colors">Free</span>
-                  <span className="text-ladder-green">Upgrade</span>
+                  Upgrade
                 </Link>
               </div>
             </>
