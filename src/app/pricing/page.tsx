@@ -16,8 +16,8 @@ const SCREEN_SCORE_TIERS = [
     limit: "5 scores / month",
     features: [
       "Overall Ladder score + coaching",
-      "Score from the web or Claude",
-      "Scores may be published publicly",
+      "Score with web or Claude skill",
+      "Scores are public",
     ],
     cta: "Start free",
     href: "/score",
@@ -30,7 +30,7 @@ const SCREEN_SCORE_TIERS = [
     highlight: true,
     limit: "Unlimited scores",
     features: [
-      "Everything in Free",
+      "Unlimited scoring for web and Claude skill",
       "All scores are private",
       "UX copy suggestions",
       "Accessibility audit",
@@ -52,7 +52,6 @@ const SCREEN_SCORE_TIERS = [
     features: [
       "Everything in Professional",
       "All scores are private",
-      "Up to 5 team members, $100 / additional seat",
       "Team leaderboard + portfolio score",
       "Design system compliance scoring",
       "Manager dashboard + performance tracking",
