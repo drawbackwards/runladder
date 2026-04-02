@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Products | Ladder",
   description:
-    "One quality score across every surface. Score in your browser, in Figma, from customer feedback, or through Claude.",
+    "One quality score across every surface. Score in your browser, from customer feedback, or through Claude.",
 };
 
 const SURFACES = [
@@ -23,23 +23,6 @@ const SURFACES = [
     ],
     cta: "Score a screen free",
     href: "/score",
-    available: true,
-  },
-  {
-    name: "Ladder for Figma",
-    badge: "Plugin",
-    tagline: "Know your score before you hand off.",
-    description:
-      "Score any frame while you design. The plugin sees your actual layout, typography, color, spacing, and hierarchy, then scores it against the Ladder framework in context. Stop shipping screens that look done but feel broken.",
-    features: [
-      "In-canvas scoring: select a frame, get a score",
-      "Per-rung breakdown (Meaningful through Functional)",
-      "Coaching cards with fix-by-fix guidance",
-      "Design system generation from your existing patterns",
-      "Score history per frame with trend indicators",
-    ],
-    cta: "Install from Figma Community",
-    href: "#",
     available: true,
   },
   {
@@ -108,7 +91,7 @@ export default function ProductsPage() {
             <span className="text-ladder-green">Every surface.</span>
           </h1>
           <p className="text-lg text-body max-w-2xl mx-auto leading-relaxed">
-            Score in your browser, in Figma, from customer feedback, or through
+            Score in your browser, from customer feedback, or through
             Claude. Every score feeds the same account, the same history, the
             same truth.
           </p>
@@ -128,12 +111,6 @@ export default function ProductsPage() {
                 <span>runladder.com</span>
                 <span className="flex-1 border-b border-dashed border-border" />
                 <span className="text-muted text-xs">web</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="w-2 h-2 rounded-full bg-ladder-green flex-shrink-0" />
-                <span>Ladder for Figma</span>
-                <span className="flex-1 border-b border-dashed border-border" />
-                <span className="text-muted text-xs">plugin</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="w-2 h-2 rounded-full bg-ladder-green flex-shrink-0" />
@@ -228,7 +205,7 @@ export default function ProductsPage() {
             <span className="text-body">Everywhere.</span>
           </h2>
           <p className="text-body leading-relaxed max-w-xl mx-auto mb-10">
-            Score a screen on the web, check it in Figma, or reference it in
+            Score a screen on the web or reference it in
             Claude. It&apos;s the same score, the same history, the same
             account. One subscription unlocks every surface.
           </p>

@@ -21,7 +21,6 @@ export function Footer() {
               Surfaces
             </h4>
             <ul className="space-y-3 text-sm text-body">
-              <li><Link href="/products" className="hover:text-foreground transition-colors">Ladder for Figma</Link></li>
               <li><Link href="/products" className="hover:text-foreground transition-colors">Ladder for Claude</Link></li>
               <li><Link href="/pulse" className="hover:text-foreground transition-colors">Ladder Pulse</Link></li>
             </ul>

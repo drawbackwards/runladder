@@ -21,7 +21,7 @@ export default function PrivacyPage() {
             <p>
               This Privacy Policy explains how Drawbackwards LLC ("we", "us",
               "our") collects, uses, and protects your information when you use
-              Ladder, including runladder.com, Ladder for Figma, Ladder for Claude,
+              Ladder, including runladder.com, Ladder for Claude,
               the Ladder API, and Ladder Pulse (collectively, the "Service").
             </p>
           </section>
@@ -152,14 +152,6 @@ export default function PrivacyPage() {
                   <strong className="text-foreground">runladder.com:</strong>{" "}
                   Content is submitted directly to our servers. Screenshots may be
                   captured via our URL capture service.
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-ladder-green mt-0.5">+</span>
-                <span>
-                  <strong className="text-foreground">Ladder for Figma:</strong>{" "}
-                  Selected frames are sent from the Figma plugin to our API for
-                  scoring. We receive the image data but not your full Figma file.
                 </span>
               </li>
               <li className="flex items-start gap-2">

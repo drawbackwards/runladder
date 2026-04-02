@@ -5,6 +5,7 @@ import { useAuth } from "@clerk/nextjs";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
+import Link from "next/link";
 
 type Finding = {
   title: string;
@@ -850,6 +851,64 @@ export default function ScorePage() {
                 </div>
               </div>
             )}
+
+            {/* Pro upgrade promo */}
+            <div className="border border-ladder-green/20 bg-[#1e1e1e] p-8">
+              <div className="flex items-start gap-6">
+                <div className="flex-1">
+                  <span className="text-[10px] text-ladder-green uppercase tracking-widest font-semibold">Upgrade to Pro</span>
+                  <h3 className="text-lg font-bold text-foreground mt-2 font-sans">See more. Fix faster.</h3>
+                  <p className="text-sm text-body leading-relaxed mt-3 font-sans">
+                    Free scores show you where you stand. Pro shows you exactly how to move up.
+                  </p>
+                  <ul className="mt-4 space-y-2">
+                    {[
+                      "Accessibility audit",
+                      "UX copy suggestions",
+                      "Per-dimension scoring (hierarchy, spacing, copy, a11y, navigation, visual)",
+                      "Fix suggestions with score uplift estimates",
+                      "Full score history + trend line",
+                      "All scores are private",
+                    ].map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-xs text-body font-sans">
+                        <span className="text-ladder-green mt-0.5 flex-shrink-0">+</span>
+                        {f}
+                      </li>
+                    ))}
+                    <li className="flex items-start gap-2 text-xs text-muted font-sans">
+                      <span className="text-[#555] mt-0.5 flex-shrink-0">+</span>
+                      Ladder for Figma — coming soon for Pro members
+                    </li>
+                  </ul>
+                  <Link
+                    href="/pricing"
+                    className="inline-block mt-6 text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest"
+                  >
+                    $50/mo — Upgrade to Pro
+                  </Link>
+                </div>
+
+                {/* Pro preview thumbnail mockup */}
+                <div className="hidden md:block flex-shrink-0 w-48 border border-[#333] bg-[#161616] p-3 opacity-60">
+                  <span className="text-[8px] text-muted uppercase tracking-widest block mb-2">Pro preview</span>
+                  <div className="space-y-2">
+                    {["Hierarchy", "Spacing", "Copy", "A11y", "Navigation", "Visual"].map((dim) => (
+                      <div key={dim} className="flex items-center gap-2">
+                        <span className="text-[8px] text-[#555] w-14 truncate">{dim}</span>
+                        <div className="flex-1 h-1 bg-[#333] rounded-full">
+                          <div className="h-full bg-ladder-green/40 rounded-full" style={{ width: `${40 + Math.random() * 40}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 border-t border-[#333] pt-2">
+                    <span className="text-[8px] text-[#555] block">A11y audit</span>
+                    <div className="mt-1 h-2 bg-[#333] rounded w-full" />
+                    <div className="mt-1 h-2 bg-[#333] rounded w-3/4" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

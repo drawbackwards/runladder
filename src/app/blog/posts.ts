@@ -376,7 +376,7 @@ But there are two fundamentally different ways to arrive at that number. And und
 
 A Screen Score is what you get when you drop a screenshot into Ladder. Our AI evaluates the interface against the [five levels of the Ladder framework](/framework): visual hierarchy, layout patterns, spacing, interaction design, accessibility, feedback, and information architecture. It scores what a user sees the moment they land.
 
-Screen Scores are fast. You can score any screen in seconds through [runladder.com](/score), the Figma plugin, or the API. No user research required. No data collection. Just the interface, evaluated honestly.
+Screen Scores are fast. You can score any screen in seconds through [runladder.com](/score) or the API. No user research required. No data collection. Just the interface, evaluated honestly.
 
 A Screen Score answers: *does this interface look and function like it respects the user's time?*
 

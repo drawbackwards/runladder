@@ -26,7 +26,7 @@ const CAPABILITIES = [
   {
     name: "Design System Compliance",
     desc: "Connect your design system. Ladder checks every screen against your tokens, components, and patterns, then tells designers exactly where they drifted.",
-    detail: "Figma library sync, token validation, component coverage, drift detection",
+    detail: "Token validation, component coverage, drift detection",
   },
   {
     name: "Custom Rubric Weights",
@@ -73,7 +73,7 @@ const TIER = {
     "Team knowledge base (brand standards + leadership lens)",
     "Per-designer scores, trends, and leaderboard",
     "Design system compliance scoring",
-    "Unlimited scores on all surfaces (web, Figma, Claude)",
+    "Unlimited scores on all surfaces (web and Claude)",
     "Priority support",
   ],
 };
@@ -248,7 +248,7 @@ export default function TeamsPage() {
           </h2>
           <div className="space-y-6 text-body leading-relaxed">
             <p>
-              Designers keep using the Figma plugin or runladder.com
+              Designers keep using runladder.com
               exactly as they do now. They hit &ldquo;Score This
               Screen&rdquo; and get a Ladder score with coaching cards.
             </p>
@@ -313,7 +313,7 @@ export default function TeamsPage() {
                   "Ladder score with coaching cards",
                   "Per-dimension scoring breakdown",
                   "Full score history + trend line",
-                  "Web, Figma, and Claude access",
+                  "Web and Claude access",
                 ].map((f: string) => (
                   <li
                     key={f}
