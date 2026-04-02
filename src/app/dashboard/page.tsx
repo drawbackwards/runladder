@@ -46,16 +46,6 @@ function formatMonth(monthKey: string): string {
   return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
 
-function StatCard({ label, value, color }: { label: string; value: string; color?: string }) {
-  return (
-    <div className="border border-[#333] bg-[#1e1e1e] p-6">
-      <span className="text-[10px] text-muted uppercase tracking-widest block mb-2">{label}</span>
-      <span className="font-mono text-2xl font-bold" style={{ color: color || "#e5e5e5" }}>
-        {value}
-      </span>
-    </div>
-  );
-}
 
 export default function DashboardPage() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -110,14 +100,6 @@ export default function DashboardPage() {
   const scores = data?.scores ?? [];
   const usage = data?.usage ?? { used: 0, limit: 5, month: "" };
 
-  const avgScore = scores.length > 0
-    ? scores.reduce((sum, s) => sum + s.score, 0) / scores.length
-    : 0;
-
-  const highScore = scores.length > 0
-    ? Math.max(...scores.map((s) => s.score))
-    : 0;
-
   const usagePercent = Math.min(100, (usage.used / usage.limit) * 100);
 
   return (
@@ -138,36 +120,40 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Stats row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
-          <StatCard label="Total scores" value={scores.length.toString()} />
-          <StatCard label="Average" value={avgScore > 0 ? avgScore.toFixed(1) : "--"} color={avgScore > 0 ? getScoreColor(avgScore) : undefined} />
-          <StatCard label="Highest" value={highScore > 0 ? highScore.toFixed(1) : "--"} color={highScore > 0 ? getScoreColor(highScore) : undefined} />
-          <div className="border border-[#333] bg-[#1e1e1e] p-6">
-            <span className="text-[10px] text-muted uppercase tracking-widest block mb-2">
+        {/* Usage + Upgrade */}
+        <div className="flex items-center gap-6 mb-10">
+          {/* Usage meter */}
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] text-muted uppercase tracking-widest">
               {usage.month ? formatMonth(usage.month) : "This month"}
             </span>
-            <div className="flex items-baseline gap-2">
-              <span className="font-mono text-2xl font-bold text-foreground">
-                {usage.used}
-              </span>
-              <span className="text-sm text-muted">/ {usage.limit}</span>
-            </div>
-            <div className="h-1 bg-[#333] mt-3">
+            <span className="font-mono text-sm text-foreground">
+              {usage.used}<span className="text-muted">/{usage.limit}</span>
+            </span>
+            <div className="w-24 h-1 bg-[#333] rounded-full">
               <div
-                className="h-full transition-all duration-500"
+                className="h-full rounded-full transition-all duration-500"
                 style={{
                   width: `${usagePercent}%`,
                   background: usagePercent >= 100 ? "#ef4444" : "#6AC89B",
                 }}
               />
             </div>
-            {usagePercent >= 100 && (
-              <Link href="/pricing" className="text-[10px] text-ladder-green mt-2 block hover:underline">
-                Upgrade for unlimited
-              </Link>
-            )}
           </div>
+
+          {/* Pro upgrade promo */}
+          <Link
+            href="/pricing"
+            className="flex items-center gap-2 border border-[#333] bg-[#1e1e1e] px-4 py-2 hover:border-ladder-green transition-colors group"
+          >
+            <span className="text-[10px] text-ladder-green uppercase tracking-widest font-semibold">Pro</span>
+            <span className="text-[11px] text-muted font-sans group-hover:text-foreground transition-colors">
+              Unlimited scores, team features, API access
+            </span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6AC89B" strokeWidth="2" className="flex-shrink-0">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </Link>
         </div>
 
         {/* Score history */}
