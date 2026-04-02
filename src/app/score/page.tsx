@@ -134,6 +134,33 @@ function ShareButtons({ score, label, summary }: { score: number; label: string;
   );
 }
 
+/* ── Resize image for scoring API (keep under Vercel body limit) ── */
+function resizeForScoring(dataUrl: string, maxDim = 1600): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      // If already small enough, return as-is
+      if (img.width <= maxDim && img.height <= maxDim && dataUrl.length < 3_500_000) {
+        resolve(dataUrl);
+        return;
+      }
+      const canvas = document.createElement("canvas");
+      const ratio = Math.min(maxDim / img.width, maxDim / img.height, 1);
+      canvas.width = img.width * ratio;
+      canvas.height = img.height * ratio;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
+      } else {
+        resolve(dataUrl);
+      }
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
 /* ── Generate a small thumbnail from a data URL ── */
 function generateThumbnail(dataUrl: string, maxWidth = 200): Promise<string> {
   return new Promise((resolve) => {
@@ -312,13 +339,16 @@ export default function ScorePage() {
     }, 2200);
 
     try {
-      // Generate thumbnail for dashboard storage
-      const thumb = await generateThumbnail(imageToScore);
+      // Resize for API and generate thumbnail
+      const [scoringImage, thumb] = await Promise.all([
+        resizeForScoring(imageToScore),
+        generateThumbnail(imageToScore),
+      ]);
 
       const res = await fetch("/api/score", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: imageToScore, source: fileName || "Upload", isPublic, thumbnail: thumb }),
+        body: JSON.stringify({ image: scoringImage, source: fileName || "Upload", isPublic, thumbnail: thumb }),
       });
       const text = await res.text();
       let data;
