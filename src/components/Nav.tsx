@@ -48,13 +48,22 @@ export function Nav() {
               >
                 Dashboard
               </Link>
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: "w-8 h-8",
-                  },
-                }}
-              />
+              <div className="flex items-center gap-2">
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-8 h-8",
+                    },
+                  }}
+                />
+                <Link
+                  href="/pricing"
+                  className="flex items-center gap-1.5 text-[9px] uppercase tracking-widest font-semibold border border-[#333] px-2 py-1 hover:border-ladder-green transition-colors group"
+                >
+                  <span className="text-muted group-hover:text-foreground transition-colors">Free</span>
+                  <span className="text-ladder-green">Upgrade</span>
+                </Link>
+              </div>
             </>
           )}
           <Link

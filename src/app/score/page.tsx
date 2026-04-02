@@ -203,7 +203,7 @@ export default function ScorePage() {
   const [scanPhase, setScanPhase] = useState(0);
   const [isDragOver, setIsDragOver] = useState(false);
   const [pastScores, setPastScores] = useState<PastScore[]>([]);
-  const [isPublic, setIsPublic] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Load past scores on mount
@@ -495,11 +495,12 @@ export default function ScorePage() {
             {/* ── Past scores ── */}
             {pastScores.length > 0 && (
               <div className="mt-12 border-t border-[#333] pt-8">
-                <span className="text-[10px] text-muted uppercase tracking-widest">Recent scores</span>
+                <span className="text-[10px] text-muted uppercase tracking-widest">Recent public scores</span>
                 <div className="mt-4 space-y-2">
                   {pastScores.slice(0, 8).map((ps) => (
-                    <div
+                    <Link
                       key={ps.id}
+                      href={`/dashboard/scores/${ps.id}`}
                       className="flex items-center gap-4 border border-[#333] bg-[#1e1e1e] p-3 hover:border-muted transition-colors"
                     >
                       <span
@@ -513,7 +514,7 @@ export default function ScorePage() {
                         <span className="text-[10px] text-muted truncate block">{ps.summary}</span>
                       </div>
                       <span className="text-[10px] text-[#444] flex-shrink-0">{timeAgo(ps.timestamp)}</span>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
