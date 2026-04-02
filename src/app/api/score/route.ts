@@ -47,6 +47,7 @@ RESPONSE FORMAT — Return ONLY valid JSON, no markdown:
 {
   "score": 2.4,
   "label": "Usable",
+  "screenName": "Product Name — Screen Type",
   "summary": "One honest sentence describing the user experience",
   "next": "One specific action to move to the next level",
   "rungs": {
@@ -80,6 +81,12 @@ RUNG SCORING RULES:
 - "functional" = do basic tasks work? Can the user find and use the core feature?
 - The total "score" should reflect the weighted combination — functional failures weigh more than absent delight.
 - Provide a one-sentence summary per rung, from the user's perspective.
+
+SCREEN NAME RULES:
+- "screenName" identifies the product and screen type, e.g. "ESPN — Homepage", "Figma — Canvas Editor", "Airbnb — Search Results", "Stripe — Dashboard"
+- If you can identify the brand/product, use its real name. If not, describe what it is: "Banking App — Transaction History", "E-commerce — Product Detail"
+- Format: "Product Name — Screen Type" (use an em dash)
+- Keep it short: max 6 words total
 
 FINDING RULES:
 - Return exactly 4 findings, ranked by impact (highest uplift first)
@@ -139,7 +146,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { image, source, isPublic } = body;
+    const { image, source, isPublic, thumbnail } = body;
 
     if (!image || typeof image !== "string") {
       return NextResponse.json(
@@ -283,8 +290,10 @@ export async function POST(req: NextRequest) {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         score: result.score,
         label: result.label,
+        screenName: result.screenName || source || "upload",
         summary: result.summary,
         source: source || "upload",
+        thumbnail: typeof thumbnail === "string" ? thumbnail.slice(0, 50000) : undefined,
         isPublic: !!isPublic,
         timestamp: Date.now(),
       };
@@ -316,7 +325,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json(result);
+    return NextResponse.json({ ...result, screenName: result.screenName || source || "Screen" });
   } catch (err) {
     console.error("[LADDER:ERROR] Score endpoint:", err);
     return NextResponse.json(

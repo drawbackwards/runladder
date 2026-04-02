@@ -9,8 +9,10 @@ type ScoreEntry = {
   id: string;
   score: number;
   label: string;
+  screenName?: string;
   summary: string;
   source: string;
+  thumbnail?: string;
   timestamp: number;
 };
 
@@ -200,9 +202,20 @@ export default function DashboardPage() {
                   key={entry.id}
                   className="border border-[#333] bg-[#1e1e1e] p-5 hover:border-muted transition-colors"
                 >
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-5">
+                    {/* Thumbnail */}
+                    {entry.thumbnail ? (
+                      <div className="flex-shrink-0 w-16 h-16 border border-[#333] bg-[#111] overflow-hidden">
+                        <img src={entry.thumbnail} alt="" className="w-full h-full object-cover object-top" />
+                      </div>
+                    ) : (
+                      <div className="flex-shrink-0 w-16 h-16 border border-[#333] bg-[#111] flex items-center justify-center">
+                        <span className="text-[#333] text-xs">--</span>
+                      </div>
+                    )}
+
                     {/* Score */}
-                    <div className="flex-shrink-0 w-16 text-center">
+                    <div className="flex-shrink-0 w-14 text-center">
                       <span
                         className="text-2xl font-bold tabular-nums"
                         style={{ color: getScoreColor(entry.score) }}
@@ -219,7 +232,7 @@ export default function DashboardPage() {
 
                     {/* Details */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground font-sans truncate">{entry.source}</p>
+                      <p className="text-sm text-foreground font-sans truncate">{entry.screenName || entry.source}</p>
                       <p className="text-xs text-muted font-sans mt-1 truncate">{entry.summary}</p>
                     </div>
 
