@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { redis } from "@/lib/redis";
 
+export const maxDuration = 60;
+
 const FREE_MONTHLY_LIMIT = 5;
 const ANON_LIMIT = 1;
 
