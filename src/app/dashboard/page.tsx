@@ -148,7 +148,7 @@ export default function DashboardPage() {
           >
             <span className="text-[10px] text-ladder-green uppercase tracking-widest font-semibold">Pro</span>
             <span className="text-[11px] text-muted font-sans group-hover:text-foreground transition-colors">
-              Unlimited scores, team features, API access
+              Unlimited scores, private, per-dimension scoring
             </span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6AC89B" strokeWidth="2" className="flex-shrink-0">
               <path d="M5 12h14M12 5l7 7-7 7" />
