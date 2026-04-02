@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Pricing | Ladder",
   description:
-    "Score your first screen free. Screen Score from $0 to $500/mo. Ladder Pulse starting at $5,000/mo.",
+    "Score your first screen free. Professional from $250/mo. Team and Pulse pricing is custom.",
 };
 
 const SCREEN_SCORE_TIERS = [
@@ -25,7 +25,7 @@ const SCREEN_SCORE_TIERS = [
   },
   {
     name: "Professional",
-    price: "$50",
+    price: "$250",
     period: "/ mo",
     highlight: true,
     limit: "Unlimited scores",
@@ -269,11 +269,11 @@ export default function PricingPage() {
               },
               {
                 q: "Can I cancel anytime?",
-                a: "Yes. Professional and Team are month-to-month. Cancel anytime from your account settings, no questions asked.",
+                a: "Yes. Professional is month-to-month with a 3-day money-back guarantee. If you cancel within 3 days, we refund you in full. After that, cancel anytime from your account settings, no questions asked.",
               },
               {
                 q: "How does Team seat pricing work?",
-                a: "Team is $500/mo and includes up to 5 team members. Each additional seat is $100/mo. You get team leaderboards, compliance scoring, and manager dashboards.",
+                a: "Team pricing is custom. It includes up to 5 team members with additional seats available. You get team leaderboards, compliance scoring, and manager dashboards. Contact us for details.",
               },
               {
                 q: "What\u2019s the difference between Screen Score and Pulse?",
