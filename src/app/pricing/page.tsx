@@ -16,9 +16,7 @@ const SCREEN_SCORE_TIERS = [
     limit: "5 scores / month",
     features: [
       "Overall Ladder score + coaching",
-      "UX copy suggestions",
-      "Accessibility audit",
-      "Web, Figma, or Claude",
+      "Web or Claude",
       "Scores may be published publicly",
     ],
     cta: "Start free",
@@ -33,6 +31,8 @@ const SCREEN_SCORE_TIERS = [
     features: [
       "Everything in Free",
       "All scores are private",
+      "UX copy suggestions",
+      "Accessibility audit",
       "Per-dimension scoring (hierarchy, spacing, copy, a11y, navigation, visual)",
       "Full score history + trend line",
       "Fix suggestions with score uplift",
@@ -70,7 +70,7 @@ export default function PricingPage() {
             Simple pricing. Score your first screen free.
           </h1>
           <p className="text-body max-w-lg mx-auto leading-relaxed">
-            One subscription works across every Ladder surface: web, Figma,
+            One subscription works across every Ladder surface: web
             and Claude. Start free, upgrade when you need more.
           </p>
         </div>
@@ -256,7 +256,7 @@ export default function PricingPage() {
               },
               {
                 q: "Does one subscription cover all surfaces?",
-                a: "Yes. Your Ladder account works on runladder.com, in the Figma plugin, and the Claude Skill. One subscription, one usage meter.",
+                a: "Yes. Your Ladder account works on runladder.com and the Claude Skill. One subscription, one usage meter.",
               },
               {
                 q: "What counts as a score?",

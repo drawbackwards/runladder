@@ -47,12 +47,6 @@ const PRODUCTS = [
     cta: "Score a screen free",
   },
   {
-    name: "Ladder for Figma",
-    desc: "Stop designing in the dark. Know your Ladder score before you hand off, so you never ship something that looks done but feels broken.",
-    href: "/products",
-    cta: "Install the plugin",
-  },
-  {
     name: "Ladder Pulse",
     desc: "Every organization generates signals: customer reviews, field reports, internal ops feedback, support logs. Pulse turns all of it into a quality score that tracks whether the people you serve are actually better off.",
     href: "/pulse",
@@ -361,8 +355,8 @@ export default function Home() {
               <span className="text-ladder-green">Everywhere.</span>
             </h2>
             <p className="text-body max-w-lg mx-auto leading-relaxed">
-              Score in your browser, in Figma, in Claude, from customer feedback,
-              or through the API. Every score feeds the same account, the same
+              Score in your browser, in Claude, or from customer feedback.
+              Every score feeds the same account, the same
               history, the same dashboard.
             </p>
           </div>

@@ -23,9 +23,8 @@ export default function TermsPage() {
             </h2>
             <p>
               <strong className="text-foreground">
-                By using Ladder in any form — scoring a screen on runladder.com,
-                installing or using the Ladder for Figma plugin, or using the
-                Ladder for Claude skill — you are agreeing to these Terms of
+                By using Ladder in any form — scoring a screen on runladder.com
+                or using the Ladder for Claude skill — you are agreeing to these Terms of
                 Service.
               </strong>{" "}
               No separate sign-up or checkbox is required. If you do not agree to
@@ -60,8 +59,8 @@ export default function TermsPage() {
                 <span className="text-ladder-green mt-0.5">1.</span>
                 <span>
                   <strong className="text-foreground">Ladder Scoring</strong> —
-                  the self-serve scoring tool available on runladder.com, the
-                  Figma plugin, and the Claude skill (covered by these Terms)
+                  the self-serve scoring tool available on runladder.com
+                  and the Claude skill (covered by these Terms)
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -99,13 +98,6 @@ export default function TermsPage() {
                   the web application for scoring screens, viewing the Top 100,
                   browsing teardowns, managing your dashboard, and all other site
                   features
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-ladder-green mt-0.5">+</span>
-                <span>
-                  <strong className="text-foreground">Ladder for Figma</strong> —
-                  the Figma plugin for in-canvas scoring
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -202,7 +194,7 @@ export default function TermsPage() {
               </strong>{" "}
               This includes the Top 100, teardowns, blog content, social media,
               and other public-facing materials. By scoring on the free tier —
-              whether on the website, in Figma, or through Claude — you grant us a
+              whether on the website or through Claude — you grant us a
               non-exclusive, worldwide, royalty-free license to display, reproduce,
               and distribute the submitted content and resulting scores for
               promotional and educational purposes.
