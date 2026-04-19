@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LadderLogo } from "./LadderLogo";
+import { CURRENT_APP_VERSION } from "@/lib/app-version";
 
 export function Footer() {
   return (
@@ -54,6 +55,9 @@ export function Footer() {
             <LadderLogo height={16} className="text-white/70" />
             <span className="text-xs text-muted">
               Made with love by <a href="https://drawbackwards.com" className="text-body hover:text-foreground transition-colors">Drawbackwards</a> since 2003
+            </span>
+            <span className="text-[10px] text-muted/60 tabular-nums ml-auto">
+              v{CURRENT_APP_VERSION}
             </span>
           </div>
           <p className="text-xs text-muted leading-relaxed">
