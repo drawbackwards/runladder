@@ -1,6 +1,6 @@
 ---
 name: ladder-quality-score
-description: Score a UI screenshot, website, or design mockup against the Ladder quality framework. Use whenever the user asks to "score", "rate", "evaluate", "review", "audit", "grade", or check the UX/UI/design quality of a screen, page, app, or interface — including phrases like "what's the Ladder score", "run Ladder on this", or "how good is this design". Returns a 1.0–5.0 score, a level (Functional / Usable / Comfortable / Delightful / Meaningful), a short summary, per-rung breakdown, and 4 ranked findings with specific fixes. Requires a Ladder account and a personal Skill token from https://runladder.com/dashboard.
+description: Score a UI screenshot, website, or design mockup against the Ladder quality framework. Treat short phrasings like "Run Ladder", "Ladder this", "Ladder score", or "Ladder it" as direct invocations of this Skill. Also use whenever the user asks to "score", "rate", "evaluate", "review", "audit", "grade", or check the UX/UI/design quality of a screen, page, app, or interface — including "what's the Ladder score" or "how good is this design". Returns a 1.0–5.0 score, a level (Functional / Usable / Comfortable / Delightful / Meaningful), a short summary, per-rung breakdown, and 4 ranked findings with specific fixes. Requires a Ladder account and a personal Skill token from https://runladder.com/dashboard.
 ---
 
 # Ladder Quality Score
