@@ -60,9 +60,13 @@ export function SkillTokenCard() {
     }
   }
 
+  function installCommand(token: string): string {
+    return `mkdir -p ~/.ladder && printf '%s' '${token}' > ~/.ladder/token && chmod 600 ~/.ladder/token`;
+  }
+
   function copy() {
     if (!rawToken) return;
-    navigator.clipboard.writeText(rawToken);
+    navigator.clipboard.writeText(installCommand(rawToken));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -102,11 +106,11 @@ export function SkillTokenCard() {
       {rawToken ? (
         <div className="border border-ladder-green/40 bg-ladder-green/5 p-4 mb-3">
           <p className="text-[10px] text-ladder-green uppercase tracking-widest mb-2 font-semibold">
-            Copy this token — you won&apos;t see it again
+            Copy and paste into Terminal — you won&apos;t see this again
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 text-xs font-mono text-foreground bg-[#111] border border-[#333] px-3 py-2 break-all">
-              {rawToken}
+              {installCommand(rawToken)}
             </code>
             <button
               onClick={copy}
@@ -115,6 +119,9 @@ export function SkillTokenCard() {
               {copied ? "Copied" : "Copy"}
             </button>
           </div>
+          <p className="text-[10px] text-muted font-sans mt-3">
+            Saves your token to <code className="text-foreground">~/.ladder/token</code> so the Skill can authenticate. macOS &amp; Linux.
+          </p>
         </div>
       ) : null}
 
