@@ -5,6 +5,7 @@ import {
   scoreImage,
   isScoringError,
 } from "@/lib/scoring";
+import { makeThumbnail } from "@/lib/thumbnail";
 import { userIdFromBearer, touchSkillToken } from "@/lib/skill-auth";
 import { FREE_MONTHLY_LIMIT } from "@/lib/plans";
 
@@ -77,6 +78,11 @@ export async function POST(req: NextRequest) {
     }
 
     /* ── Persist + increment ── */
+    const thumbnail = await makeThumbnail(
+      Buffer.from(parsed.base64Data, "base64"),
+      parsed.mediaType,
+    );
+
     const scoreEntry = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       score: result.score,
@@ -87,6 +93,7 @@ export async function POST(req: NextRequest) {
       findings: result.findings,
       rungs: result.rungs,
       source: source || "claude-skill",
+      thumbnail,
       isPublic: false,
       timestamp: Date.now(),
     };
