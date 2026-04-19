@@ -8,4 +8,4 @@
  * before build:skill zips the bundle, so the file inside the .zip stays
  * in sync with this constant automatically.
  */
-export const CURRENT_SKILL_VERSION = "1.0.2";
+export const CURRENT_SKILL_VERSION = "1.0.3";

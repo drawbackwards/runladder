@@ -29,7 +29,7 @@ Drop a screenshot into any Claude chat, ask for its Ladder score, and get back:
 
    ```bash
    mkdir -p ~/.claude/skills && \
-     curl -fsSL https://runladder.com/downloads/ladder-skill-v1.0.2.zip -o /tmp/ladder-skill.zip && \
+     curl -fsSL https://runladder.com/downloads/ladder-skill-v1.0.3.zip -o /tmp/ladder-skill.zip && \
      unzip -oq /tmp/ladder-skill.zip -d ~/.claude/skills/ && \
      rm /tmp/ladder-skill.zip
    ```
@@ -38,11 +38,18 @@ Drop a screenshot into any Claude chat, ask for its Ladder score, and get back:
 
 ## Use
 
-Start a new Claude chat, attach a screenshot, and say:
+### macOS — fastest path
 
-> Run Ladder
+1. Take a screenshot:
+   - **Cmd+Shift+4** → saves to `~/Desktop`
+   - **Cmd+Ctrl+Shift+4** → copies to the clipboard
+2. In Claude, say: **Run Ladder**
 
-Claude will run the Skill, call the Ladder API, and return the result.
+That's it. The Skill will auto-find your most recent Desktop screenshot (or pull the image off your clipboard) — no path typing required.
+
+### Claude.ai (chat)
+
+Attach the screenshot to the chat and say **Run Ladder**.
 
 ## Usage & pricing
 

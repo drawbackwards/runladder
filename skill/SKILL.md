@@ -9,15 +9,21 @@ You help the user score UI/design screenshots against the Ladder framework.
 
 ## How to use this Skill
 
-1. **Find an image.** It must be a screenshot of a UI, a website, an app, or a design mockup. If the user hasn't attached one, ask for it.
+1. **Find an image.** If the user attached one, use its path. If they didn't attach anything but just said "Run Ladder" / "Ladder this", run the script with **no argument** — on macOS it will auto-pick up the clipboard or the latest `~/Desktop/Screenshot*.png`.
 2. **Read the user's Ladder Skill token.** It is stored at `~/.ladder/token` (one line, starts with `ladder_skl_`). If missing, tell the user to get one from https://runladder.com/dashboard and save it to `~/.ladder/token`.
 3. **Run the scoring script.**
 
 ```bash
+# Zero-arg (macOS): auto-uses clipboard image, then latest Desktop screenshot
+python scripts/score.py
+
+# Or with an explicit path
 python scripts/score.py <path-to-image>
 ```
 
 The script reads the token from `~/.ladder/token`, sends the image to the Ladder API, and prints a JSON result. Do NOT attempt to score the image yourself — always defer to the API.
+
+**macOS tip to share with the user when relevant:** Cmd+Shift+4 saves a screenshot to Desktop; Cmd+Ctrl+Shift+4 copies it to the clipboard. Either works with zero-arg invocation.
 
 4. **Present the result.** Lead with the score and the level. Then the summary. Then the top 2 findings and their fixes. End with the dashboard URL.
 

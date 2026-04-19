@@ -2,6 +2,12 @@
 
 All notable changes to the Ladder Skill bundle (SKILL.md, README.md, scripts/) are listed here. The Skill tracks its own version independently of the runladder.com web app.
 
+## 1.0.3 — 2026-04-18
+
+- `score.py` can now be invoked with **no arguments**. On macOS it reads the clipboard first (via AppleScript `«class PNGf»`), then falls back to the most recent `~/Desktop/Screenshot*.png`. This means a user can just hit Cmd+Shift+4, then say "Run Ladder" without typing a path.
+- `score.py` tolerates the U+202F (narrow no-break space) that macOS screenshots embed between the time and AM/PM in filenames. Paths typed with a regular space are auto-corrected; if that still misses, a `?` glob fallback runs.
+- `SKILL.md` documents the zero-arg invocation so Claude calls `python scripts/score.py` (no path) when the user says "Run Ladder" without attaching a file.
+
 ## 1.0.2 — 2026-04-18
 
 - Zip is now packaged with a top-level `ladder-quality-score/` folder so `unzip -d ~/.claude/skills/` just works for Claude Code installs.
