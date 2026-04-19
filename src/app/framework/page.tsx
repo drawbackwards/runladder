@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LEVELS as LADDER_LEVELS } from "@/lib/ladder";
+import { LegalNotice } from "@/components/LegalNotice";
 
 export const metadata: Metadata = {
   title: "The Ladder Framework | How UX Quality Is Measured",
@@ -113,7 +114,7 @@ export default function FrameworkPage() {
         {/* ── Hero ── */}
         <div className="text-center mb-24">
           <p className="text-xs font-semibold text-ladder-green uppercase tracking-[0.2em] mb-6">
-            The Ladder Framework
+            The Ladder&trade; Framework
           </p>
           <h1 className="text-3xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-8">
             You already know when something<br />
@@ -385,6 +386,8 @@ export default function FrameworkPage() {
             Score a screen
           </Link>
         </div>
+
+        <LegalNotice />
       </div>
     </div>
   );
