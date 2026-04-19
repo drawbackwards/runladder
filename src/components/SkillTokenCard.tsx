@@ -92,6 +92,7 @@ export function SkillTokenCard() {
   const [working, setWorking] = useState(false);
   const [rawToken, setRawToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [ccCopied, setCcCopied] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
 
   useEffect(() => {
@@ -139,6 +140,17 @@ export function SkillTokenCard() {
     navigator.clipboard.writeText(installCommand(rawToken));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  function claudeCodeInstall(version: string): string {
+    return `mkdir -p ~/.claude/skills && curl -fsSL https://runladder.com/downloads/ladder-skill-v${version}.zip -o /tmp/ladder-skill.zip && unzip -oq /tmp/ladder-skill.zip -d ~/.claude/skills/ && rm /tmp/ladder-skill.zip`;
+  }
+
+  function copyCc() {
+    if (!meta?.currentVersion) return;
+    navigator.clipboard.writeText(claudeCodeInstall(meta.currentVersion));
+    setCcCopied(true);
+    setTimeout(() => setCcCopied(false), 2000);
   }
 
   if (loading) {
@@ -264,6 +276,33 @@ export function SkillTokenCard() {
         >
           {working ? "Generating…" : "Generate Skill token"}
         </button>
+      )}
+
+      {meta?.currentVersion && (
+        <div className="mt-5 border border-[#333] bg-[#181818] p-4">
+          <div className="flex items-center justify-between gap-4 mb-2">
+            <p className="text-[10px] text-muted uppercase tracking-widest font-semibold">
+              Using Claude Code instead?
+            </p>
+            <span className="text-[9px] text-[#555] font-mono">
+              installs to ~/.claude/skills/ladder-quality-score
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 text-[11px] font-mono text-foreground bg-[#111] border border-[#333] px-3 py-2 break-all">
+              {claudeCodeInstall(meta.currentVersion)}
+            </code>
+            <button
+              onClick={copyCc}
+              className="text-[10px] uppercase tracking-widest text-muted border border-[#333] px-3 py-2 hover:border-muted hover:text-foreground transition-colors flex-shrink-0"
+            >
+              {ccCopied ? "Copied" : "Copy"}
+            </button>
+          </div>
+          <p className="text-[10px] text-muted font-sans mt-3 leading-relaxed">
+            Runs the scoring script on your local machine — no Claude workspace network allowlist required.
+          </p>
+        </div>
       )}
 
       <div className="mt-6 pt-5 border-t border-[#333]">

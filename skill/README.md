@@ -21,7 +21,20 @@ Drop a screenshot into any Claude chat, ask for its Ladder score, and get back:
    chmod 600 ~/.ladder/token
    ```
 
-3. In Claude, go to **Settings → Features → Skills** and upload the zip you just downloaded.
+3. Install the Skill. Two paths depending on where you use Claude:
+
+   **Claude.ai (chat):** Go to **Settings → Capabilities → Skills** and upload the zip you just downloaded.
+
+   **Claude Code (CLI):** Run this one-liner — the Skill installs to `~/.claude/skills/ladder-quality-score/`:
+
+   ```bash
+   mkdir -p ~/.claude/skills && \
+     curl -fsSL https://runladder.com/downloads/ladder-skill-v1.0.2.zip -o /tmp/ladder-skill.zip && \
+     unzip -oq /tmp/ladder-skill.zip -d ~/.claude/skills/ && \
+     rm /tmp/ladder-skill.zip
+   ```
+
+   Claude Code runs the scoring script on your local machine, so it's not subject to the Claude.ai workspace network allowlist.
 
 ## Use
 
