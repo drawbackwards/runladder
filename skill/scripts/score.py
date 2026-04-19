@@ -2,18 +2,24 @@
 """
 Ladder Skill — thin client for the Ladder scoring API.
 
-Reads an image path from argv[1], loads the user's Skill token from
-~/.ladder/token, and POSTs to https://runladder.com/api/skill/score.
+Usage:
+  python scripts/score.py                    # macOS: uses clipboard, then latest ~/Desktop screenshot
+  python scripts/score.py <path-to-image>    # explicit path
 
-This script contains no scoring logic. All evaluation happens server-side.
+Reads the user's Skill token from ~/.ladder/token and POSTs to
+https://runladder.com/api/skill/score. Contains no scoring logic —
+all evaluation happens server-side.
 """
 
 import base64
 import json
 import mimetypes
 import os
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
+from typing import Optional
 from urllib import request, error
 
 API_URL = os.environ.get("LADDER_API_URL", "https://runladder.com/api/skill/score")
@@ -37,10 +43,93 @@ def read_token() -> str:
     return token
 
 
-def encode_image(path: Path) -> str:
-    if not path.exists():
-        sys.stderr.write(f"Image not found: {path}\n")
+def clipboard_image() -> Optional[Path]:
+    """macOS only: if the clipboard holds a PNG image, save it to a temp file and return the path."""
+    if sys.platform != "darwin":
+        return None
+    tmp = Path(tempfile.gettempdir()) / "ladder-clipboard.png"
+    # AppleScript: try to read «class PNGf» off the clipboard and write to tmp.
+    # Returns the path on success, empty string on failure.
+    script = (
+        'try\n'
+        '  set pngData to the clipboard as «class PNGf»\n'
+        'on error\n'
+        '  return ""\n'
+        'end try\n'
+        f'set outFile to POSIX file "{tmp}"\n'
+        'set fd to open for access outFile with write permission\n'
+        'set eof fd to 0\n'
+        'write pngData to fd\n'
+        'close access fd\n'
+        'return POSIX path of outFile\n'
+    )
+    try:
+        result = subprocess.run(
+            ["osascript", "-e", script],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except Exception:
+        return None
+    out = result.stdout.strip()
+    if result.returncode == 0 and out and Path(out).exists() and Path(out).stat().st_size > 0:
+        return Path(out)
+    return None
+
+
+def latest_desktop_screenshot() -> Optional[Path]:
+    """Return the most recently modified Screenshot*.png on ~/Desktop, if any."""
+    desktop = Path.home() / "Desktop"
+    if not desktop.exists():
+        return None
+    shots = list(desktop.glob("Screenshot*.png"))
+    if not shots:
+        return None
+    shots.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    return shots[0]
+
+
+def resolve_image(arg: Optional[str]) -> Path:
+    """Resolve image path. Explicit arg wins; on miss, try tolerant matching.
+    With no arg, fall back to macOS clipboard, then latest ~/Desktop screenshot."""
+    if arg:
+        p = Path(arg).expanduser()
+        if p.exists():
+            return p
+        # macOS screenshot filenames embed U+202F (narrow no-break space) between
+        # the time and AM/PM. If the user typed a regular space, retry with U+202F.
+        nnbsp = "\u202f"
+        alt_str = arg.replace(" PM", f"{nnbsp}PM").replace(" AM", f"{nnbsp}AM")
+        alt = Path(alt_str).expanduser()
+        if alt.exists():
+            return alt
+        # Last resort: glob with ? in place of spaces inside the basename.
+        parent = p.parent
+        pattern = p.name.replace(" ", "?")
+        matches = sorted(parent.glob(pattern))
+        if matches:
+            return matches[0]
+        sys.stderr.write(f"Image not found: {arg}\n")
         sys.exit(2)
+    clip = clipboard_image()
+    if clip:
+        sys.stderr.write(f"Using image from clipboard: {clip}\n")
+        return clip
+    shot = latest_desktop_screenshot()
+    if shot:
+        sys.stderr.write(f"Using latest Desktop screenshot: {shot.name}\n")
+        return shot
+    sys.stderr.write(
+        "No image provided. On macOS, either:\n"
+        "  - Cmd+Shift+4 (saves to Desktop), then re-run, or\n"
+        "  - Cmd+Ctrl+Shift+4 (copies to clipboard), then re-run, or\n"
+        "  - Pass a path: python scripts/score.py /path/to/image.png\n"
+    )
+    sys.exit(2)
+
+
+def encode_image(path: Path) -> str:
     mime, _ = mimetypes.guess_type(str(path))
     if mime not in {"image/png", "image/jpeg", "image/webp", "image/gif"}:
         sys.stderr.write(
@@ -55,9 +144,10 @@ def encode_image(path: Path) -> str:
     return f"data:{mime};base64,{b64}"
 
 
-def score(image_path: str) -> dict:
+def score(image_arg: Optional[str]) -> dict:
     token = read_token()
-    data_url = encode_image(Path(image_path).expanduser())
+    path = resolve_image(image_arg)
+    data_url = encode_image(path)
 
     body = json.dumps({
         "image": data_url,
@@ -104,10 +194,8 @@ def score(image_path: str) -> dict:
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
-        sys.stderr.write("Usage: score.py <image-path>\n")
-        sys.exit(2)
-    result = score(sys.argv[1])
+    arg = sys.argv[1] if len(sys.argv) >= 2 else None
+    result = score(arg)
     print(json.dumps(result, indent=2))
 
 
