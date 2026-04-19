@@ -1,12 +1,22 @@
 /**
  * Ladder scoring engine — PROTECTED IP.
  *
- * This module contains prompts, rubric text, moderation logic, and model
- * selection. It MUST stay server-side. Never import from client components,
- * never log prompt text, never echo prompt fragments in error messages.
+ * This module runs the scoring pipeline (moderation + scoring) and owns the
+ * response-shape contract. Framework data (levels, dimensions, principles,
+ * AI lens, design types) lives in ./ladder-framework — the single source
+ * of truth for all Ladder surfaces.
+ *
+ * MUST stay server-side. Never import from client components, never log
+ * prompt text, never echo prompt fragments in error messages.
  * See /memory/feedback_never_expose_prompts_rubric.md for the full rule.
  */
 import Anthropic from "@anthropic-ai/sdk";
+import {
+  ladderFullPrompt,
+  ladderPerRungPrompt,
+  designTypeClassifierPrompt,
+  aiLensPrompt,
+} from "./ladder-framework";
 
 /* ── Content moderation prompt ── */
 const MODERATION_PROMPT = `Look at this image. Is it a UI/UX screen, website, app interface, or design mockup?
@@ -25,28 +35,26 @@ Rules:
 - Be lenient with isUI — marketing pages, landing pages, emails, presentations with UI elements all count
 - Alcohol brand websites or e-commerce are fine — only flag actual substance abuse imagery`;
 
-const LADDER_PROMPT = `You are the AI core of the Ladder scoring engine — the universal quality score for every experience.
+/**
+ * Assemble the full Ladder scoring system prompt from the framework.
+ * Optionally applies the AI-experience lens when the caller classifies the
+ * screen as AI-powered (used by plugin/analyze for design-type-aware scoring).
+ */
+function buildLadderPrompt(opts: { applyAiLens?: boolean } = {}): string {
+  let p = "You are the AI core of the Ladder scoring engine — the universal quality score for every experience.\n\n";
+  p +=
+    "You think like a principal product designer with 20 years of experience at companies like Apple, Airbnb, and Stripe. You evaluate UI screens with the precision of a design leader and the empathy of a real user.\n\n";
 
-You think like a principal product designer with 20 years of experience at companies like Apple, Airbnb, and Stripe. You evaluate UI screens with the precision of a design leader and the empathy of a real user.
+  p += ladderFullPrompt();
 
-THE LADDER FRAMEWORK — UX Quality Score (1.0 to 5.0):
+  if (opts.applyAiLens) {
+    p += aiLensPrompt();
+  }
 
-Level 5 — MEANINGFUL (5.00): Irreplaceable. Changed how user thinks, works, lives. Can't imagine going back.
-Level 4 — DELIGHTFUL (4.00–4.99): Product anticipates needs. Right help at right moment. Users refer others.
-Level 3 — COMFORTABLE (3.00–3.99): No thinking required. Everything where expected. Friction removed. The modern minimum bar — must be earned.
-Level 2 — USABLE (2.00–2.99): Tasks can be completed with effort. Basic structure exists. User tolerates it but would switch.
-Level 1 — FUNCTIONAL (1.00–1.99): User fights the product. Trial, error, frustration. Built for engineering, not humans.
+  p += ladderPerRungPrompt();
 
-SCORING PRINCIPLES:
-- Be honest. Do not flatter. Most screens are Level 1 or 2.
-- Level 3 (Comfortable) is the modern minimum — it requires consistent patterns, clear hierarchy, intuitive navigation, and zero friction.
-- A screen with perfect spacing but no intuitive flow caps at high 2.x.
-- Upper levels measure experience quality, not just interface quality.
-- Evaluate as a real user trying to accomplish a task.
-- Acknowledge what a design does well before pointing out issues.
-
-RESPONSE FORMAT — Return ONLY valid JSON, no markdown:
-{
+  p += "RESPONSE FORMAT — Return ONLY valid JSON, no markdown:\n";
+  p += `{
   "score": 2.4,
   "label": "Usable",
   "screenName": "Product Name — Screen Type",
@@ -71,32 +79,30 @@ RESPONSE FORMAT — Return ONLY valid JSON, no markdown:
       "rung": "comfortable"
     }
   ]
+}\n\n`;
+
+  p += "SCREEN NAME RULES:\n";
+  p +=
+    '- "screenName" identifies the product and screen type, e.g. "ESPN — Homepage", "Figma — Canvas Editor", "Airbnb — Search Results", "Stripe — Dashboard"\n';
+  p +=
+    "- If you can identify the brand/product, use its real name. If not, describe what it is: \"Banking App — Transaction History\", \"E-commerce — Product Detail\"\n";
+  p += '- Format: "Product Name — Screen Type" (use an em dash)\n';
+  p += "- Keep it short: max 6 words total\n\n";
+
+  p += "FINDING RULES:\n";
+  p += "- Return exactly 4 findings, ranked by impact (highest uplift first)\n";
+  p += "- Write from the user's perspective, not the designer's\n";
+  p +=
+    '- "uplift" is how many points this single fix would add to the score (0.1 to 0.5). Be honest — most fixes are 0.1 to 0.2. Only truly fundamental issues get 0.3+\n';
+  p +=
+    '- "targetLevel" is the Ladder level the screen would reach IF this fix (combined with all higher-ranked fixes) were applied\n';
+  p +=
+    '- "region" must describe a specific visual area of the screenshot so it can be highlighted\n';
+  p +=
+    '- "rung" is which rung this finding primarily impacts (functional|usable|comfortable|delightful|meaningful)\n';
+
+  return p;
 }
-
-RUNG SCORING RULES:
-- Score each rung INDEPENDENTLY (1.0 to 5.0): how well does this screen perform on that rung's criteria?
-- A product can be strong on lower rungs and weak on upper — that's normal and expected.
-- "meaningful" = is it irreplaceable? Would the user feel loss without it?
-- "delightful" = does it anticipate needs? Provide contextual help? Feel assistive?
-- "comfortable" = is it intuitive? Can users navigate by feel, not by reading?
-- "usable" = can tasks be completed without undue effort? Are patterns consistent?
-- "functional" = do basic tasks work? Can the user find and use the core feature?
-- The total "score" should reflect the weighted combination — functional failures weigh more than absent delight.
-- Provide a one-sentence summary per rung, from the user's perspective.
-
-SCREEN NAME RULES:
-- "screenName" identifies the product and screen type, e.g. "ESPN — Homepage", "Figma — Canvas Editor", "Airbnb — Search Results", "Stripe — Dashboard"
-- If you can identify the brand/product, use its real name. If not, describe what it is: "Banking App — Transaction History", "E-commerce — Product Detail"
-- Format: "Product Name — Screen Type" (use an em dash)
-- Keep it short: max 6 words total
-
-FINDING RULES:
-- Return exactly 4 findings, ranked by impact (highest uplift first)
-- Write from the user's perspective, not the designer's
-- "uplift" is how many points this single fix would add to the score (0.1 to 0.5). Be honest — most fixes are 0.1 to 0.2. Only truly fundamental issues get 0.3+
-- "targetLevel" is the Ladder level the screen would reach IF this fix (combined with all higher-ranked fixes) were applied
-- "region" must describe a specific visual area of the screenshot so it can be highlighted
-- "rung" is which rung this finding primarily impacts (functional|usable|comfortable|delightful|meaningful)`;
 
 export type MediaType =
   | "image/png"
@@ -138,11 +144,11 @@ export type ScoringError = {
  * Returns null if the input isn't a supported image data URL.
  */
 export function parseImageDataUrl(
-  image: unknown
+  image: unknown,
 ): { mediaType: MediaType; base64Data: string } | null {
   if (typeof image !== "string") return null;
   const match = image.match(
-    /^data:(image\/(png|jpeg|jpg|webp|gif));base64,(.+)$/
+    /^data:(image\/(png|jpeg|jpg|webp|gif));base64,(.+)$/,
   );
   if (!match) return null;
   return {
@@ -155,14 +161,20 @@ export function parseImageDataUrl(
  * Run the Ladder scoring pipeline on a single image.
  * Handles moderation + scoring + parsing.
  * Returns either a ScoreResult or a ScoringError with generic messaging.
+ *
+ * @param applyAiLens — when true, shifts upper rungs per AI_EXPERIENCE_LENS
+ *   (used when the caller has classified the screen as AI-powered).
  */
-export async function scoreImage({
-  mediaType,
-  base64Data,
-}: {
-  mediaType: MediaType;
-  base64Data: string;
-}): Promise<ScoreResult | ScoringError> {
+export async function scoreImage(
+  {
+    mediaType,
+    base64Data,
+  }: {
+    mediaType: MediaType;
+    base64Data: string;
+  },
+  opts: { applyAiLens?: boolean } = {},
+): Promise<ScoreResult | ScoringError> {
   // Cap image size (~5MB base64)
   if (base64Data.length > 7_000_000) {
     return {
@@ -196,7 +208,7 @@ export async function scoreImage({
   if (modText && modText.type === "text") {
     try {
       const modResult = JSON.parse(
-        modText.text.replace(/```json|```/g, "").trim()
+        modText.text.replace(/```json|```/g, "").trim(),
       );
       if (modResult.isExplicit) {
         return {
@@ -241,7 +253,7 @@ export async function scoreImage({
         ],
       },
     ],
-    system: LADDER_PROMPT,
+    system: buildLadderPrompt(opts),
   });
 
   const textBlock = response.content.find((b) => b.type === "text");
@@ -271,7 +283,10 @@ export async function scoreImage({
 
 /** Type guard for ScoringError */
 export function isScoringError(
-  r: ScoreResult | ScoringError
+  r: ScoreResult | ScoringError,
 ): r is ScoringError {
   return (r as ScoringError).error !== undefined;
 }
+
+// Re-export designTypeClassifierPrompt for callers that want to classify before scoring
+export { designTypeClassifierPrompt };
