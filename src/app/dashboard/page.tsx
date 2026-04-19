@@ -123,43 +123,41 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Usage + Upgrade */}
-        <div className="flex items-center gap-6 mb-10">
-          {/* Usage meter */}
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] text-muted uppercase tracking-widest">
-              {usage.month ? formatMonth(usage.month) : "This month"}
-            </span>
-            <span className="font-mono text-sm text-foreground">
-              {usage.used}<span className="text-muted">/{usage.limit}</span>
-            </span>
-            <div className="w-24 h-1 bg-[#333] rounded-full">
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{
-                  width: `${usagePercent}%`,
-                  background: usagePercent >= 100 ? "#ef4444" : "#6AC89B",
-                }}
-              />
+        {/* Plan */}
+        <div className="border border-[#333] bg-[#1e1e1e] p-5 mb-10">
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <span className="text-[9px] uppercase tracking-widest font-semibold text-muted border border-[#333] px-2 py-1">
+                Free
+              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] text-muted uppercase tracking-widest">
+                  {usage.month ? formatMonth(usage.month) : "This month"}
+                </span>
+                <span className="font-mono text-sm text-foreground tabular-nums">
+                  {usage.used}<span className="text-muted">/{usage.limit}</span>
+                </span>
+                <div className="w-32 h-1 bg-[#333] rounded-full">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${usagePercent}%`,
+                      background: usagePercent >= 100 ? "#ef4444" : "#6AC89B",
+                    }}
+                  />
+                </div>
+              </div>
             </div>
+            <Link
+              href="/pricing"
+              className="text-[10px] font-semibold bg-ladder-green text-[#1a1a1a] px-4 py-2 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest flex-shrink-0"
+            >
+              Upgrade to Pro
+            </Link>
           </div>
-
-          {/* Pro upgrade promo */}
-          <Link
-            href="/pricing"
-            className="flex items-center gap-2 border border-[#333] bg-[#1e1e1e] px-4 py-2 hover:border-ladder-green transition-colors group"
-          >
-            <span className="text-[10px] text-ladder-green uppercase tracking-widest font-semibold">Pro</span>
-            <span className="text-[11px] text-muted font-sans group-hover:text-foreground transition-colors">
-              Unlimited scores, private, per-dimension scoring, a11y audit, UX copy
-            </span>
-            <span className="text-[9px] text-[#555] font-sans">
-              + Figma plugin coming soon
-            </span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6AC89B" strokeWidth="2" className="flex-shrink-0">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </Link>
+          <p className="text-[11px] text-muted font-sans mt-4">
+            <span className="text-foreground">Pro</span> unlocks unlimited scoring, private scores, per-dimension scoring, a11y audits, and UX copy review.
+          </p>
         </div>
 
         {/* Integrations */}

@@ -119,7 +119,7 @@ export function SkillTokenCard() {
       ) : null}
 
       {meta?.hasToken ? (
-        <div className="flex items-center justify-between gap-4 pt-3 border-t border-[#333]">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 text-[11px] text-muted font-sans">
             <span className="font-mono text-foreground">
               {meta.prefix}
@@ -152,19 +152,13 @@ export function SkillTokenCard() {
           </div>
         </div>
       ) : (
-        <div className="pt-3 border-t border-[#333]">
-          <button
-            onClick={generate}
-            disabled={working}
-            className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest disabled:opacity-40"
-          >
-            {working ? "Generating…" : "Generate Skill token"}
-          </button>
-          <p className="text-[10px] text-[#555] font-sans mt-3">
-            Uses your monthly scoring pool. Free tier: 15 scores / month across
-            all surfaces.
-          </p>
-        </div>
+        <button
+          onClick={generate}
+          disabled={working}
+          className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest disabled:opacity-40"
+        >
+          {working ? "Generating…" : "Generate Skill token"}
+        </button>
       )}
     </div>
   );
