@@ -21,7 +21,7 @@ Drop a screenshot into any Claude chat, ask for its Ladder score, and get back:
    chmod 600 ~/.ladder/token
    ```
 
-3. In Claude, go to **Settings → Features → Skills** and upload `ladder-skill.zip`.
+3. In Claude, go to **Settings → Features → Skills** and upload the zip you just downloaded.
 
 ## Use
 

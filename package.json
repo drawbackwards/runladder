@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "build:skill": "node scripts/sync-skill-version.mjs && cd skill && rm -f ../public/downloads/ladder-skill.zip && zip -r ../public/downloads/ladder-skill.zip . -x '*.DS_Store' '*/__pycache__/*'",
+    "build:skill": "node scripts/sync-skill-version.mjs",
     "prebuild": "npm run build:skill"
   },
   "dependencies": {
