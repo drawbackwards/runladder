@@ -6,6 +6,7 @@ import {
   scoreImage,
   isScoringError,
 } from "@/lib/scoring";
+import { makeThumbnail } from "@/lib/thumbnail";
 import { FREE_MONTHLY_LIMIT, ANON_LIMIT } from "@/lib/plans";
 
 export const maxDuration = 60;
@@ -58,7 +59,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { image, source, isPublic, thumbnail } = body;
+    const { image, source, isPublic } = body;
 
     const parsed = parseImageDataUrl(image);
     if (!parsed) {
@@ -78,6 +79,11 @@ export async function POST(req: NextRequest) {
 
     /* ── Persist score + increment usage ── */
     if (userId) {
+      const thumbnail = await makeThumbnail(
+        Buffer.from(parsed.base64Data, "base64"),
+        parsed.mediaType,
+      );
+
       const scoreEntry = {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         score: result.score,
@@ -88,7 +94,7 @@ export async function POST(req: NextRequest) {
         findings: result.findings,
         rungs: result.rungs,
         source: source || "upload",
-        thumbnail: typeof thumbnail === "string" ? thumbnail.slice(0, 50000) : undefined,
+        thumbnail,
         isPublic: !!isPublic,
         timestamp: Date.now(),
       };

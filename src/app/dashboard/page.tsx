@@ -49,6 +49,48 @@ function formatMonth(monthKey: string): string {
   return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
 
+function PlanModule({ usage }: { usage: UsageInfo }) {
+  const pct = Math.min(100, (usage.used / usage.limit) * 100);
+  return (
+    <div className="border border-[#333] bg-[#1e1e1e] p-5">
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-[10px] text-muted uppercase tracking-widest">
+          Plan
+        </span>
+        <span className="text-[9px] uppercase tracking-widest font-semibold text-muted border border-[#333] px-2 py-0.5">
+          Free
+        </span>
+      </div>
+      <div className="flex items-baseline justify-between mb-2">
+        <span className="font-mono text-xl text-foreground tabular-nums">
+          {usage.used}
+          <span className="text-muted text-sm"> / {usage.limit}</span>
+        </span>
+        <span className="text-[10px] text-muted">
+          {usage.month ? formatMonth(usage.month) : "This month"}
+        </span>
+      </div>
+      <div className="h-1 bg-[#333] rounded-full mb-4">
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{
+            width: `${pct}%`,
+            background: pct >= 100 ? "#ef4444" : "#6AC89B",
+          }}
+        />
+      </div>
+      <Link
+        href="/pricing"
+        className="block text-center text-[10px] font-semibold bg-ladder-green text-[#1a1a1a] px-4 py-2 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest mb-3"
+      >
+        Upgrade to Pro
+      </Link>
+      <p className="text-[10px] text-muted font-sans leading-relaxed">
+        Unlimited scoring, private scores, per-dimension scoring, a11y audits, and UX copy review.
+      </p>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -67,7 +109,7 @@ export default function DashboardPage() {
           setData(json);
         }
       } catch {
-        // Silently fail — page still renders
+        // Silently fail
       } finally {
         setLoading(false);
       }
@@ -103,13 +145,9 @@ export default function DashboardPage() {
   const scores = data?.scores ?? [];
   const usage = data?.usage ?? { used: 0, limit: FREE_MONTHLY_LIMIT, month: "" };
 
-  const usagePercent = Math.min(100, (usage.used / usage.limit) * 100);
-
   return (
     <div className="pt-20 font-mono">
-      <div className="max-w-5xl mx-auto px-6 py-12">
-
-        {/* Header */}
+      <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="flex items-center justify-between mb-10">
           <div>
             <h1 className="text-2xl font-bold text-foreground font-sans">Dashboard</h1>
@@ -123,151 +161,109 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Plan */}
-        <div className="border border-[#333] bg-[#1e1e1e] p-5 mb-10">
-          <div className="flex items-center justify-between gap-6">
-            <div className="flex items-center gap-5">
-              <span className="text-[9px] uppercase tracking-widest font-semibold text-muted border border-[#333] px-2 py-1">
-                Free
-              </span>
-              <div className="flex items-center gap-3">
-                <span className="text-[10px] text-muted uppercase tracking-widest">
-                  {usage.month ? formatMonth(usage.month) : "This month"}
-                </span>
-                <span className="font-mono text-sm text-foreground tabular-nums">
-                  {usage.used}<span className="text-muted">/{usage.limit}</span>
-                </span>
-                <div className="w-32 h-1 bg-[#333] rounded-full">
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${usagePercent}%`,
-                      background: usagePercent >= 100 ? "#ef4444" : "#6AC89B",
-                    }}
-                  />
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
+          <main>
+            <div className="flex items-center justify-between mb-6">
+              <span className="text-[10px] text-muted uppercase tracking-widest">Score history</span>
+              {scores.length > 0 && (
+                <span className="text-[10px] text-[#444]">{scores.length} score{scores.length !== 1 ? "s" : ""}</span>
+              )}
+            </div>
+
+            {loading ? (
+              <div className="space-y-2">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="border border-[#333] bg-[#1e1e1e] p-5 shimmer h-24" />
+                ))}
               </div>
-            </div>
-            <Link
-              href="/pricing"
-              className="text-[10px] font-semibold bg-ladder-green text-[#1a1a1a] px-4 py-2 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest flex-shrink-0"
-            >
-              Upgrade to Pro
-            </Link>
-          </div>
-          <p className="text-[11px] text-muted font-sans mt-4">
-            <span className="text-foreground">Pro</span> unlocks unlimited scoring, private scores, per-dimension scoring, a11y audits, and UX copy review.
-          </p>
-        </div>
-
-        {/* Integrations */}
-        <div className="border-t border-[#333] pt-8 mb-10">
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-[10px] text-muted uppercase tracking-widest">Integrations</span>
-          </div>
-          <SkillTokenCard />
-        </div>
-
-        {/* Score history */}
-        <div className="border-t border-[#333] pt-8">
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-[10px] text-muted uppercase tracking-widest">Score history</span>
-            {scores.length > 0 && (
-              <span className="text-[10px] text-[#444]">{scores.length} score{scores.length !== 1 ? "s" : ""}</span>
-            )}
-          </div>
-
-          {loading ? (
-            <div className="space-y-2">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="border border-[#333] bg-[#1e1e1e] p-5 shimmer h-20" />
-              ))}
-            </div>
-          ) : scores.length === 0 ? (
-            <div className="border border-[#333] bg-[#1e1e1e] p-12 text-center">
-              <p className="text-sm text-muted font-sans mb-4">No scores yet</p>
-              <Link
-                href="/score"
-                className="text-xs text-ladder-green uppercase tracking-widest hover:underline"
-              >
-                Score your first screen
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {scores.map((entry) => (
-                <div
-                  key={entry.id}
-                  className="border border-[#333] bg-[#1e1e1e] hover:border-muted transition-colors"
+            ) : scores.length === 0 ? (
+              <div className="border border-[#333] bg-[#1e1e1e] p-12 text-center">
+                <p className="text-sm text-muted font-sans mb-4">No scores yet</p>
+                <Link
+                  href="/score"
+                  className="text-xs text-ladder-green uppercase tracking-widest hover:underline"
                 >
-                  <Link
-                    href={`/dashboard/scores/${entry.id}`}
-                    className="block p-5"
+                  Score your first screen
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {scores.map((entry) => (
+                  <div
+                    key={entry.id}
+                    className="border border-[#333] bg-[#1e1e1e] hover:border-muted transition-colors group"
                   >
-                    <div className="flex items-center gap-5">
-                      {/* Thumbnail */}
-                      {entry.thumbnail ? (
-                        <div className="flex-shrink-0 w-16 h-16 border border-[#333] bg-[#111] overflow-hidden">
-                          <img src={entry.thumbnail} alt="" className="w-full h-full object-cover object-top" />
-                        </div>
-                      ) : (
-                        <div className="flex-shrink-0 w-16 h-16 border border-[#333] bg-[#111] flex items-center justify-center">
-                          <span className="text-[#333] text-xs">--</span>
-                        </div>
-                      )}
-
-                      {/* Score */}
-                      <div className="flex-shrink-0 w-14 text-center">
-                        <span
-                          className="text-2xl font-bold tabular-nums"
-                          style={{ color: getScoreColor(entry.score) }}
-                        >
-                          {entry.score.toFixed(1)}
-                        </span>
-                        <span
-                          className="block text-[9px] uppercase tracking-widest mt-0.5"
-                          style={{ color: getScoreColor(entry.score) }}
-                        >
-                          {entry.label}
-                        </span>
-                      </div>
-
-                      {/* Details */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm text-foreground font-sans truncate">{entry.screenName || entry.source}</p>
-                          {entry.isPublic === false && (
-                            <span className="text-[8px] text-muted uppercase tracking-widest border border-[#333] px-1.5 py-0.5 flex-shrink-0">
-                              Private
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted font-sans mt-1 truncate">{entry.summary}</p>
-                      </div>
-
-                      {/* Time */}
-                      <span className="text-[10px] text-[#444] flex-shrink-0">
-                        {timeAgo(entry.timestamp)}
-                      </span>
-                    </div>
-                  </Link>
-                  {/* Delete button outside the link */}
-                  <div className="flex justify-end px-5 pb-3 -mt-2">
-                    <button
-                      onClick={() => deleteScore(entry.id)}
-                      disabled={deleting === entry.id}
-                      className="text-[#444] hover:text-ladder-red transition-colors disabled:opacity-30"
-                      title="Delete score"
+                    <Link
+                      href={`/dashboard/scores/${entry.id}`}
+                      className="block p-4"
                     >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14" />
-                      </svg>
-                    </button>
+                      <div className="flex items-center gap-4">
+                        {entry.thumbnail ? (
+                          <div className="flex-shrink-0 w-20 h-20 border border-[#333] bg-[#111] overflow-hidden">
+                            <img src={entry.thumbnail} alt="" className="w-full h-full object-cover object-top" />
+                          </div>
+                        ) : (
+                          <div className="flex-shrink-0 w-20 h-20 border border-[#333] bg-[#111] flex items-center justify-center">
+                            <span className="text-[#333] text-xs">—</span>
+                          </div>
+                        )}
+
+                        <div className="flex-shrink-0 w-16 text-center">
+                          <span
+                            className="text-2xl font-bold tabular-nums"
+                            style={{ color: getScoreColor(entry.score) }}
+                          >
+                            {entry.score.toFixed(1)}
+                          </span>
+                          <span
+                            className="block text-[9px] uppercase tracking-widest mt-0.5"
+                            style={{ color: getScoreColor(entry.score) }}
+                          >
+                            {entry.label}
+                          </span>
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm text-foreground font-sans truncate">{entry.screenName || entry.source}</p>
+                            {entry.isPublic === false && (
+                              <span className="text-[8px] text-muted uppercase tracking-widest border border-[#333] px-1.5 py-0.5 flex-shrink-0">
+                                Private
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted font-sans mt-1 line-clamp-2">{entry.summary}</p>
+                          <span className="text-[10px] text-[#444] mt-2 block">
+                            {timeAgo(entry.timestamp)}
+                          </span>
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            deleteScore(entry.id);
+                          }}
+                          disabled={deleting === entry.id}
+                          className="flex-shrink-0 text-[#333] hover:text-ladder-red transition-colors disabled:opacity-30 opacity-0 group-hover:opacity-100"
+                          title="Delete score"
+                          aria-label="Delete score"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14" />
+                          </svg>
+                        </button>
+                      </div>
+                    </Link>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </main>
+
+          <aside className="space-y-4">
+            <PlanModule usage={usage} />
+            <SkillTokenCard />
+          </aside>
         </div>
       </div>
     </div>
