@@ -62,10 +62,10 @@ export default function LegalPage() {
           <p className="mt-6 text-sm text-body">
             Need a commercial license?{" "}
             <a
-              href="mailto:licensing@runladder.com?subject=Ladder%20commercial%20licensing%20inquiry"
+              href="mailto:hello@drawbackwards.com?subject=Ladder%20commercial%20licensing%20inquiry"
               className="text-ladder-green hover:text-ladder-green/80 transition-colors"
             >
-              licensing@runladder.com
+              hello@drawbackwards.com
             </a>
           </p>
         </section>
@@ -241,7 +241,7 @@ export default function LegalPage() {
               Building an AI-native product that needs experience scoring? Use the
               official Ladder API or{" "}
               <a
-                href="mailto:licensing@runladder.com?subject=Ladder%20AI%20partner%20program"
+                href="mailto:hello@drawbackwards.com?subject=Ladder%20AI%20partner%20program"
                 className="text-ladder-purple hover:text-ladder-purple/80 transition-colors"
               >
                 talk to us about an AI partner program
@@ -323,10 +323,10 @@ export default function LegalPage() {
                 </span>
                 <br />
                 <a
-                  href="mailto:licensing@runladder.com?subject=Ladder%20commercial%20licensing%20inquiry"
+                  href="mailto:hello@drawbackwards.com?subject=Ladder%20commercial%20licensing%20inquiry"
                   className="text-ladder-green hover:text-ladder-green/80 transition-colors"
                 >
-                  licensing@runladder.com
+                  hello@drawbackwards.com
                 </a>
               </p>
               <p>

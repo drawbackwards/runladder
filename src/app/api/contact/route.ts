@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           from: "Ladder <contact@runladder.com>",
-          to: ["ward@drawbackwards.com"],
+          to: ["hello@drawbackwards.com"],
           subject: `[Ladder] ${safeInterest || "New inquiry"} from ${name}`,
           text: [
             `Name: ${name}`,
