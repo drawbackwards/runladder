@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth, UserButton, SignInButton } from "@clerk/nextjs";
+import { useAuth, UserButton, SignInButton, SignUpButton } from "@clerk/nextjs";
 import { LadderLogo } from "./LadderLogo";
 
 export function Nav() {
@@ -34,11 +34,18 @@ export function Nav() {
 
         <div className="flex items-center gap-6">
           {isLoaded && !isSignedIn && (
-            <SignInButton mode="redirect">
-              <button className="text-sm font-bold text-body hover:text-foreground transition-colors">
-                Log in
-              </button>
-            </SignInButton>
+            <>
+              <SignInButton mode="redirect">
+                <button className="text-sm font-bold text-body hover:text-foreground transition-colors">
+                  Log in
+                </button>
+              </SignInButton>
+              <SignUpButton mode="redirect">
+                <button className="text-sm font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors">
+                  Sign up to score
+                </button>
+              </SignUpButton>
+            </>
           )}
           {isLoaded && isSignedIn && (
             <>
@@ -68,12 +75,6 @@ export function Nav() {
               </div>
             </>
           )}
-          <Link
-            href="/score"
-            className="text-sm font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors"
-          >
-            Score a screen
-          </Link>
         </div>
       </div>
     </nav>
