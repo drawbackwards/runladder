@@ -19,6 +19,39 @@ function formatDate(ts: number): string {
   });
 }
 
+const TROUBLESHOOTING: { title: string; body: React.ReactNode }[] = [
+  {
+    title: "403 — blocked by workspace network allowlist",
+    body: (
+      <>
+        If Claude returns a <code className="text-foreground">403</code>, your
+        Claude workspace is blocking egress to{" "}
+        <code className="text-foreground">runladder.com</code>. Ask a workspace
+        admin to add it to the allowed network domains in workspace settings.
+      </>
+    ),
+  },
+  {
+    title: "401 — token invalid",
+    body: "Your token was revoked or never saved correctly. Click Rotate above, then re-run the install command in Terminal.",
+  },
+  {
+    title: "429 — monthly limit reached",
+    body: (
+      <>
+        You&apos;ve used all 15 free scores this month.{" "}
+        <a
+          href="/pricing"
+          className="text-ladder-green hover:underline"
+        >
+          Upgrade to Pro
+        </a>{" "}
+        for unlimited scoring.
+      </>
+    ),
+  },
+];
+
 const SETUP_STEPS: { title: string; body: React.ReactNode }[] = [
   {
     title: "Generate your token",
@@ -253,23 +286,43 @@ export function SkillTokenCard() {
           </svg>
         </button>
         {showGuide && (
-          <ol className="mt-6 space-y-5">
-            {SETUP_STEPS.map((step, i) => (
-              <li key={i} className="flex gap-4">
-                <span className="text-[10px] text-ladder-green font-mono tabular-nums shrink-0 mt-1">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div>
-                  <p className="text-xs text-foreground font-sans font-semibold">
-                    {step.title}
-                  </p>
-                  <p className="text-[11px] text-muted font-sans mt-1 leading-relaxed">
-                    {step.body}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ol>
+          <>
+            <ol className="mt-6 space-y-5">
+              {SETUP_STEPS.map((step, i) => (
+                <li key={i} className="flex gap-4">
+                  <span className="text-[10px] text-ladder-green font-mono tabular-nums shrink-0 mt-1">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <p className="text-xs text-foreground font-sans font-semibold">
+                      {step.title}
+                    </p>
+                    <p className="text-[11px] text-muted font-sans mt-1 leading-relaxed">
+                      {step.body}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <div className="mt-8 pt-5 border-t border-[#333]">
+              <p className="text-[10px] uppercase tracking-widest text-muted mb-4">
+                Troubleshooting
+              </p>
+              <ul className="space-y-4">
+                {TROUBLESHOOTING.map((item, i) => (
+                  <li key={i}>
+                    <p className="text-xs text-foreground font-sans font-semibold">
+                      {item.title}
+                    </p>
+                    <p className="text-[11px] text-muted font-sans mt-1 leading-relaxed">
+                      {item.body}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
         )}
       </div>
     </div>

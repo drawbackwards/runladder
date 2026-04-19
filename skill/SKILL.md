@@ -36,6 +36,7 @@ The script reads the token from `~/.ladder/token`, sends the image to the Ladder
 ## If the API returns an error
 
 - **401** — Token is missing or revoked. Tell the user to regenerate at https://runladder.com/dashboard.
+- **403** — The request was blocked by the user's Claude workspace network allowlist. Tell the user to ask their workspace admin to add `runladder.com` to the allowed network domains in Claude's workspace settings. (The Ladder API itself never returns 403, so this is always an upstream block.)
 - **429** — Monthly score limit reached. Tell the user to upgrade at https://runladder.com/pricing.
 - **400** — Image isn't a UI screen, is too large (>5 MB), or is invalid. Ask for a different image.
 - **500** — Transient server issue. Try again in a moment.

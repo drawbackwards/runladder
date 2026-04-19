@@ -80,6 +80,19 @@ def score(image_path: str) -> dict:
         with request.urlopen(req, timeout=90) as resp:
             return json.loads(resp.read().decode("utf-8"))
     except error.HTTPError as e:
+        # The Ladder API itself never returns 403 — a 403 here means an
+        # upstream network filter (typically a Claude workspace allowlist)
+        # blocked egress to runladder.com before the request reached us.
+        if e.code == 403:
+            return {
+                "error": (
+                    "The Ladder API (runladder.com) is not reachable from your Claude "
+                    "workspace. A workspace admin needs to add runladder.com to the "
+                    "allowed network domains in Claude's workspace settings."
+                ),
+                "_status": 403,
+                "_reason": "network_allowlist",
+            }
         try:
             payload = json.loads(e.read().decode("utf-8"))
             payload["_status"] = e.code
