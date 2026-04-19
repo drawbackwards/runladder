@@ -5,8 +5,9 @@ import {
   revokeSkillToken,
   getSkillTokenMeta,
 } from "@/lib/skill-auth";
+import { CURRENT_SKILL_VERSION } from "@/lib/skill-version";
 
-/** GET — return current token metadata (no raw token). */
+/** GET — return current token metadata (no raw token) + version state. */
 export async function GET() {
   const { userId } = await auth();
   if (!userId) {
@@ -18,6 +19,8 @@ export async function GET() {
     prefix: meta?.prefix,
     createdAt: meta?.createdAt,
     lastUsedAt: meta?.lastUsedAt,
+    installedVersion: meta?.installedVersion,
+    currentVersion: CURRENT_SKILL_VERSION,
   });
 }
 

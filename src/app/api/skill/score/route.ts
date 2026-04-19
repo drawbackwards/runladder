@@ -37,6 +37,8 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
+    const installedVersion =
+      req.headers.get("x-ladder-skill-version")?.slice(0, 32) || undefined;
 
     /* ── Rate limiting (shared pool with /api/score) ── */
     const monthKey = new Date().toISOString().slice(0, 7);
@@ -95,7 +97,7 @@ export async function POST(req: NextRequest) {
         member: JSON.stringify(scoreEntry),
       }),
       redis.incr(countKey),
-      touchSkillToken(userId),
+      touchSkillToken(userId, installedVersion),
     ]);
 
     const ttl = await redis.ttl(countKey);

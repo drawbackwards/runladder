@@ -7,6 +7,8 @@ type TokenMeta = {
   prefix?: string;
   createdAt?: number;
   lastUsedAt?: number;
+  installedVersion?: string;
+  currentVersion?: string;
 };
 
 function formatDate(ts: number): string {
@@ -112,6 +114,11 @@ export function SkillTokenCard() {
     );
   }
 
+  const updateAvailable =
+    !!meta?.installedVersion &&
+    !!meta?.currentVersion &&
+    meta.installedVersion !== meta.currentVersion;
+
   return (
     <div className="border border-[#333] bg-[#1e1e1e] p-6">
       <div className="flex items-start justify-between gap-6 mb-4">
@@ -130,13 +137,39 @@ export function SkillTokenCard() {
             chat.
           </p>
         </div>
-        <a
-          href="https://runladder.com/downloads/ladder-skill.zip"
-          className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors flex-shrink-0 border border-[#333] px-3 py-2 hover:border-muted"
-        >
-          Download Skill
-        </a>
+        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+          <a
+            href="https://runladder.com/downloads/ladder-skill.zip"
+            className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors border border-[#333] px-3 py-2 hover:border-muted"
+          >
+            Download Skill
+          </a>
+          {meta?.currentVersion && (
+            <span className="text-[9px] text-[#555] font-mono">
+              v{meta.currentVersion}
+            </span>
+          )}
+        </div>
       </div>
+
+      {updateAvailable && (
+        <div className="flex items-center justify-between gap-4 border border-ladder-green/30 bg-ladder-green/5 px-4 py-3 mb-3">
+          <div className="flex items-center gap-3">
+            <span className="text-[9px] text-ladder-green uppercase tracking-widest font-semibold">
+              Update available
+            </span>
+            <span className="text-[11px] text-muted font-sans">
+              You have <span className="font-mono text-foreground">v{meta!.installedVersion}</span> installed — <span className="font-mono text-foreground">v{meta!.currentVersion}</span> is current.
+            </span>
+          </div>
+          <a
+            href="https://runladder.com/downloads/ladder-skill.zip"
+            className="text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-3 py-2 font-semibold flex-shrink-0"
+          >
+            Download
+          </a>
+        </div>
+      )}
 
       {rawToken ? (
         <div className="border border-ladder-green/40 bg-ladder-green/5 p-4 mb-3">

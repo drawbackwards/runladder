@@ -8,7 +8,7 @@
  *
  * Redis keys:
  *   skill_token:{hash}         -> userId                 (lookup)
- *   user:{userId}:skill        -> { hash, prefix, createdAt, lastUsedAt }
+ *   user:{userId}:skill        -> { hash, prefix, createdAt, lastUsedAt, installedVersion }
  */
 import { createHash, randomBytes } from "crypto";
 import { redis } from "@/lib/redis";
@@ -20,6 +20,7 @@ export type SkillTokenMeta = {
   prefix: string;      // first chars of raw token, shown in dashboard (no security value)
   createdAt: number;
   lastUsedAt?: number;
+  installedVersion?: string; // last X-Ladder-Skill-Version seen from score.py
 };
 
 export function hashToken(raw: string): string {
@@ -85,11 +86,15 @@ export async function userIdFromBearer(raw: string): Promise<string | null> {
 }
 
 /** Update the lastUsedAt timestamp on a skill token (best-effort, fire and forget). */
-export async function touchSkillToken(userId: string): Promise<void> {
+export async function touchSkillToken(
+  userId: string,
+  installedVersion?: string
+): Promise<void> {
   const existing = await redis.get<SkillTokenMeta>(`user:${userId}:skill`);
   if (!existing) return;
   await redis.set(`user:${userId}:skill`, {
     ...existing,
     lastUsedAt: Date.now(),
+    ...(installedVersion ? { installedVersion } : {}),
   });
 }
