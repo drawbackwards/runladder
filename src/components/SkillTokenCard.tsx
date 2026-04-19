@@ -28,6 +28,7 @@ const TROUBLESHOOTING: { title: string; body: React.ReactNode }[] = [
         Claude workspace is blocking egress to{" "}
         <code className="text-foreground">runladder.com</code>. Ask a workspace
         admin to add it to the allowed network domains in workspace settings.
+        (Claude Code sidesteps this — it runs locally.)
       </>
     ),
   },
@@ -52,39 +53,29 @@ const TROUBLESHOOTING: { title: string; body: React.ReactNode }[] = [
   },
 ];
 
-const SETUP_STEPS: { title: string; body: React.ReactNode }[] = [
-  {
-    title: "Generate your token",
-    body: "Click Generate Skill token. The raw token appears once — you won't see it again.",
-  },
-  {
-    title: "Install on your Mac or Linux machine",
-    body: (
-      <>
-        Copy the command that appears and paste into Terminal. It saves the
-        token to <code className="text-foreground">~/.ladder/token</code> with
-        the right permissions.
-      </>
-    ),
-  },
-  {
-    title: "Download the Skill bundle",
-    body: "Click the Download Skill button above to get the latest versioned zip.",
-  },
-  {
-    title: "Upload to Claude",
-    body: "In Claude: Settings → Capabilities → Skills → upload the zip you just downloaded.",
-  },
-  {
-    title: "Score something",
-    body: (
-      <>
-        Start a new chat, attach a screenshot, and say{" "}
-        <code className="text-foreground">Run Ladder</code>.
-      </>
-    ),
-  },
-];
+function NumberedStep({
+  n,
+  title,
+  children,
+}: {
+  n: number;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex gap-4 mb-6 last:mb-0">
+      <span className="text-[10px] text-ladder-green font-mono tabular-nums shrink-0 mt-1">
+        {String(n).padStart(2, "0")}
+      </span>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs text-foreground font-sans font-semibold mb-3">
+          {title}
+        </p>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export function SkillTokenCard() {
   const [meta, setMeta] = useState<TokenMeta | null>(null);
@@ -93,7 +84,7 @@ export function SkillTokenCard() {
   const [rawToken, setRawToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [ccCopied, setCcCopied] = useState(false);
-  const [showGuide, setShowGuide] = useState(false);
+  const [showTroubleshooting, setShowTroubleshooting] = useState(false);
 
   useEffect(() => {
     fetch("/api/skill/token")
@@ -164,156 +155,162 @@ export function SkillTokenCard() {
     !!meta?.currentVersion &&
     meta.installedVersion !== meta.currentVersion;
 
+  const version = meta?.currentVersion;
+
   return (
     <div className="border border-[#333] bg-[#1e1e1e] p-6">
-      <div className="flex items-start justify-between gap-6 mb-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[9px] text-ladder-green uppercase tracking-widest font-semibold">
-              New
-            </span>
-            <h3 className="text-sm text-foreground font-sans font-semibold">
-              Ladder for Claude
-            </h3>
-          </div>
-          <p className="text-xs text-muted font-sans leading-relaxed max-w-lg">
-            Score screens directly in Claude conversations. Install the Ladder
-            Skill in Claude, paste your token, and drag a screenshot into any
-            chat.
-          </p>
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-[9px] text-ladder-green uppercase tracking-widest font-semibold">
+            New
+          </span>
+          <h3 className="text-sm text-foreground font-sans font-semibold">
+            Ladder for Claude
+          </h3>
+          {version && (
+            <span className="text-[10px] font-mono text-muted">v{version}</span>
+          )}
         </div>
-        <a
-          href={
-            meta?.currentVersion
-              ? `/downloads/ladder-skill-v${meta.currentVersion}.zip`
-              : "#"
-          }
-          className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors border border-[#333] px-3 py-2 hover:border-muted flex-shrink-0"
-        >
-          Download Skill{meta?.currentVersion ? ` v${meta.currentVersion}` : ""}
-        </a>
+        <p className="text-xs text-muted font-sans leading-relaxed max-w-lg">
+          Score any UI screenshot against the Ladder framework — from Claude
+          Code or Claude.ai. Screenshot, say &ldquo;Run Ladder,&rdquo; done.
+        </p>
       </div>
 
       {updateAvailable && (
-        <div className="flex items-center justify-between gap-4 border border-ladder-green/30 bg-ladder-green/5 px-4 py-3 mb-3">
+        <div className="flex items-center justify-between gap-4 border border-ladder-green/30 bg-ladder-green/5 px-4 py-3 mb-5">
           <div className="flex items-center gap-3">
             <span className="text-[9px] text-ladder-green uppercase tracking-widest font-semibold">
               Update available
             </span>
             <span className="text-[11px] text-muted font-sans">
-              You have <span className="font-mono text-foreground">v{meta!.installedVersion}</span> installed — <span className="font-mono text-foreground">v{meta!.currentVersion}</span> is current.
+              You have <span className="font-mono text-foreground">v{meta!.installedVersion}</span> installed — <span className="font-mono text-foreground">v{meta!.currentVersion}</span> is current. Re-run step 02 to update.
             </span>
           </div>
-          <a
-            href={`/downloads/ladder-skill-v${meta!.currentVersion}.zip`}
-            className="text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-3 py-2 font-semibold flex-shrink-0"
-          >
-            Download v{meta!.currentVersion}
-          </a>
         </div>
       )}
 
-      {rawToken ? (
-        <div className="border border-ladder-green/40 bg-ladder-green/5 p-4 mb-3">
-          <p className="text-[10px] text-ladder-green uppercase tracking-widest mb-2 font-semibold">
-            Copy and paste into Terminal — you won&apos;t see this again
-          </p>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 text-xs font-mono text-foreground bg-[#111] border border-[#333] px-3 py-2 break-all">
-              {installCommand(rawToken)}
-            </code>
-            <button
-              onClick={copy}
-              className="text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold flex-shrink-0"
-            >
-              {copied ? "Copied" : "Copy"}
-            </button>
-          </div>
-          <p className="text-[10px] text-muted font-sans mt-3">
-            Saves your token to <code className="text-foreground">~/.ladder/token</code> so the Skill can authenticate. macOS &amp; Linux.
-          </p>
-        </div>
-      ) : null}
-
-      {meta?.hasToken ? (
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4 text-[11px] text-muted font-sans">
-            <span className="font-mono text-foreground">
-              {meta.prefix}
-              <span className="text-[#444]">••••••••</span>
-            </span>
-            {meta.createdAt && (
-              <span>Created {formatDate(meta.createdAt)}</span>
-            )}
-            {meta.lastUsedAt ? (
-              <span>Last used {formatDate(meta.lastUsedAt)}</span>
-            ) : (
-              <span className="text-[#444]">Never used</span>
-            )}
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <button
-              onClick={generate}
-              disabled={working}
-              className="text-[10px] uppercase tracking-widest text-muted border border-[#333] px-3 py-2 hover:border-muted hover:text-foreground transition-colors disabled:opacity-40"
-            >
-              Rotate
-            </button>
-            <button
-              onClick={revoke}
-              disabled={working}
-              className="text-[10px] uppercase tracking-widest text-ladder-red border border-[#333] px-3 py-2 hover:border-ladder-red/50 transition-colors disabled:opacity-40"
-            >
-              Revoke
-            </button>
-          </div>
-        </div>
-      ) : (
-        <button
-          onClick={generate}
-          disabled={working}
-          className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest disabled:opacity-40"
-        >
-          {working ? "Generating…" : "Generate Skill token"}
-        </button>
-      )}
-
-      {meta?.currentVersion && (
-        <div className="mt-5 border border-[#333] bg-[#181818] p-4">
-          <div className="flex items-center justify-between gap-4 mb-2">
-            <p className="text-[10px] text-muted uppercase tracking-widest font-semibold">
-              Using Claude Code instead?
+      <NumberedStep n={1} title="Get your personal token">
+        {rawToken ? (
+          <div className="border border-ladder-green/40 bg-ladder-green/5 p-4">
+            <p className="text-[10px] text-ladder-green uppercase tracking-widest mb-2 font-semibold">
+              Copy and paste into Terminal — you won&apos;t see this again
             </p>
-            <span className="text-[9px] text-[#555] font-mono">
-              installs to ~/.claude/skills/ladder-quality-score
-            </span>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 text-xs font-mono text-foreground bg-[#111] border border-[#333] px-3 py-2 break-all">
+                {installCommand(rawToken)}
+              </code>
+              <button
+                onClick={copy}
+                className="text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold flex-shrink-0"
+              >
+                {copied ? "Copied" : "Copy"}
+              </button>
+            </div>
+            <p className="text-[10px] text-muted font-sans mt-3">
+              Saves your token to <code className="text-foreground">~/.ladder/token</code>. macOS &amp; Linux.
+            </p>
           </div>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 text-[11px] font-mono text-foreground bg-[#111] border border-[#333] px-3 py-2 break-all">
-              {claudeCodeInstall(meta.currentVersion)}
-            </code>
-            <button
-              onClick={copyCc}
-              className="text-[10px] uppercase tracking-widest text-muted border border-[#333] px-3 py-2 hover:border-muted hover:text-foreground transition-colors flex-shrink-0"
-            >
-              {ccCopied ? "Copied" : "Copy"}
-            </button>
+        ) : meta?.hasToken ? (
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4 text-[11px] text-muted font-sans flex-wrap">
+              <span className="font-mono text-foreground">
+                {meta.prefix}
+                <span className="text-[#444]">••••••••</span>
+              </span>
+              {meta.createdAt && (
+                <span>Created {formatDate(meta.createdAt)}</span>
+              )}
+              {meta.lastUsedAt ? (
+                <span>Last used {formatDate(meta.lastUsedAt)}</span>
+              ) : (
+                <span className="text-[#444]">Never used</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={generate}
+                disabled={working}
+                className="text-[10px] uppercase tracking-widest text-muted border border-[#333] px-3 py-2 hover:border-muted hover:text-foreground transition-colors disabled:opacity-40"
+              >
+                Rotate
+              </button>
+              <button
+                onClick={revoke}
+                disabled={working}
+                className="text-[10px] uppercase tracking-widest text-ladder-red border border-[#333] px-3 py-2 hover:border-ladder-red/50 transition-colors disabled:opacity-40"
+              >
+                Revoke
+              </button>
+            </div>
           </div>
-          <p className="text-[10px] text-muted font-sans mt-3 leading-relaxed">
-            Runs the scoring script on your local machine — no Claude workspace network allowlist required.
-          </p>
-        </div>
-      )}
+        ) : (
+          <button
+            onClick={generate}
+            disabled={working}
+            className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest disabled:opacity-40"
+          >
+            {working ? "Generating…" : "Generate Skill token"}
+          </button>
+        )}
+      </NumberedStep>
+
+      <NumberedStep n={2} title="Install the Skill">
+        {version ? (
+          <>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 text-[11px] font-mono text-foreground bg-[#111] border border-[#333] px-3 py-2 break-all">
+                {claudeCodeInstall(version)}
+              </code>
+              <button
+                onClick={copyCc}
+                className="text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold flex-shrink-0"
+              >
+                {ccCopied ? "Copied" : "Copy"}
+              </button>
+            </div>
+            <p className="text-[10px] text-muted font-sans mt-3 leading-relaxed">
+              Paste into Terminal. Installs the Skill for Claude Code at{" "}
+              <code className="text-foreground">~/.claude/skills/ladder-quality-score/</code>.
+            </p>
+            <p className="text-[10px] text-muted font-sans mt-2 leading-relaxed">
+              Using Claude.ai chat instead?{" "}
+              <a
+                href={`/downloads/ladder-skill-v${version}.zip`}
+                className="text-ladder-green hover:underline"
+              >
+                Download the zip
+              </a>{" "}
+              and upload it in Settings → Capabilities → Skills.
+            </p>
+          </>
+        ) : null}
+      </NumberedStep>
+
+      <NumberedStep n={3} title={`Screenshot, then say "Run Ladder"`}>
+        <p className="text-xs text-foreground font-sans leading-relaxed">
+          Press{" "}
+          <kbd className="font-mono text-[11px] text-foreground bg-[#111] border border-[#333] px-2 py-0.5">
+            ⌘ ⇧ 4
+          </kbd>{" "}
+          to screenshot any UI. Then in Claude, say{" "}
+          <code className="text-foreground font-semibold">Run Ladder</code>.
+        </p>
+        <p className="text-[10px] text-muted font-sans mt-3 leading-relaxed">
+          The Skill auto-picks up your latest Desktop screenshot or any image on
+          your clipboard — no file paths, no attachments.
+        </p>
+      </NumberedStep>
 
       <div className="mt-6 pt-5 border-t border-[#333]">
         <button
           type="button"
-          onClick={() => setShowGuide(!showGuide)}
+          onClick={() => setShowTroubleshooting(!showTroubleshooting)}
           className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
         >
-          <span>{showGuide ? "Hide setup guide" : "Show setup guide"}</span>
+          <span>{showTroubleshooting ? "Hide troubleshooting" : "Troubleshooting"}</span>
           <svg
-            className={`transition-transform ${showGuide ? "rotate-180" : ""}`}
+            className={`transition-transform ${showTroubleshooting ? "rotate-180" : ""}`}
             width="10"
             height="10"
             viewBox="0 0 24 24"
@@ -324,44 +321,19 @@ export function SkillTokenCard() {
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
-        {showGuide && (
-          <>
-            <ol className="mt-6 space-y-5">
-              {SETUP_STEPS.map((step, i) => (
-                <li key={i} className="flex gap-4">
-                  <span className="text-[10px] text-ladder-green font-mono tabular-nums shrink-0 mt-1">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <p className="text-xs text-foreground font-sans font-semibold">
-                      {step.title}
-                    </p>
-                    <p className="text-[11px] text-muted font-sans mt-1 leading-relaxed">
-                      {step.body}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-
-            <div className="mt-8 pt-5 border-t border-[#333]">
-              <p className="text-[10px] uppercase tracking-widest text-muted mb-4">
-                Troubleshooting
-              </p>
-              <ul className="space-y-4">
-                {TROUBLESHOOTING.map((item, i) => (
-                  <li key={i}>
-                    <p className="text-xs text-foreground font-sans font-semibold">
-                      {item.title}
-                    </p>
-                    <p className="text-[11px] text-muted font-sans mt-1 leading-relaxed">
-                      {item.body}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </>
+        {showTroubleshooting && (
+          <ul className="mt-5 space-y-4">
+            {TROUBLESHOOTING.map((item, i) => (
+              <li key={i}>
+                <p className="text-xs text-foreground font-sans font-semibold">
+                  {item.title}
+                </p>
+                <p className="text-[11px] text-muted font-sans mt-1 leading-relaxed">
+                  {item.body}
+                </p>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </div>
