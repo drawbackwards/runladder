@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
+import { SkillTokenCard } from "@/components/SkillTokenCard";
 
 type ScoreEntry = {
   id: string;
@@ -158,6 +159,14 @@ export default function DashboardPage() {
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </Link>
+        </div>
+
+        {/* Integrations */}
+        <div className="border-t border-[#333] pt-8 mb-10">
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-[10px] text-muted uppercase tracking-widest">Integrations</span>
+          </div>
+          <SkillTokenCard />
         </div>
 
         {/* Score history */}
