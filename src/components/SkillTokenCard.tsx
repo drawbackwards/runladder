@@ -36,11 +36,11 @@ const SETUP_STEPS: { title: string; body: React.ReactNode }[] = [
   },
   {
     title: "Download the Skill bundle",
-    body: "Click Download Skill above to get ladder-skill.zip.",
+    body: "Click the Download Skill button above to get the latest versioned zip.",
   },
   {
     title: "Upload to Claude",
-    body: "In Claude: Settings → Capabilities → Skills → upload ladder-skill.zip.",
+    body: "In Claude: Settings → Capabilities → Skills → upload the zip you just downloaded.",
   },
   {
     title: "Score something",
@@ -137,19 +137,16 @@ export function SkillTokenCard() {
             chat.
           </p>
         </div>
-        <div className="flex flex-col items-end gap-1 flex-shrink-0">
-          <a
-            href="https://runladder.com/downloads/ladder-skill.zip"
-            className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors border border-[#333] px-3 py-2 hover:border-muted"
-          >
-            Download Skill
-          </a>
-          {meta?.currentVersion && (
-            <span className="text-[9px] text-[#555] font-mono">
-              v{meta.currentVersion}
-            </span>
-          )}
-        </div>
+        <a
+          href={
+            meta?.currentVersion
+              ? `/downloads/ladder-skill-v${meta.currentVersion}.zip`
+              : "#"
+          }
+          className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors border border-[#333] px-3 py-2 hover:border-muted flex-shrink-0"
+        >
+          Download Skill{meta?.currentVersion ? ` v${meta.currentVersion}` : ""}
+        </a>
       </div>
 
       {updateAvailable && (
@@ -163,10 +160,10 @@ export function SkillTokenCard() {
             </span>
           </div>
           <a
-            href="https://runladder.com/downloads/ladder-skill.zip"
+            href={`/downloads/ladder-skill-v${meta!.currentVersion}.zip`}
             className="text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-3 py-2 font-semibold flex-shrink-0"
           >
-            Download
+            Download v{meta!.currentVersion}
           </a>
         </div>
       )}
