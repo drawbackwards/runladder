@@ -18,6 +18,8 @@ from urllib import request, error
 
 API_URL = os.environ.get("LADDER_API_URL", "https://runladder.com/api/skill/score")
 TOKEN_PATH = Path.home() / ".ladder" / "token"
+VERSION_PATH = Path(__file__).parent.parent / "VERSION"
+SKILL_VERSION = VERSION_PATH.read_text().strip() if VERSION_PATH.exists() else "unknown"
 
 
 def read_token() -> str:
@@ -69,7 +71,8 @@ def score(image_path: str) -> dict:
         headers={
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
-            "User-Agent": "ladder-skill/1.0",
+            "User-Agent": f"ladder-skill/{SKILL_VERSION}",
+            "X-Ladder-Skill-Version": SKILL_VERSION,
         },
     )
 
