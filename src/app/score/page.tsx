@@ -355,10 +355,10 @@ export default function ScorePage() {
       try { data = JSON.parse(text); } catch { throw new Error("Scoring service returned an unexpected response. Please try again."); }
       if (!res.ok) {
         if (data.signup) {
-          throw new Error("Sign up for free to get 5 scores per month. Log in at runladder.com/login");
+          throw new Error("Sign up for free to get 15 scores per month. Log in at runladder.com/login");
         }
         if (data.upgrade) {
-          throw new Error("You've used all 5 free scores this month. Upgrade at runladder.com/pricing for unlimited scoring.");
+          throw new Error("You've used all 15 free scores this month. Upgrade at runladder.com/pricing for unlimited scoring.");
         }
         throw new Error(data.error || "Scoring failed");
       }

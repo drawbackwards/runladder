@@ -5,6 +5,7 @@ import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
 import { SkillTokenCard } from "@/components/SkillTokenCard";
+import { FREE_MONTHLY_LIMIT } from "@/lib/plans";
 
 type ScoreEntry = {
   id: string;
@@ -100,7 +101,7 @@ export default function DashboardPage() {
   if (!isSignedIn) return <RedirectToSignIn />;
 
   const scores = data?.scores ?? [];
-  const usage = data?.usage ?? { used: 0, limit: 5, month: "" };
+  const usage = data?.usage ?? { used: 0, limit: FREE_MONTHLY_LIMIT, month: "" };
 
   const usagePercent = Math.min(100, (usage.used / usage.limit) * 100);
 

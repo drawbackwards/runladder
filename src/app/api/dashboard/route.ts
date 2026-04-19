@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { redis } from "@/lib/redis";
+import { FREE_MONTHLY_LIMIT } from "@/lib/plans";
 
 export async function GET() {
   const { userId } = await auth();
@@ -35,7 +36,7 @@ export async function GET() {
     scores: parsedScores,
     usage: {
       used: usage ?? 0,
-      limit: 5,
+      limit: FREE_MONTHLY_LIMIT,
       month: monthKey,
     },
   });
