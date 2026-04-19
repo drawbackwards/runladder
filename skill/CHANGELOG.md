@@ -2,6 +2,11 @@
 
 All notable changes to the Ladder Skill bundle (SKILL.md, README.md, scripts/) are listed here. The Skill tracks its own version independently of the runladder.com web app.
 
+## 1.0.2 — 2026-04-18
+
+- Zip is now packaged with a top-level `ladder-quality-score/` folder so `unzip -d ~/.claude/skills/` just works for Claude Code installs.
+- `README.md` and the dashboard now document a one-line install for Claude Code users, which bypasses the Claude.ai workspace network allowlist entirely (scripts run locally).
+
 ## 1.0.1 — 2026-04-18
 
 - `score.py` now returns an actionable message when the request is blocked by a Claude workspace network allowlist (HTTP 403): tells the user to ask their workspace admin to add `runladder.com` to allowed network domains.
