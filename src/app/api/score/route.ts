@@ -6,11 +6,9 @@ import {
   scoreImage,
   isScoringError,
 } from "@/lib/scoring";
+import { FREE_MONTHLY_LIMIT, ANON_LIMIT } from "@/lib/plans";
 
 export const maxDuration = 60;
-
-const FREE_MONTHLY_LIMIT = 5;
-const ANON_LIMIT = 1;
 
 export async function POST(req: NextRequest) {
   try {
@@ -51,7 +49,7 @@ export async function POST(req: NextRequest) {
       if (count >= ANON_LIMIT) {
         return NextResponse.json(
           {
-            error: "Sign up for free to get 5 scores per month.",
+            error: `Sign up for free to get ${FREE_MONTHLY_LIMIT} scores per month.`,
             signup: true,
           },
           { status: 429 }

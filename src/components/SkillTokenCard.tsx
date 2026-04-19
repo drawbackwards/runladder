@@ -161,7 +161,7 @@ export function SkillTokenCard() {
             {working ? "Generating…" : "Generate Skill token"}
           </button>
           <p className="text-[10px] text-[#555] font-sans mt-3">
-            Uses your monthly scoring pool. Free tier: 5 scores / month across
+            Uses your monthly scoring pool. Free tier: 15 scores / month across
             all surfaces.
           </p>
         </div>

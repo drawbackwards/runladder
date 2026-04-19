@@ -35,7 +35,7 @@ Claude will run the Skill, call the Ladder API, and return the result.
 
 The Skill counts against the same monthly pool as the web app and every other Ladder surface:
 
-- **Free:** 5 scores / month (shared across Skill, web, and Figma plugin)
+- **Free:** 15 scores / month (shared across Skill, web, and Figma plugin)
 - **Pro:** Unlimited scores, private results — [$250/mo](https://runladder.com/pricing)
 
 ## Privacy & IP

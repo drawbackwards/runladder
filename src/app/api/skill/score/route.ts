@@ -6,10 +6,9 @@ import {
   isScoringError,
 } from "@/lib/scoring";
 import { userIdFromBearer, touchSkillToken } from "@/lib/skill-auth";
+import { FREE_MONTHLY_LIMIT } from "@/lib/plans";
 
 export const maxDuration = 60;
-
-const FREE_MONTHLY_LIMIT = 5;
 
 /**
  * Skill scoring endpoint — called by the Ladder Claude Skill and other
