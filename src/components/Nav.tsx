@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth, UserButton, SignInButton, SignUpButton } from "@clerk/nextjs";
 import { LadderLogo } from "./LadderLogo";
 
 export function Nav() {
   const { isSignedIn, isLoaded } = useAuth();
+  const pathname = usePathname();
+  const isDashboard = pathname?.startsWith("/dashboard") ?? false;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
@@ -51,28 +54,21 @@ export function Nav() {
             <>
               <Link
                 href="/dashboard"
-                className="text-sm font-bold text-body hover:text-foreground transition-colors"
+                className={`text-sm font-bold transition-colors ${
+                  isDashboard
+                    ? "text-foreground"
+                    : "text-body hover:text-foreground"
+                }`}
               >
                 Dashboard
               </Link>
-              <div className="flex items-center gap-2">
-                <UserButton
-                  appearance={{
-                    elements: {
-                      avatarBox: "w-8 h-8",
-                    },
-                  }}
-                />
-                <span className="text-[9px] uppercase tracking-widest font-semibold text-muted border border-[#333] px-2 py-1">
-                  Free
-                </span>
-                <Link
-                  href="/pricing"
-                  className="text-[9px] uppercase tracking-widest font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors"
-                >
-                  Upgrade
-                </Link>
-              </div>
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "w-8 h-8",
+                  },
+                }}
+              />
             </>
           )}
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { useAuth, useUser, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
 import { SkillTokenCard } from "@/components/SkillTokenCard";
@@ -43,57 +43,84 @@ function timeAgo(ts: number): string {
   return `${months}mo ago`;
 }
 
-function formatMonth(monthKey: string): string {
-  const [year, month] = monthKey.split("-");
-  const date = new Date(Number(year), Number(month) - 1);
-  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+function UpgradeStrip({ usage }: { usage: UsageInfo }) {
+  const remaining = Math.max(0, usage.limit - usage.used);
+  const exhausted = remaining === 0;
+  return (
+    <div
+      className={`border-b ${
+        exhausted
+          ? "border-ladder-red/30 bg-ladder-red/5"
+          : "border-[#2a2a2a] bg-[#161616]"
+      }`}
+    >
+      <div className="max-w-6xl mx-auto px-6 py-2.5 flex items-center justify-center gap-4 flex-wrap">
+        <span className="text-[11px] text-muted font-sans">
+          {exhausted ? (
+            <>
+              <span className="text-ladder-red font-semibold">
+                0 scores left
+              </span>{" "}
+              this month.
+            </>
+          ) : (
+            <>
+              <span className="text-foreground font-semibold tabular-nums">
+                {remaining}
+              </span>{" "}
+              of {usage.limit} free scores left this month
+            </>
+          )}
+        </span>
+        <Link
+          href="/pricing"
+          className="text-[10px] uppercase tracking-widest font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors"
+        >
+          Upgrade to Pro →
+        </Link>
+      </div>
+    </div>
+  );
 }
 
-function PlanModule({ usage }: { usage: UsageInfo }) {
-  const pct = Math.min(100, (usage.used / usage.limit) * 100);
+function ScoreCTACard() {
   return (
-    <div className="border border-[#333] bg-[#1e1e1e] p-5">
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-[10px] text-muted uppercase tracking-widest">
-          Plan
-        </span>
-        <span className="text-[9px] uppercase tracking-widest font-semibold text-muted border border-[#333] px-2 py-0.5">
-          Free
-        </span>
+    <Link
+      href="/score"
+      className="flex items-center gap-4 border border-ladder-green/40 bg-ladder-green/5 hover:bg-ladder-green/10 hover:border-ladder-green/60 transition-colors p-4 group"
+    >
+      <div className="flex-shrink-0 w-20 h-20 bg-ladder-green/10 border border-ladder-green/30 flex items-center justify-center">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#6AC89B"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
       </div>
-      <div className="flex items-baseline justify-between mb-2">
-        <span className="font-mono text-xl text-foreground tabular-nums">
-          {usage.used}
-          <span className="text-muted text-sm"> / {usage.limit}</span>
-        </span>
-        <span className="text-[10px] text-muted">
-          {usage.month ? formatMonth(usage.month) : "This month"}
-        </span>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-foreground font-sans">
+          Score a new screen
+        </p>
+        <p className="text-xs text-muted font-sans mt-1">
+          Upload or paste — get a Ladder score back in seconds
+        </p>
       </div>
-      <div className="h-1 bg-[#333] rounded-full mb-4">
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{
-            width: `${pct}%`,
-            background: pct >= 100 ? "#ef4444" : "#6AC89B",
-          }}
-        />
-      </div>
-      <Link
-        href="/pricing"
-        className="block text-center text-[10px] font-semibold bg-ladder-green text-[#1a1a1a] px-4 py-2 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest mb-3"
-      >
-        Upgrade to Pro
-      </Link>
-      <p className="text-[10px] text-muted font-sans leading-relaxed">
-        Unlimited scoring, private scores, per-dimension scoring, a11y audits, and UX copy review.
-      </p>
-    </div>
+      <span className="text-ladder-green text-xl flex-shrink-0 pr-3 group-hover:translate-x-0.5 transition-transform">
+        →
+      </span>
+    </Link>
   );
 }
 
 export default function DashboardPage() {
   const { isSignedIn, isLoaded } = useAuth();
+  const { user } = useUser();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -144,51 +171,49 @@ export default function DashboardPage() {
 
   const scores = data?.scores ?? [];
   const usage = data?.usage ?? { used: 0, limit: FREE_MONTHLY_LIMIT, month: "" };
+  const firstName = user?.firstName || null;
 
   return (
     <div className="pt-20 font-mono">
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground font-sans">Dashboard</h1>
-            <p className="text-sm text-muted mt-1 font-sans">Your scoring history and usage</p>
-          </div>
-          <Link
-            href="/score"
-            className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest"
-          >
-            Score a screen
-          </Link>
+      <UpgradeStrip usage={usage} />
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        <div className="mb-8">
+          <h1 className="text-xl text-foreground font-sans">
+            {firstName ? `Hi, ${firstName}.` : "Welcome back."}
+          </h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           <main>
             <div className="flex items-center justify-between mb-6">
-              <span className="text-[10px] text-muted uppercase tracking-widest">Score history</span>
+              <span className="text-[10px] text-muted uppercase tracking-widest">
+                Score history
+              </span>
               {scores.length > 0 && (
-                <span className="text-[10px] text-[#444]">{scores.length} score{scores.length !== 1 ? "s" : ""}</span>
+                <span className="text-[10px] text-muted">
+                  {scores.length} score{scores.length !== 1 ? "s" : ""}
+                </span>
               )}
             </div>
 
-            {loading ? (
-              <div className="space-y-2">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="border border-[#333] bg-[#1e1e1e] p-5 shimmer h-24" />
-                ))}
-              </div>
-            ) : scores.length === 0 ? (
-              <div className="border border-[#333] bg-[#1e1e1e] p-12 text-center">
-                <p className="text-sm text-muted font-sans mb-4">No scores yet</p>
-                <Link
-                  href="/score"
-                  className="text-xs text-ladder-green uppercase tracking-widest hover:underline"
-                >
-                  Score your first screen
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {scores.map((entry) => (
+            <div className="space-y-2">
+              <ScoreCTACard />
+
+              {loading ? (
+                [...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="border border-[#333] bg-[#1e1e1e] p-5 shimmer h-24"
+                  />
+                ))
+              ) : scores.length === 0 ? (
+                <div className="border border-[#333] bg-[#1e1e1e] p-8 text-center">
+                  <p className="text-sm text-muted font-sans">
+                    No scores yet — start above.
+                  </p>
+                </div>
+              ) : (
+                scores.map((entry) => (
                   <div
                     key={entry.id}
                     className="border border-[#333] bg-[#1e1e1e] hover:border-muted transition-colors group"
@@ -200,7 +225,11 @@ export default function DashboardPage() {
                       <div className="flex items-center gap-4">
                         {entry.thumbnail ? (
                           <div className="flex-shrink-0 w-20 h-20 border border-[#333] bg-[#111] overflow-hidden">
-                            <img src={entry.thumbnail} alt="" className="w-full h-full object-cover object-top" />
+                            <img
+                              src={entry.thumbnail}
+                              alt=""
+                              className="w-full h-full object-cover object-top"
+                            />
                           </div>
                         ) : (
                           <div className="flex-shrink-0 w-20 h-20 border border-[#333] bg-[#111] flex items-center justify-center">
@@ -225,15 +254,19 @@ export default function DashboardPage() {
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <p className="text-sm text-foreground font-sans truncate">{entry.screenName || entry.source}</p>
+                            <p className="text-sm text-foreground font-sans truncate">
+                              {entry.screenName || entry.source}
+                            </p>
                             {entry.isPublic === false && (
-                              <span className="text-[8px] text-muted uppercase tracking-widest border border-[#333] px-1.5 py-0.5 flex-shrink-0">
+                              <span className="text-[8px] text-[#999] uppercase tracking-widest border border-[#444] px-1.5 py-0.5 flex-shrink-0">
                                 Private
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-muted font-sans mt-1 line-clamp-2">{entry.summary}</p>
-                          <span className="text-[10px] text-[#444] mt-2 block">
+                          <p className="text-xs text-muted font-sans mt-1 line-clamp-2">
+                            {entry.summary}
+                          </p>
+                          <span className="text-[10px] text-muted mt-2 block">
                             {timeAgo(entry.timestamp)}
                           </span>
                         </div>
@@ -248,20 +281,26 @@ export default function DashboardPage() {
                           title="Delete score"
                           aria-label="Delete score"
                         >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
                             <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14" />
                           </svg>
                         </button>
                       </div>
                     </Link>
                   </div>
-                ))}
-              </div>
-            )}
+                ))
+              )}
+            </div>
           </main>
 
-          <aside className="space-y-4">
-            <PlanModule usage={usage} />
+          <aside>
             <SkillTokenCard />
           </aside>
         </div>
