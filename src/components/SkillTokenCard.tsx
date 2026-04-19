@@ -17,12 +17,42 @@ function formatDate(ts: number): string {
   });
 }
 
+const SETUP_STEPS: { title: string; body: React.ReactNode }[] = [
+  {
+    title: "Generate your token",
+    body: "Click Generate Skill token. The raw token appears once — you won't see it again.",
+  },
+  {
+    title: "Install on your Mac or Linux machine",
+    body: (
+      <>
+        Copy the command that appears and paste into Terminal. It saves the
+        token to <code className="text-foreground">~/.ladder/token</code> with
+        the right permissions.
+      </>
+    ),
+  },
+  {
+    title: "Download the Skill bundle",
+    body: "Click Download Skill above to get ladder-skill.zip.",
+  },
+  {
+    title: "Upload to Claude",
+    body: "In Claude: Settings → Capabilities → Skills → upload ladder-skill.zip.",
+  },
+  {
+    title: "Score something",
+    body: `Start a new chat, attach a screenshot, and say "Score this against the Ladder framework."`,
+  },
+];
+
 export function SkillTokenCard() {
   const [meta, setMeta] = useState<TokenMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
   const [rawToken, setRawToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   useEffect(() => {
     fetch("/api/skill/token")
@@ -167,6 +197,46 @@ export function SkillTokenCard() {
           {working ? "Generating…" : "Generate Skill token"}
         </button>
       )}
+
+      <div className="mt-6 pt-5 border-t border-[#333]">
+        <button
+          type="button"
+          onClick={() => setShowGuide(!showGuide)}
+          className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+        >
+          <span>{showGuide ? "Hide setup guide" : "Show setup guide"}</span>
+          <svg
+            className={`transition-transform ${showGuide ? "rotate-180" : ""}`}
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+        {showGuide && (
+          <ol className="mt-6 space-y-5">
+            {SETUP_STEPS.map((step, i) => (
+              <li key={i} className="flex gap-4">
+                <span className="text-[10px] text-ladder-green font-mono tabular-nums shrink-0 mt-1">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <p className="text-xs text-foreground font-sans font-semibold">
+                    {step.title}
+                  </p>
+                  <p className="text-[11px] text-muted font-sans mt-1 leading-relaxed">
+                    {step.body}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
     </div>
   );
 }
