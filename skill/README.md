@@ -27,7 +27,7 @@ Drop a screenshot into any Claude chat, ask for its Ladder score, and get back:
 
 Start a new Claude chat, attach a screenshot, and say:
 
-> Score this against the Ladder framework.
+> Run Ladder
 
 Claude will run the Skill, call the Ladder API, and return the result.
 

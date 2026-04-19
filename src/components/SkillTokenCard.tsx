@@ -42,7 +42,12 @@ const SETUP_STEPS: { title: string; body: React.ReactNode }[] = [
   },
   {
     title: "Score something",
-    body: `Start a new chat, attach a screenshot, and say "Score this against the Ladder framework."`,
+    body: (
+      <>
+        Start a new chat, attach a screenshot, and say{" "}
+        <code className="text-foreground">Run Ladder</code>.
+      </>
+    ),
   },
 ];
 
