@@ -44,15 +44,25 @@ export function Footer() {
               <li><Link href="/organizations" className="hover:text-foreground transition-colors">How Ladder transforms organizations</Link></li>
               <li><Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link></li>
               <li><Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link></li>
+              <li><Link href="/legal" className="hover:text-foreground transition-colors">Licensing &amp; IP</Link></li>
             </ul>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 pt-8 border-t border-border">
-          <LadderLogo height={16} className="text-white/70" />
-          <span className="text-xs text-muted">
-            Made with love by <a href="https://drawbackwards.com" className="text-body hover:text-foreground transition-colors">Drawbackwards</a> since 2003
-          </span>
+        <div className="flex flex-col gap-3 pt-8 border-t border-border">
+          <div className="flex items-center gap-4">
+            <LadderLogo height={16} className="text-white/70" />
+            <span className="text-xs text-muted">
+              Made with love by <a href="https://drawbackwards.com" className="text-body hover:text-foreground transition-colors">Drawbackwards</a> since 2003
+            </span>
+          </div>
+          <p className="text-xs text-muted leading-relaxed">
+            &copy; 2026 Drawbackwards, LLC. Ladder&trade; is a trademark of Drawbackwards, LLC. All rights reserved.
+            The Ladder framework, scoring methodology, and associated materials are proprietary.{" "}
+            <Link href="/legal" className="hover:text-foreground transition-colors">
+              Licensing terms
+            </Link>.
+          </p>
         </div>
       </div>
     </footer>

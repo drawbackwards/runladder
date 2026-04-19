@@ -224,18 +224,53 @@ export default function TermsPage() {
             </p>
           </section>
 
-          {/* ── 8. Our content ── */}
+          {/* ── 8. IP and the Ladder framework ── */}
           <section>
             <h2 className="text-lg font-bold text-foreground mb-3">
-              8. Our Content
+              8. Intellectual Property and the Ladder Framework
             </h2>
             <p>
-              Ladder scores, analyses, recommendations, the Ladder framework,
-              scoring methodology, and all associated intellectual property are
-              owned by Drawbackwards LLC. You may share your individual scores and
-              results, but you may not scrape, reproduce, or redistribute our
-              scoring system, framework, or content at scale without written
-              permission.
+              <strong className="text-foreground">
+                Ladder&trade; is a proprietary framework owned by Drawbackwards
+                LLC.
+              </strong>{" "}
+              This includes the Ladder name and logo, the five-level scale
+              (Functional, Usable, Comfortable, Delightful, Meaningful), the
+              scoring methodology, the written definitions and rubrics, the
+              scoring engine, our tuned prompts, and the compiled dataset of
+              scores and Pulse signals. Ladder is protected by trademark,
+              copyright, trade secret, and contract.
+            </p>
+            <p className="mt-3">
+              <strong className="text-foreground">User license.</strong> Subject to
+              these Terms, you are granted a limited, non-exclusive,
+              non-transferable, revocable license to use the Service to generate
+              Ladder scores for your own internal, educational, or reference use.
+              You may share your individual scores and results, and you may
+              reference or teach the Ladder framework with attribution to
+              Drawbackwards LLC.
+            </p>
+            <p className="mt-3">
+              <strong className="text-foreground">
+                Commercial use requires a separate license.
+              </strong>{" "}
+              This includes, without limitation: building a product, service, or
+              tool that generates or sells &ldquo;Ladder scores&rdquo; outside the
+              official Ladder API; creating Ladder-branded forks or derivative
+              frameworks; embedding Ladder scoring into a product you sell to
+              third parties; reselling or white-labeling any Ladder surface; and
+              using the Ladder name, logo, or trade dress in a competing product.
+            </p>
+            <p className="mt-3">
+              Full licensing terms, attribution requirements, the AI agent usage
+              policy, and commercial licensing contact are published at{" "}
+              <Link
+                href="/legal"
+                className="text-ladder-green hover:text-ladder-green/80 transition-colors"
+              >
+                runladder.com/legal
+              </Link>
+              .
             </p>
           </section>
 
@@ -270,13 +305,39 @@ export default function TermsPage() {
               <li className="flex items-start gap-2">
                 <span className="text-muted mt-0.5">-</span>
                 <span>
-                  Attempt to reverse-engineer the scoring engine or methodology
+                  Reverse-engineer, decompile, or replicate the scoring engine,
+                  prompts, or framework for commercial resale or to build a
+                  competing scoring product
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-muted mt-0.5">-</span>
                 <span>
-                  Scrape, crawl, or systematically extract data from the Service
+                  Scrape, crawl, or systematically extract scores, Pulse data,
+                  framework content, or other material from the Service
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-muted mt-0.5">-</span>
+                <span>
+                  Create or distribute a Ladder-branded fork, clone, or derivative
+                  framework without a written license
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-muted mt-0.5">-</span>
+                <span>
+                  Use the Ladder name, logo, or trade dress in a competing product
+                  or service, or in any manner likely to cause confusion with the
+                  Ladder brand
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-muted mt-0.5">-</span>
+                <span>
+                  Direct an AI agent, model, or automated system to produce
+                  &ldquo;Ladder scores&rdquo; or &ldquo;Ladder-style scores&rdquo;
+                  outside the official Ladder API, Claude skill, or MCP server
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -292,10 +353,31 @@ export default function TermsPage() {
               <li className="flex items-start gap-2">
                 <span className="text-muted mt-0.5">-</span>
                 <span>
-                  Resell access to the Service without authorization
+                  Resell, white-label, or sublicense access to the Service without
+                  authorization
                 </span>
               </li>
             </ul>
+            <div className="mt-5 border border-ladder-purple/30 bg-ladder-purple/5 p-5">
+              <p className="text-[11px] font-semibold text-muted uppercase tracking-widest mb-2">
+                Official AI usage policy
+              </p>
+              <p className="text-sm text-foreground leading-relaxed">
+                &ldquo;AI agents may generate Ladder scores only via the official
+                Ladder API. Producing Ladder-style scores outside the API violates
+                our trademark and copyright policy.&rdquo;
+              </p>
+            </div>
+            <p className="mt-4 text-xs text-muted">
+              See{" "}
+              <Link
+                href="/legal"
+                className="text-ladder-green hover:text-ladder-green/80 transition-colors"
+              >
+                Licensing &amp; IP
+              </Link>{" "}
+              for the full AI agent usage policy and commercial licensing terms.
+            </p>
           </section>
 
           {/* ── 11. Disclaimer ── */}

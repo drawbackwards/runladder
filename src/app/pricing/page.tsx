@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LegalNotice } from "@/components/LegalNotice";
 
 export const metadata: Metadata = {
   title: "Pricing | Ladder",
@@ -9,14 +10,14 @@ export const metadata: Metadata = {
 
 const SCREEN_SCORE_TIERS = [
   {
-    name: "Web and Claude",
+    name: "Free",
     price: "$0",
     period: "forever",
     highlight: false,
-    limit: "5 scores / month",
+    limit: "15 scores / month",
     features: [
       "Overall Ladder score + coaching",
-      "Score with web or Claude skill",
+      "Score on web, Claude Skill, or MCP",
       "Scores are public",
     ],
     cta: "Start free",
@@ -28,9 +29,11 @@ const SCREEN_SCORE_TIERS = [
     price: "$250",
     period: "/ mo",
     highlight: true,
-    limit: "Unlimited scores",
+    limit: "Unlimited + 1,000 API / mo",
     features: [
-      "Unlimited scoring for web and Claude skill",
+      "Unlimited scoring on web, Claude Skill, MCP, and Figma",
+      "1,000 API calls per month, overage at $0.50 per call",
+      "API keys for programmatic access",
       "All scores are private",
       "UX copy suggestions",
       "Accessibility audit",
@@ -48,13 +51,14 @@ const SCREEN_SCORE_TIERS = [
     price: "Custom",
     period: "",
     highlight: false,
-    limit: "Unlimited everything",
+    limit: "Unlimited + 25,000 API pooled / mo",
     features: [
       "Everything in Professional",
-      "All scores are private",
+      "25,000 pooled API calls per month, overage at $0.25 per call",
       "Team leaderboard + portfolio score",
       "Design system compliance scoring",
       "Manager dashboard + performance tracking",
+      "SSO and advanced access controls",
       "Access to customer sentiment and Ladder Pulse scoring data + insights, if subscribed",
     ],
     cta: "Talk to us about Ladder",
@@ -73,8 +77,9 @@ export default function PricingPage() {
             Simple pricing. Score your first screen free.
           </h1>
           <p className="text-body max-w-lg mx-auto leading-relaxed">
-            One subscription works across every Ladder surface: web
-            and Claude. Start free, upgrade when you need more.
+            One subscription works across every Ladder surface: web,
+            Claude, MCP, Figma, and API. Start free, upgrade when you
+            need more.
           </p>
         </div>
 
@@ -175,7 +180,7 @@ export default function PricingPage() {
             {/* Usage limit */}
             <div className="border border-ladder-purple/30 rounded-lg px-4 py-3 mb-8">
               <p className="font-mono text-xs text-ladder-purple">
-                Real-time experience scoring
+                50,000 queries / month
               </p>
             </div>
 
@@ -186,6 +191,8 @@ export default function PricingPage() {
                 "Field reports and internal ops signals",
                 "Custom bespoke dashboards and interfaces",
                 "Real-time tracking and alerting",
+                "50,000 queries per month, overage at $0.15 per query",
+                "Bundle with Team for pooled usage across all Ladder surfaces",
                 "Dedicated onboarding and support",
               ].map((f) => (
                 <li key={f} className="text-sm text-body flex items-start gap-2.5">
@@ -256,27 +263,31 @@ export default function PricingPage() {
             {[
               {
                 q: "Do I need to sign up to score a screen?",
-                a: "No. Your first score is completely free with no signup. Create an account to save your history and get 5 free scores per month across any surface.",
+                a: "No. Your first score is completely free with no signup. Create an account to save your history and get 15 free scores per month across any surface.",
               },
               {
                 q: "Does one subscription cover all surfaces?",
-                a: "Yes. Your Ladder account works on runladder.com and the Claude Skill. One subscription, one usage meter.",
+                a: "Yes. Your Ladder account works on runladder.com, the Claude Skill, MCP, the Figma plugin, and the Ladder API. One subscription, one usage meter.",
               },
               {
                 q: "What counts as a score?",
-                a: "Each time you submit a screenshot or URL for Ladder analysis on any surface, that\u2019s one score. Viewing history, sharing results, or browsing the Top 100 doesn\u2019t count.",
+                a: "Each time you submit a screenshot, URL, or payload for Ladder analysis on any surface, that\u2019s one score. Viewing history, sharing results, or browsing the Top 100 doesn\u2019t count.",
+              },
+              {
+                q: "How does the API work?",
+                a: "API keys are included at Professional and above. Professional includes 1,000 API calls per month with overage at $0.50 per call. Team includes 25,000 pooled API calls per month with overage at $0.25 per call. Pulse includes 50,000 queries per month with overage at $0.15 per query. Generate keys from your dashboard once subscribed.",
               },
               {
                 q: "Can I cancel anytime?",
-                a: "Professional is month-to-month with a 3-day money-back guarantee. If you cancel your Pro subscription within 3 days, we refund you in full. After that, cancel anytime from your account settings, no questions asked. Team and Pulse require a contract — contact us for terms.",
+                a: "Professional is month-to-month with a 3-day money-back guarantee. If you cancel your Pro subscription within 3 days, we refund you in full. After that, cancel anytime from your account settings, no questions asked. Team and Pulse require a contract. Contact us for terms.",
               },
               {
                 q: "How does Team seat pricing work?",
-                a: "Team pricing is custom and requires a contract. It includes up to 5 team members with additional seats available. You get team leaderboards, compliance scoring, and manager dashboards. Contact us for details.",
+                a: "Team pricing is custom and requires a contract. It includes up to 5 team members with additional seats available, 25,000 pooled API calls per month, SSO, team leaderboards, compliance scoring, and manager dashboards. Contact us for details.",
               },
               {
                 q: "What\u2019s the difference between Screen Score and Pulse?",
-                a: "Screen Score analyzes individual screens and interfaces for visual and UX quality. Pulse measures experience quality at scale by ingesting customer feedback, reviews, support transcripts, and internal signals into a single Ladder score.",
+                a: "Screen Score analyzes individual screens and interfaces for visual and UX quality. Pulse measures experience quality at scale by ingesting customer feedback, reviews, support transcripts, and internal signals into a single Ladder score. Pulse includes 50,000 queries per month with overage at $0.15 per query.",
               },
               {
                 q: "What is Enterprise?",
@@ -290,6 +301,8 @@ export default function PricingPage() {
             ))}
           </div>
         </div>
+
+        <LegalNotice />
       </div>
     </div>
   );
