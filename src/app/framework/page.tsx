@@ -1,394 +1,514 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LEVELS as LADDER_LEVELS } from "@/lib/ladder";
 import { LegalNotice } from "@/components/LegalNotice";
 
 export const metadata: Metadata = {
-  title: "The Ladder Framework | How UX Quality Is Measured",
+  title: "The Ladder Framework | How Ladder Transforms Organizations",
   description:
-    "Five levels from Meaningful to Functional. Learn how Ladder scores every experience on a 1.0 to 5.0 scale.",
+    "A Screen Score tells you what your interface shows. A Pulse Score tells you what your users feel. Together, they give every role in your org the same honest number on the same five-point scale.",
 };
 
-const LEVELS = [
+const ROLES = [
   {
-    score: "5",
-    label: LADDER_LEVELS[4].label,
-    color: LADDER_LEVELS[4].color,
-    tagline: "Irreplaceable.",
-    oneLiner:
-      "The experience changed how the user thinks, works, or lives. Switching is unthinkable. The user can't imagine going back.",
-    experienceTest:
-      "Has this experience become irreplaceable? Would the user feel genuine loss without it?",
-    signals: [
-      "Unique value that can't be replicated",
-      "Deep integration into workflow or life",
-      "Emotional attachment to the product",
-      "Active advocacy: users recruit others",
-      "The product defines its category",
-    ],
-    truth:
-      "Level 5 is the ceiling. It represents the best experiences humans have ever built. A handful of products in the world live here.",
+    role: "Head of Design",
+    pain: "Your team ships beautiful work but you can't prove its quality to leadership. Every review is subjective. You fight for headcount with no measurable output beyond 'it looks good.'",
+    solve: "Ladder gives your team a shared quality bar. Every screen scored against the same framework. Portfolio trends over time. You walk into leadership reviews with a number, not a feeling.",
   },
   {
-    score: "4",
-    label: LADDER_LEVELS[3].label,
-    color: LADDER_LEVELS[3].color,
-    tagline: "Anticipates needs.",
-    oneLiner:
-      "The product actively helps. It adapts to context, surfaces the right thing at the right moment, and turns complexity into quick decisions. Users tell others about it.",
-    experienceTest:
-      "Does the interface actively assist the user? Does it anticipate what they need next?",
-    signals: [
-      "Contextual help and guidance",
-      "Smart defaults that reduce decisions",
-      "Progressive disclosure of complexity",
-      "Personalized or adaptive interfaces",
-      "Moments of surprise and satisfaction",
-    ],
-    truth:
-      "This is where products become loved. The team isn't just removing friction. They're adding intelligence.",
+    role: "Product Manager",
+    pain: "You're caught between engineering timelines and design quality. You don't have a reliable way to know if a design is 'good enough' to ship or if it needs another round.",
+    solve: "Set a Ladder threshold. If it scores below a 3, it goes back. No more gut calls, no more politics, no more shipping something you know isn't ready because you ran out of sprint.",
   },
   {
-    score: "3",
-    label: LADDER_LEVELS[2].label,
-    color: LADDER_LEVELS[2].color,
-    tagline: "No thinking required.",
-    oneLiner:
-      "Everything where expected. The interface is intuitive, and users feel their way through without conscious thought. This is the modern minimum bar.",
-    experienceTest:
-      "Does the interface feel intuitive? Can users navigate by feel rather than by reading?",
-    signals: [
-      "Consistent visual language throughout",
-      "Clear information hierarchy",
-      "Intuitive navigation patterns",
-      "Appropriate feedback for every action",
-      "Accessibility basics in place",
-    ],
-    truth:
-      "Level 3 must be earned. This is where the best teams operate. Below this, you're behind. Above this, you're competing for love.",
+    role: "Engineering Lead",
+    pain: "You get handed designs with no quality signal. You build exactly what's spec'd, users complain, and your team takes the blame. There's no objective bar for 'ready to implement.'",
+    solve: "Ladder scores the design before it hits your backlog. Your team builds with confidence that what they're implementing has been validated. Fewer rework cycles. Fewer post-launch fires.",
   },
   {
-    score: "2",
-    label: LADDER_LEVELS[1].label,
-    color: LADDER_LEVELS[1].color,
-    tagline: "Tasks complete with effort.",
-    oneLiner:
-      "Basic structure exists. Users get through, but it takes more effort than it should. They would switch without hesitation.",
-    experienceTest:
-      "Can the user complete their task without stopping to think about the interface?",
-    signals: [
-      "Inconsistent patterns across screens",
-      "Unclear information hierarchy",
-      "Missing or misleading affordances",
-      "Cognitive load higher than necessary",
-      "User succeeds despite the design",
-    ],
-    truth:
-      "Most apps and websites score here. The work is functional, sometimes even pretty, but the experience still costs the user energy.",
+    role: "VP of Product",
+    pain: "You oversee multiple product lines and have no consistent way to compare quality across teams. Every PM has their own definition of 'good.' Roadmap prioritization is a guessing game.",
+    solve: "One score across every product, every team, every surface. See which products are stuck at Level 2 and which are approaching Level 4. Allocate resources where quality is lowest and impact is highest.",
   },
   {
-    score: "1",
-    label: LADDER_LEVELS[0].label,
-    color: LADDER_LEVELS[0].color,
-    tagline: "It works. Barely.",
-    oneLiner:
-      "The user fights the product. Trial, error, frustration. Built for engineering, not humans.",
-    experienceTest:
-      "Can the user complete their primary task without outside help?",
-    signals: [
-      "No clear visual hierarchy",
-      "Primary actions buried or missing",
-      "No feedback on user actions",
-      "Confusing navigation",
-      "Walls of undifferentiated text",
-    ],
-    truth:
-      "This is where most products live. The team shipped something. The user endures it.",
+    role: "CTO / CIO",
+    pain: "You're investing millions in digital products but have no quality metric equivalent to what manufacturing has had for decades. You measure uptime, performance, and security, but not whether people can actually use the thing.",
+    solve: "Ladder is the quality metric you've been missing. Screen Scores measure what you're shipping. Pulse Scores measure what users actually experience. Track both alongside your technical metrics. Finally measure the human side of your technology investment.",
+  },
+  {
+    role: "CEO / COO",
+    pain: "Customer satisfaction surveys arrive quarterly. By the time you see the data, the damage is done. You know experience matters but have no leading indicator, only lagging ones.",
+    solve: "Screen Scores are a leading indicator. Pulse Scores are the proof. Together, they show you quality before users churn. Set organizational policy: nothing ships below a 3. When Screen Score and Pulse Score converge, NPS follows.",
+  },
+];
+
+const POLICIES = [
+  {
+    policy: "Nothing ships below a 3.0",
+    detail: "Set the modern minimum bar. Level 3 (Comfortable) means users don't have to think. Anything below that creates friction, support tickets, and churn.",
+  },
+  {
+    policy: "Score before every handoff",
+    detail: "Designers score their work before passing to engineering. Engineers know what they're building has been validated. No more rework cycles.",
+  },
+  {
+    policy: "Track portfolio trends monthly",
+    detail: "Every product, every team, one dashboard. See who's improving, who's stuck, and where to invest next.",
+  },
+  {
+    policy: "Celebrate level crossings",
+    detail: "When a product moves from Level 2 to Level 3, that's a milestone worth recognizing. Ladder makes quality improvement visible and rewarding.",
   },
 ];
 
 export default function FrameworkPage() {
   return (
-    <div className="pt-32 pb-24 px-6">
-      <div className="max-w-4xl mx-auto">
-        {/* ── Hero ── */}
-        <div className="text-center mb-24">
-          <p className="text-xs font-semibold text-ladder-green uppercase tracking-[0.2em] mb-6">
-            The Ladder&trade; Framework
+    <>
+      {/* Hero */}
+      <section className="pt-40 pb-36 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="font-mono text-xs text-ladder-green uppercase tracking-widest mb-8">
+            One score. Every role. Every team.
           </p>
-          <h1 className="text-3xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-8">
-            You already know when something<br />
-            feels wrong. Now you can{" "}
-            <span className="text-ladder-green">prove it.</span>
+          <h1 className="text-[3.5rem] md:text-[5rem] font-bold tracking-tight leading-[1.05] mb-8">
+            The language your{" "}
+            <span className="text-ladder-green">whole org speaks</span>
           </h1>
-          <p className="text-base text-body max-w-xl mx-auto leading-relaxed">
-            One number. Five levels. Twenty years of product design distilled
-            into a universal quality score that tells you exactly where your
-            experience stands, and what it takes to reach the next level.
+          <p className="text-lg text-body max-w-2xl mx-auto mb-12 leading-relaxed">
+            A Screen Score tells you what your interface shows. A Pulse Score
+            tells you what your users feel. Together, they give every
+            designer, engineer, PM, and executive the same honest number on
+            the same five-point scale. No more &ldquo;it looks good to
+            me.&rdquo;
           </p>
+          <div className="flex items-center justify-center gap-6">
+            <Link
+              href="/pricing"
+              className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-base"
+            >
+              See organization plans
+            </Link>
+            <Link
+              href="/score"
+              className="text-body border border-border px-8 py-4 rounded-full hover:text-foreground hover:border-muted transition-colors text-base"
+            >
+              Try a free score
+            </Link>
+          </div>
         </div>
+      </section>
 
-        {/* ── The hard truth ── */}
-        <div className="border border-border bg-card/50 p-8 md:p-10 mb-24 text-center max-w-2xl mx-auto">
-          <p className="text-sm text-body leading-relaxed">
-            <span className="text-foreground font-semibold">
-              Ladder doesn&apos;t flatter.
-            </span>{" "}
-            Most products are Level 1 or 2. Level 3 is the modern minimum,
-            and it must be earned. Level 5 is the ceiling. If you want an honest
-            answer, you&apos;re in the right place.
+      {/* The Problem */}
+      <section className="py-36 px-6 border-t border-border">
+        <div className="max-w-3xl mx-auto">
+          <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
+            The problem
           </p>
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
+            Every team has a different definition{" "}
+            <br />
+            <span className="text-body">of &ldquo;good enough.&rdquo;</span>
+          </h2>
+          <div className="space-y-6 text-body leading-relaxed">
+            <p>
+              Design thinks the product is polished. Engineering thinks
+              it matches spec. Product thinks it&apos;s ready to ship. The CEO
+              sees it and asks why it feels clunky. Users churn and nobody
+              knows why, because nobody was measuring the same thing.
+            </p>
+            <p>
+              Manufacturing solved this decades ago with Six Sigma and
+              quality standards. Software has testing, code coverage, and
+              uptime monitors. But for the actual human experience of using
+              a product? There has never been a standard. Until now.
+            </p>
+            <p className="text-foreground font-medium">
+              Ladder is the quality standard your organization has been
+              missing. Five levels. One score. A shared language that turns
+              subjective design debates into objective quality decisions.
+            </p>
+          </div>
         </div>
+      </section>
 
-        {/* ── The scale ── */}
-        <div className="mb-24">
-          <div className="flex items-center gap-4 mb-12">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-[10px] font-semibold text-muted uppercase tracking-[0.2em]">
-              The five levels
-            </span>
-            <div className="h-px flex-1 bg-border" />
+      {/* AI quality gate */}
+      <section className="py-36 px-6 border-t border-border">
+        <div className="max-w-3xl mx-auto">
+          <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
+            The AI era
+          </p>
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
+            AI writes the first draft.
+            <br />
+            <span className="text-ladder-green">Ladder decides what ships.</span>
+          </h2>
+          <div className="space-y-6 text-body leading-relaxed">
+            <p>
+              Your team is generating screens, flows, and copy with AI at
+              a pace no human designer could match. That&apos;s leverage,
+              not a problem. The problem is the one step AI didn&apos;t
+              accelerate: the review. Without a quality bar that scales with
+              the output, organizations end up shipping model-shaped work
+              that looks competent and serves no one in particular.
+            </p>
+            <p>
+              Ladder is the review step. Every AI-generated screen &mdash;
+              whether it came from a vendor, a copilot inside Figma, or your
+              own pipeline &mdash; runs through the same five-level framework
+              as your hand-crafted work. The same honest number. The same
+              threshold to clear. Nothing ships on autopilot.
+            </p>
+            <p className="text-foreground font-medium">
+              AI is excellent at producing more. Ladder makes sure more is
+              still good.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Two Scores, One Truth */}
+      <section className="py-36 px-6 border-t border-border">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-20">
+            <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
+              The full picture
+            </p>
+            <h2 className="text-[2rem] md:text-[2.5rem] font-bold mb-6">
+              Screen Score is the starting line.{" "}
+              <span className="text-ladder-purple">Pulse changes the trajectory.</span>
+            </h2>
+            <p className="text-body max-w-2xl mx-auto leading-relaxed">
+              A Screen Score tells your team exactly where the interface stands
+              today. It&apos;s immediate, actionable, and powerful on its own. But
+              it only measures what users see, not what they feel.
+            </p>
           </div>
 
-          <div className="space-y-0">
-            {LEVELS.map((level, i) => (
-              <div
-                key={level.score}
-                className="group"
-              >
-                {/* Level row */}
-                <div className="grid grid-cols-[60px_1fr] md:grid-cols-[80px_1fr] gap-6 md:gap-10 py-10 border-b border-border">
-                  {/* Score number */}
-                  <div className="flex flex-col items-center pt-1">
-                    <span
-                      className="text-4xl md:text-5xl font-bold"
-                      style={{ color: level.color }}
-                    >
-                      {level.score}
-                    </span>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <div className="border border-border rounded-xl p-8 bg-card">
+              <p className="font-mono text-[10px] text-muted uppercase tracking-widest mb-3">
+                Screen Score
+              </p>
+              <p className="text-base font-semibold text-foreground mb-3">
+                What the interface shows
+              </p>
+              <p className="text-sm text-body leading-relaxed mb-4">
+                AI evaluates your product&apos;s visual design, hierarchy,
+                layout, patterns, and accessibility against the five levels of
+                the Ladder framework. Score any screen in seconds. Set quality
+                gates before handoff. Track improvement sprint over sprint.
+              </p>
+              <p className="text-sm text-foreground font-medium">
+                Impact: immediate quality bar for every team.
+              </p>
+            </div>
+            <div className="border border-ladder-purple/30 rounded-xl p-8 bg-ladder-purple/5">
+              <p className="font-mono text-[10px] text-ladder-purple uppercase tracking-widest mb-3">
+                Pulse Score
+              </p>
+              <p className="text-base font-semibold text-foreground mb-3">
+                What real users feel
+              </p>
+              <p className="text-sm text-body leading-relaxed mb-4">
+                Pulse ingests what your customers actually say: reviews, support
+                tickets, field reports, NPS comments, forum threads. It scores
+                the lived experience against the same framework. The gap between
+                Screen Score and Pulse Score reveals whether your product is
+                keeping its promises.
+              </p>
+              <p className="text-sm text-ladder-purple font-medium">
+                Impact: transforms organizational decision-making.
+              </p>
+            </div>
+          </div>
 
-                  {/* Content */}
+          <div className="border border-border rounded-xl p-8 bg-card text-center">
+            <p className="text-sm text-body leading-relaxed max-w-2xl mx-auto">
+              <span className="text-foreground font-semibold">The gap between the two is where transformation happens.</span>{" "}
+              A high Screen Score with a low Pulse Score means your product
+              looks better than it feels. That&apos;s the signal that shifts
+              roadmap priorities, reallocates resources, and aligns every team
+              around what actually matters: the experience your users have, not
+              the experience your interface promises.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* The Score Card */}
+      <section className="py-36 px-6 border-t border-border">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-16 items-center">
+            <div>
+              <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
+                Universal language
+              </p>
+              <h2 className="text-[2rem] font-bold leading-snug mb-6">
+                Five levels everyone{" "}
+                <span className="text-ladder-green">understands.</span>
+              </h2>
+              <p className="text-body leading-relaxed mb-6">
+                When a designer says &ldquo;this is a 2.4,&rdquo; the PM
+                knows exactly what that means. When the CTO sets a policy of
+                &ldquo;nothing ships below a 3,&rdquo; every engineer knows
+                the bar. When the CEO sees a portfolio trending from 1.8 to
+                3.2, they know the investment is working.
+              </p>
+              <p className="text-body leading-relaxed">
+                The five rungs of the Ladder aren&apos;t arbitrary. They
+                represent distinct levels of experience quality that have been
+                validated across thousands of real products over two decades.
+                This isn&apos;t a framework someone invented last year. It&apos;s
+                a standard backed by Fortune 50 deployments and a database of
+                over 10,000 scored screens.
+              </p>
+            </div>
+            <div className="space-y-3">
+              {[
+                { score: "1", label: "Functional", color: "text-ladder-red", border: "border-ladder-red/20", desc: "User fights the product" },
+                { score: "2", label: "Usable", color: "text-ladder-orange", border: "border-ladder-orange/20", desc: "Tasks complete with effort" },
+                { score: "3", label: "Comfortable", color: "text-ladder-yellow", border: "border-ladder-yellow/20", desc: "The modern minimum bar" },
+                { score: "4", label: "Delightful", color: "text-ladder-delightful", border: "border-ladder-delightful/20", desc: "Anticipates user needs" },
+                { score: "5", label: "Meaningful", color: "text-ladder-white", border: "border-white/20", desc: "Irreplaceable" },
+              ].map((level) => (
+                <div
+                  key={level.score}
+                  className={`flex items-center gap-6 border ${level.border} rounded-xl px-6 py-4 bg-card`}
+                >
+                  <span className={`font-mono text-xl font-bold ${level.color} w-6`}>
+                    {level.score}
+                  </span>
                   <div>
-                    {/* Label + tagline */}
-                    <div className="mb-4">
-                      <div className="flex items-baseline gap-3 mb-1">
-                        <h2
-                          className="text-base font-bold uppercase tracking-wider"
-                          style={{ color: level.color }}
-                        >
-                          {level.label}
-                        </h2>
-                        <span className="text-sm text-muted">
-                          {level.tagline}
-                        </span>
-                      </div>
-                      <p className="text-sm text-body leading-relaxed mt-3">
-                        {level.oneLiner}
-                      </p>
-                    </div>
+                    <span className={`font-mono text-sm font-semibold ${level.color}`}>
+                      {level.label}
+                    </span>
+                    <p className="text-xs text-body mt-0.5">{level.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
-                    {/* Experience test */}
-                    <div className="mb-5 pl-4 border-l-2" style={{ borderColor: level.color + "40" }}>
-                      <p className="text-[10px] font-semibold text-muted uppercase tracking-[0.15em] mb-1.5">
-                        Experience test
-                      </p>
-                      <p className="text-sm italic" style={{ color: level.color }}>
-                        &ldquo;{level.experienceTest}&rdquo;
-                      </p>
-                    </div>
+      {/* Role Callouts */}
+      <section className="py-36 px-6 border-t border-border">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-20">
+            <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
+              Every seat at the table
+            </p>
+            <h2 className="text-[2rem] md:text-[2.5rem] font-bold mb-6">
+              Their pain.{" "}
+              <span className="text-ladder-green">Your answer.</span>
+            </h2>
+            <p className="text-body max-w-lg mx-auto leading-relaxed">
+              Every role in your organization has a different relationship
+              with quality. Ladder meets each one where they are.
+            </p>
+          </div>
 
-                    {/* Signals */}
-                    <div className="flex flex-wrap gap-2 mb-5">
-                      {level.signals.map((signal) => (
-                        <span
-                          key={signal}
-                          className="text-[10px] text-muted border border-border px-2.5 py-1 tracking-wide"
-                        >
-                          {signal}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Truth */}
-                    <p className="text-xs text-muted leading-relaxed">
-                      {level.truth}
+          <div className="space-y-4">
+            {ROLES.map((r) => (
+              <div
+                key={r.role}
+                className="border border-border rounded-xl bg-card p-8 hover:bg-card-hover hover:border-muted transition-colors"
+              >
+                <h3 className="font-mono text-sm font-bold text-ladder-green mb-4">
+                  {r.role}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <p className="font-mono text-[10px] text-muted uppercase tracking-widest mb-2">
+                      The pain
+                    </p>
+                    <p className="text-sm text-body leading-relaxed">
+                      {r.pain}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-mono text-[10px] text-ladder-green uppercase tracking-widest mb-2">
+                      How Ladder solves it
+                    </p>
+                    <p className="text-sm text-foreground leading-relaxed">
+                      {r.solve}
                     </p>
                   </div>
                 </div>
-
-                {/* Progress marker between levels */}
-                {i < LEVELS.length - 1 && (
-                  <div className="flex justify-center py-1">
-                    <div className="w-px h-6 bg-border" />
-                  </div>
-                )}
               </div>
             ))}
           </div>
         </div>
+      </section>
 
-        {/* ── How scoring works ── */}
-        <div className="mb-24">
-          <div className="flex items-center gap-4 mb-12">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-[10px] font-semibold text-muted uppercase tracking-[0.2em]">
-              How it works
-            </span>
-            <div className="h-px flex-1 bg-border" />
+      {/* Not a DIY */}
+      <section className="py-36 px-6 border-t border-border">
+        <div className="max-w-3xl mx-auto">
+          <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
+            Why not build your own
+          </p>
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
+            You could build a quality scoring system.
+            <br />
+            <span className="text-ladder-green">But why would you?</span>
+          </h2>
+          <div className="space-y-6 text-body leading-relaxed">
+            <p>
+              Ladder is a standard that has been refined over two decades
+              at a product design agency that serves the Fortune 50. It has
+              been tested across healthcare, energy, finance, hospitality,
+              and consumer products. The scoring methodology is backed by
+              a database of over 10,000 evaluated screens.
+            </p>
+            <p>
+              Building your own quality framework means years of
+              calibration, internal politics about what &ldquo;good&rdquo;
+              means, and a system that only works inside your walls. Ladder
+              gives you an external, objective standard that your teams
+              can adopt immediately and that benchmarks you against the
+              industry, not just against yourselves.
+            </p>
+            <p className="text-foreground font-medium">
+              You don&apos;t build your own credit scoring system. You
+              don&apos;t invent your own financial audit standard. Ladder
+              is the quality standard for experience. Buy into it and
+              start measuring on day one.
+            </p>
           </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Proof points */}
+      <section className="py-24 px-6 border-t border-border">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              {
-                step: "01",
-                title: "Drop a screen",
-                body: "Upload a screenshot or enter a URL. Ladder captures the experience exactly as users see it.",
-              },
-              {
-                step: "02",
-                title: "AI evaluates against the framework",
-                body: "Visual hierarchy, interaction patterns, spacing, feedback, accessibility: scored against twenty years of product design criteria.",
-              },
-              {
-                step: "03",
-                title: "Get your score and a path forward",
-                body: "One number. Ranked findings by impact. The exact changes that will move you to the next level.",
-              },
-            ].map((item) => (
-              <div key={item.step} className="border border-border bg-card/30 p-6">
-                <span className="text-[10px] font-semibold text-ladder-green tracking-[0.2em]">
-                  {item.step}
+              { stat: "20+", label: "years of practice", detail: "The framework was forged over two decades of real design work" },
+              { stat: "Fortune 50", label: "clients served", detail: "Validated at the scale of the world's largest organizations" },
+              { stat: "10,000+", label: "screens scored", detail: "The calibration behind every score comes from real products" },
+              { stat: "5", label: "universal levels", detail: "One framework that every role in your org can learn in minutes" },
+            ].map((p) => (
+              <div key={p.label} className="text-center">
+                <span className="block font-bold text-[2rem] text-foreground mb-1">
+                  {p.stat}
                 </span>
-                <h3 className="text-sm font-bold text-foreground mt-3 mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-xs text-body leading-relaxed">
-                  {item.body}
+                <span className="block font-mono text-xs text-ladder-green uppercase tracking-widest mb-3">
+                  {p.label}
+                </span>
+                <p className="text-xs text-muted leading-relaxed">
+                  {p.detail}
                 </p>
               </div>
             ))}
           </div>
         </div>
+      </section>
 
-        {/* ── Domains ── */}
-        <div className="mb-24">
-          <div className="flex items-center gap-4 mb-12">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-[10px] font-semibold text-muted uppercase tracking-[0.2em]">
-              Scores any experience
-            </span>
-            <div className="h-px flex-1 bg-border" />
+      {/* Quality Policies */}
+      <section className="py-36 px-6 border-t border-border">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-20">
+            <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
+              Set the bar
+            </p>
+            <h2 className="text-[2rem] md:text-[2.5rem] font-bold mb-6">
+              Quality policies{" "}
+              <span className="text-ladder-green">that stick.</span>
+            </h2>
+            <p className="text-body max-w-lg mx-auto leading-relaxed">
+              When quality has a number, you can build policy around it.
+              These are the organizational practices that the best teams adopt.
+            </p>
           </div>
-
-          <p className="text-sm text-body text-center max-w-lg mx-auto mb-10 leading-relaxed">
-            Ladder adapts to any domain where humans interact with a designed
-            experience. The framework is universal. The evaluation is specific.
-          </p>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              { name: "B2B Interfaces", desc: "Dashboards, SaaS, admin tools" },
-              { name: "B2C Products", desc: "Apps, e-commerce, social" },
-              { name: "Processes", desc: "Onboarding, checkout, workflows" },
-              { name: "Services", desc: "Support, events, physical spaces" },
-            ].map((domain) => (
-              <div
-                key={domain.name}
-                className="border border-border bg-card/30 p-5 text-center"
-              >
-                <p className="text-[11px] font-bold text-foreground mb-1">
-                  {domain.name}
-                </p>
-                <p className="text-[11px] text-muted">{domain.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Two score types ── */}
-        <div className="mb-24">
-          <div className="flex items-center gap-4 mb-12">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-[10px] font-semibold text-muted uppercase tracking-[0.2em]">
-              Two ways to measure
-            </span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <p className="text-sm text-body text-center max-w-lg mx-auto mb-10 leading-relaxed">
-            The Ladder framework powers two distinct types of analysis.
-            Each produces a score on the same 1.0 to 5.0 scale.
-            Together, they tell the full story.
-          </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="border border-border bg-card/30 p-8">
-              <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-3">
-                Screen Score
-              </p>
-              <p className="text-sm font-bold text-foreground mb-2">
-                What the interface shows
-              </p>
-              <p className="text-xs text-body leading-relaxed mb-4">
-                AI evaluates a screenshot of your product against the five
-                levels. Design, hierarchy, layout, patterns, accessibility.
-                The score reflects what a user sees the moment they land.
-              </p>
-              <a
-                href="/score"
-                className="text-[11px] text-ladder-green hover:text-ladder-green/80 transition-colors"
+            {POLICIES.map((p) => (
+              <div
+                key={p.policy}
+                className="border border-border rounded-xl p-8 bg-card"
               >
-                Try the free scorer &rarr;
-              </a>
-            </div>
+                <h3 className="font-mono text-sm font-semibold text-foreground mb-3">
+                  {p.policy}
+                </h3>
+                <p className="text-sm text-body leading-relaxed">
+                  {p.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            <div className="border border-border bg-card/30 p-8">
-              <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-3">
-                Pulse Score
+      {/* How it integrates */}
+      <section className="py-36 px-6 border-t border-border">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-16 items-start">
+            <div>
+              <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
+                Fits your workflow
               </p>
-              <p className="text-sm font-bold text-foreground mb-2">
-                What real users feel
+              <h2 className="text-[2rem] font-bold leading-snug mb-6">
+                Score everywhere{" "}
+                <span className="text-ladder-green">your team works.</span>
+              </h2>
+              <p className="text-body leading-relaxed">
+                Ladder isn&apos;t a destination. It&apos;s a layer that sits
+                on top of your existing tools and workflows. Designers score
+                screens on the web. PMs track trends on the dashboard. Leadership
+                pairs Screen Scores with Pulse Scores to see the full picture.
               </p>
-              <p className="text-xs text-body leading-relaxed mb-4">
-                Ladder Pulse ingests thousands of real customer signals:
-                reviews, forums, support tickets, social sentiment. It
-                scores the lived experience, not the interface.
-              </p>
-              <a
-                href="/pulse"
-                className="text-[11px] text-ladder-green hover:text-ladder-green/80 transition-colors"
-              >
-                Learn about Pulse &rarr;
-              </a>
+            </div>
+            <div className="space-y-4">
+              {[
+                { surface: "runladder.com", desc: "Upload a screenshot and get a score in seconds. No installs, no configuration." },
+                { surface: "Ladder for Claude", desc: "Get a quality check mid-conversation. Know if what you generated is a 2.1 or a 3.8 before anyone else sees it." },
+                { surface: "Ladder Pulse", desc: "Turn customer feedback, support logs, and field reports into a quality score that tracks real experience." },
+              ].map((s) => (
+                <div
+                  key={s.surface}
+                  className="border border-border rounded-xl px-6 py-5 bg-card"
+                >
+                  <h3 className="font-mono text-sm font-semibold text-foreground mb-1">
+                    {s.surface}
+                  </h3>
+                  <p className="text-sm text-body leading-relaxed">
+                    {s.desc}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-
-          <p className="text-xs text-muted text-center mt-6 max-w-md mx-auto leading-relaxed">
-            The gap between Screen Score and Pulse Score is where the
-            real insight lives. A high Screen Score with a low Pulse Score
-            means the product looks better than it feels.
-          </p>
         </div>
+      </section>
 
-        {/* ── CTA ── */}
-        <div className="text-center pt-8 border-t border-border">
-          <p className="text-lg font-bold text-foreground mb-3">
-            Ready to see where you stand?
+      {/* CTA */}
+      <section className="py-36 px-6 border-t border-border">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-[2.5rem] font-bold mb-6">
+            Give your org a{" "}
+            <span className="text-ladder-green">common language.</span>
+          </h2>
+          <p className="text-body mb-10 leading-relaxed max-w-lg mx-auto">
+            The same five-point scale across every team, every product,
+            every decision. Set quality policies. Track improvement over
+            time. Ship with confidence.
           </p>
-          <p className="text-sm text-body mb-8">
-            Your first score is free. No signup required.
-          </p>
-          <Link
-            href="/score"
-            className="inline-block font-semibold bg-ladder-green text-background px-10 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
-          >
-            Score a screen
-          </Link>
+          <div className="flex items-center justify-center gap-6">
+            <Link
+              href="/pricing"
+              className="inline-block bg-ladder-green text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-lg"
+            >
+              See organization plans
+            </Link>
+            <Link
+              href="/score"
+              className="text-body border border-border px-8 py-4 rounded-full hover:text-foreground hover:border-muted transition-colors text-base"
+            >
+              Try a free score
+            </Link>
+          </div>
+          <LegalNotice />
         </div>
-
-        <LegalNotice />
-      </div>
-    </div>
+      </section>
+    </>
   );
 }

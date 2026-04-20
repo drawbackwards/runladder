@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // /organizations content lives at /framework now. 301 preserves SEO.
+      { source: "/organizations", destination: "/framework", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
