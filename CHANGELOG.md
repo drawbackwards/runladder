@@ -8,13 +8,13 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ## app 0.2.0 / api 1.0.0 — 2026-04-19
 
-**Ladder framework unified across the suite.**
+**Scoring engine alignment across the suite.**
 
-- **Scoring engine rebuilt on the full Ladder framework.** `/api/score` and `/api/skill/score` now use the same rich rubric the Figma plugin has used in beta — levels with signals, seven evaluation dimensions, the AI-experience lens for AI-powered products, and scoring principles. No change to the response shape.
-- **New `/api/framework` endpoint.** Serves the Ladder framework (levels, dimensions, design types, AI lens, survey domains, pre-rendered prompts) to trusted service callers. Shared-secret auth via `X-Ladder-Service-Token`.
-- **New `/api/plugin/analyze` endpoint.** Service-to-service scoring endpoint for Ladder plugin backends. Takes an image + optional `designType`, returns the plugin's `improve` response shape. Shared-secret auth.
-- **API version header.** Every endpoint now returns `X-Ladder-API-Version`, and the framework + plugin-analyze endpoints carry it today. Clients can log which contract they hit.
-- **App version visible in footer.** Added `CURRENT_APP_VERSION` source of truth in `src/lib/app-version.ts`, surfaced in the footer so "which build is live?" is answerable at a glance.
+- **Consistent scoring everywhere.** runladder.com and the Claude Skill now run the same scoring engine as the Figma plugin — one evaluation, same result, regardless of surface. No change to the public response shape.
+- **Internal sync endpoint.** Added a service-to-service endpoint for trusted backends to stay aligned. Shared-secret auth.
+- **Internal plugin-scoring endpoint.** Added an internal scoring endpoint for Ladder plugin backends. Shared-secret auth.
+- **API version header.** Every API response now returns `X-Ladder-API-Version` so callers can log which contract they hit.
+- **App version visible in footer.** Added a source-of-truth constant (`src/lib/app-version.ts`) surfaced in the footer — "which build is live?" is now answerable at a glance.
 
 ---
 

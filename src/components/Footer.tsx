@@ -56,7 +56,7 @@ export function Footer() {
             <span className="text-xs text-muted">
               Made with love by <a href="https://drawbackwards.com" className="text-body hover:text-foreground transition-colors">Drawbackwards</a> since 2003
             </span>
-            <span className="text-[10px] text-muted/60 tabular-nums ml-auto">
+            <span className="text-[10px] text-muted tabular-nums ml-auto">
               v{CURRENT_APP_VERSION}
             </span>
           </div>
