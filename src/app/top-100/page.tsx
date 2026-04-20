@@ -21,7 +21,7 @@ export default function Top100Page() {
             Ladder Top 100
           </p>
           <h1 className="text-3xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-6 text-foreground">
-            The definitive ranking of<br />
+            A monthly leaderboard of<br />
             digital experience quality.
           </h1>
           <p className="text-base text-body max-w-xl mx-auto leading-relaxed">
