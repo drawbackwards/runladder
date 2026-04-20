@@ -198,11 +198,11 @@ export default function FrameworkPage() {
             </div>
             <div className="space-y-3">
               {[
-                { score: "1", label: "Functional", color: "text-ladder-red", border: "border-ladder-red/20", desc: "User fights the product" },
-                { score: "2", label: "Usable", color: "text-ladder-orange", border: "border-ladder-orange/20", desc: "Tasks complete with effort" },
-                { score: "3", label: "Comfortable", color: "text-ladder-yellow", border: "border-ladder-yellow/20", desc: "The modern minimum bar" },
-                { score: "4", label: "Delightful", color: "text-ladder-delightful", border: "border-ladder-delightful/20", desc: "Anticipates user needs" },
                 { score: "5", label: "Meaningful", color: "text-ladder-white", border: "border-white/20", desc: "Irreplaceable" },
+                { score: "4", label: "Delightful", color: "text-ladder-delightful", border: "border-ladder-delightful/20", desc: "Anticipates user needs" },
+                { score: "3", label: "Comfortable", color: "text-ladder-yellow", border: "border-ladder-yellow/20", desc: "The modern minimum bar" },
+                { score: "2", label: "Usable", color: "text-ladder-orange", border: "border-ladder-orange/20", desc: "Tasks complete with effort" },
+                { score: "1", label: "Functional", color: "text-ladder-red", border: "border-ladder-red/20", desc: "User fights the product" },
               ].map((level) => (
                 <div
                   key={level.score}
