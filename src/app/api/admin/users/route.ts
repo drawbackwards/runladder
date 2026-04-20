@@ -13,19 +13,50 @@ type UserRecord = {
   inviteCode: string | null;
   xp: number;
   usageThisMonth: number;
+  company?: string | null;
+  role?: string | null;
 };
 
 /**
- * Admin users — list, delete, reset invite.
- * Proxies the plugin backend's /api/auth/users. Clerk-admin-gated.
+ * Admin users — list, detail, patch, delete, reset invite.
+ *
+ * GET                    → list all users (summary)
+ * GET ?userId=X          → single-user detail bundle (user + activity + errors)
+ * GET ?userId=X&view=activity → just that user's activity
+ * GET ?userId=X&view=errors   → just that user's errors
+ * PATCH { userId, fields }    → edit whitelisted CRM fields
+ * DELETE { userId }           → hard-delete + unclaim invite
+ * POST { userId, action:"reset" } → unclaim invite without deleting
+ *
+ * All gated by Clerk admin email allowlist (getAdminEmail).
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
   const admin = await getAdminEmail();
   if (!admin) {
     return NextResponse.json(
       { error: "Admin access required" },
       { status: 403, headers: API_VERSION_HEADERS },
     );
+  }
+
+  const url = new URL(req.url);
+  const userId = url.searchParams.get("userId");
+  const view = url.searchParams.get("view");
+
+  if (userId) {
+    const search: Record<string, string> = { userId };
+    if (view) search.view = view;
+    const result = await pluginFetch<unknown>("/api/auth/users", {
+      method: "GET",
+      search,
+    });
+    if (!result.ok) {
+      return NextResponse.json(
+        { error: result.error },
+        { status: result.status, headers: API_VERSION_HEADERS },
+      );
+    }
+    return NextResponse.json(result.data, { headers: API_VERSION_HEADERS });
   }
 
   const result = await pluginFetch<{ users: UserRecord[] }>(
@@ -43,6 +74,41 @@ export async function GET() {
     { users: result.data.users ?? [] },
     { headers: API_VERSION_HEADERS },
   );
+}
+
+export async function PATCH(req: NextRequest) {
+  const admin = await getAdminEmail();
+  if (!admin) {
+    return NextResponse.json(
+      { error: "Admin access required" },
+      { status: 403, headers: API_VERSION_HEADERS },
+    );
+  }
+
+  let body: { userId?: string; fields?: Record<string, string | null> } = {};
+  try {
+    body = await req.json();
+  } catch {}
+
+  if (!body.userId || !body.fields) {
+    return NextResponse.json(
+      { error: "userId and fields required" },
+      { status: 400, headers: API_VERSION_HEADERS },
+    );
+  }
+
+  const result = await pluginFetch<{ user: UserRecord }>("/api/auth/users", {
+    method: "PATCH",
+    body: { userId: body.userId, fields: body.fields },
+  });
+  if (!result.ok) {
+    return NextResponse.json(
+      { error: result.error },
+      { status: result.status, headers: API_VERSION_HEADERS },
+    );
+  }
+
+  return NextResponse.json(result.data, { headers: API_VERSION_HEADERS });
 }
 
 export async function DELETE(req: NextRequest) {

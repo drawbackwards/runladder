@@ -12,6 +12,7 @@ type InviteRecord = {
   claimedBy: string | null;
   claimedAt?: string | null;
   createdAt: string;
+  expiresAt?: string | null;
 };
 
 /**
