@@ -130,36 +130,39 @@ export default function FrameworkPage() {
         </div>
       </section>
 
-      {/* AI quality gate */}
+      {/* Every workflow */}
       <section className="py-36 px-6 border-t border-border">
         <div className="max-w-3xl mx-auto">
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
-            The AI era
+            Every workflow
           </p>
           <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
-            AI writes the first draft.
+            AI, hybrid, or human-first.
             <br />
-            <span className="text-ladder-green">Ladder decides what ships.</span>
+            <span className="text-ladder-green">One honest number.</span>
           </h2>
           <div className="space-y-6 text-body leading-relaxed">
             <p>
-              Your team is generating screens, flows, and copy with AI at
-              a pace no human designer could match. That&apos;s leverage,
-              not a problem. The problem is the one step AI didn&apos;t
-              accelerate: the review. Without a quality bar that scales with
-              the output, organizations end up shipping model-shaped work
-              that looks competent and serves no one in particular.
+              Design teams are working in every possible combination right
+              now. Hand-crafted work with AI along for exploration. Designers
+              refining model output into something that actually serves a
+              user. Automated theming or localization on top of human craft.
+              Pure AI pipelines shipping variants at scale. The methods
+              vary; the need for a shared quality bar doesn&apos;t.
             </p>
             <p>
-              Ladder is the review step. Every AI-generated screen &mdash;
-              whether it came from a vendor, a copilot inside Figma, or your
-              own pipeline &mdash; runs through the same five-level framework
-              as your hand-crafted work. The same honest number. The same
-              threshold to clear. Nothing ships on autopilot.
+              Ladder is that bar. It doesn&apos;t care how a screen was made
+              &mdash; it cares whether a user can navigate it, whether
+              patterns are consistent, whether the experience earns its
+              rung. A designer in Figma and a PM reviewing auto-generated
+              variants land on the same five-point scale.
             </p>
             <p className="text-foreground font-medium">
-              AI is excellent at producing more. Ladder makes sure more is
-              still good.
+              That portability is why design leaders reach for Ladder
+              first. It&apos;s a defensible number for the work they
+              champion, a calibration check for everything AI brings into
+              the pipeline, and one language the whole org already
+              understands.
             </p>
           </div>
         </div>
