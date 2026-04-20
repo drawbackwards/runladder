@@ -130,6 +130,41 @@ export default function FrameworkPage() {
         </div>
       </section>
 
+      {/* AI quality gate */}
+      <section className="py-36 px-6 border-t border-border">
+        <div className="max-w-3xl mx-auto">
+          <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
+            The AI era
+          </p>
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
+            AI writes the first draft.
+            <br />
+            <span className="text-ladder-green">Ladder decides what ships.</span>
+          </h2>
+          <div className="space-y-6 text-body leading-relaxed">
+            <p>
+              Your team is generating screens, flows, and copy with AI at
+              a pace no human designer could match. That&apos;s leverage,
+              not a problem. The problem is the one step AI didn&apos;t
+              accelerate: the review. Without a quality bar that scales with
+              the output, organizations end up shipping model-shaped work
+              that looks competent and serves no one in particular.
+            </p>
+            <p>
+              Ladder is the review step. Every AI-generated screen &mdash;
+              whether it came from a vendor, a copilot inside Figma, or your
+              own pipeline &mdash; runs through the same five-level framework
+              as your hand-crafted work. The same honest number. The same
+              threshold to clear. Nothing ships on autopilot.
+            </p>
+            <p className="text-foreground font-medium">
+              AI is excellent at producing more. Ladder makes sure more is
+              still good.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Two Scores, One Truth */}
       <section className="py-36 px-6 border-t border-border">
         <div className="max-w-4xl mx-auto">
@@ -139,7 +174,7 @@ export default function FrameworkPage() {
             </p>
             <h2 className="text-[2rem] md:text-[2.5rem] font-bold mb-6">
               Screen Score is the starting line.{" "}
-              <span className="text-ladder-green">Pulse changes the trajectory.</span>
+              <span className="text-ladder-purple">Pulse changes the trajectory.</span>
             </h2>
             <p className="text-body max-w-2xl mx-auto leading-relaxed">
               A Screen Score tells your team exactly where the interface stands
@@ -166,8 +201,8 @@ export default function FrameworkPage() {
                 Impact: immediate quality bar for every team.
               </p>
             </div>
-            <div className="border border-ladder-green/30 rounded-xl p-8 bg-ladder-green/5">
-              <p className="font-mono text-[10px] text-ladder-green uppercase tracking-widest mb-3">
+            <div className="border border-ladder-purple/30 rounded-xl p-8 bg-ladder-purple/5">
+              <p className="font-mono text-[10px] text-ladder-purple uppercase tracking-widest mb-3">
                 Pulse Score
               </p>
               <p className="text-base font-semibold text-foreground mb-3">
@@ -180,7 +215,7 @@ export default function FrameworkPage() {
                 Screen Score and Pulse Score reveals whether your product is
                 keeping its promises.
               </p>
-              <p className="text-sm text-ladder-green font-medium">
+              <p className="text-sm text-ladder-purple font-medium">
                 Impact: transforms organizational decision-making.
               </p>
             </div>
