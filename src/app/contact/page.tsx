@@ -99,7 +99,7 @@ export default function ContactPage() {
                 , a product design agency that&apos;s spent two decades
                 helping Fortune 50 companies and ambitious startups ship
                 better experiences. We didn&apos;t build a scoring tool
-                from theory. We built it from 10,000+ screens reviewed,
+                from theory. We built it from 100,000+ screens reviewed,
                 hundreds of products shipped, and billions of dollars in
                 value created for our clients.
               </p>

@@ -417,7 +417,7 @@ export default function TeamsPage() {
                   "The Ladder framework was built over two decades of real design work at a Fortune 50 agency",
               },
               {
-                stat: "10,000+",
+                stat: "100,000+",
                 label: "screens scored",
                 detail:
                   "Every score is calibrated against a database of real product evaluations",
