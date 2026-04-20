@@ -46,7 +46,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.2,
     screenScore: { score: 4.3, source: "Marketing site and product screenshots" },
     pulseScore: { score: 4.2, source: "Professional review platforms rate 4.6/5 (2.1K reviews), community sentiment very positive, product launch platforms highly rated", sourceCount: 3200 },
-    scoreDisclaimer: "Pulse score from 3,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,200+ data points",
     description: "Linear has become the benchmark that other developer tools measure themselves against. The interface is fast. Not marketing-fast, but perceptibly instant. Every interaction feels like it was designed by someone who uses the product daily. The keyboard-first philosophy isn't a gimmick; it's woven into every workflow. Where most project management tools add features by adding screens, Linear adds features by making existing screens smarter.",
     strengths: [
       "Sub-100ms response on every interaction",
@@ -71,7 +71,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 4.1, source: "Marketing site and product screenshots" },
     pulseScore: { score: 2.8, source: "Professional review platforms rate 4.5/5 (2.5K reviews), community mixed (performance complaints), app store ratings 3.2/5", sourceCount: 4100 },
-    scoreDisclaimer: "Pulse score from 4,100+ data points",
+    scoreDisclaimer: "Sentiment signal from 4,100+ data points",
     description: "Notion took the radical bet that one tool could replace many, and largely won. The block-based editor is genuinely flexible, and the database system enables workflows that would require three other tools. The learning curve is real, but the payoff is a workspace that shapes itself around how you think. The gap between 'getting started' and 'getting productive' is where Notion still loses people.",
     strengths: [
       "Block-based editing that actually works",
@@ -95,7 +95,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Complexity made legible: developer-grade clarity for finance",
     screenScore: { score: 4.0, source: "Dashboard screenshots and product tours" },
     pulseScore: { score: 3.1, source: "Professional review platforms rate 4.3/5 (1.1K reviews), developer community sentiment positive, consumer review platforms rate 1.6/5 (merchant complaints)", sourceCount: 2800 },
-    scoreDisclaimer: "Pulse score from 2,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 2,800+ data points",
     description: "Stripe's dashboard handles an extraordinary amount of complexity (payments, subscriptions, invoicing, fraud detection, tax compliance) and makes most of it navigable. The information architecture is remarkably clear for the density of data presented. Where it falls short of a higher score is in progressive disclosure; some workflows still require too many clicks to reach critical information.",
     strengths: [
       "Information architecture handles massive complexity",
@@ -119,7 +119,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.3,
     screenScore: { score: 3.9, source: "Dashboard screenshots and deploy UI" },
     pulseScore: { score: 3.4, source: "Professional review platforms rate 4.5/5 (400+ reviews), developer community sentiment positive, developer forums mixed on pricing", sourceCount: 1200 },
-    scoreDisclaimer: "Pulse score from 1,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 1,200+ data points",
     description: "Vercel has turned deployment into a design problem and solved it with taste. The dashboard communicates complex infrastructure states (builds, domains, environments, logs) through a visual language that feels calm even when things go wrong. The biggest delta this quarter reflects their investment in making the analytics and monitoring surfaces match the quality of the deploy experience.",
     strengths: [
       "Deployment feedback loop is best-in-class",
@@ -141,7 +141,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Collaboration as a first-class design primitive",
     screenScore: { score: 3.9, source: "Product screenshots and design workflows" },
     pulseScore: { score: 3.8, source: "Professional review platforms rate 4.7/5 (1.1K reviews), community very positive, product launch platforms top-rated", sourceCount: 2600 },
-    scoreDisclaimer: "Pulse score from 2,600+ data points",
+    scoreDisclaimer: "Sentiment signal from 2,600+ data points",
     description: "Figma proved that design tools could be multiplayer. The real-time collaboration isn't a feature. It's the foundation everything else is built on. The plugin ecosystem, component system, and prototyping tools are all strong. Where Figma loses points is in the growing complexity of its own interface; features added since the Adobe acquisition attempt have started to create navigation overhead.",
     strengths: [
       "Real-time collaboration that actually works at scale",
@@ -165,7 +165,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.1,
     screenScore: { score: 3.8, source: "Product screenshots and browser UI" },
     pulseScore: { score: 2.6, source: "Community polarized (love/hate), product launch platforms 4.2/5, app store ratings 3.1/5, stability complaints", sourceCount: 1800 },
-    scoreDisclaimer: "Pulse score from 1,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 1,800+ data points",
     description: "Arc made the bold bet that the browser's frame, the chrome around the web, deserved a complete rethink. Spaces, Boosts, and the sidebar model genuinely improve how you organize browsing. The slight downward movement reflects stability issues in recent updates and the tension between innovation and reliability in a tool people depend on every minute of the day.",
     strengths: [
       "Sidebar navigation is genuinely better than tab bars",
@@ -188,7 +188,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Speed is the feature: every interaction under 200ms",
     screenScore: { score: 3.8, source: "Product screenshots and extension UI" },
     pulseScore: { score: 4.2, source: "Product launch platforms 4.8/5, community overwhelmingly positive, developer forums enthusiastic adoption", sourceCount: 1500 },
-    scoreDisclaimer: "Pulse score from 1,500+ data points",
+    scoreDisclaimer: "Sentiment signal from 1,500+ data points",
     description: "Raycast treats speed as its core design principle, and it shows. Every interaction (launching, searching, executing) feels instantaneous. The extension ecosystem turns it from a launcher into a command center. Where it excels is making complex workflows feel like one step. Where it struggles is in discoverability; the power is there, but finding it requires exploration.",
     strengths: [
       "Perceptive speed across every interaction",
@@ -211,7 +211,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Emotional design that makes browsing feel like discovery",
     screenScore: { score: 3.7, source: "Marketing site and booking flow screenshots" },
     pulseScore: { score: 2.3, source: "Consumer review platforms rate 1.4/5 (25K+ reviews), app store ratings 4.7/5, community mixed, fee complaints dominate", sourceCount: 42000 },
-    scoreDisclaimer: "Pulse score from 42,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 42,000+ data points",
     description: "Airbnb remains one of the strongest examples of emotional design in production. Browsing listings feels like exploring, not shopping. The map integration, photo presentation, and pricing transparency create a flow that's genuinely enjoyable. The booking flow is solid. Where points are lost: the host-side experience and the growing number of fees that erode trust at checkout.",
     strengths: [
       "Photography-first design creates emotional connection",
@@ -234,7 +234,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Speed and keyboard-first design justify the premium",
     screenScore: { score: 3.8, source: "Product screenshots and email UI" },
     pulseScore: { score: 3.8, source: "Professional review platforms rate 4.6/5 (400+ reviews), community positive, price complaints balanced by speed praise", sourceCount: 900 },
-    scoreDisclaimer: "Pulse score from 900+ data points",
+    scoreDisclaimer: "Sentiment signal from 900+ data points",
     description: "Superhuman proved that email, the most commoditized software category, could be reimagined through speed and intentional design constraints. The keyboard-first model, combined with AI features that actually save time, creates an experience that makes free alternatives feel sluggish. The premium pricing is justified by the time saved.",
     strengths: [
       "Email speed that makes alternatives feel broken",
@@ -257,7 +257,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Beautiful surfaces but navigation still costs effort",
     screenScore: { score: 3.6, source: "App screenshots and product UI" },
     pulseScore: { score: 2.4, source: "App store ratings 2.4/5 (iOS), community mixed, discovery complaints vs Spotify", sourceCount: 8500 },
-    scoreDisclaimer: "Pulse score from 8,500+ data points",
+    scoreDisclaimer: "Sentiment signal from 8,500+ data points",
     description: "Apple Music is visually polished. Every screen feels considered and premium. The typography, album art presentation, and spatial audio features are best-in-class. But navigation remains the weak point. Finding your library, managing playlists, and discovering new music all require more taps and more memory than they should. Beauty without friction reduction caps the score.",
     strengths: [
       "Visual design and typography set the standard for media apps",
@@ -279,7 +279,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Enterprise complexity compressed into merchant-friendly flows",
     screenScore: { score: 3.6, source: "Admin dashboard screenshots" },
     pulseScore: { score: 2.9, source: "Professional review platforms rate 4.4/5 (4.5K reviews), consumer review platforms rate 1.7/5 (6K+ reviews), app store ratings 4.3/5, merchant frustrations", sourceCount: 15000 },
-    scoreDisclaimer: "Pulse score from 15,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 15,000+ data points",
     description: "Shopify's admin panel manages an absurd amount of functionality (inventory, orders, shipping, analytics, marketing, apps) and keeps it navigable for merchants who aren't technical. The progressive disclosure model works: simple stores see simple tools, complex stores unlock complexity. The Polaris design system ensures consistency across a massive surface area.",
     strengths: [
       "Progressive disclosure matches complexity to merchant maturity",
@@ -302,7 +302,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Gamification done right: habit loops that actually teach",
     screenScore: { score: 3.6, source: "App screenshots and lesson UI" },
     pulseScore: { score: 3.2, source: "App store ratings 4.7/5 (2.5M+ ratings), community mixed on monetization, professional review platforms rate 4.5/5", sourceCount: 35000 },
-    scoreDisclaimer: "Pulse score from 35,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 35,000+ data points",
     description: "Duolingo cracked the code on making daily practice feel like play rather than homework. The streak system, hearts model, and progression mechanics create genuine engagement. The visual design is playful without being childish. Where it falls short of a higher score: the actual language learning effectiveness plateaus for intermediate learners, and the monetization pressure has increased.",
     strengths: [
       "Gamification that drives real habit formation",
@@ -325,7 +325,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Dense but navigable: information architecture does the heavy lifting",
     screenScore: { score: 3.5, source: "Product UI and workflow screenshots" },
     pulseScore: { score: 3.4, source: "Professional review platforms rate 4.7/5 (12K reviews), consumer review platforms rate 2.4/5 polarized, 2025 reliability crisis eroding trust", sourceCount: 50000 },
-    scoreDisclaimer: "Pulse score from 50,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 50,000+ data points",
     description: "GitHub manages an enormous information space (code, issues, pull requests, actions, packages, discussions) and keeps it usable through strong information architecture rather than visual simplicity. It's dense by necessity. The score reflects that density is well-managed but rarely delightful; most workflows are functional and efficient without ever feeling effortless.",
     strengths: [
       "Information architecture handles massive scale",
@@ -349,7 +349,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.2,
     screenScore: { score: 3.5, source: "App screenshots and listening UI" },
     pulseScore: { score: 2.8, source: "Consumer review platforms rate 1.6/5 (5K reviews), app store ratings 4.8/5, community frustrated, consumer complaint platforms mixed", sourceCount: 5000000 },
-    scoreDisclaimer: "Pulse score from 5M+ data points",
+    scoreDisclaimer: "Sentiment signal from 5M+ data points",
     description: "Spotify's recommendation engine remains its strongest UX feature. Discover Weekly, Daily Mixes, and algorithmic playlists genuinely surface music people love. The listening experience itself is solid. The downward delta reflects increasing frustration with library management, settings buried behind too many taps, and podcast integration that clutters the music experience.",
     strengths: [
       "Discovery algorithms are best-in-class in any consumer app",
@@ -371,7 +371,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Feature bloat is winning the war against early simplicity",
     screenScore: { score: 3.4, source: "Product screenshots and workspace UI" },
     pulseScore: { score: 3.6, source: "Professional review platforms rate 4.5/5 (33K reviews, 96% positive), intuitive but notification fatigue caps it", sourceCount: 45000 },
-    scoreDisclaimer: "Pulse score from 45,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 45,000+ data points",
     description: "Slack's early genius was making work communication feel casual and fast. That simplicity is eroding. Huddles, Canvas, Clips, Workflow Builder, and the growing app ecosystem have added capability at the cost of focus. The core messaging experience is still good, but finding anything in a busy workspace now requires learned navigation patterns that new users struggle with.",
     strengths: [
       "Core messaging is fast and well-designed",
@@ -394,7 +394,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Content discovery peaked years ago. The UI hasn't kept up",
     screenScore: { score: 3.4, source: "App screenshots and browsing UI" },
     pulseScore: { score: 2.4, source: "Consumer review platforms rate 1.3/5 (25K+ reviews), app store ratings 3.8/5, community frustrated with discovery/ads", sourceCount: 120000 },
-    scoreDisclaimer: "Pulse score from 120,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 120,000+ data points",
     description: "Netflix defined streaming UX but hasn't meaningfully evolved in years. The row-based browsing model still works, autoplay previews are polarizing, and the 'Continue Watching' row remains both the most useful and most neglected feature. The viewing experience is solid. The content discovery experience is coasting.",
     strengths: [
       "Playback experience is reliable across every device",
@@ -416,7 +416,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Record-to-share in seconds: the core loop is pristine",
     screenScore: { score: 3.4, source: "Product screenshots and recording UI" },
     pulseScore: { score: 3.2, source: "Professional review platforms rate 4.7/5 (2.3K reviews), consumer review platforms rate 2.5/5, core record-share loop earns Comfortable but Atlassian migration eroding trust", sourceCount: 3000 },
-    scoreDisclaimer: "Pulse score from 3,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,000+ data points",
     description: "Loom's core interaction (record screen, get shareable link) is one of the tightest product loops in SaaS. Three clicks from thought to shared video. Where the score is held back: the viewing experience, organization of recorded content, and workspace management all feel like they were designed after the core recording feature shipped.",
     strengths: [
       "Recording-to-sharing flow is remarkably frictionless",
@@ -438,7 +438,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Template-first approach democratizes design at scale",
     screenScore: { score: 3.3, source: "Product screenshots and editor UI" },
     pulseScore: { score: 3.7, source: "Professional review platforms rate 4.7/5 (6.9K reviews), app store ratings 4.9/5 (2.1M ratings), consumer review platforms rate 2.3/5 (billing trap complaints)", sourceCount: 2100000 },
-    scoreDisclaimer: "Pulse score from 18,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 18,000+ data points",
     description: "Canva solved a real problem: most people need to create visual content but can't use professional design tools. The template system, drag-and-drop editor, and brand kit features make that possible. The experience is friendly and approachable. What holds it back from a higher score is that power users quickly hit walls, and the editor can feel sluggish with complex designs.",
     strengths: [
       "Templates turn non-designers into capable creators",
@@ -460,7 +460,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Creative power with a steep on-ramp for non-designers",
     screenScore: { score: 3.3, source: "Product screenshots and website builder UI" },
     pulseScore: { score: 3.4, source: "Professional review platforms rate 4.5/5 (200+ reviews), designer-native workflow earns Comfortable, CMS gaps and pricing cap it", sourceCount: 1200 },
-    scoreDisclaimer: "Pulse score from 1,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 1,200+ data points",
     description: "Framer has evolved from a prototyping tool into a genuine website builder that produces production-quality output. The visual editor is powerful, animations are impressive, and the published sites perform well. The gap: the learning curve is steep for anyone who isn't already a designer, and some common tasks require non-obvious interaction patterns.",
     strengths: [
       "Published sites are genuinely high-quality and fast",
@@ -482,7 +482,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Banking clarity that legacy institutions still can't match",
     screenScore: { score: 3.3, source: "App screenshots and banking UI" },
     pulseScore: { score: 3.9, source: "Consumer review platforms rate 4.6/5 (59K reviews), app store ratings 4.9/5 (266K ratings), approaching Delightful", sourceCount: 325000 },
-    scoreDisclaimer: "Pulse score from 8,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 8,000+ data points",
     description: "Monzo proved that banking apps don't have to feel like banking apps. Transaction categorization, instant notifications, and spending insights are presented with a clarity that makes legacy bank apps feel hostile by comparison. The experience falls short of higher levels because premium features are increasingly gated and the investment/savings products feel like different apps.",
     strengths: [
       "Transaction categorization and instant notifications",
@@ -504,7 +504,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Business banking that feels consumer-grade in the best way",
     screenScore: { score: 3.2, source: "Dashboard screenshots and banking UI" },
     pulseScore: { score: 3.2, source: "Professional review platforms rate 4.5/5 (119 reviews), consumer review platforms rate 3.7/5, account closure complaints", sourceCount: 1750 },
-    scoreDisclaimer: "Pulse score from 1,750+ data points",
+    scoreDisclaimer: "Sentiment signal from 1,750+ data points",
     description: "Mercury brought consumer-grade design to business banking, a category that historically looked like it was designed in 2005. Account management, transactions, and treasury features are clean and navigable. The score reflects that while the core banking experience is strong, some workflows (multi-entity management, complex permissions) still require too many steps.",
     strengths: [
       "Clean, modern interface for business banking",
@@ -526,7 +526,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "The booking flow is flawless. Everything around it is furniture",
     screenScore: { score: 3.2, source: "Booking flow and dashboard screenshots" },
     pulseScore: { score: 3.2, source: "Professional review platforms rate 4.7/5 (2.6K reviews), consumer review platforms rate 3.0/5, core loop is Comfortable but broken defaults and support cap it", sourceCount: 3500 },
-    scoreDisclaimer: "Pulse score from 3,500+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,500+ data points",
     description: "Calendly's booker-facing experience is one of the best single-purpose flows in SaaS: see availability, pick a time, done. It's the gold standard for reducing a multi-step process to its minimum. The scheduler-facing dashboard, however, doesn't match that quality. Event type management, team settings, and analytics all feel like they were designed with less care.",
     strengths: [
       "Booking flow is the gold standard for scheduling",
@@ -548,7 +548,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Visual discovery remains best-in-class despite ad pressure",
     screenScore: { score: 3.2, source: "App screenshots and discovery UI" },
     pulseScore: { score: 1.8, source: "Consumer review platforms rate 1.3/5, app store ratings mixed, community frustrated with ad saturation and app-install walls", sourceCount: 25000 },
-    scoreDisclaimer: "Pulse score from 25,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 25,000+ data points",
     description: "Pinterest's masonry grid and visual search remain the best implementation of discovery-by-browsing on the web. The 'save to board' mental model is intuitive and sticky. What's pulling the score down: advertising is increasingly indistinguishable from organic content, and the balance between discovery and monetization is tilting toward the latter.",
     strengths: [
       "Visual discovery and browsing experience is unmatched",
@@ -570,7 +570,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Conversational simplicity hides growing feature sprawl",
     screenScore: { score: 3.1, source: "Product screenshots and chat UI" },
     pulseScore: { score: 2.8, source: "App store ratings 4.8/5, community mixed on quality decline, consumer review platforms rate 2.1/5, reliability complaints", sourceCount: 85000 },
-    scoreDisclaimer: "Pulse score from 85,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 85,000+ data points",
     description: "ChatGPT's core interaction (type a question, get an answer) is one of the most intuitive product experiences in recent memory. The blank input box is inviting. The problem is everything that's been added around it: GPTs, plugins, memory settings, model selection, file uploads, image generation. Each feature individually makes sense; together they're creating navigation complexity that undermines the original simplicity.",
     strengths: [
       "Core conversational interface is instantly intuitive",
@@ -592,7 +592,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Simplified investing with guardrails that sometimes patronize",
     screenScore: { score: 3.1, source: "App screenshots and trading UI" },
     pulseScore: { score: 2.4, source: "App store ratings 4.3/5 (4.7M), consumer review platforms rate 1.3/5 (4.2K), consumer complaint platforms rate 1.7/5, regulatory actions", sourceCount: 5300000 },
-    scoreDisclaimer: "Pulse score from 5.3M+ data points",
+    scoreDisclaimer: "Sentiment signal from 5.3M+ data points",
     description: "Robinhood succeeded at making investing feel approachable. The clean interface, confetti celebrations, and simplified flows brought millions of new investors into the market. The design challenge now is that those same simplifications can feel patronizing as users become more sophisticated, and the addition of crypto, options, and cash management has added complexity without proportional design investment.",
     strengths: [
       "Stock purchase flow is remarkably simple",
@@ -614,7 +614,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Immense power behind a UI that asks too much of newcomers",
     screenScore: { score: 3.0, source: "Product screenshots and designer UI" },
     pulseScore: { score: 2.8, source: "Professional review platforms rate 4.4/5 (946 reviews), consumer review platforms rate 1.5/5, community open letter on stability crisis", sourceCount: 3300 },
-    scoreDisclaimer: "Pulse score from 3,300+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,300+ data points",
     description: "Webflow is probably the most powerful no-code website builder available. It can produce genuinely professional websites with complex interactions, CMS-driven content, and e-commerce. The score reflects a tension: experts love it, beginners bounce. The learning curve is the product's biggest liability and its biggest moat.",
     strengths: [
       "Output quality rivals custom development",
@@ -637,7 +637,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.3,
     screenScore: { score: 2.9, source: "Product screenshots and trading UI" },
     pulseScore: { score: 2.7, source: "App store ratings 4.7/5, consumer review platforms rate 1.5/5 (11K reviews), consumer advocacy platforms rate 1.1/5, fee and support complaints", sourceCount: 50000 },
-    scoreDisclaimer: "Pulse score from 50,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 50,000+ data points",
     description: "Coinbase's onboarding and initial purchase flow are clean. Buying your first crypto is straightforward. The experience degrades from there. The addition of DeFi features, NFTs, staking, and Coinbase Wallet has created a product that serves too many audiences without a coherent experience for any of them. The downward delta reflects recent UI changes that added complexity without solving existing navigation problems.",
     strengths: [
       "Initial onboarding and first purchase are clean",
@@ -659,7 +659,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Spreadsheet flexibility with enterprise-grade confusion",
     screenScore: { score: 2.9, source: "Product screenshots and database UI" },
     pulseScore: { score: 2.7, source: "Professional review platforms rate 4.5/5 (2.3K reviews), consumer review platforms rate 2.4/5, community mixed on performance", sourceCount: 5000 },
-    scoreDisclaimer: "Pulse score from 5,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 5,000+ data points",
     description: "Airtable's pitch (a database that feels like a spreadsheet) is genuinely compelling when it works. Views, automations, and the interface designer enable powerful workflows. The problem: the gap between 'this is a nice spreadsheet' and 'this is a powerful app platform' creates confusion about what Airtable even is. Enterprise features have added layers that the core interaction model wasn't designed to support.",
     strengths: [
       "Core grid and view system is flexible and intuitive",
@@ -681,7 +681,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Output quality masks an interface that's barely held together",
     screenScore: { score: 2.8, source: "Web app screenshots and generation UI" },
     pulseScore: { score: 3.2, source: "Professional review platforms rate 4.4/5 (94 reviews), consumer review platforms rate 2.0/5, community forums 65% positive on output quality", sourceCount: 550 },
-    scoreDisclaimer: "Pulse score from 550+ data points",
+    scoreDisclaimer: "Sentiment signal from 550+ data points",
     description: "Midjourney produces the best AI-generated images available. The output is stunning. The interface (originally Discord-only, now a web app) is not. The web experience is functional but feels like it was designed by engineers solving technical problems rather than designers solving human ones. The score reflects that output quality and interface quality are two different things.",
     strengths: [
       "Image generation quality is best-in-class",
@@ -703,7 +703,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Community power undermined by settings complexity",
     screenScore: { score: 2.8, source: "Product screenshots and server UI" },
     pulseScore: { score: 3.4, source: "Enterprise review platforms rate 4.7/5, app store ratings 4.8/5 (232K), consumer review platforms rate 1.2/5 (2K), app store ratings 4.3/5 (6.3M)", sourceCount: 6600000 },
-    scoreDisclaimer: "Pulse score from 6.6M+ data points",
+    scoreDisclaimer: "Sentiment signal from 6.6M+ data points",
     description: "Discord's core value, real-time community communication, is strong. Voice channels, text channels, and the server model create genuine community infrastructure. But the settings are bewildering: server settings, channel settings, notification settings, privacy settings, each with dozens of options. For a product used by millions of non-technical users, the configuration complexity is a serious accessibility issue.",
     strengths: [
       "Voice and text channel model is genuinely innovative",
@@ -725,7 +725,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "The core meeting is reliable. Everything else feels bolted on",
     screenScore: { score: 2.7, source: "Product screenshots and meeting UI" },
     pulseScore: { score: 3.2, source: "Professional review platforms rate 4.5/5 (55.7K reviews), consumer review platforms rate 1.4/5 (78% one-star), Workplace redesign friction", sourceCount: 56000 },
-    scoreDisclaimer: "Pulse score from 56,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 56,000+ data points",
     description: "Zoom's core meeting experience is reliable and familiar. That's its strength and its ceiling. Joining a meeting is easy. Being in a meeting works. Everything Zoom has added since (Zoom Phone, Zoom Whiteboard, Zoom Chat, Zoom Mail) feels like it belongs to a different product with a different design team. The experience is fragmented.",
     strengths: [
       "Meeting join flow is the simplest in the category",
@@ -747,7 +747,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Viewer experience is strong but creator tools are a maze",
     screenScore: { score: 2.6, source: "Product screenshots and streaming UI" },
     pulseScore: { score: 2.1, source: "Consumer review platforms rate 1.3/5 (1.1K reviews), app store ratings 3.95/5 (5.3M), broken mobile/TV apps, hostile ads", sourceCount: 5300000 },
-    scoreDisclaimer: "Pulse score from 15,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 15,000+ data points",
     description: "Watching a stream on Twitch is a good experience. The player is solid, chat is engaging, and discovery has improved. Creating on Twitch is a different story. The creator dashboard, monetization settings, moderation tools, and analytics are spread across interfaces that feel like they were designed by different teams in different years. The viewer/creator gap is the defining UX problem.",
     strengths: [
       "Stream player and chat experience are well-integrated",
@@ -769,7 +769,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "The product that defined cloud storage now struggles to justify itself",
     screenScore: { score: 2.5, source: "Product screenshots and file management UI" },
     pulseScore: { score: 2.6, source: "Professional review platforms rate 4.4/5 (38.4K reviews), consumer review platforms rate 1.3/5 (1.5K), billing complaints, forced upgrades", sourceCount: 40000 },
-    scoreDisclaimer: "Pulse score from 40,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 40,000+ data points",
     description: "Dropbox invented a category and then watched the category commoditize around it. The core sync experience is still reliable, but the product has been unable to articulate why you'd choose it over Google Drive, iCloud, or OneDrive, which come free with products you already use. Recent additions (Paper, Capture, Sign) feel disconnected. The interface works; the product story doesn't.",
     strengths: [
       "File sync is still reliable and fast",
@@ -791,7 +791,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "More process than product: the UI serves the methodology, not the human",
     screenScore: { score: 2.1, source: "Product screenshots and project management UI" },
     pulseScore: { score: 2.1, source: "Professional review platforms rate 4.3/5 (7.5K reviews), community and developer forums overwhelmingly negative UX, 86% market lock-in", sourceCount: 15000 },
-    scoreDisclaimer: "Pulse score from 15,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 15,000+ data points",
     description: "Jira is powerful. Jira is also the canonical example of enterprise software that prioritizes process configuration over user experience. The interface serves Scrum and Kanban methodologies before it serves the humans using it. Every simple action (creating an issue, checking a sprint, finding a dashboard) requires more steps and more cognitive load than it should. Power at the cost of usability.",
     strengths: [
       "Configurability covers virtually any workflow",
@@ -814,7 +814,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.1,
     screenScore: { score: 1.8, source: "Product screenshots and CRM UI" },
     pulseScore: { score: 2.2, source: "Professional review platforms rate 4.4/5 (25.5K reviews), 200-field forms, 'How has Salesforce gotten away with such terrible UX?' (Q&A forums)", sourceCount: 94000 },
-    scoreDisclaimer: "Pulse score from 25,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 25,000+ data points",
     description: "Salesforce is the most powerful CRM platform in the world and one of the worst user experiences in enterprise software. The Lightning redesign improved surface-level aesthetics but didn't address the fundamental information architecture problems. Navigation is labyrinthine, customization creates inconsistency, and the simplest tasks require too many clicks. Users don't choose Salesforce for its UX; they tolerate its UX for its capability.",
     strengths: [
       "Platform capability is genuinely unmatched in CRM",
@@ -836,7 +836,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     verdict: "Enterprise software that treats its users as an afterthought",
     screenScore: { score: 1.6, source: "Product screenshots and HR/finance UI" },
     pulseScore: { score: 1.4, source: "Professional review platforms rate 4.2/5 (2.8K reviews), media coverage 'most hated workplace software', employee platforms and community universal hatred", sourceCount: 5000 },
-    scoreDisclaimer: "Pulse score from 5,000+ data points",
+    scoreDisclaimer: "Sentiment signal from 5,000+ data points",
     description: "Workday is the product most people point to when they talk about why enterprise software has a bad reputation. The interface is functional in the strictest sense. You can complete tasks, but every interaction requires more effort than it should. Finding information requires memorizing navigation paths. Basic tasks like submitting time off or finding a pay stub involve more clicks than they do on any consumer app. The score reflects that users endure Workday; they don't use it.",
     strengths: [
       "Handles complex HR and finance workflows at enterprise scale",
@@ -859,7 +859,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.1,
     screenScore: { score: 4.4, source: "App screenshots and onboarding flow" },
     pulseScore: { score: 4.3, source: "App store ratings 4.7/5 (15M+ reviews), community sentiment polarized on ethics but positive on UX, professional reviews highlight addictive design patterns", sourceCount: 18500 },
-    scoreDisclaimer: "Pulse score from 18,500+ data points",
+    scoreDisclaimer: "Sentiment signal from 18,500+ data points",
     description: "TikTok eliminated the decision of what to watch next and replaced it with a feed that feels psychic. The creation tools are genuinely best-in-class - editing video on a phone has never been this fluid. The ethical questions around attention hijacking are real, but purely from an interaction design standpoint, this is the most frictionless content experience ever built.",
     strengths: [
       "For-You algorithm removes all content discovery friction",
@@ -884,7 +884,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.3,
     screenScore: { score: 2.9, source: "App screenshots across feed, reels, shopping, and messaging" },
     pulseScore: { score: 2.4, source: "App store ratings 3.8/5 (12M+ reviews), community sentiment increasingly negative, professional reviews cite feature bloat and algorithm frustration", sourceCount: 16200 },
-    scoreDisclaimer: "Pulse score from 16,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 16,200+ data points",
     description: "Instagram is the cautionary tale of what happens when growth metrics override design principles. What began as the most elegant photo-sharing experience has metastasized into a confused amalgamation of Reels, Shopping, Stories, Notes, Threads cross-promotion, and a feed nobody asked for. The navigation now requires five tabs, a hamburger menu, and a prayer. Every quarterly update moves something users relied on.",
     strengths: [
       "Stories format remains intuitive and well-executed",
@@ -909,7 +909,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.5,
     screenScore: { score: 2.1, source: "Web and app screenshots post-rebrand" },
     pulseScore: { score: 1.7, source: "App store ratings 2.3/5 (1.2M recent reviews), community sentiment overwhelmingly negative, professional reviews cite degraded experience and verification confusion", sourceCount: 14800 },
-    scoreDisclaimer: "Pulse score from 14,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 14,800+ data points",
     description: "What was once a masterclass in information density and real-time discourse has become a case study in how fast you can erode a decade of design equity. The verification system is incoherent - blue checks mean payment, not identity. The algorithm aggressively surfaces engagement bait over relevance. Features ship half-built and break weekly. The rebrand to X didn't just change a logo; it severed the mental model millions of users had built over 15 years.",
     strengths: [
       "Core tweet composition is still fast and frictionless",
@@ -934,7 +934,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.2,
     screenScore: { score: 2.6, source: "App and web screenshots" },
     pulseScore: { score: 2.3, source: "App store ratings 3.1/5 (800K reviews), community sentiment lukewarm, professional reviews cite lack of features and identity crisis", sourceCount: 4200 },
-    scoreDisclaimer: "Pulse score from 4,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 4,200+ data points",
     description: "Threads launched with Instagram's social graph and Meta's engineering muscle but somehow delivered an experience that feels like a beta from 2019. The feed is aggressively algorithm-driven with no chronological option that sticks. Search barely works. The desktop experience arrived months late and still feels like an afterthought. It's clean, it's fast, but it has no opinion about what it wants to be.",
     strengths: [
       "Onboarding via Instagram is genuinely seamless",
@@ -959,7 +959,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.2,
     screenScore: { score: 3.6, source: "Mobile app and web screenshots" },
     pulseScore: { score: 3.3, source: "App store ratings 4.3/5 (14M+ reviews), community complaints about ad insertion and UI clutter, professional reviews note feature creep", sourceCount: 16800 },
-    scoreDisclaimer: "Pulse score from 16,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 16,800+ data points",
     description: "Google Maps is simultaneously the best mapping product on Earth and a cautionary tale of feature creep. The core navigation experience remains excellent - routing, real-time traffic, and transit directions are unmatched. But the local discovery layer has become an ad-supported mess. Sponsored pins clutter the map. Business profiles are unreliable. The bottom sheet interaction model, once elegant, now hides an overwhelming amount of content behind too many swipe targets.",
     strengths: [
       "Navigation and routing accuracy are best-in-class",
@@ -984,7 +984,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.1,
     screenScore: { score: 3.4, source: "App screenshots across rides, eats, and wallet" },
     pulseScore: { score: 3.0, source: "App store ratings 4.5/5 (10M+ reviews), community mixed on pricing transparency, professional reviews cite super-app bloat", sourceCount: 12400 },
-    scoreDisclaimer: "Pulse score from 12,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 12,400+ data points",
     description: "The original ride-hailing flow - tap, confirm, ride - remains one of the best-designed interactions in consumer software. Then Uber decided it needed to be a super-app. The home screen now pushes Eats, packages, groceries, transit, and financial products. Surge pricing is deliberately obfuscated. The driver-rider communication tools are still clunky after a decade. Uber solved transportation UX in 2014 and has been making it worse ever since.",
     strengths: [
       "Core ride request flow is still intuitive",
@@ -1010,7 +1010,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 3.5, source: "App screenshots and ride flow" },
     pulseScore: { score: 3.5, source: "App store ratings 4.6/5 (5M+ reviews), community sentiment slightly more positive than Uber, professional reviews note simpler interface", sourceCount: 6200 },
-    scoreDisclaimer: "Pulse score from 6,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 6,200+ data points",
     description: "Lyft has benefited from restraint. While Uber chased super-app ambitions, Lyft stayed focused on rides and did a better job keeping the interface clean. The ride flow is nearly identical in quality to Uber but with less visual noise. Price transparency is slightly better. The pink branding is divisive but at least it's distinctive. Lyft proves that sometimes the best UX strategy is knowing what not to build.",
     strengths: [
       "Focused product scope keeps navigation simple",
@@ -1034,7 +1034,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.7, source: "App screenshots across messaging, calls, and communities" },
     pulseScore: { score: 3.6, source: "App store ratings 4.5/5 (18M+ reviews), community sentiment positive on core messaging, negative on Meta integration fears", sourceCount: 19200 },
-    scoreDisclaimer: "Pulse score from 19,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 19,200+ data points",
     description: "WhatsApp is the rare product where simplicity isn't a limitation - it's the entire value proposition. The messaging experience is fast, reliable, and consistent across every platform. End-to-end encryption messaging with this level of ease is a genuine achievement. But Meta's fingerprints are showing: Status is a Stories clone nobody asked for, Communities adds complexity to a deliberately simple product, and the business messaging features are starting to feel like ads.",
     strengths: [
       "Core messaging is fast, reliable, and universally understood",
@@ -1059,7 +1059,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 3.9, source: "App screenshots across chats, channels, and bots" },
     pulseScore: { score: 3.8, source: "App store ratings 4.5/5 (8M+ reviews), community sentiment very positive on features, mixed on moderation, professional reviews praise speed", sourceCount: 9400 },
-    scoreDisclaimer: "Pulse score from 9,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 9,400+ data points",
     description: "Telegram is what happens when engineers build a messaging app without a growth team breathing down their necks. The feature set is absurd - channels, bots, stickers, themes, file sharing up to 2GB, real-time translation - and yet the interface never feels bloated. Navigation is clean. Search actually works across messages, files, and links. The only reason it's not higher is that the default UI lacks the polish of Apple-tier design, and the settings are a labyrinth.",
     strengths: [
       "Feature density without interface bloat",
@@ -1085,7 +1085,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 3.3, source: "App screenshots across messaging and calls" },
     pulseScore: { score: 3.2, source: "App store ratings 4.4/5 (1.5M reviews), community sentiment positive on privacy, mixed on features, professional reviews note UX gaps", sourceCount: 2800 },
-    scoreDisclaimer: "Pulse score from 2,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 2,800+ data points",
     description: "Signal does one thing - private messaging - and does it with integrity. The problem is that integrity alone doesn't make a great experience. The UI feels functional rather than crafted. Group features lag behind WhatsApp and Telegram by years. Stickers feel like an afterthought. Stories were added and nobody noticed. Signal proves that doing the right thing and doing the delightful thing are unfortunately different skills.",
     strengths: [
       "Privacy model is genuinely trustworthy",
@@ -1110,7 +1110,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.1,
     screenScore: { score: 3.0, source: "Web and mobile app screenshots" },
     pulseScore: { score: 2.7, source: "App store ratings 3.9/5 (9M+ reviews), community sentiment mixed on redesigns, professional reviews cite tab confusion and bloat", sourceCount: 11600 },
-    scoreDisclaimer: "Pulse score from 11,600+ data points",
+    scoreDisclaimer: "Sentiment signal from 11,600+ data points",
     description: "Gmail is the definition of a Comfortable-tier product that will never reach Delightful. It works. It's reliable. It handles billions of messages. And it's been aesthetically stuck in Material Design purgatory for years. The tabbed inbox was a good idea poorly maintained - Promotions and Social tabs are graveyards. Smart Compose is occasionally helpful and frequently wrong. The integration of Chat, Spaces, and Meet into the sidebar turned a focused email client into a cluttered communication hub.",
     strengths: [
       "Search across years of email is still best-in-class",
@@ -1136,7 +1136,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 2.8, source: "Web, desktop, and mobile screenshots" },
     pulseScore: { score: 2.3, source: "App store ratings 4.2/5 (2.5M reviews), community sentiment negative on complexity, enterprise users report frustration, professional reviews note calendar strength", sourceCount: 8400 },
-    scoreDisclaimer: "Pulse score from 8,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 8,400+ data points",
     description: "Outlook is the product that proves market dominance and UX quality are entirely unrelated. The new Outlook for Windows is an improvement over the legacy client but still feels like three products (mail, calendar, contacts) duct-taped together. Calendar is genuinely the strongest surface. Mail is adequate. The rules and settings system requires a PhD in Microsoft theology. Every version on every platform behaves slightly differently.",
     strengths: [
       "Calendar integration is the best in enterprise email",
@@ -1161,7 +1161,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.4, source: "Web and mobile app screenshots" },
     pulseScore: { score: 3.2, source: "Professional review platforms rate positively, community notes stagnation, app store ratings 3.5/5 (1.8M reviews)", sourceCount: 5600 },
-    scoreDisclaimer: "Pulse score from 5,600+ data points",
+    scoreDisclaimer: "Sentiment signal from 5,600+ data points",
     description: "Google Docs solved real-time collaboration before anyone else and then seemingly stopped innovating. The multiplayer editing experience remains genuinely magical - seeing cursors move in real time still delights first-time users. But the formatting tools haven't meaningfully evolved. The document canvas feels narrow and rigid compared to Notion or Coda. Comments and suggestions work well but the notification system around them is chaotic.",
     strengths: [
       "Real-time collaboration is still the gold standard",
@@ -1186,7 +1186,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 2.3, source: "Desktop and web app screenshots" },
     pulseScore: { score: 1.9, source: "Professional review platforms rate 4.1/5 (corporate bias), community sentiment strongly negative, app store ratings 2.8/5 (800K reviews)", sourceCount: 9800 },
-    scoreDisclaimer: "Pulse score from 9,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 9,800+ data points",
     description: "Microsoft Teams is the product equivalent of a meeting that should have been an email. The video calling experience has improved significantly, but everything around it - channels, file sharing, chat, app integrations - feels like it was designed by separate teams who never spoke to each other. Navigation requires a mental model that defies spatial logic. Finding a file someone shared last week is an exercise in existential dread. The only reason it's on every enterprise desktop is because Microsoft bundles it for free.",
     strengths: [
       "Video meeting quality and reliability have improved",
@@ -1211,7 +1211,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.1,
     screenScore: { score: 3.5, source: "Web and mobile app screenshots" },
     pulseScore: { score: 3.2, source: "App store ratings 4.2/5 (16M+ reviews), community sentiment mixed on ads and algorithm, professional reviews note feature creep", sourceCount: 18200 },
-    scoreDisclaimer: "Pulse score from 18,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 18,200+ data points",
     description: "YouTube is a product that should score higher given its technical achievement - streaming billions of hours of video flawlessly is extraordinary. But the experience of using YouTube has steadily degraded. Ad frequency has increased to the point of hostility. Shorts was shoved into the feed despite user resistance. The recommendation algorithm creates filter bubbles that are genuinely concerning. The creator studio, however, is one of the best content management tools ever built.",
     strengths: [
       "Video player is technically excellent",
@@ -1237,7 +1237,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.2,
     screenScore: { score: 2.7, source: "Web redesign and mobile app screenshots" },
     pulseScore: { score: 2.3, source: "App store ratings 3.5/5 (2.8M reviews), community sentiment highly negative on redesign, professional reviews note hostile API changes", sourceCount: 8600 },
-    scoreDisclaimer: "Pulse score from 8,600+ data points",
+    scoreDisclaimer: "Sentiment signal from 8,600+ data points",
     description: "Reddit's redesign saga is one of the great UX tragicomedies. The old design was ugly but functional - power users could scan information efficiently. The new design prioritizes engagement metrics over usability, with cards that waste vertical space and a feed that feels algorithm-driven. The API pricing changes that killed third-party apps removed the best Reddit experiences from the ecosystem. The mobile app is a study in dark patterns, from notification spam to award prompts.",
     strengths: [
       "Community structure (subreddits) remains powerful",
@@ -1262,7 +1262,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.1,
     screenScore: { score: 2.4, source: "Web and mobile app screenshots" },
     pulseScore: { score: 1.9, source: "App store ratings 3.6/5 (4.5M reviews), community sentiment strongly negative, professional reviews cite engagement bait and notification abuse", sourceCount: 9200 },
-    scoreDisclaimer: "Pulse score from 9,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 9,200+ data points",
     description: "LinkedIn has achieved the rare feat of being essential and unbearable simultaneously. The feed is a wasteland of humble-brags, engagement farming, and AI-generated thought leadership. The messaging system is a spam cannon. Job search, ostensibly the core value proposition, buries candidates in ghost listings and one-click-apply black holes. The notification system is designed with the subtlety of a car alarm. Yet 900 million professionals keep coming back because there is literally no alternative.",
     strengths: [
       "Professional network effects are unmatched",
@@ -1287,7 +1287,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.1, source: "App screenshots across chat, snap map, and discover" },
     pulseScore: { score: 3.0, source: "App store ratings 3.8/5 (8.5M reviews), community sentiment polarized by age, professional reviews note intentional complexity as feature", sourceCount: 9800 },
-    scoreDisclaimer: "Pulse score from 9,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 9,800+ data points",
     description: "Snapchat is the most interesting case study in audience-specific design. The interface is deliberately opaque to outsiders - gestures and navigation patterns are learned socially, not through onboarding. For its core audience, this is a feature, not a bug. The camera-first paradigm was genuinely innovative. Snap Map is one of the best location features in any social app. But Discover is a dumpster fire of clickbait, and the My AI integration is a privacy nightmare wearing a friendly face.",
     strengths: [
       "Camera-first paradigm is genuinely novel",
@@ -1312,7 +1312,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.3, source: "App screenshots across payment, feed, and card features" },
     pulseScore: { score: 3.1, source: "App store ratings 4.6/5 (5.5M reviews), community sentiment positive on payments, negative on feed and feature creep", sourceCount: 7200 },
-    scoreDisclaimer: "Pulse score from 7,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 7,200+ data points",
     description: "Venmo's core interaction - send money to a friend - is still beautifully simple. The problem is everything Venmo has built around that core. The social feed (why is paying rent a social event?), the crypto integration, the debit card, the credit card, the business profiles - it's a payment app having an identity crisis. The home screen now pushes so many features that finding the pay button requires scrolling past a social feed, crypto prices, and card offers.",
     strengths: [
       "Peer-to-peer payment flow is effortless",
@@ -1337,7 +1337,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 3.4, source: "App screenshots across payments, investing, and card" },
     pulseScore: { score: 2.9, source: "App store ratings 4.5/5 (4.5M reviews), community sentiment positive on ease, negative on customer support, professional reviews note clean design", sourceCount: 6800 },
-    scoreDisclaimer: "Pulse score from 6,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 6,800+ data points",
     description: "Cash App has the best visual design in fintech, period. The interface is bold, confident, and feels nothing like a bank - which is both its strength and its risk. Sending money is dead simple. The Cash Card customization is delightful. Bitcoin buying is dangerously easy (and that's a design choice worth questioning). Where it falls apart is customer support and dispute resolution, which are so bad they constitute a UX failure regardless of how pretty the screens are.",
     strengths: [
       "Visual design is the best in fintech",
@@ -1362,7 +1362,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.2,
     screenScore: { score: 3.7, source: "App screenshots across accounts, trading, and analytics" },
     pulseScore: { score: 3.4, source: "App store ratings 4.6/5 (3.2M reviews), community sentiment very positive in Europe, mixed on feature overload, professional reviews praise breadth", sourceCount: 5400 },
-    scoreDisclaimer: "Pulse score from 5,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 5,400+ data points",
     description: "Revolut is the most ambitious fintech app ever built, and it's remarkable how much of it actually works. Multi-currency accounts, stock trading, crypto, budgeting, bill splitting, insurance, travel eSIMs - it's absurd. The fact that this many features coexist without the app feeling broken is a genuine design achievement. But 'not broken' isn't the same as 'well-designed.' New users face a wall of features. The navigation requires memorization. Power users love it; everyone else feels overwhelmed.",
     strengths: [
       "Feature breadth is unmatched in fintech",
@@ -1388,7 +1388,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 4.0, source: "Web and app screenshots across transfers and multi-currency" },
     pulseScore: { score: 3.9, source: "App store ratings 4.6/5 (600K reviews), community sentiment very positive, professional reviews praise transparency, Trustpilot 4.3/5", sourceCount: 3200 },
-    scoreDisclaimer: "Pulse score from 3,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,200+ data points",
     description: "Wise is what happens when you design a financial product around transparency instead of obfuscation. The fee breakdown is shown before every transfer - not in fine print, but as a core part of the UI. The comparison tool that shows bank fees vs Wise fees is brilliant product design that also serves as marketing. The multi-currency account is clean and comprehensible. This is how every fintech should handle money but almost none do.",
     strengths: [
       "Fee transparency is a masterclass in trust-building UX",
@@ -1412,7 +1412,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 2.5, source: "Web and mobile app screenshots" },
     pulseScore: { score: 2.6, source: "App store ratings 4.4/5 (8.5M reviews), community sentiment divided between convenience and design quality, professional reviews consistently critique UI", sourceCount: 14200 },
-    scoreDisclaimer: "Pulse score from 14,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 14,200+ data points",
     description: "Amazon is the most powerful e-commerce platform on Earth and one of the worst-designed products in daily use. The product pages are a war zone of competing information: sponsored results disguised as organic, fake reviews indistinguishable from real ones, subscribe-and-save dark patterns, and shipping information that requires a decoder ring. The checkout flow - the actual moment of purchase - is excellent. Everything leading up to it is chaos by design, optimized for Amazon's revenue, not your experience.",
     strengths: [
       "Checkout and one-click purchase are genuinely excellent",
@@ -1438,7 +1438,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 3.8, source: "App screenshots across summary, sharing, and detailed metrics" },
     pulseScore: { score: 3.5, source: "Community sentiment positive on data quality, mixed on complexity, professional reviews note learning curve", sourceCount: 4200 },
-    scoreDisclaimer: "Pulse score from 4,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 4,200+ data points",
     description: "Apple Health is a product that respects its subject matter. Health data is presented with appropriate gravity - charts are clear, trends are visible, and sharing with doctors actually works. The Medications feature is a standout. Where it struggles is discoverability; there's an enormous amount of data and functionality buried behind tabs and scroll views that most users never find. The Summary view is well-curated but the deeper you go, the more it feels like a medical journal.",
     strengths: [
       "Data visualization is clear and medically appropriate",
@@ -1463,7 +1463,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.6, source: "App screenshots across activity tracking, feed, and routes" },
     pulseScore: { score: 3.4, source: "App store ratings 4.5/5 (1.2M reviews), community sentiment positive on social features, negative on paywall expansion", sourceCount: 3800 },
-    scoreDisclaimer: "Pulse score from 3,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,800+ data points",
     description: "Strava understood something other fitness apps missed: exercise is social. The feed, kudos, and segment competition create motivation that no amount of gamification badges can match. Activity recording is reliable. Route building is genuinely useful. But Strava has been steadily moving features behind its paywall in ways that feel punitive to free users. The core recording experience on free tier is now so limited that it borders on hostile.",
     strengths: [
       "Social fitness model creates genuine motivation",
@@ -1488,7 +1488,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 4.1, source: "App screenshots across meditation, sleep, and focus" },
     pulseScore: { score: 3.8, source: "App store ratings 4.7/5 (1.5M reviews), community sentiment very positive, professional reviews praise design and illustration", sourceCount: 3400 },
-    scoreDisclaimer: "Pulse score from 3,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,400+ data points",
     description: "Headspace is the rare app where the design itself is therapeutic. The illustration system, the pacing of interactions, the gradual onboarding - everything is calibrated to reduce anxiety, which is literally the product's purpose. The content library is well-organized. The sleep experiences are a genuine product differentiator. The only tension is between the calm, spacious design and the subscription model that nags users to upgrade.",
     strengths: [
       "Illustration and animation create genuine calm",
@@ -1513,7 +1513,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.2,
     screenScore: { score: 3.5, source: "Tablet, app, and web screenshots" },
     pulseScore: { score: 3.2, source: "App store ratings 3.9/5 (500K reviews), community sentiment divided on value, professional reviews note hardware-software gap", sourceCount: 2800 },
-    scoreDisclaimer: "Pulse score from 2,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 2,800+ data points",
     description: "Peloton's content is genuinely excellent - the instructors, music licensing, and production quality create motivation that most fitness apps can't match. The problem is the software wrapping that content. The tablet UI feels like it was designed for a single use case (live classes) and everything else was stapled on. Browsing the class library is tedious. The metrics display during rides is good but the post-workout analysis is shallow. The app experience without hardware is surprisingly mediocre.",
     strengths: [
       "Instructor and content quality is genuinely motivating",
@@ -1538,7 +1538,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 3.8, source: "Desktop app screenshots across editor, graph, and plugins" },
     pulseScore: { score: 3.9, source: "Community sentiment very positive among power users, professional reviews praise extensibility, app store ratings 4.0/5 (limited)", sourceCount: 2400 },
-    scoreDisclaimer: "Pulse score from 2,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 2,400+ data points",
     description: "Obsidian is a love letter to people who think in networks, not folders. The local-first, Markdown-based approach respects users' data in a way no cloud-first competitor does. The plugin ecosystem is genuinely impressive - community extensions have built everything from Kanban boards to spaced repetition systems. The graph view is beautiful and occasionally useful. But the out-of-box experience is stark, and the learning curve is steep enough to lose most casual users within an hour.",
     strengths: [
       "Local-first data model respects user ownership",
@@ -1564,7 +1564,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.9, source: "Web, desktop, and mobile screenshots" },
     pulseScore: { score: 3.8, source: "App store ratings 4.7/5 (600K reviews), community sentiment consistently positive, professional reviews praise cross-platform consistency", sourceCount: 2600 },
-    scoreDisclaimer: "Pulse score from 2,600+ data points",
+    scoreDisclaimer: "Sentiment signal from 2,600+ data points",
     description: "Todoist has the best natural language input in any productivity app - type 'Call dentist every 3 months starting April' and it just works. The app is fast, consistent across every platform, and respects the fundamental truth that a to-do app should get out of your way. Where it falls short is in the gap between task management and project management; once your needs get complex, Todoist starts to feel limiting rather than simple.",
     strengths: [
       "Natural language task input is best-in-class",
@@ -1589,7 +1589,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 4.0, source: "App, browser extension, and web screenshots" },
     pulseScore: { score: 3.7, source: "App store ratings 4.6/5 (250K reviews), community sentiment positive but nostalgic for v7, professional reviews praise UX, Trustpilot mixed", sourceCount: 2200 },
-    scoreDisclaimer: "Pulse score from 2,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 2,200+ data points",
     description: "1Password solved the hardest UX problem in security: making the secure path also the easy path. Autofill works reliably across browsers and platforms. The Watchtower feature makes security auditing feel manageable instead of terrifying. The family sharing model is genuinely well-designed. The v8 migration to Electron upset longtime users, but the cross-platform consistency it enabled was worth the trade-off. This is what security UX should look like.",
     strengths: [
       "Autofill is reliable across every platform",
@@ -1614,7 +1614,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.3, source: "Web app screenshots across boards, templates, and collaboration" },
     pulseScore: { score: 3.0, source: "Professional review platforms rate 4.5/5 (5K reviews), community notes performance issues, app store ratings 4.0/5 (80K reviews)", sourceCount: 4600 },
-    scoreDisclaimer: "Pulse score from 4,600+ data points",
+    scoreDisclaimer: "Sentiment signal from 4,600+ data points",
     description: "Miro is the digital whiteboard that every remote team uses and nobody fully understands. The infinite canvas is both its greatest strength and its greatest weakness - the freedom to put anything anywhere means boards become incomprehensible to anyone who didn't create them. Real-time collaboration works well. Templates help new users get started. But performance degrades on complex boards, and the toolbar has grown into a feature graveyard.",
     strengths: [
       "Real-time collaboration on canvas is smooth",
@@ -1640,7 +1640,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.5, source: "Web app screenshots across docs, tables, and automations" },
     pulseScore: { score: 3.3, source: "Professional review platforms rate 4.4/5 (400 reviews), community sentiment positive among power users, limited mainstream awareness", sourceCount: 1200 },
-    scoreDisclaimer: "Pulse score from 1,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 1,200+ data points",
     description: "Coda is arguably more powerful than Notion - the formula language is richer, the automation system is more capable, and the concept of a 'doc that acts like an app' is genuinely compelling. The problem is that power comes at the cost of approachability. The learning curve is steeper than Notion's, and the template ecosystem is smaller. Coda does things no other doc tool can do, but explaining what those things are takes longer than most people will wait.",
     strengths: [
       "Formula language is more powerful than competitors",
@@ -1665,7 +1665,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.1,
     screenScore: { score: 3.2, source: "App screenshots of navigation and reporting" },
     pulseScore: { score: 3.2, source: "App store ratings 4.5/5 (4.5M reviews), community sentiment very positive on data, negative on UI, professional reviews note visual noise", sourceCount: 6200 },
-    scoreDisclaimer: "Pulse score from 6,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 6,200+ data points",
     description: "Waze has the best real-time traffic and hazard data of any navigation app - the crowdsourced reporting system is genuinely brilliant. But the visual design looks like a children's game designed by committee. The map is cluttered with cartoon avatars, sponsored pins, and badges that nobody asked for. Ads appear during navigation, which is borderline irresponsible. Under the visual chaos is a routing engine that consistently finds faster routes than Google Maps, which makes the design failures even more frustrating.",
     strengths: [
       "Crowdsourced hazard and police reporting is invaluable",
@@ -1690,7 +1690,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.4,
     screenScore: { score: 4.2, source: "App screenshots across editor, AI chat, and inline completions" },
     pulseScore: { score: 4.1, source: "Community sentiment very positive among developers, professional reviews praise AI integration, early but enthusiastic adoption", sourceCount: 1800 },
-    scoreDisclaimer: "Pulse score from 1,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 1,800+ data points",
     description: "Cursor took VS Code's foundation and asked: what if AI wasn't a sidebar chatbot but a genuine collaborator in the editing experience? The result is the most convincing AI-native development environment yet. Tab completion feels psychic. The inline diff view for AI suggestions is elegant. Cmd+K for code generation hits the sweet spot between automation and control. Built on VS Code means the extension ecosystem just works. This is what GitHub Copilot wants to be when it grows up.",
     strengths: [
       "AI integration feels native to the editing flow",
@@ -1716,7 +1716,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 4.0, source: "Desktop app screenshots across editor, extensions, and terminal" },
     pulseScore: { score: 4.0, source: "Marketplace ratings 4.8/5, community sentiment overwhelmingly positive, Stack Overflow surveys consistently rank #1", sourceCount: 8400 },
-    scoreDisclaimer: "Pulse score from 8,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 8,400+ data points",
     description: "VS Code is the most successful developer tool of the decade, and it earned that position through genuine UX quality. The command palette is the best implementation of the pattern. Extension management is well-designed. The terminal integration is seamless. Where it shows strain is in the accumulated weight of features - settings have become a labyrinth, and the activity bar keeps growing. It's a tool that does everything well but nothing perfectly anymore.",
     strengths: [
       "Command palette is the gold standard for the pattern",
@@ -1742,7 +1742,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.2,
     screenScore: { score: 3.8, source: "Dashboard screenshots across database, auth, and storage" },
     pulseScore: { score: 3.8, source: "Community sentiment very positive, GitHub stars 65K+, professional reviews praise developer experience", sourceCount: 2200 },
-    scoreDisclaimer: "Pulse score from 2,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 2,200+ data points",
     description: "Supabase took the Firebase developer experience - instant backend, real-time subscriptions, auth that just works - and rebuilt it on Postgres with genuine taste. The dashboard is one of the best-designed developer tools: the SQL editor is excellent, the table view is actually usable, and the auth configuration doesn't require a PhD. The documentation is a model for the industry. Where it struggles is at the edges - complex queries, advanced auth flows, and debugging real-time issues can be frustrating.",
     strengths: [
       "Dashboard design is best-in-class for BaaS",
@@ -1767,7 +1767,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.4, source: "Dashboard and builder screenshots" },
     pulseScore: { score: 3.2, source: "Professional review platforms rate 4.3/5 (300 reviews), community sentiment positive on speed, mixed on polish", sourceCount: 1400 },
-    scoreDisclaimer: "Pulse score from 1,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 1,400+ data points",
     description: "Retool solved a real problem: internal tools are expensive to build and painful to maintain. The drag-and-drop builder is genuinely fast - you can go from database query to usable admin panel in minutes. But the output looks like Retool, not like your product. Customization beyond the component library is painful. Complex logic creates spaghetti workflows. It's the right tool for the job until the job requires taste.",
     strengths: [
       "Speed from idea to working tool is remarkable",
@@ -1792,7 +1792,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.1,
     screenScore: { score: 2.6, source: "Console and dashboard screenshots" },
     pulseScore: { score: 2.4, source: "Professional review platforms rate 4.0/5, developer community sentiment negative on console UX, Trustpilot 1.3/5", sourceCount: 3200 },
-    scoreDisclaimer: "Pulse score from 3,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,200+ data points",
     description: "Twilio is the ultimate gap between API quality and dashboard quality. The APIs are beautifully documented and well-designed - developers love writing code against Twilio. The web console, however, is a labyrinth of navigation that seems designed to prevent you from finding anything. Phone number management is buried. Pricing is opaque. The Segment acquisition added another layer of confusion. Twilio proves you can be a great developer tool and a terrible product simultaneously.",
     strengths: [
       "API design and documentation are excellent",
@@ -1817,7 +1817,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.1,
     screenScore: { score: 3.2, source: "Desktop app screenshots across collections, flows, and collaboration" },
     pulseScore: { score: 2.9, source: "Community sentiment increasingly negative on bloat, professional reviews note feature creep, marketplace mixed", sourceCount: 3400 },
-    scoreDisclaimer: "Pulse score from 3,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,400+ data points",
     description: "Postman was the best API testing tool ever built. Then it decided to become an API development platform, then a collaboration tool, then a testing framework, then a documentation generator. Each addition made the core experience worse. The app is now slow, the free tier requires sign-in (outrageous for a local tool), and the interface has more tabs and panels than a NASA control room. The fundamental irony: a tool for testing simplicity became the opposite of simple.",
     strengths: [
       "Core request builder is still powerful",
@@ -1842,7 +1842,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.2,
     screenScore: { score: 3.3, source: "Browser extension, editor, and mobile keyboard screenshots" },
     pulseScore: { score: 2.8, source: "App store ratings 4.3/5 (800K reviews), community sentiment mixed on AI quality, professional reviews note aggressive upselling", sourceCount: 4800 },
-    scoreDisclaimer: "Pulse score from 4,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 4,800+ data points",
     description: "Grammarly nailed the distribution model - the browser extension that's always there when you write. The basic grammar and spelling corrections are genuinely useful. But the AI rewriting suggestions often make prose worse, not better - blander, more corporate, less human. The premium upselling is relentless. Every suggestion becomes an opportunity to show you what you're missing. The keyboard on mobile is laggy. Grammarly is better at catching commas than making you a better writer.",
     strengths: [
       "Browser extension distribution model is genius",
@@ -1868,7 +1868,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.3,
     screenScore: { score: 4.0, source: "Web and mobile app screenshots" },
     pulseScore: { score: 3.9, source: "App store ratings 4.7/5 (150K reviews), community sentiment very positive, professional reviews praise answer quality and citations", sourceCount: 1600 },
-    scoreDisclaimer: "Pulse score from 1,600+ data points",
+    scoreDisclaimer: "Sentiment signal from 1,600+ data points",
     description: "Perplexity is what Google Search would be if Google still cared about answers instead of ads. The interface is clean - ask a question, get a cited answer with sources. The follow-up question flow creates genuine research sessions. The Pro search with multiple model options is well-designed. Citation inline linking builds trust in a way that ChatGPT's responses don't. The only tension is between the free experience and the aggressive Pro tier upselling.",
     strengths: [
       "Answer quality with inline citations builds trust",
@@ -1893,7 +1893,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.3,
     screenScore: { score: 3.9, source: "Web and mobile app screenshots" },
     pulseScore: { score: 3.8, source: "App store ratings 4.6/5 (50K reviews), community sentiment very positive on response quality, professional reviews praise safety and reasoning", sourceCount: 1400 },
-    scoreDisclaimer: "Pulse score from 1,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 1,400+ data points",
     description: "Claude's interface is deliberately restrained in a way that serves the product. The conversation view is clean and readable. Artifacts for code and documents are a genuinely novel UI pattern that other AI tools have started copying. The Projects feature for context management shows real product thinking. Where it lags is in the ecosystem - no plugin store, limited integrations, and the mobile experience feels like an afterthought compared to the web app.",
     strengths: [
       "Artifacts are a genuinely novel interaction pattern",
@@ -1918,7 +1918,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.2,
     screenScore: { score: 3.4, source: "App screenshots across navigation, transit, and city experience" },
     pulseScore: { score: 3.3, source: "Community sentiment increasingly positive, professional reviews note significant improvements, still trails Google Maps in coverage", sourceCount: 3800 },
-    scoreDisclaimer: "Pulse score from 3,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,800+ data points",
     description: "Apple Maps launched as a punchline and has quietly become a legitimately good navigation product. The visual design is significantly cleaner than Google Maps - no ad pins, no sponsored results, just maps. The 3D city experience is stunning and actually useful for orientation. Turn-by-turn directions are reliable. Where it still lags is in local business data coverage and transit information outside major cities. Apple Maps proves that caring about craft and not serving ads produces a better experience.",
     strengths: [
       "Visual design is the cleanest in the mapping category",
@@ -1943,7 +1943,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 3.6, source: "App screenshots across profiles, matching, and messaging" },
     pulseScore: { score: 3.3, source: "App store ratings 4.2/5 (1.5M reviews), community sentiment positive on design, mixed on algorithm, professional reviews praise prompt system", sourceCount: 4200 },
-    scoreDisclaimer: "Pulse score from 4,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 4,200+ data points",
     description: "Hinge is the best-designed dating app because it understood that the format of the profile IS the product. The prompt system (voice prompts, photo prompts, written responses) creates profiles with actual personality, unlike the photo-grid-and-bio approach of competitors. The like-and-comment mechanic encourages thoughtful engagement over mindless swiping. The 'Most Compatible' feature shows genuine algorithmic effort. The rose system is a tasteful monetization mechanic. It's not perfect - the messaging experience needs work - but the core matching flow is excellent.",
     strengths: [
       "Profile prompt system creates genuine personality",
@@ -1968,7 +1968,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.2,
     screenScore: { score: 2.5, source: "App screenshots across swiping, matching, and subscription prompts" },
     pulseScore: { score: 2.0, source: "App store ratings 3.2/5 (4.5M reviews), community sentiment strongly negative on monetization, professional reviews cite dark patterns", sourceCount: 8400 },
-    scoreDisclaimer: "Pulse score from 8,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 8,400+ data points",
     description: "Tinder invented the most copied interaction pattern in mobile history and has been coasting on it ever since. The core swipe mechanic remains satisfying, but everything around it has been strip-mined for revenue. The subscription tiers (Plus, Gold, Platinum) are deliberately confusing. Boost and Super Like create pay-to-win dynamics. The algorithm punishes free users into frustration. Tinder is a masterclass in how dark patterns can hollow out a product that was once genuinely fun to use.",
     strengths: [
       "Swipe mechanic is still the most intuitive matching gesture",
@@ -1993,7 +1993,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.2, source: "App screenshots across browsing, ordering, and tracking" },
     pulseScore: { score: 2.8, source: "App store ratings 4.6/5 (6.5M reviews), community sentiment negative on pricing, professional reviews cite fee transparency issues", sourceCount: 8200 },
-    scoreDisclaimer: "Pulse score from 8,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 8,200+ data points",
     description: "DoorDash's restaurant browsing and ordering flow is genuinely well-designed - filtering, menu presentation, and customization options work well. The delivery tracking map creates real anticipation. But the checkout is where trust evaporates: service fees, delivery fees, small order fees, regulatory fees, and tip prompts stack up to create a total that feels like a betrayal of the menu prices. The DashPass subscription's value proposition is communicated through loss aversion, not genuine benefit.",
     strengths: [
       "Restaurant browsing and filtering are well-designed",
@@ -2019,7 +2019,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 3.8, source: "Browser extension and mobile app screenshots" },
     pulseScore: { score: 3.7, source: "App store ratings 4.5/5 (200K reviews), community sentiment very positive for crypto category, professional reviews note relative quality", sourceCount: 1600 },
-    scoreDisclaimer: "Pulse score from 1,600+ data points",
+    scoreDisclaimer: "Sentiment signal from 1,600+ data points",
     description: "Phantom is the proof that crypto UX failure is a choice, not a constraint. The wallet makes token management, NFT display, and transaction signing as clear as they can be on fundamentally complex infrastructure. The browser extension is faster than MetaMask. The mobile app is genuinely pleasant. The multi-chain support doesn't create cognitive overload. In a category where most products feel like they were designed by protocol engineers, Phantom feels designed by product designers.",
     strengths: [
       "Token and NFT display is clean and organized",
@@ -2044,7 +2044,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.5, source: "Link flow screenshots across embedded integrations" },
     pulseScore: { score: 3.2, source: "Developer community sentiment positive, end-user reviews mixed on bank connection reliability, professional reviews praise the Link component", sourceCount: 2200 },
-    scoreDisclaimer: "Pulse score from 2,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 2,200+ data points",
     description: "Plaid's Link component is embedded in thousands of financial apps, making it one of the most-used UX components in fintech. The bank search, credential entry, and account selection flow is well-designed and consistently improved. The institutional recognition and trust signals are well-placed. Where it struggles is in the failure states - when a bank connection fails, the error messages are vague and the retry flow is frustrating. For a product that asks users to enter bank credentials, the trust UX needs to be perfect, and it's merely good.",
     strengths: [
       "Bank search and selection flow is smooth",
@@ -2069,7 +2069,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.7, source: "App screenshots across signup, policy management, and claims" },
     pulseScore: { score: 3.2, source: "App store ratings 4.6/5 (90K reviews), community sentiment positive on signup, mixed on claims, Trustpilot 3.8/5", sourceCount: 2400 },
-    scoreDisclaimer: "Pulse score from 2,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 2,400+ data points",
     description: "Lemonade's signup flow is the best onboarding experience in insurance by a wide margin. The conversational AI (Maya) makes policy selection feel like a dialogue, not a form. The visual design is warm and approachable in a category that's typically cold and bureaucratic. Policy management is clean. But the claims experience - the moment that actually matters - is where the cracks show. AI-driven claims can feel impersonal when you've just had a loss. The human fallback is hard to reach.",
     strengths: [
       "Signup flow is the best onboarding in insurance",
@@ -2094,7 +2094,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 4.1, source: "Documentation site, Playground, and configuration screenshots" },
     pulseScore: { score: 4.0, source: "Community sentiment very positive, GitHub stars 80K+, professional reviews polarized but increasingly positive", sourceCount: 6200 },
-    scoreDisclaimer: "Pulse score from 6,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 6,200+ data points",
     description: "Tailwind CSS is technically a utility framework, but its real product is the documentation and ecosystem experience. The docs site is the best technical documentation ever built - searchable, example-rich, and designed with the same care as the framework itself. The Playground enables instant experimentation. The configuration system balances convention and customization. Tailwind UI (the paid component library) proves that design systems can be products. Whether you love or hate utility-first CSS, the developer experience around Tailwind is undeniable.",
     strengths: [
       "Documentation is the best in the developer tools category",
@@ -2120,7 +2120,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 2.9, source: "Dashboard and monitoring screenshots" },
     pulseScore: { score: 2.7, source: "Professional review platforms rate 4.3/5 (750 reviews), community sentiment mixed on UX and pricing, G2 reviews note dashboard complexity", sourceCount: 2800 },
-    scoreDisclaimer: "Pulse score from 2,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 2,800+ data points",
     description: "Datadog is a powerful monitoring platform wrapped in an interface that seems designed to create as many billable events as possible. The dashboard builder is capable but overwhelming. The APM trace view is genuinely useful. The log explorer is powerful but the query language is its own dialect. Navigation between products (Logs, APM, Infrastructure, Synthetics) feels like visiting different countries with different customs. The sheer breadth of what Datadog monitors is impressive; the coherence of how it presents that monitoring is not.",
     strengths: [
       "APM trace view is genuinely useful for debugging",
@@ -2146,7 +2146,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 2.3, source: "Desktop app launcher, Photoshop, and subscription management screenshots" },
     pulseScore: { score: 1.8, source: "Community sentiment very negative on pricing and bloat, app store ratings mixed, professional reviews acknowledge power but critique UX debt", sourceCount: 8600 },
-    scoreDisclaimer: "Pulse score from 8,600+ data points",
+    scoreDisclaimer: "Sentiment signal from 8,600+ data points",
     description: "Adobe Creative Cloud is the canonical example of monopoly-driven UX stagnation. Photoshop's interface hasn't meaningfully evolved in a decade. The Creative Cloud desktop app is a resource hog that exists primarily to enforce subscriptions. The cancellation flow is the most studied dark pattern in the industry - it literally prompted FTC action. Individual apps like Lightroom have improved, but the suite-level experience is designed for Adobe's retention metrics, not user productivity.",
     strengths: [
       "Individual tool power is still unmatched (Photoshop, Premiere, After Effects)",
@@ -2172,7 +2172,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.4, source: "Web and app screenshots across flight search, explore, and price tracking" },
     pulseScore: { score: 3.2, source: "App store ratings 4.6/5 (500K reviews), community sentiment positive on search, mixed on booking redirect, professional reviews praise explore feature", sourceCount: 3400 },
-    scoreDisclaimer: "Pulse score from 3,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,400+ data points",
     description: "Kayak's Explore feature - the map where you enter a budget and see where you can fly - is one of the best features in travel software. The filter system for flights is comprehensive and well-designed. Price tracking alerts actually work. Where it falls apart is the booking redirect: you search on Kayak, then get dumped onto a third-party booking site with a completely different UX, different pricing, and no continuity. The core search is excellent; the end-to-end journey is fragmented.",
     strengths: [
       "Explore map feature is brilliant for flexible travelers",
@@ -2197,7 +2197,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.3, source: "Builder, dashboard, and template screenshots" },
     pulseScore: { score: 3.1, source: "Professional review platforms rate 4.5/5 (1.2K reviews), community sentiment positive on concept, negative on debugging, G2 4.5/5", sourceCount: 3200 },
-    scoreDisclaimer: "Pulse score from 3,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,200+ data points",
     description: "Zapier democratized automation in a way that no other tool has matched. The concept is brilliant: trigger in App A, action in App B, no code required. The template library is extensive. The app directory covers almost everything. But the moment something breaks - and automation always breaks - the debugging experience is painful. Error messages are cryptic. Test runs don't replicate production behavior. The zap editor for complex multi-step workflows becomes a scrolling nightmare.",
     strengths: [
       "Trigger-action model is intuitively understandable",
@@ -2223,7 +2223,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 2.2, source: "Editor, space management, and search screenshots" },
     pulseScore: { score: 1.8, source: "Professional review platforms rate 3.9/5, community sentiment strongly negative, G2 reviewers cite search and editor complaints", sourceCount: 5400 },
-    scoreDisclaimer: "Pulse score from 5,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 5,400+ data points",
     description: "Confluence is the wiki that every enterprise uses and every employee dreads. The editor has improved from its legacy WYSIWYG disaster but still feels clunky compared to Notion, Coda, or even Google Docs. Search is functionally broken - finding a document you wrote last week requires remembering the exact title. Spaces create information silos. Page trees become nested nightmares. Templates are decent. Everything else about Confluence suggests that Atlassian's design team has never actually tried to find information in Confluence.",
     strengths: [
       "Template library is comprehensive for enterprise use cases",
@@ -2248,7 +2248,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 3.0, source: "CRM, marketing hub, and reporting screenshots" },
     pulseScore: { score: 2.8, source: "Professional review platforms rate 4.4/5 (10K+ reviews), community sentiment positive relative to Salesforce, G2 reviewers cite usability advantage", sourceCount: 6800 },
-    scoreDisclaimer: "Pulse score from 6,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 6,800+ data points",
     description: "HubSpot is the most usable CRM, which in a category dominated by Salesforce is like being the tallest building in Omaha. The contact management is clean. The email marketing tools are well-designed. The reporting dashboards are comprehensible. But the 'Hub' architecture (Marketing Hub, Sales Hub, Service Hub) creates feature overlap and navigation confusion. The free tier is genuinely useful but the upgrade path is designed to create anxiety about missing features. Still, compared to the enterprise CRM landscape, this is a breath of fresh air.",
     strengths: [
       "Contact management is cleaner than any CRM competitor",
@@ -2274,7 +2274,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.8, source: "App screenshots across messaging, pay, mini programs, and moments" },
     pulseScore: { score: 3.6, source: "App store ratings 3.8/5 (outside China), community sentiment very positive on utility in China, mixed internationally", sourceCount: 5200 },
-    scoreDisclaimer: "Pulse score from 5,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 5,200+ data points",
     description: "WeChat is the most complete digital product ever built: messaging, payments, social media, mini-programs, government services, transit, utilities - all in one app that 1.3 billion people use daily. The remarkable thing is that it doesn't feel bloated. The tab structure is simple. Mini-programs load fast. Payment is integrated so deeply it's invisible. The design philosophy - everything is a chat, everything is a QR code - creates coherence that Western super-app attempts (looking at you, Uber) completely lack.",
     strengths: [
       "Super-app architecture that actually feels coherent",
@@ -2300,7 +2300,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 4.0, source: "App screenshots across accounts, cards, and investments" },
     pulseScore: { score: 4.0, source: "App store ratings 4.7/5 (5M+ reviews), community sentiment overwhelmingly positive in Latin America, professional reviews praise accessibility", sourceCount: 6800 },
-    scoreDisclaimer: "Pulse score from 6,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 6,800+ data points",
     description: "Nubank serves 90+ million customers across Latin America and has the best banking app on the continent by a wide margin. The card management - freeze, unfreeze, limit adjustment, virtual cards - is instantaneous and well-designed. Transaction categorization is accurate. The investment platform is approachable for first-time investors. Customer support through the app is responsive and human. Nubank proves that banking UX isn't a developed-market luxury; it's a design discipline that scales globally.",
     strengths: [
       "Card management is instant and intuitive",
@@ -2325,7 +2325,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.5, source: "App screenshots across accounts, spaces, and statistics" },
     pulseScore: { score: 3.1, source: "App store ratings 4.3/5 (350K reviews), community sentiment positive on design, negative on customer service, Trustpilot 3.6/5", sourceCount: 3200 },
-    scoreDisclaimer: "Pulse score from 3,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,200+ data points",
     description: "N26's app is beautifully designed - the transaction feed, spending insights, and sub-account (Spaces) management are all polished and well-organized. The card ordering experience is simple. Push notifications for transactions are instant. But the customer support experience is so poor it constitutes a product failure. When you need help with a financial product and the only option is a chatbot that doesn't understand your problem, the beautiful UI becomes meaningless. Design is not just screens; it's service.",
     strengths: [
       "Transaction feed design is clean and informative",
@@ -2350,7 +2350,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: -0.1,
     screenScore: { score: 3.1, source: "Dashboard screenshots across sources, destinations, and debugging" },
     pulseScore: { score: 2.8, source: "Professional review platforms rate 4.3/5 (500 reviews), developer community mixed on Twilio era changes, G2 4.4/5", sourceCount: 1800 },
-    scoreDisclaimer: "Pulse score from 1,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 1,800+ data points",
     description: "Segment solved a genuinely hard problem - collecting customer data once and sending it everywhere - with an architecture that developers respect. The source and destination configuration is logical. The debugger is useful for troubleshooting data flow. But the UI hasn't kept pace with the product's ambition. The Twilio acquisition added confusing product overlaps. Navigation between workspaces, sources, and destinations requires memorization. For a data product, the visualizations of data flow are surprisingly weak.",
     strengths: [
       "Source and destination configuration model is logical",
@@ -2375,7 +2375,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 2.7, source: "Web and app screenshots across flights, hotels, and checkout" },
     pulseScore: { score: 2.3, source: "App store ratings 4.5/5 (1.5M reviews), community sentiment negative on dark patterns, Trustpilot 1.6/5, professional reviews cite manipulative urgency tactics", sourceCount: 6200 },
-    scoreDisclaimer: "Pulse score from 6,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 6,200+ data points",
     description: "Expedia is a museum of dark patterns. 'Only 2 rooms left!' urgency warnings. Pre-checked insurance add-ons. Prices that change between search and checkout. Bundle deals that are mathematically worse than booking separately. The core search functionality is adequate, and the app is technically well-built. But every interaction is designed to pressure and confuse you into spending more. The gap between Expedia's app store rating (inflated by prompted reviews) and its Trustpilot score tells the real story.",
     strengths: [
       "Search coverage across flights, hotels, and activities is broad",
@@ -2400,7 +2400,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 3.9, source: "App screenshots across player, discover, and library" },
     pulseScore: { score: 3.8, source: "App store ratings 4.4/5 (200K reviews), community sentiment very positive among podcast listeners, professional reviews praise feature set and design", sourceCount: 1800 },
-    scoreDisclaimer: "Pulse score from 1,800+ data points",
+    scoreDisclaimer: "Sentiment signal from 1,800+ data points",
     description: "Pocket Casts is the quiet counterargument to the idea that you need billions of dollars to build a great media experience. Every feature Spotify Podcasts gets wrong, Pocket Casts gets right: per-show playback speed, intelligent episode management, queue control, trim silence, volume boost. The discover section surfaces quality over popularity. Cross-platform sync works reliably. The visual design is mature and uncluttered. This is what caring about the listener experience looks like.",
     strengths: [
       "Per-show playback settings are best-in-class",
@@ -2425,7 +2425,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.0,
     screenScore: { score: 2.8, source: "App screenshots across dashboard, fitness, and sleep" },
     pulseScore: { score: 2.6, source: "App store ratings 3.8/5 (1.2M reviews), community sentiment mixed, professional reviews cite Samsung lock-in and feature gaps", sourceCount: 3400 },
-    scoreDisclaimer: "Pulse score from 3,400+ data points",
+    scoreDisclaimer: "Sentiment signal from 3,400+ data points",
     description: "Samsung Health is a health tracking app that exists primarily to make Samsung watches more valuable. The activity tracking is adequate. The sleep analysis from Galaxy Watch is decent. But the app feels like a showcase for Samsung hardware features rather than a holistic health tool. Third-party integration is limited compared to Apple Health. The social features (step challenges) are half-baked. The ad banners in a health app are genuinely offensive. Your health data deserves better than being monetized.",
     strengths: [
       "Galaxy Watch integration is tight and reliable",
@@ -2450,7 +2450,7 @@ const RAW_PRODUCTS: Omit<Product, "rank">[] = [
     delta: 0.1,
     screenScore: { score: 4.3, source: "Web app and collaboration screenshots" },
     pulseScore: { score: 4.2, source: "Community sentiment overwhelmingly positive, GitHub stars 75K+, professional reviews praise simplicity and collaboration", sourceCount: 2200 },
-    scoreDisclaimer: "Pulse score from 2,200+ data points",
+    scoreDisclaimer: "Sentiment signal from 2,200+ data points",
     description: "Excalidraw is the most delightful diagramming tool ever built, and it's free and open source. The hand-drawn aesthetic isn't just a style - it communicates 'this is a draft, think with me' in a way that Miro and Lucidchart's perfect lines never can. The tool palette is minimal. Collaboration is real-time and fast. The library system enables reusable components. Performance is excellent. Excalidraw proves that the best software happens when there's no growth team demanding engagement metrics.",
     strengths: [
       "Hand-drawn aesthetic communicates 'draft' status perfectly",

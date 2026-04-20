@@ -140,7 +140,7 @@ export default async function ProductPage({ params }: Props) {
           {/* Right: score card */}
           <div className="border border-border bg-card/30 p-8 flex flex-col items-center justify-center text-center">
             <span className="text-[10px] text-muted uppercase tracking-widest mb-4">
-              Ladder Score
+              Ladder Top 100
             </span>
             <span
               className="text-6xl font-bold tabular-nums"
@@ -162,13 +162,13 @@ export default async function ProductPage({ params }: Props) {
             <div className="mt-6 pt-4 border-t border-border w-full">
               <div className="flex justify-center gap-6 mb-4">
                 <div className="text-center">
-                  <span className="text-[9px] text-muted uppercase tracking-widest">Screen</span>
+                  <span className="text-[9px] text-muted uppercase tracking-widest">Interface</span>
                   <div className="text-sm font-bold mt-0.5" style={{ color: product.screenScore ? getScoreColor(product.screenScore.score) : undefined }}>
                     {product.screenScore ? product.screenScore.score.toFixed(1) : "—"}
                   </div>
                 </div>
                 <div className="text-center">
-                  <span className="text-[9px] text-muted uppercase tracking-widest">Pulse</span>
+                  <span className="text-[9px] text-muted uppercase tracking-widest">Sentiment</span>
                   <div className="text-sm font-bold mt-0.5" style={{ color: product.pulseScore ? getScoreColor(product.pulseScore.score) : undefined }}>
                     {product.pulseScore ? product.pulseScore.score.toFixed(1) : <span className="text-muted text-xs">Pending</span>}
                   </div>
@@ -202,9 +202,9 @@ export default async function ProductPage({ params }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
           <div className="border border-border p-5">
             <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-1">
-              Screen Score
+              Interface review
             </p>
-            <p className="text-[9px] text-muted/60 mb-2">AI analysis of public interface screenshots</p>
+            <p className="text-[9px] text-muted/60 mb-2">Quick visual read of public interface screenshots</p>
             {product.screenScore ? (
               <>
                 <span className="text-2xl font-bold" style={{ color: getScoreColor(product.screenScore.score) }}>
@@ -213,15 +213,15 @@ export default async function ProductPage({ params }: Props) {
                 <p className="text-[10px] text-muted mt-1">{product.screenScore.source}</p>
               </>
             ) : (
-              <p className="text-xs text-muted">Pending: will be scored from public screenshots</p>
+              <p className="text-xs text-muted">Pending: will be read from public screenshots</p>
             )}
           </div>
 
           <div className="border border-border p-5">
             <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-1">
-              Pulse Score
+              Sentiment signal
             </p>
-            <p className="text-[9px] text-muted/60 mb-2">Lived experience scored from real user signals</p>
+            <p className="text-[9px] text-muted/60 mb-2">Public user discourse mapped to the Ladder framework</p>
             {product.pulseScore ? (
               <>
                 <span className="text-2xl font-bold" style={{ color: getScoreColor(product.pulseScore.score) }}>
@@ -233,23 +233,23 @@ export default async function ProductPage({ params }: Props) {
                 </p>
               </>
             ) : (
-              <p className="text-xs text-muted">Pending: will aggregate data from 3,000+ online sources</p>
+              <p className="text-xs text-muted">Pending: will aggregate public sentiment signals</p>
             )}
           </div>
 
           <div className="border border-border p-5">
             <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-2">
-              Company Verified
+              Company verified
             </p>
             {product.verified ? (
               <p className="text-xs text-ladder-green font-semibold">Verified by {product.name}</p>
             ) : (
               <p className="text-xs text-muted">
-                Work at {product.name}? Submit product screenshots or a demo link for a more accurate score.
+                Work at {product.name}? Submit product screenshots or a demo link for a more accurate interface review.
               </p>
             )}
             <Link
-              href={`/contact?subject=${encodeURIComponent(`Verify ${product.name}'s Ladder score`)}&product=${product.slug}`}
+              href={`/contact?subject=${encodeURIComponent(`Verify ${product.name}'s Ladder Top 100 entry`)}&product=${product.slug}`}
               className="inline-block text-[10px] font-semibold text-ladder-green mt-2 hover:underline"
             >
               {product.verified ? "Update your submission" : "Submit for verification"} &rarr;

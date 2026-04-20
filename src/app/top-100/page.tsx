@@ -25,12 +25,17 @@ export default function Top100Page() {
             digital experience quality.
           </h1>
           <p className="text-base text-body max-w-xl mx-auto leading-relaxed">
-            Ladder Pulse scans 3,000+ online sources, then combines that
-            intelligence with interface analysis to produce one score no other
-            system can. No sponsorships. No paid placements. Just the truth.
+            A quick-scan ranking of the web&apos;s most notable digital
+            experiences. Public screenshots and user sentiment mapped to the
+            Ladder framework. It&apos;s a snapshot for fun &mdash; not a full
+            Ladder Screen Score or Pulse Score. No sponsorships. No paid
+            placements.
           </p>
           <p className="text-xs text-muted mt-4">
-            {PRODUCTS.length} products scored &middot; Updated monthly
+            {PRODUCTS.length} products &middot; Updated monthly &middot;{" "}
+            <Link href="/score" className="hover:text-body transition-colors">
+              Want the real score?
+            </Link>
           </p>
         </div>
 
@@ -148,7 +153,7 @@ export default function Top100Page() {
         {/* ── Updated note ── */}
         <div className="text-center py-12 border-b border-border">
           <p className="text-sm text-muted">
-            100 products scored by Pulse &middot; Rankings updated monthly
+            100 products scored for the Ladder Top 100 &middot; Rankings updated monthly
           </p>
         </div>
 
@@ -158,9 +163,9 @@ export default function Top100Page() {
             Think your product belongs here?
           </h2>
           <p className="text-sm text-body max-w-md mx-auto leading-relaxed mb-6">
-            Every product on this list was scored by Pulse, the same
-            intelligence engine, the same framework, no exceptions. Score yours
-            and see where you stand.
+            Every product on this list was scored against the Ladder
+            framework using the same method. No exceptions. Want a full,
+            detailed Screen Score on your own product? Try the free scorer.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -181,22 +186,22 @@ export default function Top100Page() {
         {/* ── Methodology ── */}
         <div className="mt-16 mb-4">
           <p className="font-mono text-[10px] text-muted uppercase tracking-widest mb-6">
-            How Pulse scores every product
+            How the Ladder Top 100 is scored
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             {
-              title: "Pulse Intelligence",
-              body: "Pulse ingests thousands of data points per product from 3,000+ online sources. Our AI maps every signal to the Ladder framework's five levels of experience quality. This is the lived experience score. Ladder Pulse subscribers can also feed internal data: support tickets, NPS responses, field reports, employee surveys, and more.",
+              title: "Sentiment signal",
+              body: "We scan public sentiment — user reviews, community discussions, forum threads, app store ratings — and map the aggregate voice to the Ladder framework. For the Top 100, this is a quick-scan signal. The real Ladder Pulse product goes far deeper for paying customers, ingesting thousands of data points per experience and letting teams feed in internal signals like NPS, support tickets, and field reports.",
             },
             {
-              title: "Screen Score",
-              body: "Public screenshots from marketing sites, review platforms, and product tours, analyzed by AI against the Ladder framework. This measures what the product looks like. The gap between Screen Score and Pulse Score is where the real insight lives.",
+              title: "Interface review",
+              body: "Public screenshots from marketing sites, review platforms, and product tours, analyzed against the Ladder framework. This is a quick visual read — a full Ladder Screen Score goes deeper with original product screens a company submits. The gap between interface and sentiment is often where the real story lives.",
             },
             {
-              title: "Company Verified",
-              body: "Companies can submit demo links and real product screenshots for a more accurate screen analysis. Verified scores are flagged. But Pulse scores can't be influenced. They come directly from real users.",
+              title: "Company verified",
+              body: "Companies can submit demo links and real product screenshots for a more accurate interface review. Verified entries are flagged. Sentiment reflects real public discourse — it can't be tuned by the company.",
             },
           ].map((item) => (
             <div key={item.title} className="border-t border-border pt-6">
@@ -212,15 +217,15 @@ export default function Top100Page() {
           {[
             {
               title: "No pay-to-play",
-              body: "Rankings are determined entirely by Pulse. No company can pay for placement, boost their ranking, or suppress a low score. The intelligence is what it is.",
+              body: "Rankings come from the Ladder Top 100 evaluation alone. No company can pay for placement, boost their ranking, or suppress a low score.",
             },
             {
               title: "Updated monthly",
-              body: "Pulse re-scores every product each month as new data flows in. Scores go up and down. The delta column shows real movement.",
+              body: "We re-score every product each month as new signals come in. Scores go up and down. The delta column shows real movement.",
             },
             {
-              title: "The gap is the story",
-              body: "A beautiful product with a low Pulse score is a warning: the team invests in appearance over substance. An unremarkable product with a high Pulse score is an opportunity. Pulse finds both.",
+              title: "Quick read, not the full picture",
+              body: "The Top 100 is for curiosity and conversation. It's lighter than a full Ladder Screen Score or a Pulse Score — those look at far more depth per product. Think of this as the leaderboard; the real scoring lives on runladder.com/score and in Ladder Pulse.",
             },
           ].map((item) => (
             <div key={item.title} className="border-t border-border pt-6">
