@@ -11,6 +11,7 @@ type InviteRecord = {
   claimedBy: string | null;
   claimedAt?: string | null;
   createdAt: string;
+  expiresAt?: string | null;
 };
 
 type UserRecord = {
@@ -35,6 +36,28 @@ function fmtDate(iso: string | null | undefined) {
     day: "numeric",
     year: "numeric",
   });
+}
+
+/**
+ * Human relative time until the given ISO date.
+ * Returns "—" if missing, "expired" if past, "in 5 days" / "in 3 hours" etc otherwise.
+ */
+function fmtExpires(iso: string | null | undefined): {
+  label: string;
+  tone: "none" | "ok" | "soon" | "past";
+} {
+  if (!iso) return { label: "never", tone: "none" };
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return { label: "—", tone: "none" };
+  const diff = d.getTime() - Date.now();
+  if (diff <= 0) return { label: "expired", tone: "past" };
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return { label: `in ${mins}m`, tone: "soon" };
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return { label: `in ${hours}h`, tone: "soon" };
+  const days = Math.floor(hours / 24);
+  const tone: "ok" | "soon" = days < 3 ? "soon" : "ok";
+  return { label: `in ${days}d`, tone };
 }
 
 export default function AdminPage() {
@@ -270,39 +293,52 @@ export default function AdminPage() {
                   <th className="text-left p-3">Status</th>
                   <th className="text-left p-3">Claimed by</th>
                   <th className="text-left p-3">Created</th>
+                  <th className="text-left p-3">Expires</th>
                 </tr>
               </thead>
               <tbody>
                 {invites.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="p-6 text-center text-muted font-sans">
+                    <td colSpan={6} className="p-6 text-center text-muted font-sans">
                       No codes yet.
                     </td>
                   </tr>
                 ) : (
-                  invites.map((inv) => (
-                    <tr key={inv.code} className="border-b border-[#222] last:border-0 hover:bg-[#222]">
-                      <td className="p-3">
-                        <button
-                          onClick={() => copyCode(inv.code)}
-                          className="tabular-nums text-foreground hover:text-ladder-green transition-colors"
-                          title="Click to copy"
-                        >
-                          {inv.code}
-                        </button>
-                      </td>
-                      <td className="p-3 text-muted uppercase tracking-widest text-[10px]">{inv.tier}</td>
-                      <td className="p-3">
-                        {inv.claimed ? (
-                          <span className="text-muted">Claimed</span>
-                        ) : (
-                          <span className="text-ladder-green">Open</span>
-                        )}
-                      </td>
-                      <td className="p-3 text-muted">{inv.claimedBy ?? "—"}</td>
-                      <td className="p-3 text-muted">{fmtDate(inv.createdAt)}</td>
-                    </tr>
-                  ))
+                  invites.map((inv) => {
+                    const expires = inv.claimed
+                      ? { label: "claimed", tone: "none" as const }
+                      : fmtExpires(inv.expiresAt);
+                    const expiresClass =
+                      expires.tone === "past"
+                        ? "text-ladder-red"
+                        : expires.tone === "soon"
+                          ? "text-ladder-orange"
+                          : "text-muted";
+                    return (
+                      <tr key={inv.code} className="border-b border-[#222] last:border-0 hover:bg-[#222]">
+                        <td className="p-3">
+                          <button
+                            onClick={() => copyCode(inv.code)}
+                            className="tabular-nums text-foreground hover:text-ladder-green transition-colors"
+                            title="Click to copy"
+                          >
+                            {inv.code}
+                          </button>
+                        </td>
+                        <td className="p-3 text-muted uppercase tracking-widest text-[10px]">{inv.tier}</td>
+                        <td className="p-3">
+                          {inv.claimed ? (
+                            <span className="text-muted">Claimed</span>
+                          ) : (
+                            <span className="text-ladder-green">Open</span>
+                          )}
+                        </td>
+                        <td className="p-3 text-muted">{inv.claimedBy ?? "—"}</td>
+                        <td className="p-3 text-muted">{fmtDate(inv.createdAt)}</td>
+                        <td className={`p-3 tabular-nums ${expiresClass}`}>{expires.label}</td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
