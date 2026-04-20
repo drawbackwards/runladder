@@ -42,7 +42,6 @@ export function Footer() {
             </h4>
             <ul className="space-y-3 text-sm text-body">
               <li><a href="https://drawbackwards.com" className="hover:text-foreground transition-colors">Drawbackwards</a></li>
-              <li><Link href="/organizations" className="hover:text-foreground transition-colors">How Ladder transforms organizations</Link></li>
               <li><Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link></li>
               <li><Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link></li>
               <li><Link href="/legal" className="hover:text-foreground transition-colors">Licensing &amp; IP</Link></li>
