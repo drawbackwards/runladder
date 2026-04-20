@@ -168,6 +168,62 @@ export default function FrameworkPage() {
         </div>
       </section>
 
+      {/* The Score Card */}
+      <section className="py-36 px-6 border-t border-border">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-16 items-center">
+            <div>
+              <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
+                Universal language
+              </p>
+              <h2 className="text-[2rem] font-bold leading-snug mb-6">
+                Five levels everyone{" "}
+                <span className="text-ladder-green">understands.</span>
+              </h2>
+              <p className="text-body leading-relaxed mb-6">
+                When a designer says &ldquo;this is a 2.4,&rdquo; the PM
+                knows exactly what that means. When the CTO sets a policy of
+                &ldquo;nothing ships below a 3,&rdquo; every engineer knows
+                the bar. When the CEO sees a portfolio trending from 1.8 to
+                3.2, they know the investment is working.
+              </p>
+              <p className="text-body leading-relaxed">
+                The five rungs of the Ladder aren&apos;t arbitrary. They
+                represent distinct levels of experience quality that have been
+                validated across thousands of real products over two decades.
+                This isn&apos;t a framework someone invented last year. It&apos;s
+                a standard backed by Fortune 50 deployments and a database of
+                over 100,000 scored screens.
+              </p>
+            </div>
+            <div className="space-y-3">
+              {[
+                { score: "1", label: "Functional", color: "text-ladder-red", border: "border-ladder-red/20", desc: "User fights the product" },
+                { score: "2", label: "Usable", color: "text-ladder-orange", border: "border-ladder-orange/20", desc: "Tasks complete with effort" },
+                { score: "3", label: "Comfortable", color: "text-ladder-yellow", border: "border-ladder-yellow/20", desc: "The modern minimum bar" },
+                { score: "4", label: "Delightful", color: "text-ladder-delightful", border: "border-ladder-delightful/20", desc: "Anticipates user needs" },
+                { score: "5", label: "Meaningful", color: "text-ladder-white", border: "border-white/20", desc: "Irreplaceable" },
+              ].map((level) => (
+                <div
+                  key={level.score}
+                  className={`flex items-center gap-6 border ${level.border} rounded-xl px-6 py-4 bg-card`}
+                >
+                  <span className={`font-mono text-xl font-bold ${level.color} w-6`}>
+                    {level.score}
+                  </span>
+                  <div>
+                    <span className={`font-mono text-sm font-semibold ${level.color}`}>
+                      {level.label}
+                    </span>
+                    <p className="text-xs text-body mt-0.5">{level.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Two Scores, One Truth */}
       <section className="py-36 px-6 border-t border-border">
         <div className="max-w-4xl mx-auto">
@@ -187,8 +243,8 @@ export default function FrameworkPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-            <div className="border border-border rounded-xl p-8 bg-card">
-              <p className="font-mono text-[10px] text-muted uppercase tracking-widest mb-3">
+            <div className="border border-ladder-green/30 rounded-xl p-8 bg-ladder-green/5">
+              <p className="font-mono text-[10px] text-ladder-green uppercase tracking-widest mb-3">
                 Screen Score
               </p>
               <p className="text-base font-semibold text-foreground mb-3">
@@ -200,7 +256,7 @@ export default function FrameworkPage() {
                 the Ladder framework. Score any screen in seconds. Set quality
                 gates before handoff. Track improvement sprint over sprint.
               </p>
-              <p className="text-sm text-foreground font-medium">
+              <p className="text-sm text-ladder-green font-medium">
                 Impact: immediate quality bar for every team.
               </p>
             </div>
@@ -233,62 +289,6 @@ export default function FrameworkPage() {
               around what actually matters: the experience your users have, not
               the experience your interface promises.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* The Score Card */}
-      <section className="py-36 px-6 border-t border-border">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-16 items-center">
-            <div>
-              <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
-                Universal language
-              </p>
-              <h2 className="text-[2rem] font-bold leading-snug mb-6">
-                Five levels everyone{" "}
-                <span className="text-ladder-green">understands.</span>
-              </h2>
-              <p className="text-body leading-relaxed mb-6">
-                When a designer says &ldquo;this is a 2.4,&rdquo; the PM
-                knows exactly what that means. When the CTO sets a policy of
-                &ldquo;nothing ships below a 3,&rdquo; every engineer knows
-                the bar. When the CEO sees a portfolio trending from 1.8 to
-                3.2, they know the investment is working.
-              </p>
-              <p className="text-body leading-relaxed">
-                The five rungs of the Ladder aren&apos;t arbitrary. They
-                represent distinct levels of experience quality that have been
-                validated across thousands of real products over two decades.
-                This isn&apos;t a framework someone invented last year. It&apos;s
-                a standard backed by Fortune 50 deployments and a database of
-                over 10,000 scored screens.
-              </p>
-            </div>
-            <div className="space-y-3">
-              {[
-                { score: "1", label: "Functional", color: "text-ladder-red", border: "border-ladder-red/20", desc: "User fights the product" },
-                { score: "2", label: "Usable", color: "text-ladder-orange", border: "border-ladder-orange/20", desc: "Tasks complete with effort" },
-                { score: "3", label: "Comfortable", color: "text-ladder-yellow", border: "border-ladder-yellow/20", desc: "The modern minimum bar" },
-                { score: "4", label: "Delightful", color: "text-ladder-delightful", border: "border-ladder-delightful/20", desc: "Anticipates user needs" },
-                { score: "5", label: "Meaningful", color: "text-ladder-white", border: "border-white/20", desc: "Irreplaceable" },
-              ].map((level) => (
-                <div
-                  key={level.score}
-                  className={`flex items-center gap-6 border ${level.border} rounded-xl px-6 py-4 bg-card`}
-                >
-                  <span className={`font-mono text-xl font-bold ${level.color} w-6`}>
-                    {level.score}
-                  </span>
-                  <div>
-                    <span className={`font-mono text-sm font-semibold ${level.color}`}>
-                      {level.label}
-                    </span>
-                    <p className="text-xs text-body mt-0.5">{level.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </section>
@@ -360,7 +360,7 @@ export default function FrameworkPage() {
               at a product design agency that serves the Fortune 50. It has
               been tested across healthcare, energy, finance, hospitality,
               and consumer products. The scoring methodology is backed by
-              a database of over 10,000 evaluated screens.
+              a database of over 100,000 evaluated screens.
             </p>
             <p>
               Building your own quality framework means years of
@@ -387,7 +387,7 @@ export default function FrameworkPage() {
             {[
               { stat: "20+", label: "years of practice", detail: "The framework was forged over two decades of real design work" },
               { stat: "Fortune 50", label: "clients served", detail: "Validated at the scale of the world's largest organizations" },
-              { stat: "10,000+", label: "screens scored", detail: "The calibration behind every score comes from real products" },
+              { stat: "100,000+", label: "screens scored", detail: "The calibration behind every score comes from real products" },
               { stat: "5", label: "universal levels", detail: "One framework that every role in your org can learn in minutes" },
             ].map((p) => (
               <div key={p.label} className="text-center">

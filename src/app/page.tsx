@@ -70,7 +70,7 @@ const PROOF_POINTS = [
   { stat: "20+", label: "years of practice", detail: "Drawbackwards has been designing experiences since 2003" },
   { stat: "Fortune 50", label: "clients served", detail: "From startups to the largest companies on the planet" },
   { stat: "$B+", label: "in value created", detail: "Measurable outcomes across healthcare, energy, finance, and consumer" },
-  { stat: "10,000+", label: "screens evaluated", detail: "The framework has been tested across every industry and platform" },
+  { stat: "100,000+", label: "screens evaluated", detail: "The framework has been tested across every industry and platform" },
 ];
 
 export default function Home() {
