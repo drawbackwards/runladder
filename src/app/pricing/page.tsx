@@ -14,10 +14,10 @@ const SCREEN_SCORE_TIERS = [
     price: "$0",
     period: "forever",
     highlight: false,
-    limit: "15 scores / month",
+    limit: "5 scores to get started",
     features: [
       "Overall Ladder score + coaching",
-      "Score on web, Claude Skill, or MCP",
+      "Score on web, Claude Skill, MCP, or Figma",
       "Scores are public",
     ],
     cta: "Start free",
@@ -263,11 +263,11 @@ export default function PricingPage() {
             {[
               {
                 q: "Do I need to sign up to score a screen?",
-                a: "No. Your first score is completely free with no signup. Create an account to save your history and get 15 free scores per month across any surface.",
+                a: "Yes. Create a free account with just your email — no password, no credit card. You get 5 free scores to get started across any Ladder surface.",
               },
               {
                 q: "Does one subscription cover all surfaces?",
-                a: "Yes. Your Ladder account works on runladder.com, the Claude Skill, MCP, the Figma plugin, and the Ladder API. One subscription, one usage meter.",
+                a: "Yes. Your Ladder account works on runladder.com, the Claude Skill, MCP, the Figma plugin, and the Ladder API. One subscription, one usage meter — your 5 free scores are shared across all surfaces.",
               },
               {
                 q: "What counts as a score?",
