@@ -35,17 +35,14 @@ function computeLayout(
     const pinX = f.xPercent * imgW;
     const pinY = f.yPercent * imgH;
     const side: "left" | "right" = f.xPercent < 0.5 ? "left" : "right";
-    // Exit point: 8px outside the image edge
     const exitX = side === "left" ? -8 : imgW + 8;
     const dx = Math.abs(pinX - exitX);
-    // Go up from lower half, down from upper half
     const goUp = f.yPercent >= 0.5;
     const elbowY = goUp ? pinY - STEM : pinY + STEM;
     const naturalTextY = goUp ? elbowY - dx : elbowY + dx;
     return { id: f.id, finding: f, pinX, pinY, elbowY, exitX, textY: naturalTextY, side };
   });
 
-  // Resolve collisions per side
   for (const side of ["left", "right"] as const) {
     const sideItems = layouts
       .filter((l) => l.side === side)
@@ -75,6 +72,15 @@ export function AnnotatedScreen({
 }: Props) {
   const imgRef = useRef<HTMLImageElement>(null);
   const [imgH, setImgH] = useState<number | null>(null);
+  // Manual Y overrides: finding id → absolute textY in image-height coords
+  const [overrides, setOverrides] = useState<Record<string, number>>({});
+  const dragging = useRef<{ id: string; startMouseY: number; startTextY: number } | null>(null);
+
+  // Reset overrides when findings change (new analysis run)
+  const findingsKey = findings.map((f) => f.id).join(",");
+  useEffect(() => {
+    setOverrides({});
+  }, [findingsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const measureImage = useCallback(() => {
     const img = imgRef.current;
@@ -86,12 +92,43 @@ export function AnnotatedScreen({
   useEffect(() => {
     const img = imgRef.current;
     if (!img) return;
-    if (img.complete && img.naturalWidth) {
-      measureImage();
-    }
+    if (img.complete && img.naturalWidth) measureImage();
   }, [measureImage]);
 
-  const layout = imgH ? computeLayout(findings, displayWidth, imgH) : [];
+  // Global drag handlers
+  useEffect(() => {
+    function onMove(e: MouseEvent) {
+      if (!dragging.current) return;
+      const delta = e.clientY - dragging.current.startMouseY;
+      setOverrides((prev) => ({
+        ...prev,
+        [dragging.current!.id]: dragging.current!.startTextY + delta,
+      }));
+    }
+    function onUp() {
+      dragging.current = null;
+    }
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, []);
+
+  function startDrag(id: string, currentTextY: number, e: React.MouseEvent) {
+    e.preventDefault();
+    dragging.current = { id, startMouseY: e.clientY, startTextY: currentTextY };
+  }
+
+  const baseLayout = imgH ? computeLayout(findings, displayWidth, imgH) : [];
+
+  // Apply manual overrides to textY and update exit line endpoint
+  const layout = baseLayout.map((a) => {
+    const textY = overrides[a.id] ?? a.textY;
+    return { ...a, textY };
+  });
+
   const totalWidth = MARGIN_W + displayWidth + MARGIN_W;
 
   return (
@@ -108,6 +145,7 @@ export function AnnotatedScreen({
                 side="left"
                 onEdit={onFindingEdit}
                 readOnly={readOnly}
+                onDragStart={(e) => startDrag(a.id, a.textY, e)}
               />
             ))}
         </div>
@@ -140,10 +178,8 @@ export function AnnotatedScreen({
                 const points = `${a.pinX},${a.pinY} ${a.pinX},${a.elbowY} ${a.exitX},${a.textY}`;
                 return (
                   <g key={a.id}>
-                    {/* Pin dot */}
                     <circle cx={a.pinX} cy={a.pinY} r={5} fill={color} opacity={0.9} />
                     <circle cx={a.pinX} cy={a.pinY} r={3} fill={color} />
-                    {/* Vertical stem + 45° diagonal */}
                     <polyline
                       points={points}
                       stroke={color}
@@ -151,7 +187,6 @@ export function AnnotatedScreen({
                       fill="none"
                       opacity={0.7}
                     />
-                    {/* Short horizontal tick at text end */}
                     <line
                       x1={a.exitX}
                       y1={a.textY}
@@ -179,6 +214,7 @@ export function AnnotatedScreen({
                 side="right"
                 onEdit={onFindingEdit}
                 readOnly={readOnly}
+                onDragStart={(e) => startDrag(a.id, a.textY, e)}
               />
             ))}
         </div>
@@ -192,31 +228,45 @@ function AnnotationTextBlock({
   side,
   onEdit,
   readOnly,
+  onDragStart,
 }: {
   annotation: AnnotationLayout;
   side: "left" | "right";
   onEdit?: (id: string, field: "humanNote" | "fix" | "issue", value: string) => void;
   readOnly?: boolean;
+  onDragStart: (e: React.MouseEvent) => void;
 }) {
   const color = SEVERITY_COLOR[a.finding.severity] ?? "#ef4444";
-  const offset = a.textY - 10;
 
   return (
     <div
       style={{
         position: "absolute",
-        top: offset,
+        top: a.textY - 10,
         ...(side === "left"
           ? { right: 16, textAlign: "right" }
           : { left: 16, textAlign: "left" }),
         width: MARGIN_W - 28,
       }}
     >
+      {/* Drag handle — title row doubles as the grip */}
       <div
-        style={{ color, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 2 }}
+        onMouseDown={onDragStart}
+        style={{
+          color,
+          fontSize: 10,
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
+          marginBottom: 2,
+          cursor: "ns-resize",
+          userSelect: "none",
+        }}
+        title="Drag to reposition"
       >
         {a.finding.title}
       </div>
+
       {readOnly ? (
         <>
           <p style={{ fontSize: 11, color: "#aaa", margin: "2px 0", lineHeight: 1.4 }}>
