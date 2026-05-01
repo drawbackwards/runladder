@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import Link from "next/link";
 
 type InviteRecord = {
   code: string;
@@ -359,13 +360,21 @@ export default function AdminPage() {
               Plugin beta — invite codes and users
             </p>
           </div>
-          <button
-            onClick={refresh}
-            className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
-            disabled={loading}
-          >
-            {loading ? "Loading…" : "Refresh"}
-          </button>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/admin/evaluations"
+              className="text-xs font-semibold border border-ladder-green text-ladder-green px-4 py-1.5 rounded-sm hover:bg-ladder-green/10 transition-colors"
+            >
+              Evaluations
+            </Link>
+            <button
+              onClick={refresh}
+              className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+              disabled={loading}
+            >
+              {loading ? "Loading…" : "Refresh"}
+            </button>
+          </div>
         </div>
 
         {error && (
