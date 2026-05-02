@@ -26,6 +26,7 @@ export default function NewEvaluationPage() {
 
   const [clientName, setClientName] = useState("");
   const [projectName, setProjectName] = useState("");
+  const [auditorName, setAuditorName] = useState("");
   const [mode, setMode] = useState<"sample" | "audit">("sample");
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -68,6 +69,7 @@ export default function NewEvaluationPage() {
         body: JSON.stringify({
           clientName: clientName.trim(),
           projectName: projectName.trim(),
+          auditorName: auditorName.trim(),
           mode,
           images: images.map((img) => img.dataUrl),
         }),
@@ -106,7 +108,7 @@ export default function NewEvaluationPage() {
         )}
 
         <form onSubmit={submit} className="space-y-6">
-          {/* Client + project */}
+          {/* Client + project + auditor */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[10px] uppercase tracking-widest text-muted mb-1.5">
@@ -129,6 +131,18 @@ export default function NewEvaluationPage() {
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
                 placeholder="Onboarding flow"
+                className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-3 py-2 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] uppercase tracking-widest text-muted mb-1.5">
+                Human auditor
+              </label>
+              <input
+                type="text"
+                value={auditorName}
+                onChange={(e) => setAuditorName(e.target.value)}
+                placeholder="Your name"
                 className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-3 py-2 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
               />
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -27,6 +27,8 @@ export default function EvaluationReviewPage() {
   const [saving, setSaving] = useState(false);
   const [activeScreenIdx, setActiveScreenIdx] = useState(0);
   const [dirty, setDirty] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function load() {
     setLoading(true);
@@ -71,32 +73,48 @@ export default function EvaluationReviewPage() {
     }
   }
 
-  async function save() {
-    if (!evaluation) return;
+  async function doSave(ev: typeof evaluation, silent = false) {
+    if (!ev) return;
     setSaving(true);
-    setError(null);
+    if (!silent) setError(null);
     try {
       const res = await fetch(`/api/admin/evaluations/${params.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          screens: evaluation.screens,
-          executiveSummary: evaluation.executiveSummary,
-          nextSteps: evaluation.nextSteps,
-          humanNotes: evaluation.humanNotes,
-          status: evaluation.status === "review" ? "review" : evaluation.status,
+          screens: ev.screens,
+          auditorName: ev.auditorName,
+          executiveSummary: ev.executiveSummary,
+          nextSteps: ev.nextSteps,
+          humanNotes: ev.humanNotes,
+          status: ev.status,
         }),
       });
       const j = await res.json();
       if (!res.ok) throw new Error(j.error || "Save failed");
       setEvaluation(j.evaluation);
       setDirty(false);
+      setLastSavedAt(new Date());
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Save failed");
+      if (!silent) setError(e instanceof Error ? e.message : "Save failed");
     } finally {
       setSaving(false);
     }
   }
+
+  function save() {
+    return doSave(evaluation);
+  }
+
+  // Auto-save 3s after the last change
+  useEffect(() => {
+    if (!dirty || !evaluation) return;
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => doSave(evaluation, true), 3000);
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, [dirty, evaluation]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function approve() {
     if (!evaluation) return;
@@ -136,6 +154,29 @@ export default function EvaluationReviewPage() {
                   ...s,
                   findings: s.findings.map((f) =>
                     f.id !== findingId ? f : { ...f, [field]: value },
+                  ),
+                },
+          ),
+        };
+      });
+      setDirty(true);
+    },
+    [],
+  );
+
+  const updatePinPosition = useCallback(
+    (screenId: string, findingId: string, xPct: number, yPct: number) => {
+      setEvaluation((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          screens: prev.screens.map((s) =>
+            s.id !== screenId
+              ? s
+              : {
+                  ...s,
+                  findings: s.findings.map((f) =>
+                    f.id !== findingId ? f : { ...f, xPercent: xPct, yPercent: yPct },
                   ),
                 },
           ),
@@ -199,7 +240,7 @@ export default function EvaluationReviewPage() {
               <span className="text-muted mx-2">—</span>
               {evaluation.projectName}
             </h1>
-            <div className="flex items-center gap-4 mt-1">
+            <div className="flex items-center gap-4 mt-1 flex-wrap">
               {evaluation.overallScore !== null && (
                 <span className={`text-2xl font-semibold tabular-nums ${SCORE_COLOR(evaluation.overallScore)}`}>
                   {evaluation.overallScore.toFixed(1)}
@@ -211,6 +252,27 @@ export default function EvaluationReviewPage() {
               <span className="text-[10px] uppercase tracking-widest text-muted">
                 {evaluation.status}
               </span>
+              {saving && (
+                <span className="text-[10px] text-muted font-sans">Saving…</span>
+              )}
+              {!saving && lastSavedAt && (
+                <span className="text-[10px] text-muted font-sans">
+                  Saved {lastSavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-[10px] uppercase tracking-widest text-muted font-sans">Auditor:</span>
+              <input
+                type="text"
+                value={evaluation.auditorName ?? ""}
+                onChange={(e) => {
+                  setEvaluation((prev) => prev ? { ...prev, auditorName: e.target.value } : prev);
+                  setDirty(true);
+                }}
+                placeholder="Your name"
+                className="bg-transparent border-b border-[#333] text-xs text-muted px-0 py-0.5 focus:outline-none focus:border-muted placeholder:text-[#444] font-sans w-40"
+              />
             </div>
           </div>
 
@@ -341,6 +403,9 @@ export default function EvaluationReviewPage() {
                   displayWidth={620}
                   onFindingEdit={(findingId, field, value) =>
                     updateFinding(activeScreen.id, findingId, field, value)
+                  }
+                  onPinMove={(findingId, xPct, yPct) =>
+                    updatePinPosition(activeScreen.id, findingId, xPct, yPct)
                   }
                 />
               </div>
