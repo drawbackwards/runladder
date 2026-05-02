@@ -5,9 +5,9 @@ import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Evaluation, AnnotationFinding, EvaluationScreen } from "@/lib/evaluation";
+import { AnnotatedScreen } from "@/components/admin/AnnotatedScreen";
 
 type FindingEditField = "humanNote" | "fix" | "issue" | "title" | "severity" | "category";
-import { AnnotatedScreen } from "@/components/admin/AnnotatedScreen";
 
 const SCORE_COLOR = (s: number | null) => {
   if (s === null) return "text-muted";
@@ -206,7 +206,6 @@ export default function EvaluationReviewPage() {
     setAddMode(false);
     setDirty(true);
   }, []);
-
   const updatePinPosition = useCallback(
     (screenId: string, findingId: string, xPct: number, yPct: number) => {
       setEvaluation((prev) => {
