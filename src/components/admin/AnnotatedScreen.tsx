@@ -26,30 +26,51 @@ type AnnotationLayout = {
   side: "left" | "right";
 };
 
+type PinOverride = { xPct: number; yPct: number };
+
+function layoutOne(
+  f: AnnotationFinding,
+  imgW: number,
+  imgH: number,
+  pinOverride?: PinOverride,
+  side?: "left" | "right",
+): Omit<AnnotationLayout, "textY"> & { naturalTextY: number } {
+  const xPct = pinOverride?.xPct ?? f.xPercent;
+  const yPct = pinOverride?.yPct ?? f.yPercent;
+  const pinX = xPct * imgW;
+  const pinY = yPct * imgH;
+  const resolvedSide: "left" | "right" = side ?? (xPct < 0.5 ? "left" : "right");
+  const exitX = resolvedSide === "left" ? -8 : imgW + 8;
+  const dx = Math.abs(pinX - exitX);
+  const goUp = yPct >= 0.5;
+  const elbowY = goUp ? pinY - STEM : pinY + STEM;
+  const naturalTextY = goUp ? elbowY - dx : elbowY + dx;
+  return { id: f.id, finding: f, pinX, pinY, elbowY, exitX, naturalTextY, side: resolvedSide };
+}
+
 function computeLayout(
   findings: AnnotationFinding[],
   imgW: number,
   imgH: number,
+  pinOverrides: Record<string, PinOverride>,
+  // sideOverrides: keep pin on its original side even after dragging across centre
+  sideOverrides: Record<string, "left" | "right">,
 ): AnnotationLayout[] {
-  const layouts = findings.map((f) => {
-    const pinX = f.xPercent * imgW;
-    const pinY = f.yPercent * imgH;
-    const side: "left" | "right" = f.xPercent < 0.5 ? "left" : "right";
-    const exitX = side === "left" ? -8 : imgW + 8;
-    const dx = Math.abs(pinX - exitX);
-    const goUp = f.yPercent >= 0.5;
-    const elbowY = goUp ? pinY - STEM : pinY + STEM;
-    const naturalTextY = goUp ? elbowY - dx : elbowY + dx;
-    return { id: f.id, finding: f, pinX, pinY, elbowY, exitX, textY: naturalTextY, side };
-  });
+  const items = findings.map((f) =>
+    layoutOne(f, imgW, imgH, pinOverrides[f.id], sideOverrides[f.id]),
+  );
 
-  for (const side of ["left", "right"] as const) {
-    const sideItems = layouts
-      .filter((l) => l.side === side)
-      .sort((a, b) => a.textY - b.textY);
-    for (let i = 1; i < sideItems.length; i++) {
-      if (sideItems[i].textY < sideItems[i - 1].textY + MIN_SLOT) {
-        sideItems[i].textY = sideItems[i - 1].textY + MIN_SLOT;
+  // Resolve text-block collisions per side using natural positions
+  const layouts: AnnotationLayout[] = items.map((item) => ({
+    ...item,
+    textY: item.naturalTextY,
+  }));
+
+  for (const s of ["left", "right"] as const) {
+    const side = layouts.filter((l) => l.side === s).sort((a, b) => a.textY - b.textY);
+    for (let i = 1; i < side.length; i++) {
+      if (side[i].textY < side[i - 1].textY + MIN_SLOT) {
+        side[i].textY = side[i - 1].textY + MIN_SLOT;
       }
     }
   }
@@ -57,11 +78,11 @@ function computeLayout(
   return layouts;
 }
 
-const SEVERITY_COLOR = {
+const SEVERITY_COLOR: Record<string, string> = {
   high: "#ef4444",
   medium: "#f97316",
   low: "#eab308",
-} as const;
+};
 
 export function AnnotatedScreen({
   imageDataUrl,
@@ -71,22 +92,31 @@ export function AnnotatedScreen({
   readOnly = false,
 }: Props) {
   const imgRef = useRef<HTMLImageElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
   const [imgH, setImgH] = useState<number | null>(null);
-  // Manual Y overrides: finding id → absolute textY in image-height coords
-  const [overrides, setOverrides] = useState<Record<string, number>>({});
-  const dragging = useRef<{ id: string; startMouseY: number; startTextY: number } | null>(null);
 
-  // Reset overrides when findings change (new analysis run)
+  // Per-finding pin position overrides (dragging the pin)
+  const [pinOverrides, setPinOverrides] = useState<Record<string, PinOverride>>({});
+  // Keep side stable once set, so pin doesn't flip margin when crossing centre
+  const [sideOverrides, setSideOverrides] = useState<Record<string, "left" | "right">>({});
+  // Per-finding text-block Y overrides (dragging the label)
+  const [textYOverrides, setTextYOverrides] = useState<Record<string, number>>({});
+
+  const pinDragging = useRef<{ id: string } | null>(null);
+  const textDragging = useRef<{ id: string; startMouseY: number; startTextY: number } | null>(null);
+
+  // Reset all manual positions when findings are replaced by a new analysis run
   const findingsKey = findings.map((f) => f.id).join(",");
   useEffect(() => {
-    setOverrides({});
+    setPinOverrides({});
+    setSideOverrides({});
+    setTextYOverrides({});
   }, [findingsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const measureImage = useCallback(() => {
     const img = imgRef.current;
     if (!img || !img.naturalWidth) return;
-    const h = Math.round(displayWidth * (img.naturalHeight / img.naturalWidth));
-    setImgH(h);
+    setImgH(Math.round(displayWidth * (img.naturalHeight / img.naturalWidth)));
   }, [displayWidth]);
 
   useEffect(() => {
@@ -95,18 +125,26 @@ export function AnnotatedScreen({
     if (img.complete && img.naturalWidth) measureImage();
   }, [measureImage]);
 
-  // Global drag handlers
+  // Global mouse handlers — handle both pin drag and text-block drag
   useEffect(() => {
     function onMove(e: MouseEvent) {
-      if (!dragging.current) return;
-      const delta = e.clientY - dragging.current.startMouseY;
-      setOverrides((prev) => ({
-        ...prev,
-        [dragging.current!.id]: dragging.current!.startTextY + delta,
-      }));
+      if (pinDragging.current && svgRef.current && imgH) {
+        const rect = svgRef.current.getBoundingClientRect();
+        const xPct = Math.max(0.02, Math.min(0.98, (e.clientX - rect.left) / rect.width));
+        const yPct = Math.max(0.02, Math.min(0.98, (e.clientY - rect.top) / rect.height));
+        setPinOverrides((prev) => ({ ...prev, [pinDragging.current!.id]: { xPct, yPct } }));
+      }
+      if (textDragging.current) {
+        const delta = e.clientY - textDragging.current.startMouseY;
+        setTextYOverrides((prev) => ({
+          ...prev,
+          [textDragging.current!.id]: textDragging.current!.startTextY + delta,
+        }));
+      }
     }
     function onUp() {
-      dragging.current = null;
+      pinDragging.current = null;
+      textDragging.current = null;
     }
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
@@ -114,20 +152,34 @@ export function AnnotatedScreen({
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
     };
-  }, []);
+  }, [imgH]);
 
-  function startDrag(id: string, currentTextY: number, e: React.MouseEvent) {
+  function startPinDrag(id: string, e: React.MouseEvent) {
     e.preventDefault();
-    dragging.current = { id, startMouseY: e.clientY, startTextY: currentTextY };
+    e.stopPropagation();
+    // Lock the side at drag start so label doesn't jump margins
+    const current = findings.find((f) => f.id === id);
+    if (current && !sideOverrides[id]) {
+      const xPct = pinOverrides[id]?.xPct ?? current.xPercent;
+      setSideOverrides((prev) => ({ ...prev, [id]: xPct < 0.5 ? "left" : "right" }));
+    }
+    pinDragging.current = { id };
   }
 
-  const baseLayout = imgH ? computeLayout(findings, displayWidth, imgH) : [];
+  function startTextDrag(id: string, currentTextY: number, e: React.MouseEvent) {
+    e.preventDefault();
+    textDragging.current = { id, startMouseY: e.clientY, startTextY: currentTextY };
+  }
 
-  // Apply manual overrides to textY and update exit line endpoint
-  const layout = baseLayout.map((a) => {
-    const textY = overrides[a.id] ?? a.textY;
-    return { ...a, textY };
-  });
+  const baseLayout = imgH
+    ? computeLayout(findings, displayWidth, imgH, pinOverrides, sideOverrides)
+    : [];
+
+  // Apply text-block Y overrides on top of collision-resolved positions
+  const layout = baseLayout.map((a) => ({
+    ...a,
+    textY: textYOverrides[a.id] ?? a.textY,
+  }));
 
   const totalWidth = MARGIN_W + displayWidth + MARGIN_W;
 
@@ -145,12 +197,12 @@ export function AnnotatedScreen({
                 side="left"
                 onEdit={onFindingEdit}
                 readOnly={readOnly}
-                onDragStart={(e) => startDrag(a.id, a.textY, e)}
+                onDragStart={(e) => startTextDrag(a.id, a.textY, e)}
               />
             ))}
         </div>
 
-        {/* Image + SVG pin overlay */}
+        {/* Image + SVG overlay */}
         <div style={{ width: displayWidth, flexShrink: 0, position: "relative" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -162,6 +214,7 @@ export function AnnotatedScreen({
           />
           {imgH && (
             <svg
+              ref={svgRef}
               style={{
                 position: "absolute",
                 top: 0,
@@ -169,7 +222,6 @@ export function AnnotatedScreen({
                 width: displayWidth,
                 height: imgH,
                 overflow: "visible",
-                pointerEvents: "none",
               }}
               viewBox={`0 0 ${displayWidth} ${imgH}`}
             >
@@ -178,14 +230,14 @@ export function AnnotatedScreen({
                 const points = `${a.pinX},${a.pinY} ${a.pinX},${a.elbowY} ${a.exitX},${a.textY}`;
                 return (
                   <g key={a.id}>
-                    <circle cx={a.pinX} cy={a.pinY} r={5} fill={color} opacity={0.9} />
-                    <circle cx={a.pinX} cy={a.pinY} r={3} fill={color} />
+                    {/* Lines — no pointer events */}
                     <polyline
                       points={points}
                       stroke={color}
                       strokeWidth={1}
                       fill="none"
                       opacity={0.7}
+                      style={{ pointerEvents: "none" }}
                     />
                     <line
                       x1={a.exitX}
@@ -195,6 +247,31 @@ export function AnnotatedScreen({
                       stroke={color}
                       strokeWidth={1}
                       opacity={0.7}
+                      style={{ pointerEvents: "none" }}
+                    />
+                    {/* Pin — draggable */}
+                    <circle
+                      cx={a.pinX}
+                      cy={a.pinY}
+                      r={10}
+                      fill="transparent"
+                      style={{ cursor: readOnly ? "default" : "move", pointerEvents: readOnly ? "none" : "all" }}
+                      onMouseDown={readOnly ? undefined : (e) => startPinDrag(a.id, e)}
+                    />
+                    <circle
+                      cx={a.pinX}
+                      cy={a.pinY}
+                      r={5}
+                      fill={color}
+                      opacity={0.9}
+                      style={{ pointerEvents: "none" }}
+                    />
+                    <circle
+                      cx={a.pinX}
+                      cy={a.pinY}
+                      r={3}
+                      fill={color}
+                      style={{ pointerEvents: "none" }}
                     />
                   </g>
                 );
@@ -214,7 +291,7 @@ export function AnnotatedScreen({
                 side="right"
                 onEdit={onFindingEdit}
                 readOnly={readOnly}
-                onDragStart={(e) => startDrag(a.id, a.textY, e)}
+                onDragStart={(e) => startTextDrag(a.id, a.textY, e)}
               />
             ))}
         </div>
@@ -243,15 +320,13 @@ function AnnotationTextBlock({
       style={{
         position: "absolute",
         top: a.textY - 10,
-        ...(side === "left"
-          ? { right: 16, textAlign: "right" }
-          : { left: 16, textAlign: "left" }),
+        ...(side === "left" ? { right: 16, textAlign: "right" } : { left: 16, textAlign: "left" }),
         width: MARGIN_W - 28,
       }}
     >
-      {/* Drag handle — title row doubles as the grip */}
+      {/* Title — drag handle for vertical repositioning */}
       <div
-        onMouseDown={onDragStart}
+        onMouseDown={readOnly ? undefined : onDragStart}
         style={{
           color,
           fontSize: 10,
@@ -259,10 +334,10 @@ function AnnotationTextBlock({
           textTransform: "uppercase",
           letterSpacing: "0.08em",
           marginBottom: 2,
-          cursor: "ns-resize",
+          cursor: readOnly ? "default" : "ns-resize",
           userSelect: "none",
         }}
-        title="Drag to reposition"
+        title={readOnly ? undefined : "Drag to reposition"}
       >
         {a.finding.title}
       </div>
