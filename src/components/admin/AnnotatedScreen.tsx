@@ -112,6 +112,10 @@ export function AnnotatedScreen({
     currentYPct: number;
   } | null>(null);
   const textDragging = useRef<{ id: string; startMouseY: number; startTextY: number } | null>(null);
+  // Keep onPinMove in a ref so the effect closure always calls the latest version
+  // without needing it as a dep (avoids re-registering listeners on every parent render)
+  const onPinMoveRef = useRef(onPinMove);
+  useEffect(() => { onPinMoveRef.current = onPinMove; });
 
   // Reset all manual positions when findings are replaced by a new analysis run
   const findingsKey = findings.map((f) => f.id).join(",");
@@ -153,12 +157,12 @@ export function AnnotatedScreen({
       }
     }
     function onUp() {
-      if (pinDragging.current && onPinMove) {
+      if (pinDragging.current) {
         const { id, startXPct, startYPct, currentXPct, currentYPct } = pinDragging.current;
         const moved =
           Math.abs(currentXPct - startXPct) > 0.005 ||
           Math.abs(currentYPct - startYPct) > 0.005;
-        if (moved) onPinMove(id, currentXPct, currentYPct);
+        if (moved) onPinMoveRef.current?.(id, currentXPct, currentYPct);
       }
       pinDragging.current = null;
       textDragging.current = null;
@@ -169,7 +173,7 @@ export function AnnotatedScreen({
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
     };
-  }, [imgH, onPinMove]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [imgH]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function startPinDrag(id: string, e: React.MouseEvent) {
     e.preventDefault();

@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
   let body: {
     clientName?: string;
     projectName?: string;
+    auditorName?: string;
     mode?: EvaluationMode;
     images?: string[];
   } = {};
@@ -50,6 +51,7 @@ export async function POST(req: NextRequest) {
   const evaluation = await createEvaluation({
     clientName: body.clientName.trim(),
     projectName: body.projectName.trim(),
+    auditorName: body.auditorName?.trim(),
     mode: body.mode,
     screens,
   });

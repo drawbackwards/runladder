@@ -157,7 +157,9 @@ export default function ReportPage() {
 
           {/* Drawbackwards credit */}
           <div style={{ marginTop: 24, fontSize: 10, color: "#444", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-            Prepared by Drawbackwards · runladder.com
+            {evaluation.auditorName
+              ? `Prepared by ${evaluation.auditorName} · Drawbackwards · runladder.com`
+              : "Prepared by Drawbackwards · runladder.com"}
           </div>
         </div>
 

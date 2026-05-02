@@ -34,6 +34,7 @@ export type Evaluation = {
   status: EvaluationStatus;
   screens: EvaluationScreen[];
   overallScore: number | null;
+  auditorName: string;
   executiveSummary: string;
   nextSteps: string;
   humanNotes: string;
@@ -61,6 +62,7 @@ export async function createEvaluation(data: {
   clientName: string;
   projectName: string;
   mode: EvaluationMode;
+  auditorName?: string;
   screens: Array<{ imageData: string }>;
 }): Promise<Evaluation> {
   const id = crypto.randomUUID();
@@ -82,6 +84,7 @@ export async function createEvaluation(data: {
       analyzedAt: null,
     })),
     overallScore: null,
+    auditorName: data.auditorName ?? "",
     executiveSummary: "",
     nextSteps: "",
     humanNotes: "",
