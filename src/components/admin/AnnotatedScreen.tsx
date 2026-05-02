@@ -7,7 +7,8 @@ type Props = {
   imageDataUrl: string;
   findings: AnnotationFinding[];
   displayWidth?: number;
-  onFindingEdit?: (id: string, field: "humanNote" | "fix" | "issue", value: string) => void;
+  onFindingEdit?: (id: string, field: "humanNote" | "fix" | "issue" | "title", value: string) => void;
+  onFindingDelete?: (id: string) => void;
   onPinMove?: (id: string, xPct: number, yPct: number) => void;
   addMode?: boolean;
   onAddFinding?: (xPct: number, yPct: number) => void;
@@ -92,6 +93,7 @@ export function AnnotatedScreen({
   findings,
   displayWidth = 620,
   onFindingEdit,
+  onFindingDelete,
   onPinMove,
   addMode = false,
   onAddFinding,
@@ -234,6 +236,7 @@ export function AnnotatedScreen({
                 annotation={a}
                 side="left"
                 onEdit={onFindingEdit}
+                onDelete={onFindingDelete}
                 readOnly={readOnly}
                 onDragStart={(e) => startTextDrag(a.id, a.textY, e)}
               />
@@ -346,6 +349,7 @@ export function AnnotatedScreen({
                 annotation={a}
                 side="right"
                 onEdit={onFindingEdit}
+                onDelete={onFindingDelete}
                 readOnly={readOnly}
                 onDragStart={(e) => startTextDrag(a.id, a.textY, e)}
               />
@@ -360,16 +364,29 @@ function AnnotationTextBlock({
   annotation: a,
   side,
   onEdit,
+  onDelete,
   readOnly,
   onDragStart,
 }: {
   annotation: AnnotationLayout;
   side: "left" | "right";
-  onEdit?: (id: string, field: "humanNote" | "fix" | "issue", value: string) => void;
+  onEdit?: (id: string, field: "humanNote" | "fix" | "issue" | "title", value: string) => void;
+  onDelete?: (id: string) => void;
   readOnly?: boolean;
   onDragStart: (e: React.MouseEvent) => void;
 }) {
   const color = SEVERITY_COLOR[a.finding.severity] ?? "#ef4444";
+  const TA: React.CSSProperties = {
+    fontSize: 11,
+    width: "100%",
+    background: "transparent",
+    border: "none",
+    borderBottom: "1px solid #333",
+    resize: "vertical",
+    outline: "none",
+    padding: "2px 0",
+    lineHeight: 1.4,
+  };
 
   return (
     <div
@@ -380,61 +397,95 @@ function AnnotationTextBlock({
         width: MARGIN_W - 28,
       }}
     >
-      {/* Title — drag handle for vertical repositioning */}
-      <div
-        onMouseDown={readOnly ? undefined : onDragStart}
-        style={{
-          color,
-          fontSize: 10,
-          fontWeight: 700,
-          textTransform: "uppercase",
-          letterSpacing: "0.08em",
-          marginBottom: 2,
-          cursor: readOnly ? "default" : "ns-resize",
-          userSelect: "none",
-        }}
-        title={readOnly ? undefined : "Drag to reposition"}
-      >
-        {a.finding.title}
-      </div>
-
       {readOnly ? (
         <>
-          <p style={{ fontSize: 11, color: "#aaa", margin: "2px 0", lineHeight: 1.4 }}>
-            {a.finding.issue}
-          </p>
-          <p style={{ fontSize: 11, color: "#666", margin: "2px 0", lineHeight: 1.4 }}>
-            → {a.finding.fix}
-          </p>
+          {/* Read-only: colored title label */}
+          <div style={{ color, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 2 }}>
+            {a.finding.title}
+          </div>
+          <p style={{ fontSize: 11, color: "#aaa", margin: "2px 0", lineHeight: 1.4 }}>{a.finding.issue}</p>
+          <p style={{ fontSize: 11, color: "#666", margin: "2px 0", lineHeight: 1.4 }}>→ {a.finding.fix}</p>
           {a.finding.humanNote && (
-            <p style={{ fontSize: 11, color: "#6AC89B", margin: "4px 0 0", lineHeight: 1.4 }}>
-              {a.finding.humanNote}
-            </p>
+            <p style={{ fontSize: 11, color: "#6AC89B", margin: "4px 0 0", lineHeight: 1.4 }}>{a.finding.humanNote}</p>
           )}
         </>
       ) : (
-        <div className="space-y-1">
-          <textarea
-            value={a.finding.issue}
-            onChange={(e) => onEdit?.(a.id, "issue", e.target.value)}
-            rows={2}
-            style={{ fontSize: 11, width: "100%", background: "transparent", border: "none", borderBottom: "1px solid #333", color: "#aaa", resize: "vertical", outline: "none", padding: "2px 0", lineHeight: 1.4 }}
+        <>
+          {/* Edit mode: drag handle row + delete button */}
+          <div
+            onMouseDown={onDragStart}
+            style={{
+              display: "flex",
+              justifyContent: side === "left" ? "flex-end" : "flex-start",
+              alignItems: "center",
+              gap: 4,
+              marginBottom: 3,
+              cursor: "ns-resize",
+              userSelect: "none",
+            }}
+            title="Drag to reposition"
+          >
+            <span style={{ color, fontSize: 9, letterSpacing: "0.1em", opacity: 0.7 }}>⠿⠿</span>
+            <button
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); onDelete?.(a.id); }}
+              style={{ fontSize: 13, color: "#555", background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1, marginLeft: "auto" }}
+              title="Remove finding"
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Editable title */}
+          <input
+            value={a.finding.title}
+            onChange={(e) => onEdit?.(a.id, "title", e.target.value)}
+            onMouseDown={(e) => e.stopPropagation()}
+            placeholder="Finding title…"
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color,
+              width: "100%",
+              background: "transparent",
+              border: "none",
+              borderBottom: `1px solid ${color}40`,
+              outline: "none",
+              padding: "1px 0",
+              marginBottom: 4,
+              textAlign: side === "left" ? "right" : "left",
+            }}
           />
-          <textarea
-            value={a.finding.fix}
-            onChange={(e) => onEdit?.(a.id, "fix", e.target.value)}
-            rows={2}
-            style={{ fontSize: 11, width: "100%", background: "transparent", border: "none", borderBottom: "1px solid #333", color: "#666", resize: "vertical", outline: "none", padding: "2px 0", lineHeight: 1.4 }}
-            placeholder="Fix direction…"
-          />
-          <textarea
-            value={a.finding.humanNote}
-            onChange={(e) => onEdit?.(a.id, "humanNote", e.target.value)}
-            rows={1}
-            style={{ fontSize: 11, width: "100%", background: "transparent", border: "none", borderBottom: "1px solid #333", color: "#6AC89B", resize: "vertical", outline: "none", padding: "2px 0", lineHeight: 1.4 }}
-            placeholder="Add note…"
-          />
-        </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <textarea
+              value={a.finding.issue}
+              onChange={(e) => onEdit?.(a.id, "issue", e.target.value)}
+              onMouseDown={(e) => e.stopPropagation()}
+              rows={2}
+              style={{ ...TA, color: "#aaa" }}
+              placeholder="Issue…"
+            />
+            <textarea
+              value={a.finding.fix}
+              onChange={(e) => onEdit?.(a.id, "fix", e.target.value)}
+              onMouseDown={(e) => e.stopPropagation()}
+              rows={2}
+              style={{ ...TA, color: "#666" }}
+              placeholder="Fix direction…"
+            />
+            <textarea
+              value={a.finding.humanNote}
+              onChange={(e) => onEdit?.(a.id, "humanNote", e.target.value)}
+              onMouseDown={(e) => e.stopPropagation()}
+              rows={1}
+              style={{ ...TA, color: "#6AC89B" }}
+              placeholder="Add note…"
+            />
+          </div>
+        </>
       )}
     </div>
   );
