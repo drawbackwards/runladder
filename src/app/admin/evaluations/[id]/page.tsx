@@ -7,6 +7,8 @@ import Link from "next/link";
 import type { Evaluation, AnnotationFinding, EvaluationScreen } from "@/lib/evaluation";
 import { AnnotatedScreen } from "@/components/admin/AnnotatedScreen";
 
+type FindingEditField = "humanNote" | "fix" | "issue" | "title" | "severity" | "category";
+
 const SCORE_COLOR = (s: number | null) => {
   if (s === null) return "text-muted";
   if (s >= 4) return "text-ladder-green";
@@ -27,6 +29,7 @@ export default function EvaluationReviewPage() {
   const [saving, setSaving] = useState(false);
   const [activeScreenIdx, setActiveScreenIdx] = useState(0);
   const [dirty, setDirty] = useState(false);
+  const [addMode, setAddMode] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -142,7 +145,7 @@ export default function EvaluationReviewPage() {
   }
 
   const updateFinding = useCallback(
-    (screenId: string, findingId: string, field: "humanNote" | "fix" | "issue", value: string) => {
+    (screenId: string, findingId: string, field: FindingEditField, value: string) => {
       setEvaluation((prev) => {
         if (!prev) return prev;
         return {
@@ -164,6 +167,45 @@ export default function EvaluationReviewPage() {
     [],
   );
 
+  const deleteFinding = useCallback((screenId: string, findingId: string) => {
+    setEvaluation((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        screens: prev.screens.map((s) =>
+          s.id !== screenId
+            ? s
+            : { ...s, findings: s.findings.filter((f) => f.id !== findingId) },
+        ),
+      };
+    });
+    setDirty(true);
+  }, []);
+
+  const handleAddFinding = useCallback((screenId: string, xPct: number, yPct: number) => {
+    const newFinding: AnnotationFinding = {
+      id: `h${Date.now()}`,
+      title: "New finding",
+      issue: "",
+      fix: "",
+      severity: "medium",
+      xPercent: xPct,
+      yPercent: yPct,
+      category: "other",
+      humanNote: "",
+    };
+    setEvaluation((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        screens: prev.screens.map((s) =>
+          s.id !== screenId ? s : { ...s, findings: [...s.findings, newFinding] },
+        ),
+      };
+    });
+    setAddMode(false);
+    setDirty(true);
+  }, []);
   const updatePinPosition = useCallback(
     (screenId: string, findingId: string, xPct: number, yPct: number) => {
       setEvaluation((prev) => {
@@ -388,6 +430,18 @@ export default function EvaluationReviewPage() {
                   {analyzing ? "Re-analyzing…" : "Re-analyze"}
                 </button>
               )}
+              {activeScreen.analyzedAt && (
+                <button
+                  onClick={() => setAddMode((v) => !v)}
+                  className={`text-[10px] uppercase tracking-widest transition-colors ${
+                    addMode
+                      ? "text-ladder-green border border-ladder-green/50 px-2 py-0.5"
+                      : "text-muted hover:text-foreground"
+                  }`}
+                >
+                  {addMode ? "Cancel add" : "+ Add pin"}
+                </button>
+              )}
             </div>
 
             {activeScreen.summary && (
@@ -397,15 +451,24 @@ export default function EvaluationReviewPage() {
             {/* Annotated screen */}
             {activeScreen.analyzedAt ? (
               <div className="overflow-x-auto">
+                {addMode && (
+                  <div className="mb-2 px-3 py-1.5 bg-ladder-green/10 border border-ladder-green/30 text-[11px] text-ladder-green font-sans">
+                    Click anywhere on the screen to place a pin
+                  </div>
+                )}
                 <AnnotatedScreen
                   imageDataUrl={activeScreen.imageData}
                   findings={activeScreen.findings}
                   displayWidth={620}
                   onFindingEdit={(findingId, field, value) =>
-                    updateFinding(activeScreen.id, findingId, field, value)
+                    updateFinding(activeScreen.id, findingId, field as FindingEditField, value)
                   }
                   onPinMove={(findingId, xPct, yPct) =>
                     updatePinPosition(activeScreen.id, findingId, xPct, yPct)
+                  }
+                  addMode={addMode}
+                  onAddFinding={(xPct, yPct) =>
+                    handleAddFinding(activeScreen.id, xPct, yPct)
                   }
                 />
               </div>
@@ -437,6 +500,7 @@ export default function EvaluationReviewPage() {
                       index={i + 1}
                       finding={f}
                       onEdit={(field, value) => updateFinding(activeScreen.id, f.id, field, value)}
+                      onDelete={() => deleteFinding(activeScreen.id, f.id)}
                     />
                   ))}
                 </div>
@@ -500,28 +564,62 @@ export default function EvaluationReviewPage() {
   );
 }
 
+const CATEGORIES = ["hierarchy", "spacing", "copy", "a11y", "navigation", "visual", "interaction", "feedback", "other"] as const;
+
 function FindingRow({
   index,
   finding,
   onEdit,
+  onDelete,
 }: {
   index: number;
   finding: AnnotationFinding;
-  onEdit: (field: "humanNote" | "fix" | "issue", value: string) => void;
+  onEdit: (field: FindingEditField, value: string) => void;
+  onDelete: () => void;
 }) {
   const SCOLOR = { high: "text-red-400", medium: "text-orange-400", low: "text-yellow-400" };
+  const SEL = "bg-[#111] border border-[#2a2a2a] text-xs text-muted focus:outline-none focus:border-muted font-sans px-1.5 py-1";
+
   return (
     <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-4">
       <div className="flex items-start gap-3">
         <span className="text-[10px] tabular-nums text-muted mt-0.5 w-4 flex-shrink-0">{index}</span>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-semibold text-foreground">{finding.title}</span>
-            <span className={`text-[9px] uppercase tracking-widest ${SCOLOR[finding.severity]}`}>
-              {finding.severity}
-            </span>
-            <span className="text-[9px] uppercase tracking-widest text-[#555]">{finding.category}</span>
+          {/* Title row + controls */}
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <input
+              type="text"
+              value={finding.title}
+              onChange={(e) => onEdit("title", e.target.value)}
+              className="bg-transparent border-b border-[#333] text-xs font-semibold text-foreground px-0 py-0.5 focus:outline-none focus:border-muted font-sans min-w-0 flex-1"
+            />
+            <select
+              value={finding.severity}
+              onChange={(e) => onEdit("severity", e.target.value)}
+              className={`${SEL} ${SCOLOR[finding.severity as keyof typeof SCOLOR]}`}
+            >
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <select
+              value={finding.category}
+              onChange={(e) => onEdit("category", e.target.value)}
+              className={SEL}
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <button
+              onClick={onDelete}
+              title="Remove finding"
+              className="text-[10px] text-muted hover:text-red-400 transition-colors ml-auto flex-shrink-0"
+            >
+              ×
+            </button>
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-[9px] uppercase tracking-widest text-muted block mb-1">Issue</label>
@@ -529,7 +627,8 @@ function FindingRow({
                 value={finding.issue}
                 onChange={(e) => onEdit("issue", e.target.value)}
                 rows={2}
-                className="w-full bg-[#111] border border-[#2a2a2a] text-xs text-muted p-2 focus:outline-none focus:border-muted resize-none font-sans"
+                placeholder="What problem does this create for the user?"
+                className="w-full bg-[#111] border border-[#2a2a2a] text-xs text-muted p-2 focus:outline-none focus:border-muted resize-none font-sans placeholder:text-[#444]"
               />
             </div>
             <div>
@@ -538,7 +637,8 @@ function FindingRow({
                 value={finding.fix}
                 onChange={(e) => onEdit("fix", e.target.value)}
                 rows={2}
-                className="w-full bg-[#111] border border-[#2a2a2a] text-xs text-muted p-2 focus:outline-none focus:border-muted resize-none font-sans"
+                placeholder="Concrete, actionable fix…"
+                className="w-full bg-[#111] border border-[#2a2a2a] text-xs text-muted p-2 focus:outline-none focus:border-muted resize-none font-sans placeholder:text-[#444]"
               />
             </div>
             <div className="col-span-2">

@@ -9,6 +9,8 @@ type Props = {
   displayWidth?: number;
   onFindingEdit?: (id: string, field: "humanNote" | "fix" | "issue", value: string) => void;
   onPinMove?: (id: string, xPct: number, yPct: number) => void;
+  addMode?: boolean;
+  onAddFinding?: (xPct: number, yPct: number) => void;
   readOnly?: boolean;
 };
 
@@ -91,6 +93,8 @@ export function AnnotatedScreen({
   displayWidth = 620,
   onFindingEdit,
   onPinMove,
+  addMode = false,
+  onAddFinding,
   readOnly = false,
 }: Props) {
   const imgRef = useRef<HTMLImageElement>(null);
@@ -194,15 +198,26 @@ export function AnnotatedScreen({
     textDragging.current = { id, startMouseY: e.clientY, startTextY: currentTextY };
   }
 
+  function handleSvgClick(e: React.MouseEvent<SVGRectElement>) {
+    if (!svgRef.current || !imgH || !onAddFinding) return;
+    e.stopPropagation();
+    const rect = svgRef.current.getBoundingClientRect();
+    const xPct = Math.max(0.02, Math.min(0.98, (e.clientX - rect.left) / rect.width));
+    const yPct = Math.max(0.02, Math.min(0.98, (e.clientY - rect.top) / rect.height));
+    onAddFinding(xPct, yPct);
+  }
+
   const baseLayout = imgH
     ? computeLayout(findings, displayWidth, imgH, pinOverrides, sideOverrides)
     : [];
 
-  // Apply text-block Y overrides on top of collision-resolved positions
-  const layout = baseLayout.map((a) => ({
-    ...a,
-    textY: textYOverrides[a.id] ?? a.textY,
-  }));
+  // Apply text-block Y overrides and recompute elbowY so the leader line
+  // always bends toward the text block, even after manual repositioning
+  const layout = baseLayout.map((a) => {
+    const textY = textYOverrides[a.id] ?? a.textY;
+    const elbowY = textY < a.pinY ? a.pinY - STEM : a.pinY + STEM;
+    return { ...a, textY, elbowY };
+  });
 
   const totalWidth = MARGIN_W + displayWidth + MARGIN_W;
 
@@ -245,9 +260,23 @@ export function AnnotatedScreen({
                 width: displayWidth,
                 height: imgH,
                 overflow: "visible",
+                cursor: addMode ? "crosshair" : "default",
               }}
               viewBox={`0 0 ${displayWidth} ${imgH}`}
             >
+              {/* Capture rect for add-pin clicks — sits below all pins */}
+              {addMode && !readOnly && (
+                <rect
+                  x={0}
+                  y={0}
+                  width={displayWidth}
+                  height={imgH}
+                  fill="transparent"
+                  style={{ pointerEvents: "all", cursor: "crosshair" }}
+                  onClick={handleSvgClick}
+                />
+              )}
+
               {layout.map((a) => {
                 const color = SEVERITY_COLOR[a.finding.severity] ?? "#ef4444";
                 const points = `${a.pinX},${a.pinY} ${a.pinX},${a.elbowY} ${a.exitX},${a.textY}`;
@@ -272,14 +301,18 @@ export function AnnotatedScreen({
                       opacity={0.7}
                       style={{ pointerEvents: "none" }}
                     />
-                    {/* Pin — draggable */}
+                    {/* Pin — draggable (disabled in add mode) */}
                     <circle
                       cx={a.pinX}
                       cy={a.pinY}
                       r={10}
                       fill="transparent"
-                      style={{ cursor: readOnly ? "default" : "move", pointerEvents: readOnly ? "none" : "all" }}
-                      onMouseDown={readOnly ? undefined : (e) => startPinDrag(a.id, e)}
+                      style={{
+                        cursor: readOnly || addMode ? "default" : "move",
+                        pointerEvents: readOnly ? "none" : "all",
+                      }}
+                      onMouseDown={readOnly || addMode ? undefined : (e) => startPinDrag(a.id, e)}
+                      onClick={addMode ? (e) => e.stopPropagation() : undefined}
                     />
                     <circle
                       cx={a.pinX}
