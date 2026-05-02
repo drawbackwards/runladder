@@ -41,6 +41,12 @@ export default function ReportPage() {
       .finally(() => setLoading(false));
   }, [isSignedIn, params.id]);
 
+  useEffect(() => {
+    if (!evaluation) return;
+    document.title = `${evaluation.clientName} — ${evaluation.projectName} | Ladder Evaluation`;
+    return () => { document.title = "Ladder"; };
+  }, [evaluation]);
+
   if (!isLoaded) return null;
   if (!isSignedIn) return <RedirectToSignIn />;
 
@@ -202,12 +208,13 @@ export default function ReportPage() {
               )}
             </div>
 
-            {/* Annotated screen — slightly narrower image for report */}
-            <div style={{ overflowX: "auto" }}>
+            {/* Annotated screen — sized to fit letter page (816px = 168 + 480 + 168) */}
+            <div>
               <AnnotatedScreen
                 imageDataUrl={screen.imageData}
                 findings={screen.findings}
-                displayWidth={580}
+                displayWidth={480}
+                marginWidth={168}
                 readOnly
               />
             </div>
@@ -292,11 +299,12 @@ export default function ReportPage() {
       <style>{`
         @media print {
           .print\\:hidden { display: none !important; }
-          body { background: white; }
+          body { background: white; margin: 0; padding: 0; }
           .report-body { margin: 0; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           @page {
             margin: 0;
-            size: letter;
+            size: letter portrait;
           }
         }
       `}</style>
