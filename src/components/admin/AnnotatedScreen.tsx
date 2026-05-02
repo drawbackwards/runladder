@@ -376,6 +376,16 @@ function AnnotationTextBlock({
   onDragStart: (e: React.MouseEvent) => void;
 }) {
   const color = SEVERITY_COLOR[a.finding.severity] ?? "#ef4444";
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+
+  // Keep title textarea height in sync with its content
+  useEffect(() => {
+    const el = titleRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [a.finding.title]);
+
   const TA: React.CSSProperties = {
     fontSize: 11,
     width: "100%",
@@ -399,8 +409,8 @@ function AnnotationTextBlock({
     >
       {readOnly ? (
         <>
-          {/* Read-only: colored title label */}
-          <div style={{ color, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 2 }}>
+          {/* Read-only: colored title label — wraps naturally */}
+          <div style={{ color, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 2, wordBreak: "break-word" }}>
             {a.finding.title}
           </div>
           <p style={{ fontSize: 11, color: "#aaa", margin: "2px 0", lineHeight: 1.4 }}>{a.finding.issue}</p>
@@ -436,11 +446,17 @@ function AnnotationTextBlock({
             </button>
           </div>
 
-          {/* Editable title */}
-          <input
+          {/* Editable title — textarea so text wraps */}
+          <textarea
+            ref={titleRef}
             value={a.finding.title}
-            onChange={(e) => onEdit?.(a.id, "title", e.target.value)}
+            onChange={(e) => {
+              onEdit?.(a.id, "title", e.target.value);
+              e.target.style.height = "auto";
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
             onMouseDown={(e) => e.stopPropagation()}
+            rows={1}
             placeholder="Finding title…"
             style={{
               fontSize: 10,
@@ -456,6 +472,9 @@ function AnnotationTextBlock({
               padding: "1px 0",
               marginBottom: 4,
               textAlign: side === "left" ? "right" : "left",
+              resize: "none",
+              overflow: "hidden",
+              lineHeight: 1.4,
             }}
           />
 
