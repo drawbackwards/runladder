@@ -463,6 +463,9 @@ export default function EvaluationReviewPage() {
                   onFindingEdit={(findingId, field, value) =>
                     updateFinding(activeScreen.id, findingId, field as FindingEditField, value)
                   }
+                  onFindingDelete={(findingId) =>
+                    deleteFinding(activeScreen.id, findingId)
+                  }
                   onPinMove={(findingId, xPct, yPct) =>
                     updatePinPosition(activeScreen.id, findingId, xPct, yPct)
                   }
