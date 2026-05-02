@@ -146,6 +146,29 @@ export default function EvaluationReviewPage() {
     [],
   );
 
+  const updatePinPosition = useCallback(
+    (screenId: string, findingId: string, xPct: number, yPct: number) => {
+      setEvaluation((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          screens: prev.screens.map((s) =>
+            s.id !== screenId
+              ? s
+              : {
+                  ...s,
+                  findings: s.findings.map((f) =>
+                    f.id !== findingId ? f : { ...f, xPercent: xPct, yPercent: yPct },
+                  ),
+                },
+          ),
+        };
+      });
+      setDirty(true);
+    },
+    [],
+  );
+
   const updateScreen = useCallback((screenId: string, field: keyof EvaluationScreen, value: string) => {
     setEvaluation((prev) => {
       if (!prev) return prev;
@@ -341,6 +364,9 @@ export default function EvaluationReviewPage() {
                   displayWidth={620}
                   onFindingEdit={(findingId, field, value) =>
                     updateFinding(activeScreen.id, findingId, field, value)
+                  }
+                  onPinMove={(findingId, xPct, yPct) =>
+                    updatePinPosition(activeScreen.id, findingId, xPct, yPct)
                   }
                 />
               </div>

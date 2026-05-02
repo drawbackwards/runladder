@@ -8,6 +8,7 @@ type Props = {
   findings: AnnotationFinding[];
   displayWidth?: number;
   onFindingEdit?: (id: string, field: "humanNote" | "fix" | "issue", value: string) => void;
+  onPinMove?: (id: string, xPct: number, yPct: number) => void;
   readOnly?: boolean;
 };
 
@@ -89,6 +90,7 @@ export function AnnotatedScreen({
   findings,
   displayWidth = 620,
   onFindingEdit,
+  onPinMove,
   readOnly = false,
 }: Props) {
   const imgRef = useRef<HTMLImageElement>(null);
@@ -102,7 +104,13 @@ export function AnnotatedScreen({
   // Per-finding text-block Y overrides (dragging the label)
   const [textYOverrides, setTextYOverrides] = useState<Record<string, number>>({});
 
-  const pinDragging = useRef<{ id: string } | null>(null);
+  const pinDragging = useRef<{
+    id: string;
+    startXPct: number;
+    startYPct: number;
+    currentXPct: number;
+    currentYPct: number;
+  } | null>(null);
   const textDragging = useRef<{ id: string; startMouseY: number; startTextY: number } | null>(null);
 
   // Reset all manual positions when findings are replaced by a new analysis run
@@ -132,6 +140,8 @@ export function AnnotatedScreen({
         const rect = svgRef.current.getBoundingClientRect();
         const xPct = Math.max(0.02, Math.min(0.98, (e.clientX - rect.left) / rect.width));
         const yPct = Math.max(0.02, Math.min(0.98, (e.clientY - rect.top) / rect.height));
+        pinDragging.current.currentXPct = xPct;
+        pinDragging.current.currentYPct = yPct;
         setPinOverrides((prev) => ({ ...prev, [pinDragging.current!.id]: { xPct, yPct } }));
       }
       if (textDragging.current) {
@@ -143,6 +153,13 @@ export function AnnotatedScreen({
       }
     }
     function onUp() {
+      if (pinDragging.current && onPinMove) {
+        const { id, startXPct, startYPct, currentXPct, currentYPct } = pinDragging.current;
+        const moved =
+          Math.abs(currentXPct - startXPct) > 0.005 ||
+          Math.abs(currentYPct - startYPct) > 0.005;
+        if (moved) onPinMove(id, currentXPct, currentYPct);
+      }
       pinDragging.current = null;
       textDragging.current = null;
     }
@@ -152,18 +169,20 @@ export function AnnotatedScreen({
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
     };
-  }, [imgH]);
+  }, [imgH, onPinMove]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function startPinDrag(id: string, e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    // Lock the side at drag start so label doesn't jump margins
     const current = findings.find((f) => f.id === id);
-    if (current && !sideOverrides[id]) {
-      const xPct = pinOverrides[id]?.xPct ?? current.xPercent;
+    if (!current) return;
+    const xPct = pinOverrides[id]?.xPct ?? current.xPercent;
+    const yPct = pinOverrides[id]?.yPct ?? current.yPercent;
+    // Lock the side at drag start so label doesn't jump margins
+    if (!sideOverrides[id]) {
       setSideOverrides((prev) => ({ ...prev, [id]: xPct < 0.5 ? "left" : "right" }));
     }
-    pinDragging.current = { id };
+    pinDragging.current = { id, startXPct: xPct, startYPct: yPct, currentXPct: xPct, currentYPct: yPct };
   }
 
   function startTextDrag(id: string, currentTextY: number, e: React.MouseEvent) {

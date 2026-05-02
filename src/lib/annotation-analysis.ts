@@ -10,6 +10,8 @@
  */
 import Anthropic from "@anthropic-ai/sdk";
 import type { MediaType } from "./scoring";
+import { getLearningContext } from "./evaluation-learning";
+import type { LearningContext } from "./evaluation-learning";
 
 export type AnnotationResult = {
   screenName: string;
@@ -31,8 +33,31 @@ export type AnnotationResult = {
 const SAMPLE_FINDING_COUNT = "3 to 5";
 const AUDIT_FINDING_COUNT = "4 to 8";
 
-function buildAnalysisPrompt(mode: "sample" | "audit"): string {
+function buildAnalysisPrompt(mode: "sample" | "audit", ctx?: LearningContext): string {
   const count = mode === "sample" ? SAMPLE_FINDING_COUNT : AUDIT_FINDING_COUNT;
+
+  let calibrationSection = "";
+  if (ctx && ctx.pinCalibration.length > 0) {
+    const hints = ctx.pinCalibration
+      .map(
+        (c) =>
+          `  - ${c.category}: shift x by ${c.avgDeltaX > 0 ? "+" : ""}${c.avgDeltaX.toFixed(3)}, y by ${c.avgDeltaY > 0 ? "+" : ""}${c.avgDeltaY.toFixed(3)} (from ${c.count} corrections)`,
+      )
+      .join("\n");
+    calibrationSection = `\n\nCoordinate calibration (apply these learned offsets to xPercent/yPercent for these categories):\n${hints}`;
+  }
+
+  let exemplarsSection = "";
+  if (ctx && ctx.exemplaryFindings.length > 0) {
+    const examples = ctx.exemplaryFindings
+      .map(
+        (f) =>
+          `  - [${f.category}/${f.severity}] "${f.title}"\n    issue: "${f.issue}"${f.fix ? `\n    fix: "${f.fix}"` : ""}`,
+      )
+      .join("\n");
+    exemplarsSection = `\n\nHuman-validated finding examples (match this quality of specificity and directness):\n${examples}`;
+  }
+
   return `You are a principal product designer with 20 years of experience at companies like Apple, Airbnb, and Stripe. You are conducting a Drawbackwards design audit.
 
 Evaluate this UI screen and identify the ${count} most important UX issues. For each finding, pinpoint the exact location of the problem on screen using x/y percentages (0.0 = left/top edge, 1.0 = right/bottom edge). Point to the specific UI element causing the issue — a button, text field, icon, heading — not a general region.
@@ -70,7 +95,7 @@ Rules:
 - category must be one of: hierarchy, spacing, copy, a11y, navigation, visual, interaction, feedback
 - Order findings by severity (high first), then by uplift potential
 - screenName format: "Product Name — Screen Type" using an em dash
-- Be direct and specific — vague findings are worthless`;
+- Be direct and specific — vague findings are worthless${calibrationSection}${exemplarsSection}`;
 }
 
 const client = new Anthropic();
@@ -83,11 +108,19 @@ export async function analyzeScreenForReport(
     return { error: "Image too large. Please use an image under 5MB." };
   }
 
+  // Load accumulated human corrections to calibrate coordinate estimates and set quality bar
+  let learningCtx: LearningContext | undefined;
+  try {
+    learningCtx = await getLearningContext();
+  } catch {
+    // Non-fatal — proceed with base prompt if learning context unavailable
+  }
+
   try {
     const response = await client.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 3000,
-      system: buildAnalysisPrompt(mode),
+      system: buildAnalysisPrompt(mode, learningCtx),
       messages: [
         {
           role: "user",
