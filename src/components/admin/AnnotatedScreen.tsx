@@ -7,6 +7,7 @@ type Props = {
   imageDataUrl: string;
   findings: AnnotationFinding[];
   displayWidth?: number;
+  marginWidth?: number;
   onFindingEdit?: (id: string, field: "humanNote" | "fix" | "issue" | "title", value: string) => void;
   onFindingDelete?: (id: string) => void;
   onPinMove?: (id: string, xPct: number, yPct: number) => void;
@@ -92,6 +93,7 @@ export function AnnotatedScreen({
   imageDataUrl,
   findings,
   displayWidth = 620,
+  marginWidth = MARGIN_W,
   onFindingEdit,
   onFindingDelete,
   onPinMove,
@@ -221,13 +223,13 @@ export function AnnotatedScreen({
     return { ...a, textY, elbowY };
   });
 
-  const totalWidth = MARGIN_W + displayWidth + MARGIN_W;
+  const totalWidth = marginWidth + displayWidth + marginWidth;
 
   return (
     <div style={{ width: totalWidth, position: "relative" }}>
       <div style={{ display: "flex", alignItems: "flex-start" }}>
         {/* Left margin */}
-        <div style={{ width: MARGIN_W, flexShrink: 0, position: "relative", height: imgH ?? "auto" }}>
+        <div style={{ width: marginWidth, flexShrink: 0, position: "relative", height: imgH ?? "auto" }}>
           {layout
             .filter((a) => a.side === "left")
             .map((a) => (
@@ -235,6 +237,7 @@ export function AnnotatedScreen({
                 key={a.id}
                 annotation={a}
                 side="left"
+                marginWidth={marginWidth}
                 onEdit={onFindingEdit}
                 onDelete={onFindingDelete}
                 readOnly={readOnly}
@@ -340,7 +343,7 @@ export function AnnotatedScreen({
         </div>
 
         {/* Right margin */}
-        <div style={{ width: MARGIN_W, flexShrink: 0, position: "relative", height: imgH ?? "auto" }}>
+        <div style={{ width: marginWidth, flexShrink: 0, position: "relative", height: imgH ?? "auto" }}>
           {layout
             .filter((a) => a.side === "right")
             .map((a) => (
@@ -348,6 +351,7 @@ export function AnnotatedScreen({
                 key={a.id}
                 annotation={a}
                 side="right"
+                marginWidth={marginWidth}
                 onEdit={onFindingEdit}
                 onDelete={onFindingDelete}
                 readOnly={readOnly}
@@ -363,6 +367,7 @@ export function AnnotatedScreen({
 function AnnotationTextBlock({
   annotation: a,
   side,
+  marginWidth = MARGIN_W,
   onEdit,
   onDelete,
   readOnly,
@@ -370,6 +375,7 @@ function AnnotationTextBlock({
 }: {
   annotation: AnnotationLayout;
   side: "left" | "right";
+  marginWidth?: number;
   onEdit?: (id: string, field: "humanNote" | "fix" | "issue" | "title", value: string) => void;
   onDelete?: (id: string) => void;
   readOnly?: boolean;
@@ -404,7 +410,7 @@ function AnnotationTextBlock({
         position: "absolute",
         top: a.textY - 10,
         ...(side === "left" ? { right: 16, textAlign: "right" } : { left: 16, textAlign: "left" }),
-        width: MARGIN_W - 28,
+        width: marginWidth - 28,
       }}
     >
       {readOnly ? (
