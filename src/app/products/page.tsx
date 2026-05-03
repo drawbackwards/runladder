@@ -43,6 +43,22 @@ const SURFACES = [
     available: true,
   },
   {
+    name: "Ladder for Figma",
+    badge: "Figma Plugin",
+    tagline: "Score frames without leaving the canvas.",
+    description:
+      "Design work happens in Figma. Now scoring does too. Run Ladder on any frame to get the same per-rung breakdown, ranked findings, and fix instructions you'd get on the web — without exporting a screenshot or switching tabs.",
+    features: [
+      "Score any frame, page, or component in place",
+      "Per-rung breakdown with ranked findings",
+      "Fix suggestions with score uplift estimates",
+      "Scores attributed to your Ladder account",
+    ],
+    cta: "Install for Figma",
+    href: "https://www.figma.com/community/plugin/ladder",
+    available: true,
+  },
+  {
     name: "Ladder for Claude",
     badge: "AI Skill",
     tagline: "Quality check mid-conversation.",
@@ -52,11 +68,11 @@ const SURFACES = [
       "Score screenshots inside any Claude conversation",
       "Same Ladder framework as every other surface",
       "Scores attributed to your Ladder account",
-      "Works with Claude.ai and the Claude API",
+      "Works with Claude.ai and Claude Code",
     ],
-    cta: "Coming soon",
-    href: "#",
-    available: false,
+    cta: "Get the Skill",
+    href: "/dashboard",
+    available: true,
   },
   {
     name: "Drawbackwards Consulting",
@@ -91,9 +107,9 @@ export default function ProductsPage() {
             <span className="text-ladder-green">Every surface.</span>
           </h1>
           <p className="text-lg text-body max-w-2xl mx-auto leading-relaxed">
-            Score in your browser, from customer feedback, or through
-            Claude. Every score feeds the same account, the same history, the
-            same truth.
+            Score in your browser, inside Figma, inside Claude, or from
+            customer feedback. Every score feeds the same account, the
+            same history, the same truth.
           </p>
         </div>
       </section>
@@ -114,15 +130,21 @@ export default function ProductsPage() {
               </div>
               <div className="flex items-center gap-3">
                 <span className="w-2 h-2 rounded-full bg-ladder-green flex-shrink-0" />
+                <span>Ladder for Figma</span>
+                <span className="flex-1 border-b border-dashed border-border" />
+                <span className="text-muted text-xs">canvas</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-2 h-2 rounded-full bg-ladder-green flex-shrink-0" />
+                <span>Ladder for Claude</span>
+                <span className="flex-1 border-b border-dashed border-border" />
+                <span className="text-muted text-xs">AI</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-2 h-2 rounded-full bg-ladder-green flex-shrink-0" />
                 <span>Ladder Pulse</span>
                 <span className="flex-1 border-b border-dashed border-border" />
                 <span className="text-muted text-xs">feedback</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="w-2 h-2 rounded-full bg-[#555] flex-shrink-0" />
-                <span className="text-muted">Ladder for Claude</span>
-                <span className="flex-1 border-b border-dashed border-border" />
-                <span className="text-muted text-xs">coming soon</span>
               </div>
             </div>
             <div className="mt-8 pt-6 border-t border-border text-center">

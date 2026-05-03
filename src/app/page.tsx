@@ -53,10 +53,16 @@ const PRODUCTS = [
     cta: "Learn about Pulse",
   },
   {
+    name: "Ladder for Figma",
+    desc: "Score frames inside Figma without leaving the canvas. Same framework, same calibration — embedded in the tool where your design work actually happens.",
+    href: "/products",
+    cta: "Install for Figma",
+  },
+  {
     name: "Ladder for Claude",
     desc: "Building with AI? Get a quality check mid-conversation. Know if what Claude generated is a 2.1 or a 3.8 before you ship it.",
-    href: "/products",
-    cta: "Coming soon",
+    href: "/dashboard",
+    cta: "Get the Skill",
   },
   {
     name: "Drawbackwards Consulting",
@@ -355,9 +361,9 @@ export default function Home() {
               <span className="text-ladder-green">Everywhere.</span>
             </h2>
             <p className="text-body max-w-lg mx-auto leading-relaxed">
-              Score in your browser, in Claude, or from customer feedback.
-              Every score feeds the same account, the same
-              history, the same dashboard.
+              Score in your browser, inside Figma, inside Claude, or
+              from customer feedback. Every score feeds the same account,
+              the same history, the same dashboard.
             </p>
           </div>
 

@@ -13,7 +13,7 @@ Not a promise of order or priority — this is a capture list so nothing falls o
 - **Lifecycle stages** — `new → active → engaged → at-risk → churned`. Auto-computed from activity signals.
 - **CSV export** — users, invite codes, activity windows
 - **Bulk actions** on selected users (email, re-tier, tag)
-- **Custom limits per user** — override the default monthly cap without promoting tier
+- **Custom limits per user** — override the default lifetime cap without promoting tier
 - **Flags** — admin-only booleans on a user (OG beta, reviewer, internal, do-not-contact)
 - **Admin activity log** — who (which admin) edited what, when. Accountability for multi-admin teams.
 
@@ -22,7 +22,7 @@ Not a promise of order or priority — this is a capture list so nothing falls o
 - **Score trend sparkline** per user in the drawer (score over last 30d)
 - **Mode usage breakdown** per user (pie or bar: improve / audit / a11y / copy / compare / generate)
 - **Team-level aggregation** that isn't just `/dashboard/team` (admin-side roll-up across all teams)
-- **Usage forecast** — project monthly usage based on current pace
+- **Usage forecast** — project usage based on current pace
 - **Cohort view** — new users by week, retention by cohort
 
 ## Admin — auth & infra
@@ -34,10 +34,15 @@ Not a promise of order or priority — this is a capture list so nothing falls o
 
 ## Billing & Stripe
 
-- **Stripe sync in admin** — show subscription state, next billing date, invoice history per user
-- **Manual upgrade/downgrade** that writes to Stripe (not just the local tier field)
-- **Dunning visibility** — failed-payment users surfaced in admin
-- **Seat management for Teams tier** (when Teams becomes a real product)
+Core self-serve Pro shipped 2026-05-02. Remaining work is admin tooling, lifecycle handling, and Teams-tier groundwork.
+
+- **Stripe state in admin** — show subscription status, next billing date, invoice history, and `cancel_at_period_end` per user
+- **Manual upgrade/downgrade from admin** that writes to Stripe (not just the local tier field)
+- **Dunning visibility** — failed-payment users surfaced in admin with `past_due` / `unpaid` reasons
+- **Seat management for Teams tier** — landing page, contact-to-quote → Stripe Checkout flow, seat add/remove via Customer Portal (gated on Teams becoming a real product)
+- **Re-add API allotments to Pro pricing page + Stripe description** when the public Ladder API ships (currently dropped — scheduled agent fires 2026-06-01 to check)
+- **MCP surface restoration** — same as above when MCP ships
+- **Subscription pause** — Stripe portal config option, surfaced in dashboard
 
 ## Scoring engine
 
@@ -60,14 +65,14 @@ Not a promise of order or priority — this is a capture list so nothing falls o
 - **Public roadmap page** at `/roadmap` — curated subset of this file (customer-facing only)
 - **`/status` page** with API uptime + recent deploy times
 - **API docs site** for the forthcoming public Ladder API
-- **Pricing page reality check** — sync copy with actual Stripe plans after Stripe sync lands
 
 ## Ops
 
 - **Error aggregation** beyond per-user — surface global error rate, top error types, deploy correlation
 - **Vercel deploy promotion workflow** — staging → prod with a confirmation step (today: push to main = prod)
-- **Scheduled runladder-framework sync health check** — alert if `/api/framework` 5xx rate crosses threshold
+- **Scheduled framework sync health check** — alert if `/api/framework` 5xx rate crosses threshold
+- **Production webhook health check** — scheduled sweep of Stripe Dashboard webhook deliveries; alert on failure spikes or orphaned customers without a Clerk tier
 
 ---
 
-*Last touch-up: 2026-04-19 after the light-CRM v1 ship.*
+*Last touch-up: 2026-05-02 after Stripe self-serve Pro shipped.*

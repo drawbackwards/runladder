@@ -4,7 +4,7 @@ import { useState } from "react";
 
 const INTERESTS = [
   "Organization plan for my team",
-  "Enterprise & API access",
+  "Enterprise deployment",
   "Ladder Pulse deployment",
   "Drawbackwards Consulting",
   "Partnership or integration",
