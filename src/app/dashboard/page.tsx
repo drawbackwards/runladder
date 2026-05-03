@@ -5,7 +5,8 @@ import { useAuth, useUser, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
 import { SkillTokenCard } from "@/components/SkillTokenCard";
-import { FREE_MONTHLY_LIMIT } from "@/lib/plans";
+import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
+import { FREE_LIFETIME_LIMIT } from "@/lib/plans";
 
 type ScoreEntry = {
   id: string;
@@ -22,12 +23,14 @@ type ScoreEntry = {
 type UsageInfo = {
   used: number;
   limit: number;
-  month: string;
+  lifetime?: boolean;
 };
 
 type DashboardData = {
   scores: ScoreEntry[];
   usage: UsageInfo;
+  tier: "free" | "pro" | "team" | "pulse";
+  paid: boolean;
 };
 
 function timeAgo(ts: number): string {
@@ -43,7 +46,24 @@ function timeAgo(ts: number): string {
   return `${months}mo ago`;
 }
 
-function UpgradeStrip({ usage }: { usage: UsageInfo }) {
+function UpgradeStrip({ usage, paid }: { usage: UsageInfo; paid: boolean }) {
+  if (paid) {
+    return (
+      <div className="border-b border-ladder-green/20 bg-ladder-green/5">
+        <div className="max-w-6xl mx-auto px-6 py-2.5 flex items-center justify-center gap-4 flex-wrap">
+          <span className="text-[11px] text-muted font-sans">
+            <span className="text-ladder-green font-semibold uppercase tracking-widest text-[10px]">
+              Pro
+            </span>{" "}
+            — unlimited scoring across every Ladder surface.
+          </span>
+          <ManageSubscriptionButton className="text-[10px] uppercase tracking-widest font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors">
+            Manage subscription →
+          </ManageSubscriptionButton>
+        </div>
+      </div>
+    );
+  }
   const remaining = Math.max(0, usage.limit - usage.used);
   const exhausted = remaining === 0;
   return (
@@ -59,16 +79,16 @@ function UpgradeStrip({ usage }: { usage: UsageInfo }) {
           {exhausted ? (
             <>
               <span className="text-ladder-red font-semibold">
-                0 scores left
+                0 free scores left.
               </span>{" "}
-              this month.
+              Upgrade to keep scoring.
             </>
           ) : (
             <>
               <span className="text-foreground font-semibold tabular-nums">
                 {remaining}
               </span>{" "}
-              of {usage.limit} free scores left this month
+              of {usage.limit} free scores left
             </>
           )}
         </span>
@@ -170,12 +190,13 @@ export default function DashboardPage() {
   if (!isSignedIn) return <RedirectToSignIn />;
 
   const scores = data?.scores ?? [];
-  const usage = data?.usage ?? { used: 0, limit: FREE_MONTHLY_LIMIT, month: "" };
+  const usage = data?.usage ?? { used: 0, limit: FREE_LIFETIME_LIMIT };
+  const paid = data?.paid ?? false;
   const firstName = user?.firstName || null;
 
   return (
     <div className="pt-20 font-mono">
-      <UpgradeStrip usage={usage} />
+      <UpgradeStrip usage={usage} paid={paid} />
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="mb-8">
           <h1 className="text-xl text-foreground font-sans">
