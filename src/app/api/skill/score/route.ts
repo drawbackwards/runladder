@@ -9,6 +9,7 @@ import { makeThumbnail } from "@/lib/thumbnail";
 import { userIdFromBearer, touchSkillToken } from "@/lib/skill-auth";
 import { FREE_LIFETIME_LIMIT, isPaidTier } from "@/lib/plans";
 import { getUserTier } from "@/lib/tier";
+import { persistScoreEntry } from "@/lib/scores";
 
 export const maxDuration = 60;
 
@@ -86,7 +87,7 @@ export async function POST(req: NextRequest) {
       parsed.mediaType,
     );
 
-    const scoreEntry = {
+    const scoreEntry = await persistScoreEntry(userId, {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       score: result.score,
       label: result.label,
@@ -99,16 +100,8 @@ export async function POST(req: NextRequest) {
       thumbnail,
       isPublic: false,
       timestamp: Date.now(),
-    };
-
-    await Promise.all([
-      redis.zadd(`user:${userId}:scores`, {
-        score: Date.now(),
-        member: JSON.stringify(scoreEntry),
-      }),
-      redis.incr(usedKey),
-      touchSkillToken(userId, installedVersion),
-    ]);
+    });
+    await touchSkillToken(userId, installedVersion);
 
     return NextResponse.json({
       score: result.score,

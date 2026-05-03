@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redis, lifetimeScansKey } from "@/lib/redis";
 import { FREE_LIFETIME_LIMIT, isPaidTier } from "@/lib/plans";
 import { getUserSubscription } from "@/lib/tier";
+import { getUserStats } from "@/lib/scores";
 
 export async function GET() {
   const { userId } = await auth();
@@ -11,10 +12,11 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const [scores, used, sub] = await Promise.all([
+  const [scores, used, sub, stats] = await Promise.all([
     redis.zrange(`user:${userId}:scores`, 0, -1, { rev: true }),
     redis.get<number>(lifetimeScansKey(userId)),
     getUserSubscription(userId),
+    getUserStats(userId),
   ]);
 
   const parsedScores = (scores as string[]).map((entry) => {
@@ -30,6 +32,7 @@ export async function GET() {
 
   return NextResponse.json({
     scores: parsedScores,
+    stats,
     tier: sub.tier,
     paid: isPaidTier(sub.tier),
     comp: sub.comp

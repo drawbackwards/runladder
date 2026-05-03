@@ -1,25 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis, lifetimeScansKey } from "@/lib/redis";
+import { redis } from "@/lib/redis";
 import { parseImageDataUrl } from "@/lib/scoring";
 import { makeThumbnail } from "@/lib/thumbnail";
+import { persistScoreEntry, type ScoreEntryInput } from "@/lib/scores";
 import { CURRENT_API_VERSION } from "@/lib/app-version";
 
 const API_VERSION_HEADERS = { "X-Ladder-API-Version": CURRENT_API_VERSION };
 
-type ScoreEntry = {
-  id: string;
-  score: number;
-  label: string;
-  screenName?: string;
-  summary?: string;
-  next?: string;
-  findings?: unknown[];
-  rungs?: unknown;
-  source: string;
-  thumbnail?: string;
-  isPublic?: boolean;
-  timestamp: number;
-};
+type ScoreEntry = ScoreEntryInput;
 
 /**
  * Persist a Ladder score to a user's runladder.com history.
@@ -74,7 +62,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const entry: ScoreEntry = {
+    const stored = await persistScoreEntry(userId, {
       id: score.id,
       score: score.score,
       label: score.label,
@@ -87,15 +75,7 @@ export async function POST(req: NextRequest) {
       thumbnail,
       isPublic: !!score.isPublic,
       timestamp: score.timestamp || Date.now(),
-    };
-
-    await Promise.all([
-      redis.zadd(`user:${userId}:scores`, {
-        score: entry.timestamp,
-        member: JSON.stringify(entry),
-      }),
-      redis.incr(lifetimeScansKey(userId)),
-    ]);
+    });
 
     // Diagnostic log: keep the last 50 persist attempts for 24h so we can
     // verify cross-repo calls land without trawling Vercel logs by hand.
@@ -105,10 +85,12 @@ export async function POST(req: NextRequest) {
         JSON.stringify({
           ts: Date.now(),
           userId,
-          scoreId: entry.id,
-          score: entry.score,
-          screenName: entry.screenName,
-          source: entry.source,
+          scoreId: stored.id,
+          score: stored.score,
+          uplift: stored.uplift,
+          previousScore: stored.previousScore,
+          screenName: stored.screenName,
+          source: stored.source,
           ok: true,
         }),
       );
