@@ -79,6 +79,27 @@ export async function POST(req: NextRequest) {
       redis.incr(lifetimeScansKey(userId)),
     ]);
 
+    // Diagnostic log: keep the last 50 persist attempts for 24h so we can
+    // verify cross-repo calls land without trawling Vercel logs by hand.
+    try {
+      await redis.lpush(
+        "debug:plugin-persist-log",
+        JSON.stringify({
+          ts: Date.now(),
+          userId,
+          scoreId: entry.id,
+          score: entry.score,
+          screenName: entry.screenName,
+          source: entry.source,
+          ok: true,
+        }),
+      );
+      await redis.ltrim("debug:plugin-persist-log", 0, 49);
+      await redis.expire("debug:plugin-persist-log", 60 * 60 * 24);
+    } catch {
+      // Logging is best-effort.
+    }
+
     return NextResponse.json(
       { ok: true },
       { headers: API_VERSION_HEADERS },
