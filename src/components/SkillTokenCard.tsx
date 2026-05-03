@@ -83,6 +83,7 @@ export function SkillTokenCard() {
   const [working, setWorking] = useState(false);
   const [rawToken, setRawToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [bareCopied, setBareCopied] = useState(false);
   const [ccCopied, setCcCopied] = useState(false);
   const [showTroubleshooting, setShowTroubleshooting] = useState(false);
 
@@ -131,6 +132,13 @@ export function SkillTokenCard() {
     navigator.clipboard.writeText(installCommand(rawToken));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  function copyBareToken() {
+    if (!rawToken) return;
+    navigator.clipboard.writeText(rawToken);
+    setBareCopied(true);
+    setTimeout(() => setBareCopied(false), 2000);
   }
 
   function claudeCodeInstall(version: string): string {
@@ -210,6 +218,17 @@ export function SkillTokenCard() {
             <p className="text-[10px] text-muted font-sans mt-3">
               Saves your token to <code className="text-foreground">~/.ladder/token</code>. macOS &amp; Linux.
             </p>
+            <div className="mt-3 pt-3 border-t border-ladder-green/20 flex items-center justify-between gap-2">
+              <p className="text-[10px] text-muted font-sans">
+                Using the Figma plugin instead?
+              </p>
+              <button
+                onClick={copyBareToken}
+                className="text-[10px] uppercase tracking-widest text-ladder-green border border-ladder-green/30 px-3 py-1.5 hover:bg-ladder-green/10 transition-colors font-semibold"
+              >
+                {bareCopied ? "Copied" : "Copy raw token"}
+              </button>
+            </div>
           </div>
         ) : meta?.hasToken ? (
           <div className="flex items-center justify-between gap-4">
