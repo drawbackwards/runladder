@@ -425,3 +425,13 @@ h1, h2, h3, h4, h5, h6 {
 [class*="cl-internal"][style*="background"] {
   background: #111 !important;
 }
+
+/* User menu dropdown pop animation */
+@keyframes user-menu-pop {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.user-menu-pop {
+  animation: user-menu-pop 120ms ease-out;
+}
