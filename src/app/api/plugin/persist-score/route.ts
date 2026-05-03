@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { redis, lifetimeScansKey } from "@/lib/redis";
+import { parseImageDataUrl } from "@/lib/scoring";
+import { makeThumbnail } from "@/lib/thumbnail";
 import { CURRENT_API_VERSION } from "@/lib/app-version";
 
 const API_VERSION_HEADERS = { "X-Ladder-API-Version": CURRENT_API_VERSION };
@@ -46,14 +48,30 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = (await req.json()) as { userId?: string; score?: ScoreEntry };
-    const { userId, score } = body;
+    const body = (await req.json()) as {
+      userId?: string;
+      score?: ScoreEntry;
+      image?: string;
+    };
+    const { userId, score, image } = body;
 
     if (!userId || !score?.id || typeof score.score !== "number") {
       return NextResponse.json(
         { error: "Body must include userId and a valid score entry." },
         { status: 400, headers: API_VERSION_HEADERS },
       );
+    }
+
+    /* ── Optional thumbnail: caller passes the raw image data URL, we resize ── */
+    let thumbnail: string | undefined = score.thumbnail;
+    if (!thumbnail && image) {
+      const parsed = parseImageDataUrl(image);
+      if (parsed) {
+        thumbnail = await makeThumbnail(
+          Buffer.from(parsed.base64Data, "base64"),
+          parsed.mediaType,
+        );
+      }
     }
 
     const entry: ScoreEntry = {
@@ -66,7 +84,7 @@ export async function POST(req: NextRequest) {
       findings: score.findings,
       rungs: score.rungs,
       source: score.source || "figma",
-      thumbnail: score.thumbnail,
+      thumbnail,
       isPublic: !!score.isPublic,
       timestamp: score.timestamp || Date.now(),
     };
