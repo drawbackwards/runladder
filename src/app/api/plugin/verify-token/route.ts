@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clerkClient } from "@clerk/nextjs/server";
 import { userIdFromBearer } from "@/lib/skill-auth";
-import { FREE_LIFETIME_LIMIT, isPaidTier, type Tier } from "@/lib/plans";
+import { FREE_LIFETIME_LIMIT, isPaidTier } from "@/lib/plans";
+import { getUserSubscription } from "@/lib/tier";
 import { redis, lifetimeScansKey } from "@/lib/redis";
 import { CURRENT_API_VERSION } from "@/lib/app-version";
 
@@ -15,7 +16,12 @@ const API_VERSION_HEADERS = { "X-Ladder-API-Version": CURRENT_API_VERSION };
  * Auth model: shared service secret (X-Ladder-Service-Token header).
  *
  * Body: { token: "ladder_skl_..." }
- * Returns: { userId, tier, paid } on 200, 401 if the token is unknown.
+ * Returns: { userId, tier, paid, comp? } on 200, 401 if the token is unknown.
+ *
+ * Tier is read via getUserSubscription, which auto-claims any pending comp
+ * issued for the user's email by an admin and treats expired comps as free.
+ * So a user comped before they signed up gets activated to Pro/Team/Pulse on
+ * their very first plugin call after creating their Ladder account.
  */
 export async function POST(req: NextRequest) {
   const serviceToken = req.headers.get("x-ladder-service-token") ?? "";
@@ -51,21 +57,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const [clerk, used] = await Promise.all([
-      clerkClient(),
+    const [sub, used, clerk] = await Promise.all([
+      getUserSubscription(userId),
       redis.get<number>(lifetimeScansKey(userId)),
+      clerkClient(),
     ]);
     const user = await clerk.users.getUser(userId);
-    const rawTier = user.publicMetadata?.tier;
-    const tier: Tier =
-      rawTier === "pro" || rawTier === "team" || rawTier === "pulse"
-        ? rawTier
-        : "free";
-    const paid = isPaidTier(tier);
+    const paid = isPaidTier(sub.tier);
     return NextResponse.json(
       {
         userId,
-        tier,
+        tier: sub.tier,
         paid,
         email: user.primaryEmailAddress?.emailAddress ?? null,
         firstName: user.firstName ?? null,
@@ -73,6 +75,12 @@ export async function POST(req: NextRequest) {
           used: used ?? 0,
           limit: paid ? null : FREE_LIFETIME_LIMIT,
         },
+        comp: sub.comp
+          ? {
+              reason: sub.comp.reason,
+              expiresAt: sub.comp.expiresAt ?? null,
+            }
+          : null,
       },
       { headers: API_VERSION_HEADERS },
     );
