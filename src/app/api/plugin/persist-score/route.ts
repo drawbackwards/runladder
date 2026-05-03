@@ -52,14 +52,25 @@ export async function POST(req: NextRequest) {
 
     /* ── Optional thumbnail: caller passes the raw image data URL, we resize ── */
     let thumbnail: string | undefined = score.thumbnail;
+    let thumbnailDiag = "preset-or-none";
     if (!thumbnail && image) {
       const parsed = parseImageDataUrl(image);
-      if (parsed) {
+      if (!parsed) {
+        thumbnailDiag = "image-not-parseable";
+      } else {
+        thumbnailDiag = "parsed";
         thumbnail = await makeThumbnail(
           Buffer.from(parsed.base64Data, "base64"),
           parsed.mediaType,
         );
+        thumbnailDiag = thumbnail
+          ? "generated"
+          : "makeThumbnail-returned-undefined";
       }
+    } else if (thumbnail) {
+      thumbnailDiag = "preset";
+    } else {
+      thumbnailDiag = "no-image-no-thumbnail";
     }
 
     const stored = await persistScoreEntry(userId, {
@@ -91,6 +102,9 @@ export async function POST(req: NextRequest) {
           previousScore: stored.previousScore,
           screenName: stored.screenName,
           source: stored.source,
+          imageBytes: image ? image.length : 0,
+          thumbnail: thumbnailDiag,
+          thumbnailLength: thumbnail ? thumbnail.length : 0,
           ok: true,
         }),
       );
