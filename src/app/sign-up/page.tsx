@@ -1,40 +1,34 @@
-import { SignIn } from "@clerk/nextjs";
+import { SignUp } from "@clerk/nextjs";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { AuthShell } from "@/components/AuthShell";
 import { authAppearance } from "@/lib/clerkAuthAppearance";
 
 export const metadata: Metadata = {
-  title: "Log in | Ladder",
-  description: "Sign in to your Ladder account.",
+  title: "Sign up | Ladder",
+  description: "Create your Ladder account and start scoring.",
 };
 
-export default function LoginPage() {
+export default function SignUpPage() {
   return (
     <AuthShell
-      title="Welcome back"
-      subtitle={
-        <>
-          Sign in to your Ladder account
-          <br />
-          to keep scoring.
-        </>
-      }
+      title="Start scoring"
+      subtitle="Create a free account to score any screen against the Ladder framework."
       footer={
         <>
-          New here?{" "}
+          Already have an account?{" "}
           <Link
-            href="/sign-up"
+            href="/login"
             className="text-ladder-green hover:text-ladder-green/80 font-medium"
           >
-            Create an account
+            Log in
           </Link>
         </>
       }
     >
-      <SignIn
+      <SignUp
         routing="hash"
-        signUpUrl="/sign-up"
+        signInUrl="/login"
         fallbackRedirectUrl="/score"
         appearance={authAppearance}
       />
