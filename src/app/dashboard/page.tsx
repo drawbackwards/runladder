@@ -27,11 +27,17 @@ type UsageInfo = {
   lifetime?: boolean;
 };
 
+type CompMeta = {
+  reason: string;
+  expiresAt: number | null;
+};
+
 type DashboardData = {
   scores: ScoreEntry[];
   usage: UsageInfo;
   tier: "free" | "pro" | "team" | "pulse";
   paid: boolean;
+  comp: CompMeta | null;
 };
 
 function timeAgo(ts: number): string {
@@ -47,14 +53,52 @@ function timeAgo(ts: number): string {
   return `${months}mo ago`;
 }
 
-function UpgradeStrip({ usage, paid }: { usage: UsageInfo; paid: boolean }) {
+function UpgradeStrip({
+  usage,
+  paid,
+  tier,
+  comp,
+}: {
+  usage: UsageInfo;
+  paid: boolean;
+  tier: "free" | "pro" | "team" | "pulse";
+  comp: CompMeta | null;
+}) {
+  const tierLabel = tier === "pro" ? "Pro" : tier === "team" ? "Team" : tier === "pulse" ? "Pulse" : "Free";
+
+  if (paid && comp) {
+    const expiry =
+      comp.expiresAt && comp.expiresAt > Date.now()
+        ? new Date(comp.expiresAt).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : null;
+    return (
+      <div className="border-b border-ladder-green/20 bg-ladder-green/5">
+        <div className="max-w-6xl mx-auto px-6 py-2.5 flex items-center justify-center gap-4 flex-wrap">
+          <span className="text-[11px] text-muted font-sans">
+            <span className="text-ladder-green font-semibold uppercase tracking-widest text-[10px]">
+              Complimentary {tierLabel}
+            </span>
+            {comp.reason && <> — {comp.reason}.</>}
+            {expiry && (
+              <span className="text-muted"> Through {expiry}.</span>
+            )}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   if (paid) {
     return (
       <div className="border-b border-ladder-green/20 bg-ladder-green/5">
         <div className="max-w-6xl mx-auto px-6 py-2.5 flex items-center justify-center gap-4 flex-wrap">
           <span className="text-[11px] text-muted font-sans">
             <span className="text-ladder-green font-semibold uppercase tracking-widest text-[10px]">
-              Pro
+              {tierLabel}
             </span>{" "}
             — unlimited scoring across every Ladder surface.
           </span>
@@ -193,11 +237,13 @@ export default function DashboardPage() {
   const scores = data?.scores ?? [];
   const usage = data?.usage ?? { used: 0, limit: FREE_LIFETIME_LIMIT };
   const paid = data?.paid ?? false;
+  const tier = data?.tier ?? "free";
+  const comp = data?.comp ?? null;
   const firstName = user?.firstName || null;
 
   return (
     <div className="pt-20 font-mono">
-      <UpgradeStrip usage={usage} paid={paid} />
+      <UpgradeStrip usage={usage} paid={paid} tier={tier} comp={comp} />
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="mb-8">
           <h1 className="text-xl text-foreground font-sans">

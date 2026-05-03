@@ -1,14 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useAuth, UserButton, SignInButton, SignUpButton } from "@clerk/nextjs";
+import { useAuth, SignInButton, SignUpButton } from "@clerk/nextjs";
 import { LadderLogo } from "./LadderLogo";
+import { UserMenu } from "./UserMenu";
 
 export function Nav() {
   const { isSignedIn, isLoaded } = useAuth();
-  const pathname = usePathname();
-  const isDashboard = pathname?.startsWith("/dashboard") ?? false;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
@@ -50,27 +48,7 @@ export function Nav() {
               </SignUpButton>
             </>
           )}
-          {isLoaded && isSignedIn && (
-            <>
-              <Link
-                href="/dashboard"
-                className={`text-sm font-bold transition-colors ${
-                  isDashboard
-                    ? "text-foreground"
-                    : "text-body hover:text-foreground"
-                }`}
-              >
-                Dashboard
-              </Link>
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: "w-8 h-8",
-                  },
-                }}
-              />
-            </>
-          )}
+          {isLoaded && isSignedIn && <UserMenu />}
         </div>
       </div>
     </nav>

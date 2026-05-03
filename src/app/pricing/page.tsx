@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 import { LegalNotice } from "@/components/LegalNotice";
 import { SubscribeButton } from "@/components/SubscribeButton";
+import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
+import { getUserSubscription } from "@/lib/tier";
+import type { Subscription } from "@/lib/tier";
+import type { Tier } from "@/lib/plans";
 
 export const metadata: Metadata = {
   title: "Pricing | Ladder",
@@ -9,8 +14,24 @@ export const metadata: Metadata = {
     "Score your first screen free. Professional from $250/mo. Team and Pulse pricing is custom.",
 };
 
-const SCREEN_SCORE_TIERS = [
+type TierKey = "free" | "pro" | "team";
+
+type ScreenTier = {
+  key: TierKey;
+  name: string;
+  price: string;
+  period: string;
+  highlight: boolean;
+  limit: string;
+  features: string[];
+  cta: string;
+  href: string;
+  solidCta: boolean;
+};
+
+const SCREEN_SCORE_TIERS: ScreenTier[] = [
   {
+    key: "free",
     name: "Free",
     price: "$0",
     period: "forever",
@@ -26,6 +47,7 @@ const SCREEN_SCORE_TIERS = [
     solidCta: true,
   },
   {
+    key: "pro",
     name: "Professional",
     price: "$250",
     period: "/ mo",
@@ -46,6 +68,7 @@ const SCREEN_SCORE_TIERS = [
     solidCta: false,
   },
   {
+    key: "team",
     name: "Team",
     price: "Custom",
     period: "",
@@ -66,7 +89,23 @@ const SCREEN_SCORE_TIERS = [
   },
 ];
 
-export default function PricingPage() {
+const CURRENT_PLAN_CLASSES =
+  "w-full text-center text-sm font-semibold py-3 rounded-full border border-border text-muted bg-card cursor-not-allowed";
+
+function CurrentPlanBadge({ comp }: { comp?: boolean }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-ladder-green/40 bg-ladder-green/5 text-[10px] font-mono uppercase tracking-widest text-ladder-green">
+      <span className="w-1.5 h-1.5 rounded-full bg-ladder-green" />
+      {comp ? "Complimentary" : "Current plan"}
+    </span>
+  );
+}
+
+export default async function PricingPage() {
+  const { userId } = await auth();
+  const sub: Subscription | null = userId ? await getUserSubscription(userId) : null;
+  const currentTier: Tier | null = sub?.tier ?? null;
+  const isComp = !!sub?.comp;
   return (
     <div className="pt-32 pb-24 px-6">
       <div className="max-w-7xl mx-auto">
@@ -100,19 +139,27 @@ export default function PricingPage() {
         {/* Four-column grid: 3 Screen Score + 1 Pulse */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Screen Score tiers */}
-          {SCREEN_SCORE_TIERS.map((tier) => (
+          {SCREEN_SCORE_TIERS.map((tier) => {
+            const isCurrent = currentTier === tier.key;
+            return (
             <div
               key={tier.name}
+              aria-current={isCurrent ? "true" : undefined}
               className={`rounded-2xl p-8 flex flex-col ${
-                tier.highlight
+                isCurrent
+                  ? "border-2 border-ladder-green bg-ladder-green/[0.07]"
+                  : tier.highlight
                   ? "border-2 border-ladder-green bg-ladder-green/5"
                   : "border-2 border-ladder-green/30 bg-card"
               }`}
             >
-              {/* Name */}
-              <h2 className="text-lg font-bold text-foreground mb-4">
-                {tier.name}
-              </h2>
+              {/* Name + current badge */}
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <h2 className="text-lg font-bold text-foreground">
+                  {tier.name}
+                </h2>
+                {isCurrent && <CurrentPlanBadge comp={isComp} />}
+              </div>
 
               {/* Price */}
               <div className="flex items-baseline gap-1.5 mb-1">
@@ -140,7 +187,34 @@ export default function PricingPage() {
                 ))}
               </ul>
 
-              {tier.name === "Professional" ? (
+              {isCurrent ? (
+                isComp ? (
+                  <button
+                    type="button"
+                    disabled
+                    aria-label={`${tier.name} is complimentary access`}
+                    className={CURRENT_PLAN_CLASSES}
+                    title={sub?.comp?.reason || undefined}
+                  >
+                    Complimentary access
+                  </button>
+                ) : tier.key === "pro" ? (
+                  <ManageSubscriptionButton
+                    className={CURRENT_PLAN_CLASSES + " hover:text-foreground hover:border-ladder-green/40"}
+                  >
+                    Manage subscription
+                  </ManageSubscriptionButton>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    aria-label={`${tier.name} is your current plan`}
+                    className={CURRENT_PLAN_CLASSES}
+                  >
+                    Current plan
+                  </button>
+                )
+              ) : tier.key === "pro" ? (
                 <SubscribeButton
                   plan="pro"
                   className="w-full text-center text-sm font-semibold py-3 rounded-full transition-colors bg-ladder-green text-background hover:bg-ladder-green/90 disabled:opacity-60"
@@ -162,19 +236,32 @@ export default function PricingPage() {
                 </Link>
               )}
             </div>
-          ))}
+          );})}
 
           {/* Pulse column */}
-          <div className="rounded-2xl p-8 flex flex-col border-2 border-ladder-purple bg-ladder-purple/5">
+          <div
+            aria-current={currentTier === "pulse" ? "true" : undefined}
+            className={`rounded-2xl p-8 flex flex-col border-2 ${
+              currentTier === "pulse"
+                ? "border-ladder-purple bg-ladder-purple/[0.09]"
+                : "border-ladder-purple bg-ladder-purple/5"
+            }`}
+          >
             {/* Mobile-only section label */}
             <p className="font-mono text-xs uppercase tracking-widest text-ladder-purple mb-4 lg:hidden">
               Ladder Pulse Scoring
             </p>
 
-            {/* Name */}
-            <h2 className="text-lg font-bold text-foreground mb-4">
-              Pulse
-            </h2>
+            {/* Name + current badge */}
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <h2 className="text-lg font-bold text-foreground">Pulse</h2>
+              {currentTier === "pulse" && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-ladder-purple/40 bg-ladder-purple/5 text-[10px] font-mono uppercase tracking-widest text-ladder-purple">
+                  <span className="w-1.5 h-1.5 rounded-full bg-ladder-purple" />
+                  {isComp ? "Complimentary" : "Current plan"}
+                </span>
+              )}
+            </div>
 
             {/* Price */}
             <div className="flex items-baseline gap-1.5 mb-1">
@@ -209,12 +296,28 @@ export default function PricingPage() {
               ))}
             </ul>
 
-            <Link
-              href="/contact"
-              className="text-center text-sm font-semibold border border-ladder-purple/40 text-ladder-purple hover:bg-ladder-purple/10 py-3 rounded-full transition-colors"
-            >
-              Talk to us about Pulse
-            </Link>
+            {currentTier === "pulse" ? (
+              <button
+                type="button"
+                disabled
+                aria-label={
+                  isComp
+                    ? "Pulse is your complimentary plan"
+                    : "Pulse is your current plan"
+                }
+                className="text-center text-sm font-semibold border border-border text-muted bg-card py-3 rounded-full cursor-not-allowed"
+                title={isComp ? sub?.comp?.reason || undefined : undefined}
+              >
+                {isComp ? "Complimentary access" : "Current plan"}
+              </button>
+            ) : (
+              <Link
+                href="/contact"
+                className="text-center text-sm font-semibold border border-ladder-purple/40 text-ladder-purple hover:bg-ladder-purple/10 py-3 rounded-full transition-colors"
+              >
+                Talk to us about Pulse
+              </Link>
+            )}
           </div>
         </div>
 
