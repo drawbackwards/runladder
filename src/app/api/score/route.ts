@@ -9,6 +9,7 @@ import {
 import { makeThumbnail } from "@/lib/thumbnail";
 import { FREE_LIFETIME_LIMIT, ANON_LIMIT, isPaidTier } from "@/lib/plans";
 import { getUserTier } from "@/lib/tier";
+import { persistScoreEntry } from "@/lib/scores";
 
 export const maxDuration = 60;
 
@@ -86,7 +87,7 @@ export async function POST(req: NextRequest) {
         parsed.mediaType,
       );
 
-      const scoreEntry = {
+      await persistScoreEntry(userId, {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         score: result.score,
         label: result.label,
@@ -99,17 +100,7 @@ export async function POST(req: NextRequest) {
         thumbnail,
         isPublic: !!isPublic,
         timestamp: Date.now(),
-      };
-
-      const ops: Promise<unknown>[] = [
-        redis.zadd(`user:${userId}:scores`, {
-          score: Date.now(),
-          member: JSON.stringify(scoreEntry),
-        }),
-      ];
-      // Always count lifetime scans — even on paid tiers, for analytics + audit.
-      ops.push(redis.incr(lifetimeScansKey(userId)));
-      await Promise.all(ops);
+      });
     } else {
       const anonKey = `rate:anon:${ip}`;
       await redis.incr(anonKey);

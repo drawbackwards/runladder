@@ -19,6 +19,17 @@ type ScoreEntry = {
   thumbnail?: string;
   isPublic?: boolean;
   timestamp: number;
+  // Uplift tracking — present when this isn't the first scan of the screen.
+  screenKey?: string;
+  previousScore?: number | null;
+  uplift?: number | null;
+};
+
+type UserStats = {
+  totalScans: number;
+  avgScore: number | null;
+  bestScore: number | null;
+  lastScoreAt: number | null;
 };
 
 type UsageInfo = {
@@ -34,6 +45,7 @@ type CompMeta = {
 
 type DashboardData = {
   scores: ScoreEntry[];
+  stats: UserStats;
   usage: UsageInfo;
   tier: "free" | "pro" | "team" | "pulse";
   paid: boolean;
@@ -148,6 +160,73 @@ function UpgradeStrip({
   );
 }
 
+function StatsSummaryCard({ stats }: { stats: UserStats }) {
+  if (!stats || stats.totalScans === 0) return null;
+  const avg = stats.avgScore;
+  const best = stats.bestScore;
+
+  return (
+    <div className="grid grid-cols-3 gap-2 mb-6">
+      <div className="border border-[#333] bg-[#1e1e1e] p-4">
+        <p className="text-[9px] text-muted uppercase tracking-widest mb-2">
+          Total scans
+        </p>
+        <p className="text-2xl font-bold text-foreground tabular-nums">
+          {stats.totalScans}
+        </p>
+      </div>
+      <div className="border border-[#333] bg-[#1e1e1e] p-4">
+        <p className="text-[9px] text-muted uppercase tracking-widest mb-2">
+          Average
+        </p>
+        <p
+          className="text-2xl font-bold tabular-nums"
+          style={{ color: avg !== null ? getScoreColor(avg) : "#444" }}
+        >
+          {avg !== null ? avg.toFixed(1) : "—"}
+        </p>
+      </div>
+      <div className="border border-[#333] bg-[#1e1e1e] p-4">
+        <p className="text-[9px] text-muted uppercase tracking-widest mb-2">
+          Best
+        </p>
+        <p
+          className="text-2xl font-bold tabular-nums"
+          style={{ color: best !== null ? getScoreColor(best) : "#444" }}
+        >
+          {best !== null ? best.toFixed(1) : "—"}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function UpliftBadge({ uplift }: { uplift: number }) {
+  if (uplift === 0) {
+    return (
+      <span
+        className="text-[10px] font-mono font-semibold text-muted tabular-nums"
+        title="Same score as last scan of this screen"
+      >
+        ±0.0
+      </span>
+    );
+  }
+  const positive = uplift > 0;
+  const sign = positive ? "↑" : "↓";
+  const display = `${sign}${Math.abs(uplift).toFixed(1)}`;
+  return (
+    <span
+      className={`text-[10px] font-mono font-semibold tabular-nums ${
+        positive ? "text-ladder-green" : "text-ladder-red"
+      }`}
+      title={`Change from previous scan of this screen`}
+    >
+      {display}
+    </span>
+  );
+}
+
 function ScoreCTACard() {
   return (
     <Link
@@ -235,6 +314,12 @@ export default function DashboardPage() {
   if (!isSignedIn) return <RedirectToSignIn />;
 
   const scores = data?.scores ?? [];
+  const stats = data?.stats ?? {
+    totalScans: 0,
+    avgScore: null,
+    bestScore: null,
+    lastScoreAt: null,
+  };
   const usage = data?.usage ?? { used: 0, limit: FREE_LIFETIME_LIMIT };
   const paid = data?.paid ?? false;
   const tier = data?.tier ?? "free";
@@ -253,6 +338,7 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           <main>
+            <StatsSummaryCard stats={stats} />
             <div className="flex items-center justify-between mb-6">
               <span className="text-[10px] text-muted uppercase tracking-widest">
                 Score history
@@ -318,6 +404,11 @@ export default function DashboardPage() {
                           >
                             {entry.label}
                           </span>
+                          {typeof entry.uplift === "number" && (
+                            <span className="block mt-1">
+                              <UpliftBadge uplift={entry.uplift} />
+                            </span>
+                          )}
                         </div>
 
                         <div className="flex-1 min-w-0">
