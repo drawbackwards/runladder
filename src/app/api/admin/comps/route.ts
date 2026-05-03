@@ -2,12 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { clerkClient } from "@clerk/nextjs/server";
 import { getAdminEmail } from "@/lib/admin";
 import { grantComp, revokeComp } from "@/lib/tier";
+import {
+  setPendingComp,
+  listPendingComps,
+  deletePendingComp,
+} from "@/lib/pending-comps";
 import type { Tier } from "@/lib/plans";
 
 const PAID_TIERS: ReadonlyArray<Exclude<Tier, "free">> = ["pro", "team", "pulse"];
 
-type CompUser = {
-  userId: string;
+type CompRow = {
+  /** "active" = on a real Clerk user; "pending" = email-only, will activate on signup. */
+  status: "active" | "pending";
+  userId: string | null;
   email: string;
   name: string | null;
   tier: Tier;
@@ -23,17 +30,21 @@ function unauthorized() {
 
 /**
  * GET /api/admin/comps
- * Lists all users currently on a complimentary plan (publicMetadata.comp === true).
- * Includes expired comps so admins can clean them up.
+ * Lists all comps:
+ *  - Active: users with publicMetadata.comp === true
+ *  - Pending: comps issued for emails that haven't signed up yet
  */
 export async function GET() {
   if (!(await getAdminEmail())) return unauthorized();
 
   const client = await clerkClient();
-  // Clerk paginates; 500 covers our scale comfortably.
-  const list = await client.users.getUserList({ limit: 500 });
+  const [list, pending] = await Promise.all([
+    client.users.getUserList({ limit: 500 }),
+    listPendingComps().catch(() => []),
+  ]);
   const now = Date.now();
-  const comps: CompUser[] = [];
+  const rows: CompRow[] = [];
+
   for (const u of list.data) {
     const meta = u.publicMetadata as Record<string, unknown> | undefined;
     if (meta?.comp !== true) continue;
@@ -47,7 +58,8 @@ export async function GET() {
       typeof meta.compGrantedAt === "number" ? meta.compGrantedAt : 0;
     const expiresAt =
       typeof meta.compExpiresAt === "number" ? meta.compExpiresAt : undefined;
-    comps.push({
+    rows.push({
+      status: "active",
       userId: u.id,
       email: u.primaryEmailAddress?.emailAddress ?? "",
       name: u.fullName || u.firstName || null,
@@ -58,15 +70,34 @@ export async function GET() {
       expired: expiresAt != null && expiresAt < now,
     });
   }
-  comps.sort((a, b) => b.grantedAt - a.grantedAt);
-  return NextResponse.json({ comps });
+
+  for (const p of pending) {
+    rows.push({
+      status: "pending",
+      userId: null,
+      email: p.email,
+      name: null,
+      tier: p.tier,
+      reason: p.reason,
+      grantedAt: p.grantedAt,
+      expiresAt: p.expiresAt,
+      expired: p.expiresAt != null && p.expiresAt < now,
+    });
+  }
+
+  rows.sort((a, b) => b.grantedAt - a.grantedAt);
+  return NextResponse.json({ comps: rows });
 }
 
 /**
  * POST /api/admin/comps
  * Body: { email, tier, reason, expiresAt? }
- * Looks up the user by email, then grants a complimentary tier.
- * Returns 404 if no user exists for that email.
+ *
+ * - If a Ladder account exists for the email, grants the comp on Clerk
+ *   publicMetadata immediately. Returns { ok: true, status: "active" }.
+ * - If no account exists, creates a pending comp keyed by email. The comp
+ *   is automatically applied on the user's first signed-in action.
+ *   Returns { ok: true, status: "pending" }.
  */
 export async function POST(req: NextRequest) {
   if (!(await getAdminEmail())) return unauthorized();
@@ -106,34 +137,52 @@ export async function POST(req: NextRequest) {
   const client = await clerkClient();
   const list = await client.users.getUserList({ emailAddress: [email], limit: 1 });
   const user = list.data[0];
-  if (!user) {
-    return NextResponse.json(
-      { error: `No Ladder account for ${email}. Have them sign up first.` },
-      { status: 404 },
-    );
+
+  if (user) {
+    await grantComp(user.id, {
+      tier: tier as Exclude<Tier, "free">,
+      reason,
+      expiresAt,
+    });
+    return NextResponse.json({
+      ok: true,
+      status: "active",
+      userId: user.id,
+    });
   }
 
-  await grantComp(user.id, {
+  // No Ladder account yet — store a pending comp. Will auto-apply on signup.
+  await setPendingComp({
+    email,
     tier: tier as Exclude<Tier, "free">,
     reason,
+    grantedAt: Date.now(),
     expiresAt,
   });
-  return NextResponse.json({ ok: true, userId: user.id });
+  return NextResponse.json({ ok: true, status: "pending" });
 }
 
 /**
  * DELETE /api/admin/comps
- * Body: { userId }
- * Resets the user to "free" and strips comp metadata. Does not touch Stripe.
+ * Body: { userId } for active comps, or { email } for pending comps.
  */
 export async function DELETE(req: NextRequest) {
   if (!(await getAdminEmail())) return unauthorized();
 
   const body = await req.json().catch(() => ({}));
   const userId = typeof body.userId === "string" ? body.userId : "";
-  if (!userId) {
-    return NextResponse.json({ error: "userId is required." }, { status: 400 });
+  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+
+  if (userId) {
+    await revokeComp(userId);
+    return NextResponse.json({ ok: true });
   }
-  await revokeComp(userId);
-  return NextResponse.json({ ok: true });
+  if (email) {
+    await deletePendingComp(email);
+    return NextResponse.json({ ok: true });
+  }
+  return NextResponse.json(
+    { error: "userId or email is required." },
+    { status: 400 },
+  );
 }

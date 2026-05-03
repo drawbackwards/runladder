@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 
-type CompUser = {
-  userId: string;
+type CompRow = {
+  status: "active" | "pending";
+  userId: string | null;
   email: string;
   name: string | null;
   tier: "free" | "pro" | "team" | "pulse";
@@ -41,7 +42,7 @@ function fmtRelative(ms: number | undefined): string {
 export default function CompsAdminPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const [authorized, setAuthorized] = useState<boolean | null>(null);
-  const [comps, setComps] = useState<CompUser[]>([]);
+  const [comps, setComps] = useState<CompRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
@@ -53,7 +54,7 @@ export default function CompsAdminPage() {
   const [submitting, setSubmitting] = useState(false);
   const [formMsg, setFormMsg] = useState<string | null>(null);
 
-  const [busyUser, setBusyUser] = useState<string | null>(null);
+  const [busyKey, setBusyKey] = useState<string | null>(null);
 
   async function refresh() {
     setLoading(true);
@@ -66,7 +67,7 @@ export default function CompsAdminPage() {
       }
       setAuthorized(true);
       if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
-      const json = (await res.json()) as { comps: CompUser[] };
+      const json = (await res.json()) as { comps: CompRow[] };
       setComps(json.comps || []);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Failed to load");
@@ -92,9 +93,17 @@ export default function CompsAdminPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, tier, reason, expiresAt: expiresMs }),
       });
-      const j = await res.json().catch(() => ({}));
+      const j = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        status?: "active" | "pending";
+        error?: string;
+      };
       if (!res.ok) throw new Error(j.error || `Failed (${res.status})`);
-      setFormMsg(`Comped ${email} → ${tier.toUpperCase()}.`);
+      const msg =
+        j.status === "pending"
+          ? `Pending — ${email} will get ${tier.toUpperCase()} when they sign up.`
+          : `Comped ${email} → ${tier.toUpperCase()}.`;
+      setFormMsg(msg);
       setEmail("");
       setReason("");
       setExpiresAt("");
@@ -106,14 +115,21 @@ export default function CompsAdminPage() {
     }
   }
 
-  async function revoke(userId: string, email: string) {
-    if (!confirm(`Revoke complimentary access for ${email}?`)) return;
-    setBusyUser(userId);
+  async function revoke(row: CompRow) {
+    const label =
+      row.status === "pending"
+        ? `pending comp for ${row.email}`
+        : `complimentary access for ${row.email}`;
+    if (!confirm(`Revoke ${label}?`)) return;
+    const key = row.userId || `pending:${row.email}`;
+    setBusyKey(key);
     try {
+      const body =
+        row.status === "pending" ? { email: row.email } : { userId: row.userId };
       const res = await fetch("/api/admin/comps", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
@@ -123,7 +139,7 @@ export default function CompsAdminPage() {
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Revoke failed");
     } finally {
-      setBusyUser(null);
+      setBusyKey(null);
     }
   }
 
@@ -142,6 +158,8 @@ export default function CompsAdminPage() {
   }
 
   const formValid = email.trim() && reason.trim();
+  const pendingCount = comps.filter((c) => c.status === "pending").length;
+  const activeCount = comps.filter((c) => c.status === "active").length;
 
   return (
     <div className="pt-20 font-mono">
@@ -184,7 +202,7 @@ export default function CompsAdminPage() {
               Grant a comp
             </span>
             <span className="text-[10px] text-muted">
-              User must already have a Ladder account
+              No account needed — pending comps activate on signup
             </span>
           </div>
 
@@ -230,8 +248,9 @@ export default function CompsAdminPage() {
                   className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-3 py-2 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
                 />
                 <p className="text-[10px] text-muted font-sans mt-1.5">
-                  Shown to the user on their dashboard. Capture context — future-you will
-                  want to know why this comp exists.
+                  Shown to the user on their dashboard. If they don&apos;t have a
+                  Ladder account yet, the comp is held as Pending and activates
+                  the moment they sign up.
                 </p>
               </div>
               <div>
@@ -275,10 +294,10 @@ export default function CompsAdminPage() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <span className="text-[10px] text-muted uppercase tracking-widest">
-              Active comps
+              Comps
             </span>
             <span className="text-[10px] text-muted">
-              {comps.length} total
+              {activeCount} active · {pendingCount} pending
               {comps.some((c) => c.expired) &&
                 ` · ${comps.filter((c) => c.expired).length} expired`}
             </span>
@@ -289,6 +308,7 @@ export default function CompsAdminPage() {
               <thead>
                 <tr className="border-b border-[#2a2a2a] text-muted uppercase tracking-widest text-[9px]">
                   <th className="text-left p-3">Email</th>
+                  <th className="text-left p-3">Status</th>
                   <th className="text-left p-3">Tier</th>
                   <th className="text-left p-3">Reason</th>
                   <th className="text-left p-3">Granted</th>
@@ -299,7 +319,7 @@ export default function CompsAdminPage() {
               <tbody>
                 {comps.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center text-muted font-sans">
+                    <td colSpan={7} className="p-6 text-center text-muted font-sans">
                       No comps yet.
                     </td>
                   </tr>
@@ -311,9 +331,10 @@ export default function CompsAdminPage() {
                       : c.expiresAt
                         ? "text-ladder-orange"
                         : "text-muted";
+                    const rowKey = c.userId || `pending:${c.email}`;
                     return (
                       <tr
-                        key={c.userId}
+                        key={rowKey}
                         className={`border-b border-[#222] last:border-0 hover:bg-[#222] ${
                           c.expired ? "opacity-60" : ""
                         }`}
@@ -324,6 +345,19 @@ export default function CompsAdminPage() {
                             <div className="text-[10px] text-muted font-sans">
                               {c.name}
                             </div>
+                          )}
+                        </td>
+                        <td className="p-3">
+                          {c.status === "pending" ? (
+                            <span className="inline-flex items-center gap-1.5 text-[9px] uppercase tracking-widest text-ladder-orange border border-ladder-orange/40 bg-ladder-orange/5 px-1.5 py-0.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-ladder-orange" />
+                              Pending
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 text-[9px] uppercase tracking-widest text-ladder-green border border-ladder-green/40 bg-ladder-green/5 px-1.5 py-0.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-ladder-green" />
+                              Active
+                            </span>
                           )}
                         </td>
                         <td className="p-3 uppercase tracking-widest text-[10px] text-ladder-green">
@@ -345,8 +379,8 @@ export default function CompsAdminPage() {
                         </td>
                         <td className="p-3 text-right">
                           <button
-                            onClick={() => revoke(c.userId, c.email)}
-                            disabled={busyUser === c.userId}
+                            onClick={() => revoke(c)}
+                            disabled={busyKey === rowKey}
                             className="text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors disabled:opacity-40"
                           >
                             Revoke

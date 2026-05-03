@@ -1,5 +1,6 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import type { Tier } from "@/lib/plans";
+import { getPendingComp, deletePendingComp } from "@/lib/pending-comps";
 
 /** Comp metadata stored on Clerk publicMetadata alongside `tier`. */
 export type CompInfo = {
@@ -46,6 +47,13 @@ export async function getUserTier(userId: string): Promise<Tier> {
 
 /**
  * Read the full subscription state — tier plus comp attributes if present.
+ *
+ * Side-effect: if no comp metadata is set and a pending comp exists for
+ * this user's email (issued by an admin before the user signed up), the
+ * pending record is consumed and converted into a real comp on Clerk
+ * publicMetadata. After this first call the user is indistinguishable
+ * from any other comped user.
+ *
  * Comp is only returned when `comp: true` AND not expired.
  */
 export async function getUserSubscription(userId: string): Promise<Subscription> {
@@ -61,6 +69,33 @@ export async function getUserSubscription(userId: string): Promise<Subscription>
       // Treat expired comp as free (do not surface comp metadata to UI).
       return { tier: "free" };
     }
+
+    // Auto-claim a pending comp if there's no active one yet. Pending comps
+    // are admin-issued for an email before the recipient signed up.
+    if (!comp) {
+      const email = user.primaryEmailAddress?.emailAddress?.toLowerCase();
+      if (email) {
+        const pending = await getPendingComp(email).catch(() => null);
+        if (pending) {
+          await grantComp(userId, {
+            tier: pending.tier,
+            reason: pending.reason,
+            expiresAt: pending.expiresAt,
+          });
+          await deletePendingComp(email).catch(() => {});
+          return {
+            tier: pending.tier,
+            comp: {
+              comp: true,
+              reason: pending.reason,
+              grantedAt: pending.grantedAt,
+              expiresAt: pending.expiresAt,
+            },
+          };
+        }
+      }
+    }
+
     return comp ? { tier, comp } : { tier };
   } catch {
     return { tier: "free" };
