@@ -906,9 +906,13 @@ export default function ScorePage() {
                         {f}
                       </li>
                     ))}
-                    <li className="flex items-start gap-2 text-xs text-muted font-sans">
-                      <span className="text-[#555] mt-0.5 flex-shrink-0">+</span>
-                      Ladder for Figma — coming soon for Pro members
+                    <li className="flex items-start gap-2 text-xs text-body font-sans">
+                      <span className="text-ladder-green mt-0.5 flex-shrink-0">+</span>
+                      Ladder for Figma — score frames in the canvas
+                    </li>
+                    <li className="flex items-start gap-2 text-xs text-body font-sans">
+                      <span className="text-ladder-green mt-0.5 flex-shrink-0">+</span>
+                      Ladder for Claude — score in any AI conversation
                     </li>
                   </ul>
                   <Link

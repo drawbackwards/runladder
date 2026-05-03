@@ -389,9 +389,8 @@ export default function TeamsPage() {
                   Enterprise
                 </h3>
                 <p className="text-sm text-body max-w-lg leading-relaxed">
-                  25+ designers, SSO, API access, multi-team dashboards,
-                  dedicated CSM, and custom integrations. Priced for your
-                  scale.
+                  25+ designers, SSO, multi-team dashboards, dedicated CSM,
+                  and custom integrations. Priced for your scale.
                 </p>
               </div>
               <Link

@@ -5,6 +5,7 @@ import { useAuth, useUser, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
 import { SkillTokenCard } from "@/components/SkillTokenCard";
+import { FigmaPluginCard } from "@/components/FigmaPluginCard";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { FREE_LIFETIME_LIMIT } from "@/lib/plans";
 
@@ -321,7 +322,8 @@ export default function DashboardPage() {
             </div>
           </main>
 
-          <aside>
+          <aside className="space-y-4">
+            <FigmaPluginCard />
             <SkillTokenCard />
           </aside>
         </div>
