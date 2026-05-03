@@ -32,6 +32,10 @@ type ScoreDetail = {
   thumbnail?: string;
   isPublic: boolean;
   timestamp: number;
+  // Uplift over previous scan of the same screen, if any.
+  previousScore?: number | null;
+  uplift?: number | null;
+  screenKey?: string;
 };
 
 function CategoryBadge({ category }: { category: string }) {
@@ -162,6 +166,28 @@ export default function ScoreDetailPage() {
               <span className="text-sm font-bold uppercase tracking-widest mt-1" style={{ color: getScoreColor(data.score) }}>
                 {data.label}
               </span>
+
+              {typeof data.uplift === "number" && typeof data.previousScore === "number" && (
+                <div className="mt-4 flex items-baseline gap-2">
+                  {data.uplift === 0 ? (
+                    <span className="font-mono text-sm font-semibold text-muted tabular-nums">
+                      ±0.0
+                    </span>
+                  ) : (
+                    <span
+                      className={`font-mono text-sm font-semibold tabular-nums ${
+                        data.uplift > 0 ? "text-ladder-green" : "text-ladder-red"
+                      }`}
+                    >
+                      {data.uplift > 0 ? "↑" : "↓"}
+                      {Math.abs(data.uplift).toFixed(1)}
+                    </span>
+                  )}
+                  <span className="text-[11px] text-muted">
+                    from {data.previousScore.toFixed(1)} last scan
+                  </span>
+                </div>
+              )}
 
               <div className="mt-6 pt-4 border-t border-[#333] w-full">
                 <span className="text-[10px] text-muted uppercase tracking-widest">Gap to {nextLevel}</span>
