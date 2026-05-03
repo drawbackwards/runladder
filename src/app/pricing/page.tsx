@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalNotice } from "@/components/LegalNotice";
+import { SubscribeButton } from "@/components/SubscribeButton";
 
 export const metadata: Metadata = {
   title: "Pricing | Ladder",
@@ -17,7 +18,7 @@ const SCREEN_SCORE_TIERS = [
     limit: "5 scores to get started",
     features: [
       "Overall Ladder score + coaching",
-      "Score on web, Claude Skill, MCP, or Figma",
+      "Score on web, Claude Skill, or Figma",
       "Scores are public",
     ],
     cta: "Start free",
@@ -29,11 +30,9 @@ const SCREEN_SCORE_TIERS = [
     price: "$250",
     period: "/ mo",
     highlight: true,
-    limit: "Unlimited + 1,000 API / mo",
+    limit: "Unlimited scoring",
     features: [
-      "Unlimited scoring on web, Claude Skill, MCP, and Figma",
-      "1,000 API calls per month, overage at $0.50 per call",
-      "API keys for programmatic access",
+      "Unlimited scoring on web, Claude Skill, and Figma",
       "All scores are private",
       "UX copy suggestions",
       "Accessibility audit",
@@ -78,8 +77,7 @@ export default function PricingPage() {
           </h1>
           <p className="text-body max-w-lg mx-auto leading-relaxed">
             One subscription works across every Ladder surface: web,
-            Claude, MCP, Figma, and API. Start free, upgrade when you
-            need more.
+            Claude, and Figma. Start free, upgrade when you need more.
           </p>
         </div>
 
@@ -142,18 +140,27 @@ export default function PricingPage() {
                 ))}
               </ul>
 
-              <Link
-                href={tier.href}
-                className={`text-center text-sm font-semibold py-3 rounded-full transition-colors ${
-                  tier.highlight
-                    ? "bg-ladder-green text-background hover:bg-ladder-green/90"
-                    : tier.solidCta
-                    ? "bg-foreground text-background hover:bg-foreground/90"
-                    : "border border-border text-foreground hover:bg-card-hover"
-                }`}
-              >
-                {tier.cta}
-              </Link>
+              {tier.name === "Professional" ? (
+                <SubscribeButton
+                  plan="pro"
+                  className="w-full text-center text-sm font-semibold py-3 rounded-full transition-colors bg-ladder-green text-background hover:bg-ladder-green/90 disabled:opacity-60"
+                >
+                  {tier.cta}
+                </SubscribeButton>
+              ) : (
+                <Link
+                  href={tier.href}
+                  className={`text-center text-sm font-semibold py-3 rounded-full transition-colors ${
+                    tier.highlight
+                      ? "bg-ladder-green text-background hover:bg-ladder-green/90"
+                      : tier.solidCta
+                      ? "bg-foreground text-background hover:bg-foreground/90"
+                      : "border border-border text-foreground hover:bg-card-hover"
+                  }`}
+                >
+                  {tier.cta}
+                </Link>
+              )}
             </div>
           ))}
 
@@ -267,15 +274,11 @@ export default function PricingPage() {
               },
               {
                 q: "Does one subscription cover all surfaces?",
-                a: "Yes. Your Ladder account works on runladder.com, the Claude Skill, MCP, the Figma plugin, and the Ladder API. One subscription, one usage meter — your 5 free scores are shared across all surfaces.",
+                a: "Yes. Your Ladder account works on runladder.com, the Claude Skill, and the Figma plugin. One subscription, one usage meter — your 5 free scores are shared across every surface.",
               },
               {
                 q: "What counts as a score?",
                 a: "Each time you submit a screenshot, URL, or payload for Ladder analysis on any surface, that\u2019s one score. Viewing history, sharing results, or browsing the Top 100 doesn\u2019t count.",
-              },
-              {
-                q: "How does the API work?",
-                a: "API keys are included at Professional and above. Professional includes 1,000 API calls per month with overage at $0.50 per call. Team includes 25,000 pooled API calls per month with overage at $0.25 per call. Pulse includes 50,000 queries per month with overage at $0.15 per query. Generate keys from your dashboard once subscribed.",
               },
               {
                 q: "Can I cancel anytime?",

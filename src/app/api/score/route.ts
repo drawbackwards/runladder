@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { redis } from "@/lib/redis";
+import { redis, lifetimeScansKey } from "@/lib/redis";
 import {
   parseImageDataUrl,
   scoreImage,
   isScoringError,
 } from "@/lib/scoring";
 import { makeThumbnail } from "@/lib/thumbnail";
-import { FREE_MONTHLY_LIMIT, ANON_LIMIT } from "@/lib/plans";
+import { FREE_LIFETIME_LIMIT, ANON_LIMIT, isPaidTier } from "@/lib/plans";
+import { getUserTier } from "@/lib/tier";
 
 export const maxDuration = 60;
 
@@ -29,20 +30,21 @@ export async function POST(req: NextRequest) {
       req.headers.get("x-real-ip") ||
       "unknown";
 
-    /* ── Rate limiting via Redis ── */
-    const monthKey = new Date().toISOString().slice(0, 7); // "2026-04"
-
+    /* ── Rate limiting ── */
     if (userId) {
-      const countKey = `user:${userId}:usage:${monthKey}`;
-      const count = (await redis.get<number>(countKey)) ?? 0;
-      if (count >= FREE_MONTHLY_LIMIT) {
-        return NextResponse.json(
-          {
-            error: `Free tier limit reached (${FREE_MONTHLY_LIMIT} scores/month). Upgrade for unlimited scoring.`,
-            upgrade: true,
-          },
-          { status: 429 }
-        );
+      const tier = await getUserTier(userId);
+      if (!isPaidTier(tier)) {
+        const usedKey = lifetimeScansKey(userId);
+        const used = (await redis.get<number>(usedKey)) ?? 0;
+        if (used >= FREE_LIFETIME_LIMIT) {
+          return NextResponse.json(
+            {
+              error: `You've used all ${FREE_LIFETIME_LIMIT} free Ladder scores. Upgrade to Pro for unlimited scoring.`,
+              upgrade: true,
+            },
+            { status: 429 }
+          );
+        }
       }
     } else {
       const anonKey = `rate:anon:${ip}`;
@@ -50,7 +52,7 @@ export async function POST(req: NextRequest) {
       if (count >= ANON_LIMIT) {
         return NextResponse.json(
           {
-            error: `Sign up for free to get ${FREE_MONTHLY_LIMIT} scores per month.`,
+            error: `Sign up for free to get ${FREE_LIFETIME_LIMIT} Ladder scores.`,
             signup: true,
           },
           { status: 429 }
@@ -99,20 +101,15 @@ export async function POST(req: NextRequest) {
         timestamp: Date.now(),
       };
 
-      const countKey = `user:${userId}:usage:${monthKey}`;
-
-      await Promise.all([
+      const ops: Promise<unknown>[] = [
         redis.zadd(`user:${userId}:scores`, {
           score: Date.now(),
           member: JSON.stringify(scoreEntry),
         }),
-        redis.incr(countKey),
-      ]);
-
-      const ttl = await redis.ttl(countKey);
-      if (ttl < 0) {
-        await redis.expire(countKey, 60 * 60 * 24 * 35);
-      }
+      ];
+      // Always count lifetime scans — even on paid tiers, for analytics + audit.
+      ops.push(redis.incr(lifetimeScansKey(userId)));
+      await Promise.all(ops);
     } else {
       const anonKey = `rate:anon:${ip}`;
       await redis.incr(anonKey);

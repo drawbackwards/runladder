@@ -37,10 +37,10 @@ const TROUBLESHOOTING: { title: string; body: React.ReactNode }[] = [
     body: "Your token was revoked or never saved correctly. Click Rotate above, then re-run the install command in Terminal.",
   },
   {
-    title: "429 — monthly limit reached",
+    title: "429 — free tier limit reached",
     body: (
       <>
-        You&apos;ve used all 15 free scores this month.{" "}
+        You&apos;ve used all 5 free Ladder scores.{" "}
         <a
           href="/pricing"
           className="text-ladder-green hover:underline"

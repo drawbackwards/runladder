@@ -7,8 +7,12 @@ export const redis = new Redis({
 
 /*
   Redis key schema:
-  - votes:{slug}              Hash { total: float, count: int }
-  - user:{userId}:scores      Sorted set (timestamp as score, JSON payload as member)
-  - user:{userId}:usage:{YYYY-MM}  Integer counter for monthly rate limiting
-  - rate:anon:{ip}            Integer counter with 24h TTL for anonymous rate limiting
+  - votes:{slug}                       Hash { total: float, count: int }
+  - user:{userId}:scores               Sorted set (timestamp as score, JSON payload as member)
+  - user:{userId}:lifetime_scans_used  Integer counter, never resets — drives the free-tier cap
+  - rate:anon:{ip}                     Integer counter with 24h TTL for anonymous rate limiting
 */
+
+export function lifetimeScansKey(userId: string): string {
+  return `user:${userId}:lifetime_scans_used`;
+}

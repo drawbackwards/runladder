@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
+import { redis, lifetimeScansKey } from "@/lib/redis";
 import {
   parseImageDataUrl,
   scoreImage,
@@ -7,14 +7,15 @@ import {
 } from "@/lib/scoring";
 import { makeThumbnail } from "@/lib/thumbnail";
 import { userIdFromBearer, touchSkillToken } from "@/lib/skill-auth";
-import { FREE_MONTHLY_LIMIT } from "@/lib/plans";
+import { FREE_LIFETIME_LIMIT, isPaidTier } from "@/lib/plans";
+import { getUserTier } from "@/lib/tier";
 
 export const maxDuration = 60;
 
 /**
  * Skill scoring endpoint — called by the Ladder Claude Skill and other
  * token-authenticated thin clients. Shares the scoring engine and
- * monthly usage pool with /api/score.
+ * lifetime usage pool with /api/score.
  *
  * Response shape intentionally mirrors /api/score but strips anything
  * that could expose internal scoring logic.
@@ -41,18 +42,20 @@ export async function POST(req: NextRequest) {
     const installedVersion =
       req.headers.get("x-ladder-skill-version")?.slice(0, 32) || undefined;
 
-    /* ── Rate limiting (shared pool with /api/score) ── */
-    const monthKey = new Date().toISOString().slice(0, 7);
-    const countKey = `user:${userId}:usage:${monthKey}`;
-    const count = (await redis.get<number>(countKey)) ?? 0;
-    if (count >= FREE_MONTHLY_LIMIT) {
-      return NextResponse.json(
-        {
-          error: `Free tier limit reached (${FREE_MONTHLY_LIMIT} scores/month). Upgrade at https://runladder.com/pricing for unlimited scoring.`,
-          upgrade: true,
-        },
-        { status: 429 }
-      );
+    /* ── Rate limiting (shared lifetime pool with /api/score) ── */
+    const tier = await getUserTier(userId);
+    const usedKey = lifetimeScansKey(userId);
+    if (!isPaidTier(tier)) {
+      const used = (await redis.get<number>(usedKey)) ?? 0;
+      if (used >= FREE_LIFETIME_LIMIT) {
+        return NextResponse.json(
+          {
+            error: `You've used all ${FREE_LIFETIME_LIMIT} free Ladder scores. Upgrade at https://runladder.com/pricing for unlimited scoring.`,
+            upgrade: true,
+          },
+          { status: 429 }
+        );
+      }
     }
 
     const body = await req.json();
@@ -103,14 +106,9 @@ export async function POST(req: NextRequest) {
         score: Date.now(),
         member: JSON.stringify(scoreEntry),
       }),
-      redis.incr(countKey),
+      redis.incr(usedKey),
       touchSkillToken(userId, installedVersion),
     ]);
-
-    const ttl = await redis.ttl(countKey);
-    if (ttl < 0) {
-      await redis.expire(countKey, 60 * 60 * 24 * 35);
-    }
 
     return NextResponse.json({
       score: result.score,
