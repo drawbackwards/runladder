@@ -64,6 +64,25 @@ export async function POST(req: NextRequest) {
     ]);
     const user = await clerk.users.getUser(userId);
     const paid = isPaidTier(sub.tier);
+
+    // Diagnostic: log every successful verify so we can correlate with persist
+    try {
+      await redis.lpush(
+        "debug:plugin-persist-log",
+        JSON.stringify({
+          ts: Date.now(),
+          kind: "verify-token",
+          userId,
+          tier: sub.tier,
+          email: user.primaryEmailAddress?.emailAddress ?? null,
+        }),
+      );
+      await redis.ltrim("debug:plugin-persist-log", 0, 49);
+      await redis.expire("debug:plugin-persist-log", 60 * 60 * 24);
+    } catch {
+      // best-effort
+    }
+
     return NextResponse.json(
       {
         userId,
