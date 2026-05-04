@@ -28,8 +28,8 @@ function NumberedStep({
 
 /**
  * Dashboard installer card for the Ladder for Figma plugin.
- * Three steps mirror the Skill install flow — same token, different surface.
- * Sits alongside SkillTokenCard in the dashboard sidebar.
+ * Two-step install: open in Figma Community, then sign in with the
+ * same email used on runladder.com.
  */
 export function FigmaPluginCard() {
   return (
@@ -44,21 +44,11 @@ export function FigmaPluginCard() {
           </h3>
         </div>
         <p className="text-xs text-muted font-sans leading-relaxed">
-          Score frames inside Figma without leaving the canvas. Same framework,
-          same calibration, same per-rung breakdown.
+          Score frames inside Figma without leaving the canvas.
         </p>
       </div>
 
-      <NumberedStep n={1} title="Get your Ladder token">
-        <p className="text-[11px] text-muted font-sans leading-relaxed">
-          Use the <span className="text-foreground font-semibold">Ladder for Claude</span> card
-          below — generate a token, then click{" "}
-          <span className="text-foreground font-semibold">Copy raw token</span>.
-          The same token works for both surfaces.
-        </p>
-      </NumberedStep>
-
-      <NumberedStep n={2} title="Install the plugin">
+      <NumberedStep n={1} title="Install the plugin">
         <a
           href={FIGMA_PLUGIN_URL}
           target="_blank"
@@ -67,27 +57,16 @@ export function FigmaPluginCard() {
         >
           Open in Figma Community →
         </a>
-        <p className="text-[10px] text-muted font-sans mt-3 leading-relaxed">
-          Click <span className="text-foreground">Open in…</span> in Figma Community to
-          install into your account. Available in any Figma file under{" "}
-          <code className="text-foreground">Plugins → Ladder for Figma</code>.
-        </p>
       </NumberedStep>
 
-      <NumberedStep n={3} title="Paste your token">
+      <NumberedStep n={2} title="Sign in with your Ladder email">
         <p className="text-[11px] text-muted font-sans leading-relaxed">
-          Open the plugin. Paste your Ladder token in the auth screen, click{" "}
-          <span className="text-foreground font-semibold">Continue</span>, and you&apos;re in.
-          Select any frame and hit <span className="text-foreground font-semibold">Score</span>.
+          Open the plugin in any Figma file (
+          <code className="text-foreground">Plugins → Ladder for Figma</code>) and
+          sign in with the same email you use here. Scores sync to your
+          dashboard automatically.
         </p>
       </NumberedStep>
-
-      <div className="mt-6 pt-5 border-t border-[#333]">
-        <p className="text-[10px] text-muted font-sans leading-relaxed">
-          Scores from the plugin sync to your dashboard automatically. The free
-          5-score lifetime cap is shared across web, Skill, and Figma.
-        </p>
-      </div>
     </div>
   );
 }
