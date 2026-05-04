@@ -2,13 +2,9 @@ import Link from "next/link";
 import { LadderLogo } from "./LadderLogo";
 
 export function AuthShell({
-  title,
-  subtitle,
   children,
   footer,
 }: {
-  title: string;
-  subtitle: React.ReactNode;
   children: React.ReactNode;
   footer: React.ReactNode;
 }) {
@@ -26,12 +22,6 @@ export function AuthShell({
         <Link href="/" aria-label="Ladder home" className="mb-10">
           <LadderLogo height={26} className="text-white" />
         </Link>
-        <h1 className="text-3xl font-semibold text-foreground tracking-tight text-center mb-3">
-          {title}
-        </h1>
-        <p className="text-body text-base text-center mb-10 max-w-[22rem]">
-          {subtitle}
-        </p>
         <div className="w-full">{children}</div>
         <div className="text-muted text-sm text-center mt-8">{footer}</div>
       </div>
