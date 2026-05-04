@@ -73,15 +73,12 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
     price: "Custom",
     period: "",
     highlight: false,
-    limit: "Unlimited + 25,000 API pooled / mo",
+    limit: "Unlimited",
     features: [
       "Everything in Professional",
-      "25,000 pooled API calls per month, overage at $0.25 per call",
       "Team leaderboard + portfolio score",
-      "Design system compliance scoring",
       "Manager dashboard + performance tracking",
-      "SSO and advanced access controls",
-      "Access to customer sentiment and Ladder Pulse scoring data + insights, if subscribed",
+      "Access to customer sentiment and Ladder Pulse scoring data + insights, if subscribed (coming soon)",
     ],
     cta: "Talk to us about Ladder",
     href: "/contact",
@@ -271,12 +268,7 @@ export default async function PricingPage() {
             </div>
             <div className="mb-6" />
 
-            {/* Usage limit */}
-            <div className="border border-ladder-purple/30 rounded-lg px-4 py-3 mb-8">
-              <p className="font-mono text-xs text-ladder-purple">
-                50,000 queries / month
-              </p>
-            </div>
+            <div className="mb-8" />
 
             {/* Features */}
             <ul className="space-y-3 mb-10 flex-1">
@@ -285,8 +277,6 @@ export default async function PricingPage() {
                 "Field reports and internal ops signals",
                 "Custom bespoke dashboards and interfaces",
                 "Real-time tracking and alerting",
-                "50,000 queries per month, overage at $0.15 per query",
-                "Bundle with Team for pooled usage across all Ladder surfaces",
                 "Dedicated onboarding and support",
               ].map((f) => (
                 <li key={f} className="text-sm text-body flex items-start gap-2.5">
@@ -389,11 +379,11 @@ export default async function PricingPage() {
               },
               {
                 q: "How does Team seat pricing work?",
-                a: "Team pricing is custom and requires a contract. It includes up to 5 team members with additional seats available, 25,000 pooled API calls per month, SSO, team leaderboards, compliance scoring, and manager dashboards. Contact us for details.",
+                a: "Team pricing is custom and requires a contract. It includes up to 5 team members with additional seats available, team leaderboards, and manager dashboards. Contact us for details.",
               },
               {
                 q: "What\u2019s the difference between Screen Score and Pulse?",
-                a: "Screen Score analyzes individual screens and interfaces for visual and UX quality. Pulse measures experience quality at scale by ingesting customer feedback, reviews, support transcripts, and internal signals into a single Ladder score. Pulse includes 50,000 queries per month with overage at $0.15 per query.",
+                a: "Screen Score analyzes individual screens and interfaces for visual and UX quality. Pulse measures experience quality at scale by ingesting customer feedback, reviews, support transcripts, and internal signals into a single Ladder score.",
               },
               {
                 q: "What is Enterprise?",

@@ -24,11 +24,6 @@ const CAPABILITIES = [
     detail: "Custom rules, weighted priorities, team-specific quality definitions",
   },
   {
-    name: "Design System Compliance",
-    desc: "Connect your design system. Ladder checks every screen against your tokens, components, and patterns, then tells designers exactly where they drifted.",
-    detail: "Token validation, component coverage, drift detection",
-  },
-  {
     name: "Custom Rubric Weights",
     desc: "Care more about accessibility than visual polish? Prioritize information hierarchy over delight? Adjust the scoring weights. The Ladder score reflects your team's priorities.",
     detail: "Dimension weighting, category emphasis, scoring calibration",
@@ -43,7 +38,7 @@ const CAPABILITIES = [
 const WHAT_CHANGES = [
   {
     before: "Designers score in isolation",
-    after: "Every score factors in your brand standards, leadership lens, and design system automatically",
+    after: "Every score factors in your brand standards and leadership lens automatically",
   },
   {
     before: "Quality is subjective across the team",
@@ -52,10 +47,6 @@ const WHAT_CHANGES = [
   {
     before: "You find out about quality problems at review time",
     after: "Dashboard shows drift in real time. Intervene early, not late",
-  },
-  {
-    before: "Design system compliance is a manual audit",
-    after: "Every score includes a compliance check against your tokens and components",
   },
   {
     before: "No way to measure team improvement over time",
@@ -72,7 +63,6 @@ const TIER = {
     "Add and manage up to ten designers",
     "Team knowledge base (brand standards + leadership lens)",
     "Per-designer scores, trends, and leaderboard",
-    "Design system compliance scoring",
     "Unlimited scores on all surfaces (web and Claude)",
     "Priority support",
   ],
@@ -93,9 +83,9 @@ export default function TeamsPage() {
           </h1>
           <p className="text-lg text-body max-w-2xl mx-auto mb-12 leading-relaxed">
             Load your brand standards, encode your design leadership's
-            priorities, connect your design system, and every Ladder score
-            your team runs reflects what quality means to{" "}
-            <em>your</em> organization. Not generic. Yours.
+            priorities, and every Ladder score your team runs reflects
+            what quality means to <em>your</em> organization. Not generic.
+            Yours.
           </p>
           <div className="flex items-center justify-center gap-6">
             <Link
@@ -141,7 +131,7 @@ export default function TeamsPage() {
               doesn't just tell a designer &ldquo;this screen is a
               2.4.&rdquo; It tells them &ldquo;this screen is a 2.4
               because it violates your brand's density principles and
-              drifts from your design system's spacing tokens.&rdquo;
+              the back-path rule your VP of Design set.&rdquo;
             </p>
             <p className="text-foreground font-medium">
               Teams turns Ladder from a universal quality score into your
@@ -254,10 +244,10 @@ export default function TeamsPage() {
             </p>
             <p>
               The difference: behind the scenes, their score now factors
-              in your brand standards, your leadership's priorities, and
-              your design system. The coaching cards don't just say
-              &ldquo;improve spacing.&rdquo; They say &ldquo;your 12px
-              gap doesn't match your system's 16px base unit.&rdquo;
+              in your brand standards and your leadership's priorities.
+              The coaching cards don't just say &ldquo;improve
+              spacing.&rdquo; They say &ldquo;your hierarchy buries the
+              primary action your team agreed should always lead.&rdquo;
             </p>
             <p className="text-foreground font-medium">
               Zero onboarding friction. Every designer gets your team's
@@ -458,9 +448,9 @@ export default function TeamsPage() {
             <span className="text-ladder-green">your team's DNA.</span>
           </h2>
           <p className="text-body mb-10 leading-relaxed max-w-lg mx-auto">
-            Your brand standards. Your leadership's priorities. Your
-            design system. Baked into every score, every coaching card,
-            every designer's workflow. From day one.
+            Your brand standards. Your leadership's priorities. Baked
+            into every score, every coaching card, every designer's
+            workflow. From day one.
           </p>
           <div className="flex items-center justify-center gap-6">
             <Link
