@@ -12,8 +12,6 @@ export const metadata: Metadata = {
 export default function SignUpPage() {
   return (
     <AuthShell
-      title="Start scoring"
-      subtitle="Create a free account to score any screen against the Ladder framework."
       footer={
         <>
           Already have an account?{" "}

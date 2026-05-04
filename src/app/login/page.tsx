@@ -12,14 +12,6 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <AuthShell
-      title="Welcome back"
-      subtitle={
-        <>
-          Sign in to your Ladder account
-          <br />
-          to keep scoring.
-        </>
-      }
       footer={
         <>
           New here?{" "}

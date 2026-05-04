@@ -51,28 +51,22 @@ export default function RootLayout({
           colorInputText: "#e5e5e5",
           colorNeutral: "#e5e5e5",
           colorDanger: "#ef4444",
-          borderRadius: "0px",
-          fontFamily: "Inter, sans-serif",
+          fontFamily: "var(--font-inter), Inter, sans-serif",
         },
-        elements: {
-          card: "bg-[#111] border border-[#2a2a2a] shadow-none rounded-none",
-          socialButtonsBlockButton: "bg-[#1a1a1a] border-[#2a2a2a] text-[#e5e5e5] hover:bg-[#222] rounded-none",
-          socialButtonsBlockButtonText: "text-[#e5e5e5] font-medium",
-          formFieldInput: "bg-[#1a1a1a] border-[#2a2a2a] text-[#e5e5e5] rounded-none focus:border-[#6AC89B] focus:ring-0",
-          formFieldLabel: "text-[#777]",
-          formButtonPrimary: "bg-[#6AC89B] hover:bg-[#5ab88b] text-[#111] font-semibold rounded-none",
-          headerTitle: "text-[#e5e5e5] font-bold",
-          headerSubtitle: "text-[#777]",
-          dividerLine: "bg-[#2a2a2a]",
-          dividerText: "text-[#555]",
-          footerActionLink: "text-[#6AC89B] hover:text-[#5ab88b]",
-          footerActionText: "text-[#555]",
-          identityPreviewEditButton: "text-[#6AC89B]",
-          identityPreviewText: "text-[#e5e5e5]",
-          formFieldInputShowPasswordButton: "text-[#777] hover:text-[#e5e5e5]",
-          otpCodeFieldInput: "bg-[#1a1a1a] border-[#2a2a2a] text-[#e5e5e5]",
-          alternativeMethodsBlockButton: "bg-[#1a1a1a] border-[#2a2a2a] text-[#e5e5e5] hover:bg-[#222] rounded-none",
-          badge: "bg-[#6AC89B]/10 text-[#6AC89B] border-[#6AC89B]/20",
+      }}
+      localization={{
+        signIn: {
+          start: {
+            title: "Welcome back",
+            subtitle: "Sign in to your Ladder account to keep scoring.",
+          },
+        },
+        signUp: {
+          start: {
+            title: "Start scoring",
+            subtitle:
+              "Create a free account to score any screen against the Ladder framework.",
+          },
         },
       }}
     >
