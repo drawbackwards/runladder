@@ -29,7 +29,7 @@ export default function SignUpPage() {
       <SignUp
         routing="hash"
         signInUrl="/login"
-        fallbackRedirectUrl="/score"
+        forceRedirectUrl="/score"
         appearance={authAppearance}
       />
     </AuthShell>
