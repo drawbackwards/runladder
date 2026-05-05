@@ -7,6 +7,7 @@ import Link from "next/link";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
+import { AnalysisFeedback } from "@/components/AnalysisFeedback";
 
 type Finding = {
   title: string;
@@ -323,6 +324,10 @@ export default function ScoreDetailPage() {
             </Link>
           </div>
         )}
+
+        <div className="mt-6">
+          <AnalysisFeedback scoreId={data.id} />
+        </div>
       </div>
     </div>
   );

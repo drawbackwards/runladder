@@ -373,6 +373,12 @@ export default function AdminPage() {
             >
               Evaluations
             </Link>
+            <Link
+              href="/admin/feedback"
+              className="text-xs font-semibold border border-ladder-green text-ladder-green px-4 py-1.5 rounded-sm hover:bg-ladder-green/10 transition-colors"
+            >
+              Feedback
+            </Link>
             <button
               onClick={refresh}
               className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
