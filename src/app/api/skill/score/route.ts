@@ -10,6 +10,7 @@ import { userIdFromBearer, touchSkillToken } from "@/lib/skill-auth";
 import { FREE_LIFETIME_LIMIT, isPaidTier } from "@/lib/plans";
 import { getUserTier } from "@/lib/tier";
 import { persistScoreEntry } from "@/lib/scores";
+import { getTeamPoolStatus, recordScoreForTeam } from "@/lib/teams";
 
 export const maxDuration = 60;
 
@@ -59,6 +60,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Team-pooled query cap. Enforced for every member regardless of tier
+    // since paid Pro and Team are both `isPaidTier` true above.
+    const teamPool = await getTeamPoolStatus(userId);
+    if (teamPool && teamPool.exceeded) {
+      return NextResponse.json(
+        {
+          error: `Your team has used all ${teamPool.pool.toLocaleString()} pooled queries this month.`,
+          poolExceeded: true,
+        },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { image, source } = body;
 
@@ -87,8 +101,10 @@ export async function POST(req: NextRequest) {
       parsed.mediaType,
     );
 
+    const scoreId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const timestamp = Date.now();
     const scoreEntry = await persistScoreEntry(userId, {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      id: scoreId,
       score: result.score,
       label: result.label,
       screenName: result.screenName || source || "Skill",
@@ -99,9 +115,23 @@ export async function POST(req: NextRequest) {
       source: source || "claude-skill",
       thumbnail,
       isPublic: false,
-      timestamp: Date.now(),
+      timestamp,
     });
     await touchSkillToken(userId, installedVersion);
+
+    try {
+      await recordScoreForTeam(userId, {
+        timestamp,
+        scoreId,
+        score: result.score,
+        label: result.label,
+        screenName: result.screenName || source || "Skill",
+        source: source || "claude-skill",
+        thumbnail,
+      });
+    } catch (err) {
+      console.error("[LADDER:TEAMS] recordScoreForTeam (skill) failed:", err);
+    }
 
     return NextResponse.json({
       score: result.score,

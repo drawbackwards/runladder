@@ -362,6 +362,12 @@ export default function AdminPage() {
           </div>
           <div className="flex items-center gap-4">
             <Link
+              href="/admin/teams"
+              className="text-xs font-semibold border border-ladder-green text-ladder-green px-4 py-1.5 rounded-sm hover:bg-ladder-green/10 transition-colors"
+            >
+              Teams
+            </Link>
+            <Link
               href="/admin/comps"
               className="text-xs font-semibold border border-ladder-green text-ladder-green px-4 py-1.5 rounded-sm hover:bg-ladder-green/10 transition-colors"
             >

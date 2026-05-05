@@ -4,6 +4,7 @@ import { parseImageDataUrl } from "@/lib/scoring";
 import { makeThumbnail } from "@/lib/thumbnail";
 import { persistScoreEntry, type ScoreEntryInput } from "@/lib/scores";
 import { CURRENT_API_VERSION } from "@/lib/app-version";
+import { recordScoreForTeam } from "@/lib/teams";
 
 const API_VERSION_HEADERS = { "X-Ladder-API-Version": CURRENT_API_VERSION };
 
@@ -87,6 +88,20 @@ export async function POST(req: NextRequest) {
       isPublic: !!score.isPublic,
       timestamp: score.timestamp || Date.now(),
     });
+
+    try {
+      await recordScoreForTeam(userId, {
+        timestamp: stored.timestamp,
+        scoreId: stored.id,
+        score: stored.score,
+        label: stored.label,
+        screenName: stored.screenName,
+        source: stored.source,
+        thumbnail: stored.thumbnail,
+      });
+    } catch (err) {
+      console.error("[LADDER:TEAMS] recordScoreForTeam (plugin) failed:", err);
+    }
 
     // Diagnostic log: keep the last 50 persist attempts for 24h so we can
     // verify cross-repo calls land without trawling Vercel logs by hand.

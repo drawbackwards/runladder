@@ -10,6 +10,7 @@ import { makeThumbnail } from "@/lib/thumbnail";
 import { FREE_LIFETIME_LIMIT, ANON_LIMIT, isPaidTier } from "@/lib/plans";
 import { getUserTier } from "@/lib/tier";
 import { persistScoreEntry } from "@/lib/scores";
+import { getTeamPoolStatus, recordScoreForTeam } from "@/lib/teams";
 
 export const maxDuration = 60;
 
@@ -46,6 +47,19 @@ export async function POST(req: NextRequest) {
             { status: 429 }
           );
         }
+      }
+
+      // Team members also draw from a pooled monthly query allowance.
+      // The pool is shared across the whole team and resets each calendar month.
+      const teamPool = await getTeamPoolStatus(userId);
+      if (teamPool && teamPool.exceeded) {
+        return NextResponse.json(
+          {
+            error: `Your team has used all ${teamPool.pool.toLocaleString()} pooled queries this month. Ask a team admin to raise the cap or wait until the new month.`,
+            poolExceeded: true,
+          },
+          { status: 429 }
+        );
       }
     } else {
       const anonKey = `rate:anon:${ip}`;
@@ -87,8 +101,10 @@ export async function POST(req: NextRequest) {
         parsed.mediaType,
       );
 
+      const scoreId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const timestamp = Date.now();
       await persistScoreEntry(userId, {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        id: scoreId,
         score: result.score,
         label: result.label,
         screenName: result.screenName || source || "upload",
@@ -99,8 +115,24 @@ export async function POST(req: NextRequest) {
         source: source || "upload",
         thumbnail,
         isPublic: !!isPublic,
-        timestamp: Date.now(),
+        timestamp,
       });
+
+      // If the scorer is on a team, mirror the score into the team activity
+      // feed and tick the pooled usage. Best-effort — never fail the score.
+      try {
+        await recordScoreForTeam(userId, {
+          timestamp,
+          scoreId,
+          score: result.score,
+          label: result.label,
+          screenName: result.screenName || source || "upload",
+          source: source || "upload",
+          thumbnail,
+        });
+      } catch (err) {
+        console.error("[LADDER:TEAMS] recordScoreForTeam failed:", err);
+      }
     } else {
       const anonKey = `rate:anon:${ip}`;
       await redis.incr(anonKey);

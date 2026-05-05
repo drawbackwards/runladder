@@ -4,66 +4,54 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Ladder for Teams | The quality standard for design organizations",
   description:
-    "Give your design team a shared quality bar. Brand standards, custom rubrics, designer dashboards, and score trends, all managed from one place. $12,000/year.",
+    "Give your design team a shared quality bar. Live activity feed, per-designer trends, pooled scoring across every Ladder surface. Talk to us.",
 };
 
 const CAPABILITIES = [
   {
     name: "Team Dashboard",
-    desc: "Every designer, every score, every trend in one view. See who's improving, who's shipping, and where your team's quality stands right now.",
-    detail: "Portfolio score, individual trends, activity feed, improvement velocity",
-  },
-  {
-    name: "Brand Standards",
-    desc: "Upload your brand guidelines. Ladder scores every screen against them automatically. Every score reflects your brand, not just generic UX principles.",
-    detail: "Brand voice, visual identity, interaction patterns, tone rules",
-  },
-  {
-    name: "Leadership Lens",
-    desc: "Your VP of Design has opinions that no framework captures. Encode them. 'We never use modals.' 'Density is intentional.' 'Every screen needs a clear back path.' Ladder learns what your leadership cares about.",
-    detail: "Custom rules, weighted priorities, team-specific quality definitions",
-  },
-  {
-    name: "Custom Rubric Weights",
-    desc: "Care more about accessibility than visual polish? Prioritize information hierarchy over delight? Adjust the scoring weights. The Ladder score reflects your team's priorities.",
-    detail: "Dimension weighting, category emphasis, scoring calibration",
+    desc: "Every designer, every score, every trend in one view. Live activity feed, per-member trajectory, and pooled usage in real time.",
+    detail: "Portfolio score, individual trends, activity feed",
   },
   {
     name: "Designer Management",
-    desc: "Invite designers by email. See each person's score history, improvement trajectory, and areas of strength. Know who needs coaching before they ask for it.",
-    detail: "Invite flow, individual profiles, skill mapping, coaching signals",
+    desc: "Invite designers by email. Promote co-admins, pause members during leave, archive alumni, and remove anyone who shouldn't be on the team.",
+    detail: "Invite flow, role and status controls, audit trail",
+  },
+  {
+    name: "Pooled Scoring",
+    desc: "One monthly allowance shared across the whole team, every surface. Web, Figma, and the Claude Skill all draw from the same pool, all show up in your team feed.",
+    detail: "Shared queries, unified history, every Ladder surface",
   },
 ];
 
 const WHAT_CHANGES = [
   {
     before: "Designers score in isolation",
-    after: "Every score factors in your brand standards and leadership lens automatically",
+    after: "Every score lands in a shared team feed the leader watches in real time",
   },
   {
     before: "Quality is subjective across the team",
-    after: "One number, calibrated to your organization's definition of good",
+    after: "One framework, one score, calibrated to the same five-rung Ladder",
   },
   {
     before: "You find out about quality problems at review time",
-    after: "Dashboard shows drift in real time. Intervene early, not late",
+    after: "Dashboard surfaces every score as it lands. Catch drift early, not late",
   },
   {
     before: "No way to measure team improvement over time",
-    after: "Portfolio score trends, individual growth curves, velocity metrics",
+    after: "Per-designer trajectory, team portfolio score, monthly pooled usage",
   },
 ];
 
 const TIER = {
   name: "Teams",
-  price: "$12,000",
-  period: "/ year",
   features: [
     "Team leader dashboard on runladder.com",
-    "Add and manage up to ten designers",
-    "Team knowledge base (brand standards + leadership lens)",
-    "Per-designer scores, trends, and leaderboard",
-    "Unlimited scores on all surfaces (web and Claude)",
+    "Up to 10 active designers included (extra seats available)",
+    "Live activity feed across web, Figma, and the Claude Skill",
+    "Per-designer scores and trajectory",
+    "Pooled monthly query allowance shared across the team",
     "Priority support",
   ],
 };
@@ -78,14 +66,13 @@ export default function TeamsPage() {
             Ladder for Teams
           </p>
           <h1 className="text-[3.5rem] md:text-[5rem] font-bold tracking-tight leading-[1.05] mb-8">
-            Your standards.{" "}
-            <span className="text-ladder-green">Every score.</span>
+            Your team.{" "}
+            <span className="text-ladder-green">One quality bar.</span>
           </h1>
           <p className="text-lg text-body max-w-2xl mx-auto mb-12 leading-relaxed">
-            Load your brand standards, encode your design leadership's
-            priorities, and every Ladder score your team runs reflects
-            what quality means to <em>your</em> organization. Not generic.
-            Yours.
+            Every designer&rsquo;s scores in one feed. Per-member trends,
+            pooled usage, full member management. The dashboard your design
+            organization should have had years ago.
           </p>
           <div className="flex items-center justify-center gap-6">
             <Link
@@ -111,31 +98,28 @@ export default function TeamsPage() {
             The gap
           </p>
           <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
-            Generic quality frameworks{" "}
+            Design quality is invisible{" "}
             <br />
             <span className="text-body">
-              don&rsquo;t know your brand.
+              until the review meeting.
             </span>
           </h2>
           <div className="space-y-6 text-body leading-relaxed">
             <p>
-              Your design team has standards that go beyond basic UX. You
-              have a brand voice. You have a design system. Your VP of
-              Design has specific things they care about that no external
-              tool knows. When a new designer joins, it takes months
-              before they internalize all of it.
+              Designers ship. Leaders catch up. By the time a quality
+              problem surfaces in a review, it has been in production for a
+              week. Coaching happens too late. New hires drift before
+              anyone notices. The team has no shared number to point at.
             </p>
             <p>
-              A Ladder score is already honest. But a Ladder score
-              calibrated to your organization is transformative. It
-              doesn't just tell a designer &ldquo;this screen is a
-              2.4.&rdquo; It tells them &ldquo;this screen is a 2.4
-              because it violates your brand's density principles and
-              the back-path rule your VP of Design set.&rdquo;
+              Teams puts every score your designers run in one live feed.
+              You see the scan the moment it lands. You see the trend per
+              designer. You see which surfaces are weakest. You manage who
+              is on the team and when. Same Ladder framework. Now you can
+              actually run a design quality program with it.
             </p>
             <p className="text-foreground font-medium">
-              Teams turns Ladder from a universal quality score into your
-              team's quality score. Same rigor, your rules.
+              Stop finding out at review time. Watch quality in real time.
             </p>
           </div>
         </div>
@@ -146,15 +130,15 @@ export default function TeamsPage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-20">
             <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
-              What you control
+              What you get
             </p>
             <h2 className="text-[2rem] md:text-[2.5rem] font-bold mb-6">
               A dashboard built for{" "}
               <span className="text-ladder-green">design leaders.</span>
             </h2>
             <p className="text-body max-w-lg mx-auto leading-relaxed">
-              Log in to runladder.com. See your team. Manage your
-              standards. Watch quality improve.
+              Log in to runladder.com. See your team. Run the team.
+              Watch quality move.
             </p>
           </div>
 
@@ -234,24 +218,21 @@ export default function TeamsPage() {
           <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
             Nothing changes for them.{" "}
             <br />
-            <span className="text-ladder-green">Everything improves.</span>
+            <span className="text-ladder-green">You see everything.</span>
           </h2>
           <div className="space-y-6 text-body leading-relaxed">
             <p>
-              Designers keep using runladder.com
-              exactly as they do now. They hit &ldquo;Score This
-              Screen&rdquo; and get a Ladder score with coaching cards.
+              Designers keep using runladder.com, the Figma plugin, and
+              the Claude Skill exactly as they do today. Score a screen,
+              get a Ladder score with coaching cards.
             </p>
             <p>
-              The difference: behind the scenes, their score now factors
-              in your brand standards and your leadership's priorities.
-              The coaching cards don't just say &ldquo;improve
-              spacing.&rdquo; They say &ldquo;your hierarchy buries the
-              primary action your team agreed should always lead.&rdquo;
+              Once they accept the team invite, every score they run shows
+              up on the leader&rsquo;s team dashboard automatically. No
+              extra UI to learn. No new workflow to adopt.
             </p>
             <p className="text-foreground font-medium">
-              Zero onboarding friction. Every designer gets your team's
-              quality DNA baked into every score, from their first day.
+              Zero onboarding friction. Full visibility from day one.
             </p>
           </div>
         </div>
@@ -259,137 +240,52 @@ export default function TeamsPage() {
 
       {/* Pricing */}
       <section className="py-36 px-6 border-t border-border">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-20">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-16">
             <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
               Pricing
             </p>
             <h2 className="text-[2rem] md:text-[2.5rem] font-bold mb-6">
-              Annual plans for{" "}
+              Built for{" "}
               <span className="text-ladder-green">serious teams.</span>
             </h2>
             <p className="text-body max-w-lg mx-auto leading-relaxed">
-              Teams is infrastructure, not a trial. Annual commitment,
-              full customization, dedicated support.
+              Teams is sold through a master services agreement, not self-serve
+              checkout. We set the seat count and pool that fits your team.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            {/* Try it out — single designer */}
-            <div className="rounded-2xl p-8 flex flex-col border border-border bg-card">
-              <span className="self-start text-[11px] font-mono uppercase tracking-widest px-3 py-1 mb-6 bg-border/50 text-muted">
-                Try it out
-              </span>
-              <h3 className="text-lg font-bold text-foreground mb-4">
-                One Designer
-              </h3>
+          <div className="rounded-2xl p-10 flex flex-col border-2 border-ladder-green bg-ladder-green/5 max-w-2xl mx-auto">
+            <span className="self-start text-[11px] font-mono uppercase tracking-widest px-3 py-1 mb-6 bg-ladder-green/15 text-ladder-green">
+              Full team
+            </span>
+            <h3 className="text-lg font-bold text-foreground mb-3">
+              {TIER.name}
+            </h3>
+            <p className="text-sm text-muted mb-8">
+              Talk to us. We&rsquo;ll work out the right plan for your design org.
+            </p>
 
-              <div className="flex items-baseline gap-1.5 mb-1">
-                <span className="text-[2.5rem] font-bold text-foreground leading-none">
-                  $29
-                </span>
-                <span className="text-sm text-muted">/ mo</span>
-              </div>
-              <p className="text-xs text-muted mb-6">Test it out with one designer</p>
+            <ul className="space-y-3 mb-10 flex-1">
+              {TIER.features.map((f: string) => (
+                <li
+                  key={f}
+                  className="text-sm text-body flex items-start gap-2.5"
+                >
+                  <span className="text-ladder-green text-xs mt-1 flex-shrink-0">
+                    +
+                  </span>
+                  {f}
+                </li>
+              ))}
+            </ul>
 
-              <div className="border border-border rounded-lg px-4 py-3 mb-8">
-                <p className="font-mono text-xs text-ladder-green">
-                  Unlimited scores on all surfaces
-                </p>
-              </div>
-
-              <ul className="space-y-3 mb-10 flex-1">
-                {[
-                  "Ladder score with coaching cards",
-                  "Per-dimension scoring breakdown",
-                  "Full score history + trend line",
-                  "Web and Claude access",
-                ].map((f: string) => (
-                  <li
-                    key={f}
-                    className="text-sm text-body flex items-start gap-2.5"
-                  >
-                    <span className="text-ladder-green text-xs mt-1 flex-shrink-0">
-                      +
-                    </span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href="/score"
-                className="text-center text-sm font-semibold py-3 rounded-full transition-colors border border-border text-foreground hover:bg-card-hover"
-              >
-                Start scoring
-              </Link>
-            </div>
-
-            {/* Teams */}
-            <div className="rounded-2xl p-8 flex flex-col border-2 border-ladder-green bg-ladder-green/5">
-              <span className="self-start text-[11px] font-mono uppercase tracking-widest px-3 py-1 mb-6 bg-ladder-green/15 text-ladder-green">
-                Full team
-              </span>
-              <h3 className="text-lg font-bold text-foreground mb-4">
-                {TIER.name}
-              </h3>
-
-              <div className="flex items-baseline gap-1.5 mb-1">
-                <span className="text-[2.5rem] font-bold text-foreground leading-none">
-                  {TIER.price}
-                </span>
-                <span className="text-sm text-muted">{TIER.period}</span>
-              </div>
-              <p className="text-xs text-muted mb-6">Everything your design org needs</p>
-
-              <div className="border border-border rounded-lg px-4 py-3 mb-8">
-                <p className="font-mono text-xs text-ladder-green">
-                  Unlimited scores on all surfaces
-                </p>
-              </div>
-
-              <ul className="space-y-3 mb-10 flex-1">
-                {TIER.features.map((f: string) => (
-                  <li
-                    key={f}
-                    className="text-sm text-body flex items-start gap-2.5"
-                  >
-                    <span className="text-ladder-green text-xs mt-1 flex-shrink-0">
-                      +
-                    </span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href="/contact"
-                className="text-center text-sm font-semibold py-3 rounded-full transition-colors bg-ladder-green text-background hover:bg-ladder-green/90"
-              >
-                Talk to us about Teams
-              </Link>
-            </div>
-          </div>
-
-          {/* Enterprise */}
-          <div className="mt-6 border border-border rounded-2xl p-10 bg-card max-w-3xl mx-auto">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
-              <div>
-                <h3 className="font-mono text-sm font-semibold text-foreground mb-3">
-                  Enterprise
-                </h3>
-                <p className="text-sm text-body max-w-lg leading-relaxed">
-                  25+ designers, SSO, multi-team dashboards, dedicated CSM,
-                  and custom integrations. Priced for your scale.
-                </p>
-              </div>
-              <Link
-                href="/contact"
-                className="shrink-0 text-center text-sm font-semibold border border-border text-foreground hover:bg-card-hover py-3 px-8 rounded-full transition-colors"
-              >
-                Talk to us
-              </Link>
-            </div>
+            <Link
+              href="/contact"
+              className="text-center text-sm font-semibold py-3 rounded-full transition-colors bg-ladder-green text-background hover:bg-ladder-green/90"
+            >
+              Talk to us about Teams
+            </Link>
           </div>
         </div>
       </section>
@@ -419,9 +315,9 @@ export default function TeamsPage() {
               },
               {
                 stat: "Day 1",
-                label: "onboarding",
+                label: "visibility",
                 detail:
-                  "New designers inherit your team's quality DNA from their very first score",
+                  "Every new designer's scores show up on your team dashboard from their first scan",
               },
             ].map((p) => (
               <div key={p.label} className="text-center">
@@ -444,13 +340,12 @@ export default function TeamsPage() {
       <section className="py-36 px-6 border-t border-border">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-[2.5rem] font-bold mb-6">
-            Make quality{" "}
-            <span className="text-ladder-green">your team's DNA.</span>
+            Stop guessing.{" "}
+            <span className="text-ladder-green">Start measuring.</span>
           </h2>
           <p className="text-body mb-10 leading-relaxed max-w-lg mx-auto">
-            Your brand standards. Your leadership's priorities. Baked
-            into every score, every coaching card, every designer's
-            workflow. From day one.
+            Every score, every designer, every surface, in one feed.
+            Manage who&rsquo;s on the team. Watch quality move.
           </p>
           <div className="flex items-center justify-center gap-6">
             <Link
