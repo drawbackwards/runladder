@@ -3,19 +3,36 @@
  * plus a typed proxy for the plugin backend (ai-design-assistant) admin
  * endpoints while plugin data still lives there.
  *
+ * Auth model:
+ *   SUPER_ADMIN_EMAILS — hardcoded, always admin, never removable via UI.
+ *                        Editing this list is privileged: PR + merge + deploy
+ *                        in production, plus an out-of-band passphrase
+ *                        confirmation by Ward.
+ *   ADMIN_EMAILS env   — comma-separated regular admin allowlist (Vercel).
+ *                        Super admins are merged in regardless of this value.
+ *
  * Env vars (runladder project):
  *   PLUGIN_BACKEND_URL   — e.g. https://ai-design-assistant-ebon.vercel.app
  *   PLUGIN_ADMIN_KEY     — same value as ai-design-assistant's ADMIN_KEY env var
- *   ADMIN_EMAILS         — comma-separated allowlist. Defaults to Ward's emails.
+ *   ADMIN_EMAILS         — comma-separated regular admin allowlist
  */
 import { auth, clerkClient } from "@clerk/nextjs/server";
 
-const ADMIN_EMAILS = (
-  process.env.ADMIN_EMAILS || "ward@drawbackwards.com,ward.andrews@gmail.com"
+const SUPER_ADMIN_EMAILS = [
+  "ward@drawbackwards.com",
+  "ward.andrews@gmail.com",
+] as const;
+
+const ENV_ADMIN_EMAILS = (
+  process.env.ADMIN_EMAILS || "jordan@drawbackwards.com,michael@drawbackwards.com"
 )
   .split(",")
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
+
+const ADMIN_EMAILS = Array.from(
+  new Set([...SUPER_ADMIN_EMAILS.map((e) => e.toLowerCase()), ...ENV_ADMIN_EMAILS]),
+);
 
 /**
  * Returns the authenticated admin's email, or null if unauthorized.
@@ -31,6 +48,24 @@ export async function getAdminEmail(): Promise<string | null> {
   if (!email) return null;
   if (!ADMIN_EMAILS.includes(email)) return null;
   return email;
+}
+
+/**
+ * True if the email is a super admin (hardcoded, removal-protected).
+ * Any future admin-removal UI must reject when this returns true.
+ */
+export function isSuperAdmin(email: string | null | undefined): boolean {
+  if (!email) return false;
+  const normalized = email.toLowerCase();
+  return SUPER_ADMIN_EMAILS.some((e) => e.toLowerCase() === normalized);
+}
+
+/**
+ * True if the target admin can be removed via the (future) admin UI.
+ * Always false for super admins.
+ */
+export function canRemoveAdmin(email: string): boolean {
+  return !isSuperAdmin(email);
 }
 
 /* ── Plugin backend proxy ────────────────────────────────────────────── */
