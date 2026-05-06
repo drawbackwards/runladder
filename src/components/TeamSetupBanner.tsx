@@ -19,16 +19,16 @@ export function TeamSetupBanner({ tier }: { tier: Tier }) {
   if (tier !== "team" && tier !== "pulse") return null;
 
   return (
-    <div className="border border-ladder-green/40 bg-ladder-green/5 p-6 mb-6">
-      <div className="flex items-start gap-5 flex-wrap">
-        <div className="flex-1 min-w-[280px]">
-          <p className="text-[10px] text-ladder-green uppercase tracking-widest font-semibold mb-2">
+    <div className="bg-ladder-green p-8 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 items-center">
+        <div className="min-w-0">
+          <p className="text-[10px] uppercase tracking-widest text-[#0a1a14]/70 font-semibold mb-3">
             Team leader
           </p>
-          <h3 className="text-base text-foreground font-sans font-semibold mb-2">
+          <h3 className="text-2xl text-[#0a1a14] font-sans font-semibold mb-3 tracking-tight">
             Set up your team
           </h3>
-          <p className="text-sm text-muted font-sans leading-relaxed">
+          <p className="text-sm text-[#0a1a14]/80 font-sans leading-relaxed max-w-2xl">
             You&apos;re set up to lead a team on Ladder. Create your team to invite
             your designers, see their scores and letter grades, and unlock manager
             insights. Designers you invite get team-tier access automatically.
@@ -36,7 +36,7 @@ export function TeamSetupBanner({ tier }: { tier: Tier }) {
         </div>
         <Link
           href="/dashboard/team"
-          className="text-xs font-semibold bg-ladder-green text-background px-5 py-2.5 rounded-sm hover:bg-ladder-green/90 transition-colors flex-shrink-0"
+          className="text-sm font-semibold bg-white text-[#0a1a14] px-6 py-3.5 hover:bg-white/90 transition-colors flex-shrink-0 whitespace-nowrap justify-self-start md:justify-self-end"
         >
           Create your team →
         </Link>
