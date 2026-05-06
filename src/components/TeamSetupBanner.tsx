@@ -23,14 +23,15 @@ export function TeamSetupBanner({ tier }: { tier: Tier }) {
       <div className="flex items-start gap-5 flex-wrap">
         <div className="flex-1 min-w-[280px]">
           <p className="text-[10px] text-ladder-green uppercase tracking-widest font-semibold mb-2">
-            Next step
+            Team leader
           </p>
           <h3 className="text-base text-foreground font-sans font-semibold mb-2">
             Set up your team
           </h3>
           <p className="text-sm text-muted font-sans leading-relaxed">
-            You&apos;re on the team tier. Create your team to invite your designers,
-            see their scores and letter grades, and unlock manager insights.
+            You&apos;re set up to lead a team on Ladder. Create your team to invite
+            your designers, see their scores and letter grades, and unlock manager
+            insights. Designers you invite get team-tier access automatically.
           </p>
         </div>
         <Link
