@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth, SignInButton, SignUpButton } from "@clerk/nextjs";
 import { LadderLogo } from "./LadderLogo";
 import { UserMenu } from "./UserMenu";
 
 export function Nav() {
   const { isSignedIn, isLoaded } = useAuth();
+  const pathname = usePathname();
+  const onDashboard = pathname?.startsWith("/dashboard") ?? false;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
@@ -15,23 +18,25 @@ export function Nav() {
           <LadderLogo height={22} className="text-white" />
         </Link>
 
-        <div className="hidden md:flex items-center gap-10 text-sm font-bold text-body">
-          <Link href="/framework" className="hover:text-foreground transition-colors">
-            Framework
-          </Link>
-          <Link href="/products" className="hover:text-foreground transition-colors">
-            Products
-          </Link>
-          <Link href="/top-100" className="hover:text-foreground transition-colors">
-            Top 100
-          </Link>
-          <Link href="/blog" className="hover:text-foreground transition-colors">
-            Blog
-          </Link>
-          <Link href="/pricing" className="hover:text-foreground transition-colors">
-            Pricing
-          </Link>
-        </div>
+        {!onDashboard && (
+          <div className="hidden md:flex items-center gap-10 text-sm font-bold text-body">
+            <Link href="/framework" className="hover:text-foreground transition-colors">
+              Framework
+            </Link>
+            <Link href="/products" className="hover:text-foreground transition-colors">
+              Products
+            </Link>
+            <Link href="/top-100" className="hover:text-foreground transition-colors">
+              Top 100
+            </Link>
+            <Link href="/blog" className="hover:text-foreground transition-colors">
+              Blog
+            </Link>
+            <Link href="/pricing" className="hover:text-foreground transition-colors">
+              Pricing
+            </Link>
+          </div>
+        )}
 
         <div className="flex items-center gap-6">
           {isLoaded && !isSignedIn && (

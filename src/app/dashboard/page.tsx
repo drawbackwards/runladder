@@ -233,12 +233,12 @@ function ScoreCTACard() {
   return (
     <Link
       href="/score"
-      className="flex items-center gap-4 border border-ladder-green/40 bg-ladder-green/5 hover:bg-ladder-green/10 hover:border-ladder-green/60 transition-colors p-4 group"
+      className="flex items-center gap-4 border border-ladder-green/40 bg-ladder-green/[0.04] hover:bg-ladder-green/[0.08] hover:border-ladder-green/60 transition-colors p-4 group"
     >
-      <div className="flex-shrink-0 w-20 h-20 bg-ladder-green/10 border border-ladder-green/30 flex items-center justify-center">
+      <div className="flex-shrink-0 w-12 h-12 bg-ladder-green/10 border border-ladder-green/30 flex items-center justify-center">
         <svg
-          width="24"
-          height="24"
+          width="20"
+          height="20"
           viewBox="0 0 24 24"
           fill="none"
           stroke="#6AC89B"
@@ -253,12 +253,47 @@ function ScoreCTACard() {
         <p className="text-sm font-semibold text-foreground font-sans">
           Score a new screen
         </p>
-        <p className="text-xs text-muted font-sans mt-1">
-          Upload or paste — get a Ladder score back in seconds
+        <p className="text-[11px] text-muted font-sans mt-0.5">
+          Upload or paste, get a Ladder score back in seconds.
         </p>
       </div>
-      <span className="text-ladder-green text-xl flex-shrink-0 pr-3 group-hover:translate-x-0.5 transition-transform">
+      <span className="text-ladder-green text-base flex-shrink-0 pr-2 group-hover:translate-x-0.5 transition-transform">
         →
+      </span>
+    </Link>
+  );
+}
+
+function EmptyHero() {
+  return (
+    <Link
+      href="/score"
+      className="block border border-[#2a2a2a] bg-[#1a1a1a] hover:border-ladder-green/40 hover:bg-ladder-green/[0.03] transition-colors p-12 text-center group"
+    >
+      <div className="mx-auto mb-6 w-16 h-16 border border-ladder-green/40 bg-ladder-green/5 flex items-center justify-center group-hover:bg-ladder-green/10 transition-colors">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#6AC89B"
+          strokeWidth="2"
+          strokeLinecap="round"
+          aria-hidden
+        >
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      </div>
+      <h2 className="text-lg text-foreground font-sans mb-2">
+        Score your first screen
+      </h2>
+      <p className="text-sm text-muted font-sans max-w-sm mx-auto leading-relaxed mb-6">
+        Upload an image or paste a URL. You&apos;ll get a Ladder score and
+        ranked findings back in seconds.
+      </p>
+      <span className="inline-block text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-[#1a1a1a] px-5 py-2.5 group-hover:bg-ladder-green/90 transition-colors">
+        Score a screen →
       </span>
     </Link>
   );
@@ -342,125 +377,114 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           <main>
-            <StatsSummaryCard stats={stats} />
-            <div className="flex items-center justify-between mb-6">
-              <span className="text-[10px] text-muted uppercase tracking-widest">
-                Score history
-              </span>
-              {scores.length > 0 && (
-                <span className="text-[10px] text-muted">
-                  {scores.length} score{scores.length !== 1 ? "s" : ""}
-                </span>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <ScoreCTACard />
-
-              {loading ? (
-                [...Array(3)].map((_, i) => (
+            {loading ? (
+              <div className="space-y-1.5">
+                {[...Array(3)].map((_, i) => (
                   <div
                     key={i}
-                    className="border border-[#333] bg-[#1e1e1e] p-5 shimmer h-24"
+                    className="border border-[#2a2a2a] bg-[#1a1a1a] shimmer h-16"
                   />
-                ))
-              ) : scores.length === 0 ? (
-                <div className="border border-[#333] bg-[#1e1e1e] p-8 text-center">
-                  <p className="text-sm text-muted font-sans">
-                    No scores yet — start above.
-                  </p>
+                ))}
+              </div>
+            ) : scores.length === 0 ? (
+              <EmptyHero />
+            ) : (
+              <>
+                <ScoreCTACard />
+                <div className="mt-6 mb-3 flex items-center justify-between">
+                  <span className="text-[10px] text-muted uppercase tracking-widest">
+                    Score history
+                  </span>
+                  <span className="text-[10px] text-muted">
+                    {scores.length} score{scores.length !== 1 ? "s" : ""}
+                  </span>
                 </div>
-              ) : (
-                scores.map((entry) => (
-                  <div
-                    key={entry.id}
-                    className="border border-[#333] bg-[#1e1e1e] hover:border-muted transition-colors group"
-                  >
-                    <Link
-                      href={`/dashboard/scores/${entry.id}`}
-                      className="block p-4"
+                <div className="space-y-1.5">
+                  {scores.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="border border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1f1f1f] hover:border-[#3a3a3a] transition-colors group relative"
                     >
-                      <div className="flex items-center gap-4">
-                        {entry.thumbnail ? (
-                          <div className="flex-shrink-0 w-20 h-20 border border-[#333] bg-[#111] overflow-hidden">
-                            <img
-                              src={entry.thumbnail}
-                              alt=""
-                              className="w-full h-full object-cover object-top"
-                            />
-                          </div>
-                        ) : (
-                          <div className="flex-shrink-0 w-20 h-20 border border-[#333] bg-[#111] flex items-center justify-center">
-                            <span className="text-[#333] text-xs">—</span>
-                          </div>
-                        )}
-
-                        <div className="flex-shrink-0 w-16 text-center">
-                          <span
-                            className="text-2xl font-bold tabular-nums"
-                            style={{ color: getScoreColor(entry.score) }}
-                          >
-                            {entry.score.toFixed(1)}
-                          </span>
-                          <span
-                            className="block text-[9px] uppercase tracking-widest mt-0.5"
-                            style={{ color: getScoreColor(entry.score) }}
-                          >
-                            {entry.label}
-                          </span>
-                          {typeof entry.uplift === "number" && (
-                            <span className="block mt-1">
-                              <UpliftBadge uplift={entry.uplift} />
-                            </span>
+                      <Link
+                        href={`/dashboard/scores/${entry.id}`}
+                        className="block px-4 py-3"
+                      >
+                        <div className="flex items-center gap-4">
+                          {entry.thumbnail ? (
+                            <div className="flex-shrink-0 w-12 h-12 border border-[#2a2a2a] bg-[#111] overflow-hidden">
+                              <img
+                                src={entry.thumbnail}
+                                alt=""
+                                className="w-full h-full object-cover object-top"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex-shrink-0 w-12 h-12 border border-[#2a2a2a] bg-[#111]" />
                           )}
-                        </div>
 
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm text-foreground font-sans truncate">
-                              {entry.screenName || entry.source}
-                            </p>
-                            {entry.isPublic === false && (
-                              <span className="text-[8px] text-[#999] uppercase tracking-widest border border-[#444] px-1.5 py-0.5 flex-shrink-0">
-                                Private
-                              </span>
-                            )}
+                          <div className="flex-shrink-0 w-12 text-center">
+                            <span
+                              className="text-xl font-bold tabular-nums"
+                              style={{ color: getScoreColor(entry.score) }}
+                            >
+                              {entry.score.toFixed(1)}
+                            </span>
                           </div>
-                          <p className="text-xs text-muted font-sans mt-1 line-clamp-2">
-                            {entry.summary}
-                          </p>
-                          <span className="text-[10px] text-muted mt-2 block">
-                            {timeAgo(entry.timestamp)}
-                          </span>
-                        </div>
 
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            deleteScore(entry.id);
-                          }}
-                          disabled={deleting === entry.id}
-                          className="flex-shrink-0 text-[#333] hover:text-ladder-red transition-colors disabled:opacity-30 opacity-0 group-hover:opacity-100"
-                          title="Delete score"
-                          aria-label="Delete score"
-                        >
-                          <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm text-foreground font-sans truncate">
+                                {entry.screenName || entry.source}
+                              </p>
+                              {entry.isPublic === false && (
+                                <span className="text-[8px] text-[#888] uppercase tracking-widest border border-[#3a3a3a] px-1.5 py-0.5 flex-shrink-0">
+                                  Private
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-muted font-sans truncate mt-0.5">
+                              <span style={{ color: getScoreColor(entry.score) }}>
+                                {entry.label}
+                              </span>
+                              <span className="text-[#444] mx-1.5">·</span>
+                              {timeAgo(entry.timestamp)}
+                            </p>
+                          </div>
+
+                          {typeof entry.uplift === "number" && (
+                            <div className="flex-shrink-0 hidden sm:block">
+                              <UpliftBadge uplift={entry.uplift} />
+                            </div>
+                          )}
+
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              deleteScore(entry.id);
+                            }}
+                            disabled={deleting === entry.id}
+                            className="flex-shrink-0 text-[#3a3a3a] hover:text-ladder-red transition-all disabled:opacity-30 opacity-0 group-hover:opacity-100"
+                            title="Delete score"
+                            aria-label="Delete score"
                           >
-                            <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14" />
-                          </svg>
-                        </button>
-                      </div>
-                    </Link>
-                  </div>
-                ))
-              )}
-            </div>
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14" />
+                            </svg>
+                          </button>
+                        </div>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </main>
 
           <aside className="space-y-4">
