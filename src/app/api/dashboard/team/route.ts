@@ -128,6 +128,7 @@ type MemberSummary = {
   email: string | null;
   firstName: string | null;
   lastName: string | null;
+  imageUrl: string | null;
   role: string;
   joinedAt: number;
   stats: UserStats | null;
@@ -197,6 +198,7 @@ export async function GET() {
         email: m.publicUserData?.identifier ?? null,
         firstName: m.publicUserData?.firstName ?? null,
         lastName: m.publicUserData?.lastName ?? null,
+        imageUrl: m.publicUserData?.imageUrl ?? null,
         role: m.role,
         joinedAt: m.createdAt,
       };

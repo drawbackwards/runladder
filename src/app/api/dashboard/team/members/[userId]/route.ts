@@ -140,6 +140,7 @@ export async function GET(
       email: target.publicUserData?.identifier ?? null,
       firstName: target.publicUserData?.firstName ?? null,
       lastName: target.publicUserData?.lastName ?? null,
+      imageUrl: target.publicUserData?.imageUrl ?? null,
       role: target.role,
       joinedAt: target.createdAt,
     },

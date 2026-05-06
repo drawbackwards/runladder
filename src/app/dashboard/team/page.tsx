@@ -14,6 +14,7 @@ import {
   ActivityHeatmap,
   type DailyActivity,
 } from "@/components/ActivityHeatmap";
+import { Avatar } from "@/components/Avatar";
 
 type MemberStats = {
   totalScans: number;
@@ -28,6 +29,7 @@ type TeamMember = {
   email: string | null;
   firstName: string | null;
   lastName: string | null;
+  imageUrl: string | null;
   role: string;
   joinedAt: number;
   stats: MemberStats | null;
@@ -275,79 +277,83 @@ function MemberRow({
     : null;
 
   const Body = (
-    <div className="px-4 py-4">
-      <div className="flex items-start gap-4 flex-wrap">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-baseline gap-2 flex-wrap">
-            <p className="text-sm text-foreground font-sans truncate">
-              {name}
-              {isSelf && (
-                <span className="text-[10px] text-muted ml-2">(you)</span>
-              )}
-            </p>
-            {member.role === "org:admin" && !isSelf && (
-              <span className="text-[9px] text-ladder-green uppercase tracking-widest">
-                Manager
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-muted font-sans truncate">
-            {member.email ?? "—"}
-          </p>
-          <p className="text-[10px] text-muted font-sans mt-1">
-            Joined {fmtDate(member.joinedAt)}
-            {lastAt && (
-              <>
-                <span className="text-[#444] mx-1.5">·</span>
-                Last scored {fmtRelative(lastAt)}
-              </>
+    <div className="px-4 py-4 flex items-center gap-5">
+      <Avatar
+        imageUrl={member.imageUrl}
+        name={[member.firstName, member.lastName]
+          .filter(Boolean)
+          .join(" ")}
+        email={member.email}
+        size={40}
+        ring={member.role === "org:admin" ? "manager" : "none"}
+      />
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <p className="text-sm text-foreground font-sans truncate">
+            {name}
+            {isSelf && (
+              <span className="text-[10px] text-muted ml-2">(you)</span>
             )}
           </p>
+          {member.role === "org:admin" && !isSelf && (
+            <span className="text-[9px] text-ladder-green uppercase tracking-widest">
+              Manager
+            </span>
+          )}
         </div>
-
-        <div className="flex items-start gap-6 flex-shrink-0">
-          <div className="text-right min-w-[60px]">
-            <p
-              className="text-xl font-bold tabular-nums"
-              style={{
-                color: avg !== null ? getScoreColor(avg) : "#444",
-              }}
-            >
-              {avg !== null ? avg.toFixed(1) : "—"}
-            </p>
-            <p className="text-[9px] text-muted uppercase tracking-widest">
-              Avg
-            </p>
-          </div>
-          <div className="text-right min-w-[60px]">
-            <p className="text-xl font-bold tabular-nums text-foreground">
-              {totalScans}
-            </p>
-            <p className="text-[9px] text-muted uppercase tracking-widest">
-              Scans
-            </p>
-          </div>
-        </div>
-
-        {drillHref && (
-          <span className="self-center text-muted group-hover:text-foreground transition-colors text-base">
-            →
-          </span>
-        )}
+        <p className="text-xs text-muted font-sans truncate">
+          {member.email ?? "—"}
+        </p>
+        <p className="text-[10px] text-muted font-sans mt-1">
+          Joined {fmtDate(member.joinedAt)}
+          {lastAt && (
+            <>
+              <span className="text-[#444] mx-1.5">·</span>
+              Last scored {fmtRelative(lastAt)}
+            </>
+          )}
+        </p>
       </div>
 
       {member.activity.length > 0 && (
-        <div className="mt-4 flex items-end justify-between gap-4">
+        <div className="hidden md:block flex-shrink-0" title={`Last ${windowDays} days`}>
           <ActivityHeatmap
             activity={member.activity}
-            cellSize={8}
-            cellGap={2}
+            cellWidth={12}
+            cellHeight={4}
+            cellGap={1}
             emptyClassName="bg-[#222]"
           />
-          <span className="text-[10px] text-muted font-sans flex-shrink-0">
-            Last {windowDays} days
-          </span>
         </div>
+      )}
+
+      <div className="flex items-start gap-5 flex-shrink-0">
+        <div className="text-right min-w-[48px]">
+          <p
+            className="text-xl font-bold tabular-nums leading-none"
+            style={{ color: avg !== null ? getScoreColor(avg) : "#444" }}
+          >
+            {avg !== null ? avg.toFixed(1) : "—"}
+          </p>
+          <p className="text-[9px] text-muted uppercase tracking-widest mt-1.5">
+            Avg
+          </p>
+        </div>
+        <div className="text-right min-w-[48px]">
+          <p className="text-xl font-bold tabular-nums text-foreground leading-none">
+            {totalScans}
+          </p>
+          <p className="text-[9px] text-muted uppercase tracking-widest mt-1.5">
+            Scans
+          </p>
+        </div>
+      </div>
+
+      {drillHref && (
+        <span className="text-muted group-hover:text-foreground transition-colors text-base flex-shrink-0">
+          →
+        </span>
       )}
     </div>
   );

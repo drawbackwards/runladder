@@ -15,16 +15,23 @@ export type DailyActivity = {
  * score volume only — score quality lives in the row's stats column
  * so the heatmap stays focused on "are they showing up?".
  *
+ * Cell dimensions are passed explicitly so the same component can
+ * render a tight "ticker" (wide-and-short cells, inline next to a
+ * row label) or a hero block (larger, more square-ish cells on a
+ * detail page).
+ *
  * `activity` must be ordered oldest -> newest; each entry is one day.
  */
 export function ActivityHeatmap({
   activity,
-  cellSize = 8,
+  cellWidth = 8,
+  cellHeight = 8,
   cellGap = 2,
   emptyClassName = "bg-[#222]",
 }: {
   activity: DailyActivity[];
-  cellSize?: number;
+  cellWidth?: number;
+  cellHeight?: number;
   cellGap?: number;
   emptyClassName?: string;
 }) {
@@ -67,8 +74,8 @@ export function ActivityHeatmap({
                 key={di}
                 className={cell ? intensity : "opacity-0"}
                 style={{
-                  width: `${cellSize}px`,
-                  height: `${cellSize}px`,
+                  width: `${cellWidth}px`,
+                  height: `${cellHeight}px`,
                 }}
                 title={titleText}
                 aria-label={titleText}
