@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useUser, useClerk } from "@clerk/nextjs";
+import { useUser, useClerk, useOrganization } from "@clerk/nextjs";
 import { isPaidTier, type Tier } from "@/lib/plans";
 
 const TIER_LABEL: Record<Tier, string> = {
@@ -16,6 +16,7 @@ const TIER_LABEL: Record<Tier, string> = {
 export function UserMenu() {
   const { user, isLoaded } = useUser();
   const { signOut, openUserProfile } = useClerk();
+  const { organization } = useOrganization();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -53,6 +54,7 @@ export function UserMenu() {
     "?"
   ).toUpperCase();
   const onDashboard = pathname?.startsWith("/dashboard") ?? false;
+  const onTeam = pathname?.startsWith("/dashboard/team") ?? false;
 
   async function handleManageBilling() {
     setPortalLoading(true);
@@ -177,7 +179,7 @@ export function UserMenu() {
               <span className="text-sm text-foreground font-sans font-semibold">
                 Dashboard
               </span>
-              {onDashboard && (
+              {onDashboard && !onTeam && (
                 <span className="text-[9px] text-ladder-green/70 font-mono uppercase tracking-widest">
                   Current
                 </span>
@@ -187,6 +189,44 @@ export function UserMenu() {
               →
             </span>
           </Link>
+
+          {organization && (
+            <Link
+              href="/dashboard/team"
+              onClick={() => setOpen(false)}
+              role="menuitem"
+              className="flex items-center justify-between px-4 py-3 bg-ladder-green/[0.06] hover:bg-ladder-green/10 border-b border-[#2a2a2a] transition-colors group"
+            >
+              <span className="flex items-center gap-2.5 min-w-0">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  aria-hidden
+                  className="text-ladder-green flex-shrink-0"
+                >
+                  <circle cx="5.5" cy="5.5" r="2.5" />
+                  <circle cx="11" cy="6" r="2" />
+                  <path d="M2 13c0-2 1.5-3.5 3.5-3.5S9 11 9 13" />
+                  <path d="M9.5 13c0-1.5 1-2.5 2.5-2.5s2.5 1 2.5 2.5" />
+                </svg>
+                <span className="text-sm text-foreground font-sans font-semibold truncate">
+                  {organization.name}
+                </span>
+                {onTeam && (
+                  <span className="text-[9px] text-ladder-green/70 font-mono uppercase tracking-widest flex-shrink-0">
+                    Current
+                  </span>
+                )}
+              </span>
+              <span className="text-ladder-green text-base group-hover:translate-x-0.5 transition-transform flex-shrink-0">
+                →
+              </span>
+            </Link>
+          )}
 
           <div className="py-1.5">
             {paid ? (

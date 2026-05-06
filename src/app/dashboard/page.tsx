@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
 import { SkillTokenCard } from "@/components/SkillTokenCard";
 import { FigmaPluginCard } from "@/components/FigmaPluginCard";
+import { TeamCard } from "@/components/TeamCard";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { FREE_LIFETIME_LIMIT } from "@/lib/plans";
 
@@ -460,6 +461,7 @@ export default function DashboardPage() {
           </main>
 
           <aside className="space-y-4">
+            <TeamCard />
             <FigmaPluginCard />
             <SkillTokenCard />
           </aside>
