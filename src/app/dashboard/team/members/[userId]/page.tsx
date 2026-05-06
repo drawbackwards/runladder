@@ -9,6 +9,7 @@ import {
   ActivityHeatmap,
   type DailyActivity,
 } from "@/components/ActivityHeatmap";
+import { Avatar } from "@/components/Avatar";
 
 type ScoreEntry = {
   id: string;
@@ -28,6 +29,7 @@ type Member = {
   email: string | null;
   firstName: string | null;
   lastName: string | null;
+  imageUrl: string | null;
   role: string;
   joinedAt: number;
 };
@@ -202,18 +204,33 @@ export default function TeamMemberDetailPage() {
           >
             ← Team
           </Link>
-          <h1 className="text-xl text-foreground font-sans mt-3">{name}</h1>
-          <p className="text-xs text-muted font-sans mt-1">
-            {member.email ?? "—"}
-            <span className="text-[#444] mx-1.5">·</span>
-            Joined {fmtDate(member.joinedAt)}
-            {member.role === "org:admin" && (
-              <>
+          <div className="mt-4 flex items-center gap-5">
+            <Avatar
+              imageUrl={member.imageUrl}
+              name={[member.firstName, member.lastName]
+                .filter(Boolean)
+                .join(" ")}
+              email={member.email}
+              size={64}
+              ring={member.role === "org:admin" ? "manager" : "none"}
+            />
+            <div className="min-w-0">
+              <h1 className="text-xl text-foreground font-sans truncate">
+                {name}
+              </h1>
+              <p className="text-xs text-muted font-sans mt-1">
+                {member.email ?? "—"}
                 <span className="text-[#444] mx-1.5">·</span>
-                <span className="text-ladder-green">manager</span>
-              </>
-            )}
-          </p>
+                Joined {fmtDate(member.joinedAt)}
+                {member.role === "org:admin" && (
+                  <>
+                    <span className="text-[#444] mx-1.5">·</span>
+                    <span className="text-ladder-green">manager</span>
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-8">
@@ -257,8 +274,9 @@ export default function TeamMemberDetailPage() {
           </div>
           <ActivityHeatmap
             activity={activity}
-            cellSize={11}
-            cellGap={3}
+            cellWidth={18}
+            cellHeight={7}
+            cellGap={2}
             emptyClassName="bg-[#222]"
           />
         </div>
