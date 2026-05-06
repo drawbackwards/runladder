@@ -2,28 +2,26 @@ import { NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { redis } from "@/lib/redis";
 import { getUserStats, type UserStats } from "@/lib/scores";
-import {
-  computeLetterGrade,
-  LETTER_GRADE_THRESHOLD,
-  LETTER_GRADE_WINDOW_DAYS,
-  type LetterGrade,
-} from "@/lib/letter-grade";
 import { RUNG_NAMES, type RungName } from "@/lib/ladder";
 
 /**
  * Team dashboard data — manager view.
  *
  * GET /api/dashboard/team
- * Returns the active org's roster with per-member stats and a letter grade,
- * plus team-wide insights (rung-level averages, weakest/strongest rung).
+ * Returns the active org's roster with per-member stats and a 91-day
+ * daily-activity heatmap, plus team-wide insights (rung-level averages,
+ * weakest/strongest rung).
  *
  * Auth:
  *   - Requires signed-in user with an active org (orgId from auth()).
- *   - Manager-only data (stats, grades, insights) is gated on orgRole === "org:admin".
- *   - Non-admin members get the roster only — no per-person stats.
+ *   - Manager-only data (stats, activity, insights) is gated on
+ *     orgRole === "org:admin".
+ *   - Non-admin members get the roster only.
  */
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const ACTIVITY_WINDOW_DAYS = 91; // ~13 weeks of activity for the heatmap.
+const INSIGHTS_WINDOW_DAYS = 30; // Tighter window for "what's the team's weakest rung right now".
 
 type RawScore = {
   id?: string;
@@ -72,6 +70,58 @@ async function readRecentScores(
     .filter((s): s is RawScore => s !== null);
 }
 
+/**
+ * Bucket scores into daily activity counts spanning the last `windowDays`
+ * days (UTC). Each bucket carries its date (YYYY-MM-DD), score count,
+ * and average score for that day. Result is ordered oldest -> newest.
+ */
+function bucketActivity(
+  scores: RawScore[],
+  windowDays: number,
+): Array<{ date: string; count: number; avgScore: number | null }> {
+  const todayMidnight = (() => {
+    const d = new Date();
+    return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  })();
+
+  // Pre-fill all days in the window so the UI gets a continuous strip.
+  const buckets = new Map<number, { count: number; total: number }>();
+  for (let i = windowDays - 1; i >= 0; i--) {
+    buckets.set(todayMidnight - i * DAY_MS, { count: 0, total: 0 });
+  }
+
+  for (const s of scores) {
+    if (typeof s.timestamp !== "number") continue;
+    const d = new Date(s.timestamp);
+    const dayMidnight = Date.UTC(
+      d.getUTCFullYear(),
+      d.getUTCMonth(),
+      d.getUTCDate(),
+    );
+    const bucket = buckets.get(dayMidnight);
+    if (!bucket) continue;
+    bucket.count += 1;
+    if (typeof s.score === "number" && Number.isFinite(s.score)) {
+      bucket.total += s.score;
+    }
+  }
+
+  return Array.from(buckets.entries())
+    .sort((a, b) => a[0] - b[0])
+    .map(([ts, b]) => ({
+      date: new Date(ts).toISOString().slice(0, 10),
+      count: b.count,
+      avgScore:
+        b.count > 0 ? Math.round((b.total / b.count) * 10) / 10 : null,
+    }));
+}
+
+type DailyActivity = {
+  date: string;
+  count: number;
+  avgScore: number | null;
+};
+
 type MemberSummary = {
   membershipId: string;
   userId: string | null;
@@ -82,7 +132,7 @@ type MemberSummary = {
   joinedAt: number;
   stats: UserStats | null;
   recentScans: number;
-  letterGrade: LetterGrade | null;
+  activity: DailyActivity[];
 };
 
 type RungAverage = {
@@ -93,7 +143,6 @@ type RungAverage = {
 
 type Insights = {
   windowDays: number;
-  threshold: number;
   totalScores: number;
   teamAvg: number | null;
   rungAverages: RungAverage[];
@@ -119,7 +168,8 @@ export async function GET() {
     limit: 100,
   });
 
-  const windowStart = Date.now() - LETTER_GRADE_WINDOW_DAYS * DAY_MS;
+  const activityWindowStart = Date.now() - ACTIVITY_WINDOW_DAYS * DAY_MS;
+  const insightsWindowStart = Date.now() - INSIGHTS_WINDOW_DAYS * DAY_MS;
 
   const rungSums: Record<RungName, number> = {
     functional: 0,
@@ -156,22 +206,23 @@ export async function GET() {
           ...base,
           stats: null,
           recentScans: 0,
-          letterGrade: null,
+          activity: [],
         };
       }
 
       const [stats, recent] = await Promise.all([
         getUserStats(memberUserId),
-        readRecentScores(memberUserId, windowStart),
+        readRecentScores(memberUserId, activityWindowStart),
       ]);
 
-      const recentScoreNums: number[] = [];
+      let memberRecentCount = 0;
       for (const s of recent) {
-        if (typeof s.score === "number" && Number.isFinite(s.score)) {
-          recentScoreNums.push(s.score);
-          totalScores += 1;
-          totalScoreSum += s.score;
-        }
+        if (typeof s.score !== "number" || !Number.isFinite(s.score)) continue;
+        if (typeof s.timestamp !== "number") continue;
+        if (s.timestamp < insightsWindowStart) continue;
+        memberRecentCount += 1;
+        totalScores += 1;
+        totalScoreSum += s.score;
         const rs = parseRungScores(s.rungs);
         if (rs) {
           for (const name of RUNG_NAMES) {
@@ -184,8 +235,8 @@ export async function GET() {
       return {
         ...base,
         stats,
-        recentScans: recentScoreNums.length,
-        letterGrade: computeLetterGrade(recentScoreNums),
+        recentScans: memberRecentCount,
+        activity: bucketActivity(recent, ACTIVITY_WINDOW_DAYS),
       };
     }),
   );
@@ -208,8 +259,7 @@ export async function GET() {
       .sort((a, b) => a.avg - b.avg);
 
     insights = {
-      windowDays: LETTER_GRADE_WINDOW_DAYS,
-      threshold: LETTER_GRADE_THRESHOLD,
+      windowDays: INSIGHTS_WINDOW_DAYS,
       totalScores,
       teamAvg:
         totalScores > 0
@@ -225,5 +275,6 @@ export async function GET() {
     isManager,
     members,
     insights,
+    activityWindowDays: ACTIVITY_WINDOW_DAYS,
   });
 }

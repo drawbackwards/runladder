@@ -11,10 +11,9 @@ import {
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
 import {
-  letterGradeColor,
-  LETTER_GRADE_THRESHOLD,
-  type LetterGrade,
-} from "@/lib/letter-grade";
+  ActivityHeatmap,
+  type DailyActivity,
+} from "@/components/ActivityHeatmap";
 
 type MemberStats = {
   totalScans: number;
@@ -33,7 +32,7 @@ type TeamMember = {
   joinedAt: number;
   stats: MemberStats | null;
   recentScans: number;
-  letterGrade: LetterGrade | null;
+  activity: DailyActivity[];
 };
 
 type RungAverage = {
@@ -44,7 +43,6 @@ type RungAverage = {
 
 type Insights = {
   windowDays: number;
-  threshold: number;
   totalScores: number;
   teamAvg: number | null;
   rungAverages: RungAverage[];
@@ -56,6 +54,7 @@ type TeamData = {
   isManager: boolean;
   members: TeamMember[];
   insights: Insights | null;
+  activityWindowDays: number;
 };
 
 function fmtDate(input: number | string | Date | null | undefined): string {
@@ -112,7 +111,7 @@ function InviteForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="border border-[#333] bg-[#1e1e1e] p-4">
+    <form onSubmit={handleSubmit} className="border border-[#2a2a2a] bg-[#1a1a1a] p-4">
       <div className="flex items-center gap-3 flex-wrap">
         <input
           type="email"
@@ -120,7 +119,7 @@ function InviteForm({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="teammate@example.com"
-          className="flex-1 min-w-[240px] bg-[#111] border border-[#333] text-sm text-foreground px-3 py-2 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
+          className="flex-1 min-w-[240px] bg-[#111] border border-[#2a2a2a] text-sm text-foreground px-3 py-2 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
         />
         <button
           type="submit"
@@ -140,7 +139,7 @@ function InviteForm({
 
 function NoOrgPanel() {
   return (
-    <div className="border border-[#333] bg-[#1e1e1e] p-8">
+    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-8">
       <h2 className="text-base font-sans text-foreground mb-2">
         Start your team
       </h2>
@@ -160,37 +159,6 @@ function NoOrgPanel() {
   );
 }
 
-function LetterGradeBadge({ grade }: { grade: LetterGrade | null }) {
-  if (!grade) {
-    return (
-      <div
-        className="flex-shrink-0 w-14 h-14 border border-[#333] bg-[#111] flex items-center justify-center"
-        title="No scores in window"
-      >
-        <span className="text-2xl font-bold tabular-nums text-[#444]">—</span>
-      </div>
-    );
-  }
-  const color = letterGradeColor(grade);
-  return (
-    <div
-      className="flex-shrink-0 w-14 h-14 border flex items-center justify-center"
-      style={{
-        borderColor: `${color}40`,
-        backgroundColor: `${color}0d`,
-      }}
-      title={`Grade ${grade}`}
-    >
-      <span
-        className="text-2xl font-bold tabular-nums"
-        style={{ color }}
-      >
-        {grade}
-      </span>
-    </div>
-  );
-}
-
 function StatPill({
   label,
   value,
@@ -201,7 +169,7 @@ function StatPill({
   color?: string;
 }) {
   return (
-    <div className="border border-[#333] bg-[#1e1e1e] p-4">
+    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-4">
       <p className="text-[9px] text-muted uppercase tracking-widest mb-2">
         {label}
       </p>
@@ -221,7 +189,7 @@ function InsightsPanel({ insights }: { insights: Insights }) {
 
   if (totalScores === 0) {
     return (
-      <div className="border border-[#333] bg-[#1e1e1e] p-6 mb-6">
+      <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6 mb-6">
         <p className="text-sm text-muted font-sans">
           No scores from your team in the last {windowDays} days. Once members
           start scoring, performance insights show up here.
@@ -241,10 +209,7 @@ function InsightsPanel({ insights }: { insights: Insights }) {
         </span>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-        <StatPill
-          label="Team scans"
-          value={String(totalScores)}
-        />
+        <StatPill label="Team scans" value={String(totalScores)} />
         <StatPill
           label="Team avg"
           value={teamAvg !== null ? teamAvg.toFixed(1) : "—"}
@@ -288,11 +253,13 @@ function MemberRow({
   member,
   isAdmin,
   isSelf,
+  windowDays,
   onRemove,
 }: {
   member: TeamMember;
   isAdmin: boolean;
   isSelf: boolean;
+  windowDays: number;
   onRemove: () => void;
 }) {
   const name =
@@ -301,62 +268,114 @@ function MemberRow({
     "—";
   const stats = member.stats;
   const avg = stats?.avgScore ?? null;
+  const totalScans = stats?.totalScans ?? 0;
   const lastAt = stats?.lastScoreAt ?? null;
+  const drillHref = member.userId
+    ? `/dashboard/team/members/${member.userId}`
+    : null;
 
-  return (
-    <li className="border-b border-[#222] last:border-0 p-4 flex items-center gap-4 flex-wrap">
-      <LetterGradeBadge grade={member.letterGrade} />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm text-foreground font-sans">
-          {name}
-          {isSelf && (
-            <span className="text-[10px] text-muted ml-2">(you)</span>
-          )}
-        </p>
-        <p className="text-xs text-muted font-sans truncate">
-          {member.email ?? "—"}
-        </p>
-        <p className="text-[10px] text-muted font-sans mt-1">
-          Joined {fmtDate(member.joinedAt)} · {member.role.replace("org:", "")}
-        </p>
-      </div>
-      <div className="flex items-center gap-5 flex-shrink-0">
-        <div className="text-right min-w-[60px]">
-          <p
-            className="text-lg font-bold tabular-nums"
-            style={{
-              color: avg !== null ? getScoreColor(avg) : "#444",
-            }}
-          >
-            {avg !== null ? avg.toFixed(1) : "—"}
+  const Body = (
+    <div className="px-4 py-4">
+      <div className="flex items-start gap-4 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <p className="text-sm text-foreground font-sans truncate">
+              {name}
+              {isSelf && (
+                <span className="text-[10px] text-muted ml-2">(you)</span>
+              )}
+            </p>
+            {member.role === "org:admin" && !isSelf && (
+              <span className="text-[9px] text-ladder-green uppercase tracking-widest">
+                Manager
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-muted font-sans truncate">
+            {member.email ?? "—"}
           </p>
-          <p className="text-[9px] text-muted uppercase tracking-widest">
-            Avg
-          </p>
-        </div>
-        <div className="text-right min-w-[60px]">
-          <p className="text-lg font-bold tabular-nums text-foreground">
-            {stats?.totalScans ?? 0}
-          </p>
-          <p className="text-[9px] text-muted uppercase tracking-widest">
-            Scans
+          <p className="text-[10px] text-muted font-sans mt-1">
+            Joined {fmtDate(member.joinedAt)}
+            {lastAt && (
+              <>
+                <span className="text-[#444] mx-1.5">·</span>
+                Last scored {fmtRelative(lastAt)}
+              </>
+            )}
           </p>
         </div>
-        <div className="text-right min-w-[80px] hidden sm:block">
-          <p className="text-xs font-mono text-muted">{fmtRelative(lastAt)}</p>
-          <p className="text-[9px] text-muted uppercase tracking-widest">
-            Last
-          </p>
+
+        <div className="flex items-start gap-6 flex-shrink-0">
+          <div className="text-right min-w-[60px]">
+            <p
+              className="text-xl font-bold tabular-nums"
+              style={{
+                color: avg !== null ? getScoreColor(avg) : "#444",
+              }}
+            >
+              {avg !== null ? avg.toFixed(1) : "—"}
+            </p>
+            <p className="text-[9px] text-muted uppercase tracking-widest">
+              Avg
+            </p>
+          </div>
+          <div className="text-right min-w-[60px]">
+            <p className="text-xl font-bold tabular-nums text-foreground">
+              {totalScans}
+            </p>
+            <p className="text-[9px] text-muted uppercase tracking-widest">
+              Scans
+            </p>
+          </div>
         </div>
-        {isAdmin && !isSelf && (
-          <button
-            onClick={onRemove}
-            className="text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors"
-          >
-            Remove
-          </button>
+
+        {drillHref && (
+          <span className="self-center text-muted group-hover:text-foreground transition-colors text-base">
+            →
+          </span>
         )}
       </div>
+
+      {member.activity.length > 0 && (
+        <div className="mt-4 flex items-end justify-between gap-4">
+          <ActivityHeatmap
+            activity={member.activity}
+            cellSize={8}
+            cellGap={2}
+            emptyClassName="bg-[#222]"
+          />
+          <span className="text-[10px] text-muted font-sans flex-shrink-0">
+            Last {windowDays} days
+          </span>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <li className="border-b border-[#222] last:border-0 group relative">
+      {drillHref ? (
+        <Link
+          href={drillHref}
+          className="block hover:bg-[#1f1f1f] transition-colors"
+        >
+          {Body}
+        </Link>
+      ) : (
+        Body
+      )}
+      {isAdmin && !isSelf && member.userId && (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onRemove();
+          }}
+          className="absolute top-4 right-12 text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors opacity-0 group-hover:opacity-100"
+        >
+          Remove
+        </button>
+      )}
     </li>
   );
 }
@@ -440,6 +459,7 @@ export default function TeamPage() {
   const inviteList = invitations?.data ?? [];
   const memberList = teamData?.members ?? [];
   const selfUserId = membership?.publicUserData?.userId;
+  const activityWindowDays = teamData?.activityWindowDays ?? 91;
 
   async function handleInvite(email: string) {
     if (!organization) throw new Error("No active team");
@@ -467,10 +487,7 @@ export default function TeamPage() {
     if (!confirm("Remove this member from the team?")) return;
     try {
       await organization.removeMember(userId);
-      await Promise.all([
-        memberships?.revalidate?.(),
-        refreshTeamData(),
-      ]);
+      await Promise.all([memberships?.revalidate?.(), refreshTeamData()]);
     } catch {
       // noop
     }
@@ -530,11 +547,11 @@ export default function TeamPage() {
             </h2>
             {teamData && (
               <span className="text-[10px] text-muted">
-                Grades from last 30 days, threshold {LETTER_GRADE_THRESHOLD.toFixed(1)}
+                Activity over the last {activityWindowDays} days
               </span>
             )}
           </div>
-          <div className="border border-[#333] bg-[#1e1e1e]">
+          <div className="border border-[#2a2a2a] bg-[#1a1a1a]">
             {teamLoading && memberList.length === 0 ? (
               <div className="p-8 text-center text-muted font-sans text-sm">
                 Loading members…
@@ -551,7 +568,10 @@ export default function TeamPage() {
                     member={m}
                     isAdmin={isAdmin}
                     isSelf={!!m.userId && m.userId === selfUserId}
-                    onRemove={() => m.userId && handleRemoveMember(m.userId)}
+                    windowDays={activityWindowDays}
+                    onRemove={() =>
+                      m.userId && handleRemoveMember(m.userId)
+                    }
                   />
                 ))}
               </ul>
@@ -564,7 +584,7 @@ export default function TeamPage() {
             <h2 className="text-[10px] text-muted uppercase tracking-widest mb-3">
               Pending invitations
             </h2>
-            <div className="border border-[#333] bg-[#1e1e1e]">
+            <div className="border border-[#2a2a2a] bg-[#1a1a1a]">
               <ul>
                 {inviteList.map((inv) => (
                   <li
