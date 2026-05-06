@@ -7,6 +7,7 @@ import { getScoreColor } from "@/lib/ladder";
 import { SkillTokenCard } from "@/components/SkillTokenCard";
 import { FigmaPluginCard } from "@/components/FigmaPluginCard";
 import { TeamCard } from "@/components/TeamCard";
+import { TeamSetupBanner } from "@/components/TeamSetupBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { FREE_LIFETIME_LIMIT } from "@/lib/plans";
 
@@ -336,6 +337,8 @@ export default function DashboardPage() {
             {firstName ? `Hi, ${firstName}.` : "Welcome back."}
           </h1>
         </div>
+
+        <TeamSetupBanner tier={tier} />
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           <main>
