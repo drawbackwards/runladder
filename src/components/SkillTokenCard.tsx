@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type TokenMeta = {
   hasToken: boolean;
@@ -80,6 +80,24 @@ export function SkillTokenCard() {
       .then((data) => setMeta(data))
       .finally(() => setLoading(false));
   }, []);
+
+  // Auto-generate on first view if the user has no token yet, so the
+  // install command is visible immediately rather than gated behind a
+  // click. Only fires when meta has loaded and confirmed there's no
+  // existing token, so we never replace a working install. Once tried,
+  // the ref blocks re-firing for the rest of the session.
+  const autoGenRef = useRef(false);
+  useEffect(() => {
+    if (autoGenRef.current) return;
+    if (loading) return;
+    if (!meta) return;
+    if (meta.hasToken) return;
+    if (rawToken) return;
+    if (working) return;
+    autoGenRef.current = true;
+    generate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, meta, rawToken, working]);
 
   async function generate() {
     setWorking(true);
@@ -209,26 +227,48 @@ export function SkillTokenCard() {
   }
 
   // ── State: not set up yet (no token) ────────────────────────────────
+  // Auto-generation is in flight (or about to fire). Show a "preparing"
+  // state instead of a click-to-reveal button. Once generate() resolves,
+  // rawToken sets and the install-state branch above takes over.
+  // If auto-gen failed (tried, no rawToken, not working), surface a
+  // fallback button so the user can retry.
   if (!meta?.hasToken) {
+    const tried = autoGenRef.current;
+    const failed = tried && !working && !rawToken;
+
+    if (failed) {
+      return (
+        <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+          {header}
+          <p className="text-xs text-muted font-sans leading-relaxed mb-2">
+            A Claude Skill that scores any UI screenshot against the Ladder
+            framework. Works in Claude Code and Claude.ai.
+          </p>
+          <p className="text-[11px] text-muted font-sans leading-relaxed mb-4">
+            Couldn&apos;t prepare your install command. Try again?
+          </p>
+          <button
+            onClick={generate}
+            disabled={working}
+            className="text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold disabled:opacity-40"
+          >
+            Get install command →
+          </button>
+        </div>
+      );
+    }
+
     return (
       <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
         {header}
-        <p className="text-xs text-muted font-sans leading-relaxed mb-2">
+        <p className="text-xs text-muted font-sans leading-relaxed mb-3">
           A Claude Skill that scores any UI screenshot against the Ladder
           framework. Works in Claude Code and Claude.ai.
         </p>
-        <p className="text-[11px] text-muted font-sans leading-relaxed mb-4">
-          Install once with a single Terminal command. After that,
-          screenshot any UI and say &ldquo;Run Ladder&rdquo; in any
-          Claude conversation.
+        <div className="bg-[#0e0e0e] border border-[#2a2a2a] p-3 shimmer h-20" />
+        <p className="text-[10px] text-muted font-sans mt-3">
+          Preparing your install command…
         </p>
-        <button
-          onClick={generate}
-          disabled={working}
-          className="text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold disabled:opacity-40"
-        >
-          {working ? "Loading…" : "Get install command →"}
-        </button>
       </div>
     );
   }
