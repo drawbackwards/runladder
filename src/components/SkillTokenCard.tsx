@@ -140,6 +140,12 @@ export function SkillTokenCard() {
     meta.installedVersion !== meta.currentVersion;
 
   // ── Header (shared) ─────────────────────────────────────────────────
+  // Pill only appears when there's a positive state to communicate:
+  // "New" (never installed) or "Connected" (used at least once).
+  // Mid-flow states (token created but never used) intentionally show
+  // no pill — the body copy explains where the user stands.
+  const showNewPill = !meta?.hasToken;
+  const showConnectedPill = !!meta?.hasToken && !!meta?.lastUsedAt;
   const header = (
     <div className="flex items-baseline justify-between gap-3 mb-1">
       <div className="flex items-baseline gap-2 min-w-0">
@@ -150,13 +156,14 @@ export function SkillTokenCard() {
           <span className="text-[10px] font-mono text-muted">v{version}</span>
         )}
       </div>
-      {meta?.hasToken ? (
-        <span className="text-[9px] text-ladder-green uppercase tracking-widest font-semibold">
-          {meta.lastUsedAt ? "Connected" : "Set up"}
-        </span>
-      ) : (
+      {showNewPill && (
         <span className="text-[9px] text-ladder-green uppercase tracking-widest font-semibold">
           New
+        </span>
+      )}
+      {showConnectedPill && (
+        <span className="text-[9px] text-ladder-green uppercase tracking-widest font-semibold">
+          Connected
         </span>
       )}
     </div>
@@ -206,16 +213,21 @@ export function SkillTokenCard() {
     return (
       <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
         {header}
-        <p className="text-xs text-muted font-sans leading-relaxed mb-4">
-          Score any UI screenshot in Claude Code or Claude.ai. Screenshot,
-          say &ldquo;Run Ladder,&rdquo; done.
+        <p className="text-xs text-muted font-sans leading-relaxed mb-2">
+          A Claude Skill that scores any UI screenshot against the Ladder
+          framework. Works in Claude Code and Claude.ai.
+        </p>
+        <p className="text-[11px] text-muted font-sans leading-relaxed mb-4">
+          Install once with a single Terminal command. After that,
+          screenshot any UI and say &ldquo;Run Ladder&rdquo; in any
+          Claude conversation.
         </p>
         <button
           onClick={generate}
           disabled={working}
           className="text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold disabled:opacity-40"
         >
-          {working ? "Setting up…" : "Set up Skill"}
+          {working ? "Loading…" : "Get install command →"}
         </button>
       </div>
     );
@@ -225,11 +237,34 @@ export function SkillTokenCard() {
   return (
     <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
       {header}
-      <p className="text-xs text-muted font-sans leading-relaxed">
-        {meta.lastUsedAt
-          ? `Last used ${relativeTime(meta.lastUsedAt)}.`
-          : "Token created. Run the install if you haven't yet."}
+      <p className="text-xs text-muted font-sans leading-relaxed mb-3">
+        A Claude Skill that scores any UI screenshot against the Ladder
+        framework. Works in Claude Code and Claude.ai.
       </p>
+      {meta.lastUsedAt ? (
+        <p className="text-[11px] text-muted font-sans">
+          Last used {relativeTime(meta.lastUsedAt)}.
+        </p>
+      ) : (
+        <div className="border-t border-[#2a2a2a] pt-3 text-[11px] text-muted font-sans leading-relaxed">
+          Token created, but the Skill hasn&apos;t connected yet.
+          {" "}
+          <span className="text-foreground">If you ran the install,</span>{" "}
+          screenshot a UI and say &ldquo;Run Ladder&rdquo; in any Claude
+          conversation. The first run shows up here.
+          <br />
+          <span className="text-foreground">If you didn&apos;t,</span>{" "}
+          <button
+            onClick={generate}
+            disabled={working}
+            className="text-ladder-green hover:underline disabled:opacity-40"
+          >
+            show a fresh install command
+          </button>
+          {" "}
+          (replaces the existing token).
+        </div>
+      )}
 
       {updateAvailable && (
         <div className="mt-4 border border-ladder-green/30 bg-ladder-green/5 px-3 py-2.5 flex items-center justify-between gap-3 flex-wrap">
