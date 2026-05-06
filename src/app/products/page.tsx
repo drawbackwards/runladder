@@ -55,7 +55,7 @@ const SURFACES = [
       "Scores attributed to your Ladder account",
     ],
     cta: "Install for Figma",
-    href: "https://www.figma.com/community/plugin/ladder",
+    href: "https://www.figma.com/community/plugin/1615455485903292828",
     available: true,
   },
   {

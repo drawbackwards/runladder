@@ -1,6 +1,6 @@
 "use client";
 
-const FIGMA_PLUGIN_URL = "https://www.figma.com/community/plugin/ladder";
+const FIGMA_PLUGIN_URL = "https://www.figma.com/community/plugin/1615455485903292828";
 
 function NumberedStep({
   n,
