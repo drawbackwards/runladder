@@ -22,6 +22,7 @@ type ScoreEntry = {
   isPublic?: boolean;
   timestamp: number;
   uplift?: number | null;
+  sessionType?: "design" | "evaluation";
 };
 
 type Member = {
@@ -41,13 +42,21 @@ type Stats = {
   lastScoreAt: number | null;
 };
 
-type MemberData = {
-  member: Member;
+type Bucket = {
   stats: Stats;
   scores: ScoreEntry[];
   activity: DailyActivity[];
+};
+
+type MemberData = {
+  member: Member;
+  stats: Stats; // legacy all-up
+  design: Bucket;
+  evaluation: Bucket;
   activityWindowDays: number;
 };
+
+type Tab = "design" | "evaluation";
 
 function timeAgo(ts: number): string {
   const diff = Date.now() - ts;
@@ -97,6 +106,97 @@ function StatPill({
   );
 }
 
+function TabButton({
+  label,
+  count,
+  active,
+  onClick,
+}: {
+  label: string;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`text-[11px] uppercase tracking-widest px-4 py-3 border-b-2 transition-colors ${
+        active
+          ? "text-foreground border-ladder-green"
+          : "text-muted border-transparent hover:text-foreground"
+      }`}
+    >
+      {label}{" "}
+      <span
+        className={`ml-1 font-mono ${
+          active ? "text-ladder-green" : "text-[#3a3a3a]"
+        }`}
+      >
+        {count}
+      </span>
+    </button>
+  );
+}
+
+function ScoreRow({ entry }: { entry: ScoreEntry }) {
+  return (
+    <div className="border border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1f1f1f] hover:border-[#3a3a3a] transition-colors">
+      <div className="px-4 py-3 flex items-center gap-4">
+        {entry.thumbnail ? (
+          <div className="flex-shrink-0 w-12 h-12 border border-[#2a2a2a] bg-[#111] overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={entry.thumbnail}
+              alt=""
+              className="w-full h-full object-cover object-top"
+            />
+          </div>
+        ) : (
+          <div className="flex-shrink-0 w-12 h-12 border border-[#2a2a2a] bg-[#111]" />
+        )}
+
+        <div className="flex-shrink-0 w-12 text-center">
+          <span
+            className="text-xl font-bold tabular-nums"
+            style={{ color: getScoreColor(entry.score) }}
+          >
+            {entry.score.toFixed(1)}
+          </span>
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-foreground font-sans truncate">
+              {entry.screenName || entry.source}
+            </p>
+            {entry.isPublic === false && (
+              <span className="text-[8px] text-[#888] uppercase tracking-widest border border-[#3a3a3a] px-1.5 py-0.5 flex-shrink-0">
+                Private
+              </span>
+            )}
+          </div>
+          <p className="text-[10px] text-muted font-sans truncate mt-0.5">
+            <span style={{ color: getScoreColor(entry.score) }}>
+              {entry.label}
+            </span>
+            <span className="text-[#444] mx-1.5">·</span>
+            {timeAgo(entry.timestamp)}
+            {entry.source && (
+              <>
+                <span className="text-[#444] mx-1.5">·</span>
+                <span className="uppercase tracking-widest text-[9px]">
+                  {entry.source}
+                </span>
+              </>
+            )}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function TeamMemberDetailPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const params = useParams<{ userId: string }>();
@@ -106,6 +206,7 @@ export default function TeamMemberDetailPage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
+  const [tab, setTab] = useState<Tab>("design");
 
   useEffect(() => {
     if (!isSignedIn || !userId) return;
@@ -188,11 +289,13 @@ export default function TeamMemberDetailPage() {
     );
   }
 
-  const { member, stats, scores, activity, activityWindowDays } = data;
+  const { member, design, evaluation, activityWindowDays } = data;
   const name =
     [member.firstName, member.lastName].filter(Boolean).join(" ") ||
     member.email ||
     "—";
+
+  const bucket = tab === "design" ? design : evaluation;
 
   return (
     <div className="pt-20 font-mono">
@@ -233,33 +336,64 @@ export default function TeamMemberDetailPage() {
           </div>
         </div>
 
+        <div className="border-b border-[#2a2a2a] flex items-end mb-6">
+          <TabButton
+            label="Design sessions"
+            count={design.scores.length}
+            active={tab === "design"}
+            onClick={() => setTab("design")}
+          />
+          <TabButton
+            label="Evaluations"
+            count={evaluation.scores.length}
+            active={tab === "evaluation"}
+            onClick={() => setTab("evaluation")}
+          />
+          <span className="ml-auto pb-3 text-[10px] text-muted">
+            {tab === "design"
+              ? "Their own design work"
+              : "Audits, research, and competitor scoring"}
+          </span>
+        </div>
+
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-8">
           <StatPill
             label="Avg score"
             value={
-              stats.avgScore !== null ? stats.avgScore.toFixed(1) : "—"
+              bucket.stats.avgScore !== null
+                ? bucket.stats.avgScore.toFixed(1)
+                : "—"
             }
             color={
-              stats.avgScore !== null
-                ? getScoreColor(stats.avgScore)
+              bucket.stats.avgScore !== null
+                ? getScoreColor(bucket.stats.avgScore)
                 : undefined
             }
           />
-          <StatPill label="Total scans" value={String(stats.totalScans)} />
+          <StatPill
+            label="Total scans"
+            value={String(bucket.stats.totalScans)}
+          />
           <StatPill
             label="Best"
             value={
-              stats.bestScore !== null ? stats.bestScore.toFixed(1) : "—"
+              bucket.stats.bestScore !== null
+                ? bucket.stats.bestScore.toFixed(1)
+                : "—"
             }
             color={
-              stats.bestScore !== null
-                ? getScoreColor(stats.bestScore)
+              bucket.stats.bestScore !== null
+                ? getScoreColor(bucket.stats.bestScore)
                 : undefined
             }
           />
           <StatPill
             label="Last scored"
-            value={stats.lastScoreAt ? timeAgo(stats.lastScoreAt) : "—"}
+            value={
+              bucket.stats.lastScoreAt
+                ? timeAgo(bucket.stats.lastScoreAt)
+                : "—"
+            }
           />
         </div>
 
@@ -273,7 +407,7 @@ export default function TeamMemberDetailPage() {
             </span>
           </div>
           <ActivityHeatmap
-            activity={activity}
+            activity={bucket.activity}
             cellWidth={18}
             cellHeight={7}
             cellGap={2}
@@ -286,67 +420,23 @@ export default function TeamMemberDetailPage() {
             Score history
           </span>
           <span className="text-[10px] text-muted">
-            {scores.length} score{scores.length !== 1 ? "s" : ""}
+            {bucket.scores.length} score
+            {bucket.scores.length !== 1 ? "s" : ""}
           </span>
         </div>
 
-        {scores.length === 0 ? (
+        {bucket.scores.length === 0 ? (
           <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-8 text-center">
             <p className="text-sm text-muted font-sans">
-              No scores yet from {name}.
+              {tab === "design"
+                ? `No design sessions from ${name} yet.`
+                : `No evaluation sessions from ${name} yet.`}
             </p>
           </div>
         ) : (
           <div className="space-y-1.5">
-            {scores.map((entry) => (
-              <div
-                key={entry.id}
-                className="border border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1f1f1f] hover:border-[#3a3a3a] transition-colors"
-              >
-                <div className="px-4 py-3 flex items-center gap-4">
-                  {entry.thumbnail ? (
-                    <div className="flex-shrink-0 w-12 h-12 border border-[#2a2a2a] bg-[#111] overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={entry.thumbnail}
-                        alt=""
-                        className="w-full h-full object-cover object-top"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex-shrink-0 w-12 h-12 border border-[#2a2a2a] bg-[#111]" />
-                  )}
-
-                  <div className="flex-shrink-0 w-12 text-center">
-                    <span
-                      className="text-xl font-bold tabular-nums"
-                      style={{ color: getScoreColor(entry.score) }}
-                    >
-                      {entry.score.toFixed(1)}
-                    </span>
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm text-foreground font-sans truncate">
-                        {entry.screenName || entry.source}
-                      </p>
-                      {entry.isPublic === false && (
-                        <span className="text-[8px] text-[#888] uppercase tracking-widest border border-[#3a3a3a] px-1.5 py-0.5 flex-shrink-0">
-                          Private
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[10px] text-muted font-sans truncate mt-0.5">
-                      <span style={{ color: getScoreColor(entry.score) }}>
-                        {entry.label}
-                      </span>
-                      <span className="text-[#444] mx-1.5">·</span>
-                      {timeAgo(entry.timestamp)}
-                    </p>
-                  </div>
-                </div>
-              </div>
+            {bucket.scores.map((entry) => (
+              <ScoreRow key={entry.id} entry={entry} />
             ))}
           </div>
         )}

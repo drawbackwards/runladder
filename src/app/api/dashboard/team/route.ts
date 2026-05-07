@@ -28,7 +28,20 @@ type RawScore = {
   score?: number;
   timestamp?: number;
   rungs?: unknown;
+  sessionType?: "design" | "evaluation";
 };
+
+/**
+ * Resolve sessionType for a stored score. Old entries written before the
+ * intent-bucket schema land here without the field — grandfather them as
+ * "design" so historical Drawbackwards/Lumin data lands in the right
+ * bucket (per Ward's instruction).
+ */
+function effectiveSessionType(
+  s: { sessionType?: "design" | "evaluation" },
+): "design" | "evaluation" {
+  return s.sessionType === "evaluation" ? "evaluation" : "design";
+}
 
 type RungOnly = Record<RungName, { score: number }>;
 
@@ -132,8 +145,17 @@ type MemberSummary = {
   role: string;
   joinedAt: number;
   stats: UserStats | null;
+  /** Design-session scans inside the insights window (last 30 days). */
   recentScans: number;
+  /** Daily activity bucket for design sessions only — fuels the row heatmap. */
   activity: DailyActivity[];
+  /**
+   * Tertiary signal for the manager: how many evaluation/audit scores this
+   * member has logged in the activity window. Surfaced on the member row
+   * as "+ N evaluations" so audit work is visible without polluting the
+   * performance metrics.
+   */
+  evaluationsInWindow: number;
 };
 
 type RungAverage = {
@@ -209,6 +231,7 @@ export async function GET() {
           stats: null,
           recentScans: 0,
           activity: [],
+          evaluationsInWindow: 0,
         };
       }
 
@@ -217,8 +240,22 @@ export async function GET() {
         readRecentScores(memberUserId, activityWindowStart),
       ]);
 
+      // Performance metrics (recentScans, team avg, rung insights) and the
+      // row heatmap reflect *design* sessions only, by Ward's product call.
+      // Evaluations are tracked separately so audit/research work is visible
+      // without diluting craft signals.
+      const designRecent = recent.filter(
+        (s) => effectiveSessionType(s) === "design",
+      );
+      const evaluationsInWindow = recent.filter(
+        (s) =>
+          effectiveSessionType(s) === "evaluation" &&
+          typeof s.timestamp === "number" &&
+          s.timestamp >= activityWindowStart,
+      ).length;
+
       let memberRecentCount = 0;
-      for (const s of recent) {
+      for (const s of designRecent) {
         if (typeof s.score !== "number" || !Number.isFinite(s.score)) continue;
         if (typeof s.timestamp !== "number") continue;
         if (s.timestamp < insightsWindowStart) continue;
@@ -238,7 +275,8 @@ export async function GET() {
         ...base,
         stats,
         recentScans: memberRecentCount,
-        activity: bucketActivity(recent, ACTIVITY_WINDOW_DAYS),
+        activity: bucketActivity(designRecent, ACTIVITY_WINDOW_DAYS),
+        evaluationsInWindow,
       };
     }),
   );

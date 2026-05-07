@@ -86,6 +86,9 @@ export async function POST(req: NextRequest) {
       thumbnail,
       isPublic: !!score.isPublic,
       timestamp: score.timestamp || Date.now(),
+      // Figma plugin scores are always design sessions — the user is
+      // scoring their own canvas, not auditing someone else's UI.
+      sessionType: "design",
     });
 
     // Diagnostic log: keep the last 50 persist attempts for 24h so we can

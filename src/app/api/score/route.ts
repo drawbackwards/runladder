@@ -62,7 +62,11 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { image, source, isPublic } = body;
+    const { image, source, isPublic, sessionType: rawSessionType } = body;
+    // Default to "design" when caller doesn't specify, but accept "evaluation"
+    // when the user has explicitly picked an audit/research session.
+    const sessionType: "design" | "evaluation" =
+      rawSessionType === "evaluation" ? "evaluation" : "design";
 
     const parsed = parseImageDataUrl(image);
     if (!parsed) {
@@ -100,6 +104,7 @@ export async function POST(req: NextRequest) {
         thumbnail,
         isPublic: !!isPublic,
         timestamp: Date.now(),
+        sessionType,
       });
     } else {
       const anonKey = `rate:anon:${ip}`;

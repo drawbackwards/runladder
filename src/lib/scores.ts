@@ -15,6 +15,17 @@ import { redis, lifetimeScansKey } from "@/lib/redis";
  *   - leaderboard:global:avg / :scans  zadd (powers future leaderboard surfaces)
  */
 
+/**
+ * Session bucketing — captures user intent at score time.
+ *
+ *   "design"     — they're working on their own design (Figma plugin
+ *                  scores auto-tag as this; web/Skill prompt the user).
+ *                  Counts toward designer performance metrics.
+ *   "evaluation" — they're scoring someone else's UI for audit / research
+ *                  / comparison. Tracked separately from performance.
+ */
+export type SessionType = "design" | "evaluation";
+
 export type ScoreEntryInput = {
   id: string;
   score: number;
@@ -28,9 +39,13 @@ export type ScoreEntryInput = {
   thumbnail?: string;
   isPublic?: boolean;
   timestamp: number;
+  /** Optional at write-time; defaults to "design" if omitted. */
+  sessionType?: SessionType;
 };
 
-export type StoredScoreEntry = ScoreEntryInput & {
+export type StoredScoreEntry = Omit<ScoreEntryInput, "sessionType"> & {
+  /** Always present on stored entries (the persist step fills in the default). */
+  sessionType: SessionType;
   /** Canonical identifier for "the same screen, scored across time". */
   screenKey: string;
   /** Score from the most recent prior scan of the same screen, or null if first time. */
@@ -98,6 +113,7 @@ export async function persistScoreEntry(
 
   const entry: StoredScoreEntry = {
     ...input,
+    sessionType: input.sessionType ?? "design",
     screenKey,
     previousScore,
     uplift,

@@ -35,6 +35,7 @@ type TeamMember = {
   stats: MemberStats | null;
   recentScans: number;
   activity: DailyActivity[];
+  evaluationsInWindow: number;
 };
 
 type RungAverage = {
@@ -193,8 +194,9 @@ function InsightsPanel({ insights }: { insights: Insights }) {
     return (
       <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6 mb-6">
         <p className="text-sm text-muted font-sans">
-          No scores from your team in the last {windowDays} days. Once members
-          start scoring, performance insights show up here.
+          No design-session scores from your team in the last {windowDays} days.
+          Once members score their own work in Figma (or pick the Design Session
+          option on /score), performance insights show up here.
         </p>
       </div>
     );
@@ -204,10 +206,10 @@ function InsightsPanel({ insights }: { insights: Insights }) {
     <div className="mb-6">
       <div className="flex items-baseline justify-between mb-3">
         <h2 className="text-[10px] text-muted uppercase tracking-widest">
-          Team performance
+          Designer performance
         </h2>
         <span className="text-[10px] text-muted">
-          Last {windowDays} days
+          Design sessions, last {windowDays} days
         </span>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
@@ -314,10 +316,16 @@ function MemberRow({
             </>
           )}
         </p>
+        {member.evaluationsInWindow > 0 && (
+          <p className="text-[10px] text-muted/70 font-sans mt-1">
+            + {member.evaluationsInWindow} evaluation
+            {member.evaluationsInWindow === 1 ? "" : "s"} in window
+          </p>
+        )}
       </div>
 
       {member.activity.length > 0 && (
-        <div className="hidden md:block flex-shrink-0" title={`Last ${windowDays} days`}>
+        <div className="hidden md:block flex-shrink-0" title={`Design sessions, last ${windowDays} days`}>
           <ActivityHeatmap
             activity={member.activity}
             cellWidth={12}
@@ -553,7 +561,7 @@ export default function TeamPage() {
             </h2>
             {teamData && (
               <span className="text-[10px] text-muted">
-                Activity over the last {activityWindowDays} days
+                Design-session activity, last {activityWindowDays} days
               </span>
             )}
           </div>
