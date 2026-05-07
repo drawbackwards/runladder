@@ -5,6 +5,11 @@ import { useAuth } from "@clerk/nextjs";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
+import {
+  SessionTypeModal,
+  SessionTypePill,
+  useSessionType,
+} from "@/components/SessionTypePrompt";
 import Link from "next/link";
 
 type Finding = {
@@ -218,6 +223,8 @@ function timeAgo(ts: number): string {
 
 export default function ScorePage() {
   const { isSignedIn, isLoaded } = useAuth();
+  const { sessionType, ready: sessionTypeReady, pick: pickSessionType, clear: clearSessionType } =
+    useSessionType();
   const [image, setImage] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [urlInput, setUrlInput] = useState("");
@@ -348,7 +355,13 @@ export default function ScorePage() {
       const res = await fetch("/api/score", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: scoringImage, source: fileName || "Upload", isPublic, thumbnail: thumb }),
+        body: JSON.stringify({
+          image: scoringImage,
+          source: fileName || "Upload",
+          isPublic,
+          thumbnail: thumb,
+          sessionType: sessionType ?? "design",
+        }),
       });
       const text = await res.text();
       let data;
@@ -400,9 +413,24 @@ export default function ScorePage() {
   const hasInput = image || urlScreenshots.length > 0;
   const showUploadUI = !result && !loading && !capturing;
 
+  // Signed-in users must declare intent before scoring so the score lands
+  // in the right bucket (design vs evaluation). Anon users skip this:
+  // their score isn't saved to history anyway.
+  const showSessionTypePrompt =
+    isLoaded && isSignedIn && sessionTypeReady && !sessionType;
+
   return (
     <div className="analysis-grid pt-20 font-mono">
+      {showSessionTypePrompt && (
+        <SessionTypeModal onPick={pickSessionType} />
+      )}
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-12">
+
+        {isLoaded && isSignedIn && sessionType && !result && !loading && !capturing && (
+          <div className="flex justify-end mb-4">
+            <SessionTypePill type={sessionType} onChange={clearSessionType} />
+          </div>
+        )}
 
         {/* ── Header bar ── */}
         {result && (

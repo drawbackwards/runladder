@@ -60,7 +60,12 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { image, source } = body;
+    const { image, source, sessionType: rawSessionType } = body;
+    // The Skill defaults to "evaluation" when no flag is given (people
+    // running ad-hoc checks in Claude are usually critiquing, not designing).
+    // Caller can pass "design" explicitly when they're working on their own.
+    const sessionType: "design" | "evaluation" =
+      rawSessionType === "design" ? "design" : "evaluation";
 
     const parsed = parseImageDataUrl(image);
     if (!parsed) {
@@ -100,6 +105,7 @@ export async function POST(req: NextRequest) {
       thumbnail,
       isPublic: false,
       timestamp: Date.now(),
+      sessionType,
     });
     await touchSkillToken(userId, installedVersion);
 

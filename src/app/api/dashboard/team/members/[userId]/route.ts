@@ -33,7 +33,50 @@ type RawScore = {
   timestamp?: number;
   uplift?: number | null;
   previousScore?: number | null;
+  sessionType?: "design" | "evaluation";
 };
+
+/** Grandfather pre-bucket scores as design (per Ward's call). */
+function effectiveSessionType(
+  s: { sessionType?: "design" | "evaluation" },
+): "design" | "evaluation" {
+  return s.sessionType === "evaluation" ? "evaluation" : "design";
+}
+
+function statsFromScores(arr: RawScore[]): {
+  totalScans: number;
+  avgScore: number | null;
+  bestScore: number | null;
+  lastScoreAt: number | null;
+} {
+  const valid = arr.filter(
+    (s): s is RawScore & { score: number; timestamp: number } =>
+      typeof s.score === "number" &&
+      Number.isFinite(s.score) &&
+      typeof s.timestamp === "number",
+  );
+  if (valid.length === 0) {
+    return {
+      totalScans: 0,
+      avgScore: null,
+      bestScore: null,
+      lastScoreAt: null,
+    };
+  }
+  const totalScans = valid.length;
+  const sum = valid.reduce((acc, s) => acc + s.score, 0);
+  const best = valid.reduce((acc, s) => (s.score > acc ? s.score : acc), 0);
+  const last = valid.reduce(
+    (acc, s) => (s.timestamp > acc ? s.timestamp : acc),
+    0,
+  );
+  return {
+    totalScans,
+    avgScore: Math.round((sum / totalScans) * 10) / 10,
+    bestScore: Math.round(best * 10) / 10,
+    lastScoreAt: last,
+  };
+}
 
 function bucketActivity(
   scores: RawScore[],
@@ -129,7 +172,18 @@ export async function GET(
     .filter((s): s is RawScore => s !== null);
 
   const activityWindowStart = Date.now() - ACTIVITY_WINDOW_DAYS * DAY_MS;
-  const recentForActivity = scores.filter(
+  const designScores = scores.filter(
+    (s) => effectiveSessionType(s) === "design",
+  );
+  const evaluationScores = scores.filter(
+    (s) => effectiveSessionType(s) === "evaluation",
+  );
+
+  const designInWindow = designScores.filter(
+    (s) =>
+      typeof s.timestamp === "number" && s.timestamp >= activityWindowStart,
+  );
+  const evaluationInWindow = evaluationScores.filter(
     (s) =>
       typeof s.timestamp === "number" && s.timestamp >= activityWindowStart,
   );
@@ -144,9 +198,26 @@ export async function GET(
       role: target.role,
       joinedAt: target.createdAt,
     },
+    /** All-up stats from getUserStats. UI prefers the bucketed versions below. */
     stats,
-    scores,
-    activity: bucketActivity(recentForActivity, ACTIVITY_WINDOW_DAYS),
+    /**
+     * Design-session scores. Drives the manager's "performance" section
+     * (craft trends, design rhythm, personal records).
+     */
+    design: {
+      stats: statsFromScores(designScores),
+      scores: designScores,
+      activity: bucketActivity(designInWindow, ACTIVITY_WINDOW_DAYS),
+    },
+    /**
+     * Evaluation/audit scores. Drives the manager's "audit" section
+     * (research, competitor work, deliverables).
+     */
+    evaluation: {
+      stats: statsFromScores(evaluationScores),
+      scores: evaluationScores,
+      activity: bucketActivity(evaluationInWindow, ACTIVITY_WINDOW_DAYS),
+    },
     activityWindowDays: ACTIVITY_WINDOW_DAYS,
   });
 }
