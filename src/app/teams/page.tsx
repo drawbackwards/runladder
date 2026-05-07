@@ -74,25 +74,30 @@ export default function TeamsPage() {
       {/* Hero */}
       <section className="pt-40 pb-36 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="font-mono text-xs text-ladder-green uppercase tracking-widest mb-8">
-            Ladder for Teams
-          </p>
+          <div className="inline-flex items-center gap-3 mb-8">
+            <p className="font-mono text-xs text-ladder-green uppercase tracking-widest">
+              Ladder for Teams
+            </p>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full border border-ladder-green/40 bg-ladder-green/5 text-[10px] font-mono uppercase tracking-widest text-ladder-green">
+              Beta
+            </span>
+          </div>
           <h1 className="text-[3.5rem] md:text-[5rem] font-bold tracking-tight leading-[1.05] mb-8">
             Your standards.{" "}
             <span className="text-ladder-green">Every score.</span>
           </h1>
           <p className="text-lg text-body max-w-2xl mx-auto mb-12 leading-relaxed">
-            Load your brand standards, encode your design leadership's
+            Load your brand standards, encode your design leadership&apos;s
             priorities, and every Ladder score your team runs reflects
             what quality means to <em>your</em> organization. Not generic.
             Yours.
           </p>
-          <div className="flex items-center justify-center gap-6">
+          <div className="flex items-center justify-center gap-6 flex-wrap">
             <Link
-              href="/contact"
+              href="/contact?interest=teams-beta"
               className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-base"
             >
-              Talk to us about Teams
+              Apply to be a beta tester
             </Link>
             <Link
               href="/framework"
@@ -363,10 +368,10 @@ export default function TeamsPage() {
               </ul>
 
               <Link
-                href="/contact"
+                href="/contact?interest=teams-beta"
                 className="text-center text-sm font-semibold py-3 rounded-full transition-colors bg-ladder-green text-background hover:bg-ladder-green/90"
               >
-                Talk to us about Teams
+                Apply to be a beta tester
               </Link>
             </div>
           </div>

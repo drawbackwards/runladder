@@ -19,6 +19,8 @@ type TierKey = "free" | "pro" | "team";
 type ScreenTier = {
   key: TierKey;
   name: string;
+  /** Optional brand pill shown next to the tier name. */
+  badge?: string;
   price: string;
   period: string;
   highlight: boolean;
@@ -70,18 +72,21 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
   {
     key: "team",
     name: "Team",
+    badge: "Beta",
     price: "Custom",
     period: "",
     highlight: false,
     limit: "Unlimited",
     features: [
       "Everything in Professional",
-      "Team leaderboard + portfolio score",
-      "Manager dashboard + performance tracking",
+      "Manager dashboard + designer performance tracking",
+      "Design rhythm + activity heatmap per designer",
+      "Audit toolkit with redline annotations on every score",
+      "Design / evaluation session bucketing across the team",
       "Access to customer sentiment and Ladder Pulse scoring data + insights, if subscribed (coming soon)",
     ],
-    cta: "Talk to us about Ladder",
-    href: "/contact",
+    cta: "Apply to be a beta tester",
+    href: "/contact?interest=teams-beta",
     solidCta: false,
   },
 ];
@@ -152,9 +157,16 @@ export default async function PricingPage() {
             >
               {/* Name + current badge */}
               <div className="flex items-center justify-between gap-2 mb-4">
-                <h2 className="text-lg font-bold text-foreground">
-                  {tier.name}
-                </h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-bold text-foreground">
+                    {tier.name}
+                  </h2>
+                  {tier.badge && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full border border-ladder-green/40 bg-ladder-green/5 text-[10px] font-mono uppercase tracking-widest text-ladder-green">
+                      {tier.badge}
+                    </span>
+                  )}
+                </div>
                 {isCurrent && <CurrentPlanBadge comp={isComp} />}
               </div>
 
