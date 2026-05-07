@@ -8,6 +8,7 @@ import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel 
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
 import { AnalysisFeedback } from "@/components/AnalysisFeedback";
+import { ScoreAnnotations } from "@/components/ScoreAnnotations";
 
 type Finding = {
   title: string;
@@ -37,6 +38,8 @@ type ScoreDetail = {
   previousScore?: number | null;
   uplift?: number | null;
   screenKey?: string;
+  /** Set when the score was logged in an evaluation/audit session. */
+  sessionType?: "design" | "evaluation";
 };
 
 function CategoryBadge({ category }: { category: string }) {
@@ -322,6 +325,15 @@ export default function ScoreDetailPage() {
             >
               Score a new screen
             </Link>
+          </div>
+        )}
+
+        {data.sessionType === "evaluation" && data.thumbnail && (
+          <div className="mt-6">
+            <ScoreAnnotations
+              scoreId={data.id}
+              imageDataUrl={data.thumbnail}
+            />
           </div>
         )}
 

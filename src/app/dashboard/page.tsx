@@ -9,6 +9,7 @@ import { FigmaPluginCard } from "@/components/FigmaPluginCard";
 import { TeamCard } from "@/components/TeamCard";
 import { TeamSetupBanner } from "@/components/TeamSetupBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
+import { ActivityHeatmap, type DailyActivity } from "@/components/ActivityHeatmap";
 import { FREE_LIFETIME_LIMIT } from "@/lib/plans";
 
 type ScoreEntry = {
@@ -25,7 +26,60 @@ type ScoreEntry = {
   screenKey?: string;
   previousScore?: number | null;
   uplift?: number | null;
+  /** Set when the score was logged in an evaluation/audit session. */
+  sessionType?: "design" | "evaluation";
 };
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const RHYTHM_WINDOW_DAYS = 91;
+
+/**
+ * Bucket scores into daily counts for the design-rhythm heatmap.
+ * Pre-fills every day in the window so the grid is continuous even on
+ * days with no activity.
+ */
+function bucketActivity(
+  scores: ScoreEntry[],
+  windowDays: number,
+): DailyActivity[] {
+  const todayMidnight = (() => {
+    const d = new Date();
+    return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  })();
+
+  const buckets = new Map<number, { count: number; total: number }>();
+  for (let i = windowDays - 1; i >= 0; i--) {
+    buckets.set(todayMidnight - i * DAY_MS, { count: 0, total: 0 });
+  }
+
+  for (const s of scores) {
+    if (typeof s.timestamp !== "number") continue;
+    const d = new Date(s.timestamp);
+    const dayMidnight = Date.UTC(
+      d.getUTCFullYear(),
+      d.getUTCMonth(),
+      d.getUTCDate(),
+    );
+    const bucket = buckets.get(dayMidnight);
+    if (!bucket) continue;
+    bucket.count += 1;
+    if (typeof s.score === "number" && Number.isFinite(s.score)) {
+      bucket.total += s.score;
+    }
+  }
+
+  return Array.from(buckets.entries())
+    .sort((a, b) => a[0] - b[0])
+    .map(([ts, b]) => ({
+      date: new Date(ts).toISOString().slice(0, 10),
+      count: b.count,
+      avgScore: b.count > 0 ? Math.round((b.total / b.count) * 10) / 10 : null,
+    }));
+}
+
+function effectiveSessionType(s: ScoreEntry): "design" | "evaluation" {
+  return s.sessionType === "evaluation" ? "evaluation" : "design";
+}
 
 type UserStats = {
   totalScans: number;
@@ -299,6 +353,47 @@ function EmptyHero() {
   );
 }
 
+/**
+ * "Design rhythm" calendar — fills a square for every day the user logs
+ * a design session. Quiet visual reinforcement of cadence (no streaks,
+ * no break-the-streak anxiety). Hidden until the user has at least one
+ * design-session score in the window.
+ */
+function DesignRhythmCard({ scores }: { scores: ScoreEntry[] }) {
+  const designScores = scores.filter(
+    (s) => effectiveSessionType(s) === "design",
+  );
+  const activity = bucketActivity(designScores, RHYTHM_WINDOW_DAYS);
+  const totalInWindow = activity.reduce((sum, day) => sum + day.count, 0);
+  const activeDays = activity.filter((day) => day.count > 0).length;
+
+  if (totalInWindow === 0) return null;
+
+  return (
+    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5 mb-6">
+      <div className="flex items-baseline justify-between mb-4 gap-3 flex-wrap">
+        <div>
+          <h2 className="text-[10px] text-muted uppercase tracking-widest mb-1">
+            Design rhythm
+          </h2>
+          <p className="text-xs text-muted font-sans">
+            {activeDays} active day{activeDays === 1 ? "" : "s"} ·{" "}
+            {totalInWindow} session{totalInWindow === 1 ? "" : "s"} in the last{" "}
+            {RHYTHM_WINDOW_DAYS} days
+          </p>
+        </div>
+      </div>
+      <ActivityHeatmap
+        activity={activity}
+        cellWidth={14}
+        cellHeight={6}
+        cellGap={2}
+        emptyClassName="bg-[#222]"
+      />
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
@@ -374,6 +469,8 @@ export default function DashboardPage() {
         </div>
 
         <TeamSetupBanner tier={tier} />
+
+        <DesignRhythmCard scores={scores} />
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           <main>

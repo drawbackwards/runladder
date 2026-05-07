@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 const INTERESTS = [
+  "Ladder for Teams beta",
   "Organization plan for my team",
   "Enterprise deployment",
   "Ladder Pulse deployment",
@@ -11,7 +13,29 @@ const INTERESTS = [
   "Something else",
 ];
 
+/**
+ * Map a `?interest=` query value to one of the INTERESTS labels above.
+ * Used by deep links from the pricing page so the right radio is
+ * pre-selected when the visitor lands.
+ */
+function interestFromQuery(value: string | null): string | null {
+  if (!value) return null;
+  const v = value.toLowerCase();
+  if (v === "teams-beta" || v === "ladder-for-teams-beta") {
+    return "Ladder for Teams beta";
+  }
+  if (v === "team" || v === "organization") {
+    return "Organization plan for my team";
+  }
+  if (v === "enterprise") return "Enterprise deployment";
+  if (v === "pulse") return "Ladder Pulse deployment";
+  if (v === "consulting" || v === "drawbackwards") return "Drawbackwards Consulting";
+  if (v === "partnership" || v === "integration") return "Partnership or integration";
+  return null;
+}
+
 export function ContactForm() {
+  const searchParams = useSearchParams();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -19,6 +43,13 @@ export function ContactForm() {
     interest: "",
     message: "",
   });
+
+  // Pre-select interest from `?interest=` query so deep links from
+  // pricing / teams pages land with the right radio already chosen.
+  useEffect(() => {
+    const next = interestFromQuery(searchParams?.get("interest") ?? null);
+    if (next) setForm((f) => ({ ...f, interest: next }));
+  }, [searchParams]);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   function update(field: string, value: string) {
