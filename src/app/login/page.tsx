@@ -13,15 +13,20 @@ export default function LoginPage() {
   return (
     <AuthShell
       footer={
-        <>
-          New here?{" "}
-          <Link
-            href="/sign-up"
-            className="text-ladder-green hover:text-ladder-green/80 font-medium"
-          >
-            Create an account
-          </Link>
-        </>
+        <div className="space-y-2">
+          <p>
+            New here?{" "}
+            <Link
+              href="/sign-up"
+              className="text-ladder-green hover:text-ladder-green/80 font-medium"
+            >
+              Create an account
+            </Link>
+          </p>
+          <p className="text-muted text-xs">
+            Got an invite from your team? Check your email for the join link.
+          </p>
+        </div>
       }
     >
       <SignIn

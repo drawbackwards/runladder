@@ -58,14 +58,17 @@ export default function RootLayout({
         signIn: {
           start: {
             title: "Welcome back",
-            subtitle: "Sign in to your Ladder account to keep scoring.",
+            // Sets the right expectation up front: this app is passwordless.
+            // Users typing in their email won't hunt for a "Forgot password" link.
+            subtitle:
+              "Enter your email and we'll send a sign-in code. No password needed.",
           },
         },
         signUp: {
           start: {
             title: "Start scoring",
             subtitle:
-              "Create a free account to score any screen against the Ladder framework.",
+              "Create a free account to score any screen against the Ladder framework. We'll email you a sign-in code, no password to remember.",
           },
         },
       }}
