@@ -3,6 +3,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { redis } from "@/lib/redis";
 import { getUserStats, type UserStats } from "@/lib/scores";
 import { RUNG_NAMES, type RungName } from "@/lib/ladder";
+import { listArchivedMembers } from "@/lib/team-archives";
 
 /**
  * Team dashboard data — manager view.
@@ -158,6 +159,18 @@ type MemberSummary = {
   evaluationsInWindow: number;
 };
 
+type ArchivedSummary = {
+  userId: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  imageUrl: string | null;
+  stats: UserStats | null;
+  recentScans: number;
+  activity: DailyActivity[];
+  evaluationsInWindow: number;
+};
+
 type RungAverage = {
   rung: RungName;
   avg: number | null;
@@ -281,6 +294,79 @@ export async function GET() {
     }),
   );
 
+  // Archived members — historical, no longer in the org but their work still
+  // counts toward team insights. Manager-only.
+  let archived: ArchivedSummary[] = [];
+  if (isManager) {
+    const archivedIds = await listArchivedMembers(orgId);
+    archived = await Promise.all(
+      archivedIds.map(async (memberUserId): Promise<ArchivedSummary> => {
+        const base: ArchivedSummary = {
+          userId: memberUserId,
+          email: null,
+          firstName: null,
+          lastName: null,
+          imageUrl: null,
+          stats: null,
+          recentScans: 0,
+          activity: [],
+          evaluationsInWindow: 0,
+        };
+
+        try {
+          const user = await client.users.getUser(memberUserId);
+          base.email = user.primaryEmailAddress?.emailAddress ?? null;
+          base.firstName = user.firstName ?? null;
+          base.lastName = user.lastName ?? null;
+          base.imageUrl = user.imageUrl ?? null;
+        } catch {
+          // user account may have been deleted entirely; we still keep their
+          // history under the userId, so let the row render with the unknown name.
+        }
+
+        const [stats, recent] = await Promise.all([
+          getUserStats(memberUserId),
+          readRecentScores(memberUserId, activityWindowStart),
+        ]);
+
+        const designRecent = recent.filter(
+          (s) => effectiveSessionType(s) === "design",
+        );
+        const evaluationsInWindow = recent.filter(
+          (s) =>
+            effectiveSessionType(s) === "evaluation" &&
+            typeof s.timestamp === "number" &&
+            s.timestamp >= activityWindowStart,
+        ).length;
+
+        let recentScans = 0;
+        for (const s of designRecent) {
+          if (typeof s.score !== "number" || !Number.isFinite(s.score)) continue;
+          if (typeof s.timestamp !== "number") continue;
+          if (s.timestamp < insightsWindowStart) continue;
+          recentScans += 1;
+          totalScores += 1;
+          totalScoreSum += s.score;
+          const rs = parseRungScores(s.rungs);
+          if (rs) {
+            for (const name of RUNG_NAMES) {
+              rungSums[name] += rs[name].score;
+              rungCounts[name] += 1;
+            }
+          }
+        }
+
+        return {
+          ...base,
+          stats,
+          recentScans,
+          activity: bucketActivity(designRecent, ACTIVITY_WINDOW_DAYS),
+          evaluationsInWindow,
+        };
+      }),
+    );
+  }
+
   let insights: Insights | null = null;
   if (isManager) {
     const rungAverages: RungAverage[] = RUNG_NAMES.map((name) => ({
@@ -314,6 +400,7 @@ export async function GET() {
   return NextResponse.json({
     isManager,
     members,
+    archived,
     insights,
     activityWindowDays: ACTIVITY_WINDOW_DAYS,
   });

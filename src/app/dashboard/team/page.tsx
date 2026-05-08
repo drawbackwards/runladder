@@ -38,6 +38,18 @@ type TeamMember = {
   evaluationsInWindow: number;
 };
 
+type ArchivedMember = {
+  userId: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  imageUrl: string | null;
+  stats: MemberStats | null;
+  recentScans: number;
+  activity: DailyActivity[];
+  evaluationsInWindow: number;
+};
+
 type RungAverage = {
   rung: string;
   avg: number | null;
@@ -56,6 +68,7 @@ type Insights = {
 type TeamData = {
   isManager: boolean;
   members: TeamMember[];
+  archived: ArchivedMember[];
   insights: Insights | null;
   activityWindowDays: number;
 };
@@ -258,13 +271,15 @@ function MemberRow({
   isAdmin,
   isSelf,
   windowDays,
-  onRemove,
+  onArchive,
+  onDelete,
 }: {
   member: TeamMember;
   isAdmin: boolean;
   isSelf: boolean;
   windowDays: number;
-  onRemove: () => void;
+  onArchive: () => void;
+  onDelete: () => void;
 }) {
   const name =
     [member.firstName, member.lastName].filter(Boolean).join(" ") ||
@@ -379,17 +394,126 @@ function MemberRow({
         Body
       )}
       {isAdmin && !isSelf && member.userId && (
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onRemove();
-          }}
-          className="absolute top-4 right-12 text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors opacity-0 group-hover:opacity-100"
-        >
-          Remove
-        </button>
+        <div className="absolute top-4 right-12 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onArchive();
+            }}
+            className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+            title="Soft remove. Their work stays in team metrics."
+          >
+            Archive
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors"
+            title="Hard remove. Their work is dropped from team metrics."
+          >
+            Delete
+          </button>
+        </div>
       )}
+    </li>
+  );
+}
+
+/**
+ * Row for an archived ex-member. Same shape as MemberRow but compressed
+ * (no role, no manager indicator, no drill-in for now) and with a
+ * single "Delete" action that scrubs them from team metrics entirely.
+ */
+function ArchivedMemberRow({
+  member,
+  windowDays,
+  onDelete,
+}: {
+  member: ArchivedMember;
+  windowDays: number;
+  onDelete: () => void;
+}) {
+  const name =
+    [member.firstName, member.lastName].filter(Boolean).join(" ") ||
+    member.email ||
+    "—";
+  const stats = member.stats;
+  const avg = stats?.avgScore ?? null;
+  const totalScans = stats?.totalScans ?? 0;
+
+  return (
+    <li className="border-b border-[#222] last:border-0 group relative">
+      <div className="px-4 py-4 flex items-center gap-5">
+        <Avatar
+          imageUrl={member.imageUrl}
+          name={name}
+          email={member.email}
+          size={36}
+        />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-foreground/70 font-sans truncate">
+            {name}
+            <span className="text-[9px] text-muted uppercase tracking-widest ml-2">
+              Archived
+            </span>
+          </p>
+          <p className="text-xs text-muted font-sans truncate">
+            {member.email ?? "—"}
+          </p>
+          {member.evaluationsInWindow > 0 && (
+            <p className="text-[10px] text-muted/70 font-sans mt-1">
+              + {member.evaluationsInWindow} evaluation
+              {member.evaluationsInWindow === 1 ? "" : "s"} in window
+            </p>
+          )}
+        </div>
+        {member.activity.length > 0 && (
+          <div
+            className="hidden md:block flex-shrink-0"
+            title={`Design sessions, last ${windowDays} days`}
+          >
+            <ActivityHeatmap
+              activity={member.activity}
+              cellWidth={12}
+              cellHeight={4}
+              cellGap={1}
+              emptyClassName="bg-[#222]"
+            />
+          </div>
+        )}
+        <div className="flex items-start gap-5 flex-shrink-0">
+          <div className="text-right min-w-[48px]">
+            <p
+              className="text-xl font-bold tabular-nums leading-none opacity-70"
+              style={{ color: avg !== null ? getScoreColor(avg) : "#444" }}
+            >
+              {avg !== null ? avg.toFixed(1) : "—"}
+            </p>
+            <p className="text-[9px] text-muted uppercase tracking-widest mt-1.5">
+              Avg
+            </p>
+          </div>
+          <div className="text-right min-w-[48px]">
+            <p className="text-xl font-bold tabular-nums text-foreground/70 leading-none">
+              {totalScans}
+            </p>
+            <p className="text-[9px] text-muted uppercase tracking-widest mt-1.5">
+              Scans
+            </p>
+          </div>
+        </div>
+      </div>
+      <button
+        onClick={onDelete}
+        className="absolute top-4 right-4 text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors opacity-0 group-hover:opacity-100"
+        title="Permanently scrub from team metrics. Cannot be undone."
+      >
+        Delete
+      </button>
     </li>
   );
 }
@@ -472,6 +596,7 @@ export default function TeamPage() {
   const isAdmin = membership?.role === "org:admin";
   const inviteList = invitations?.data ?? [];
   const memberList = teamData?.members ?? [];
+  const archivedList = teamData?.archived ?? [];
   const selfUserId = membership?.publicUserData?.userId;
   const activityWindowDays = teamData?.activityWindowDays ?? 91;
 
@@ -496,14 +621,75 @@ export default function TeamPage() {
     }
   }
 
-  async function handleRemoveMember(userId: string) {
-    if (!organization) return;
-    if (!confirm("Remove this member from the team?")) return;
+  async function handleReinvite(invitationId: string) {
     try {
-      await organization.removeMember(userId);
+      const res = await fetch(
+        `/api/dashboard/team/invitations/${invitationId}/reinvite`,
+        { method: "POST" },
+      );
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || `Reinvite failed (${res.status})`);
+      }
+      await invitations?.revalidate?.();
+    } catch (e) {
+      console.error("[reinvite]", e);
+    }
+  }
+
+  async function handleArchive(member: TeamMember) {
+    if (!member.userId) return;
+    const name =
+      [member.firstName, member.lastName].filter(Boolean).join(" ") ||
+      member.email ||
+      "this member";
+    if (
+      !confirm(
+        `Archive ${name}?\n\nThey'll lose access to the team, but their work stays counted in team metrics. You can fully delete them later if needed.`,
+      )
+    ) {
+      return;
+    }
+    try {
+      const res = await fetch(
+        `/api/dashboard/team/members/${member.userId}/archive`,
+        { method: "POST" },
+      );
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || `Archive failed (${res.status})`);
+      }
       await Promise.all([memberships?.revalidate?.(), refreshTeamData()]);
-    } catch {
-      // noop
+    } catch (e) {
+      console.error("[archive]", e);
+    }
+  }
+
+  async function handleDelete(args: {
+    userId: string;
+    displayName: string;
+    fromArchived: boolean;
+  }) {
+    const verb = args.fromArchived ? "scrub" : "delete";
+    if (
+      !confirm(
+        `${verb === "scrub" ? "Permanently scrub" : "Delete"} ${args.displayName} from this team?\n\nTheir work will be removed from team metrics. This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    try {
+      const res = await fetch(
+        `/api/dashboard/team/members/${args.userId}/delete`,
+        { method: "POST" },
+      );
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || `Delete failed (${res.status})`);
+      }
+      await Promise.all([memberships?.revalidate?.(), refreshTeamData()]);
+    } catch (e) {
+      console.error("[delete]", e);
     }
   }
 
@@ -583,8 +769,17 @@ export default function TeamPage() {
                     isAdmin={isAdmin}
                     isSelf={!!m.userId && m.userId === selfUserId}
                     windowDays={activityWindowDays}
-                    onRemove={() =>
-                      m.userId && handleRemoveMember(m.userId)
+                    onArchive={() => handleArchive(m)}
+                    onDelete={() =>
+                      m.userId &&
+                      handleDelete({
+                        userId: m.userId,
+                        displayName:
+                          [m.firstName, m.lastName].filter(Boolean).join(" ") ||
+                          m.email ||
+                          "this member",
+                        fromArchived: false,
+                      })
                     }
                   />
                 ))}
@@ -594,7 +789,7 @@ export default function TeamPage() {
         </section>
 
         {inviteList.length > 0 && (
-          <section>
+          <section className="mb-10">
             <h2 className="text-[10px] text-muted uppercase tracking-widest mb-3">
               Pending invitations
             </h2>
@@ -617,14 +812,57 @@ export default function TeamPage() {
                       Pending
                     </span>
                     {isAdmin && (
-                      <button
-                        onClick={() => handleRevoke(inv.id)}
-                        className="text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors"
-                      >
-                        Revoke
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleReinvite(inv.id)}
+                          className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+                          title="Revoke this invite and send a fresh one to the same email."
+                        >
+                          Reinvite
+                        </button>
+                        <button
+                          onClick={() => handleRevoke(inv.id)}
+                          className="text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors"
+                        >
+                          Revoke
+                        </button>
+                      </>
                     )}
                   </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        )}
+
+        {isAdmin && archivedList.length > 0 && (
+          <section>
+            <div className="flex items-baseline justify-between mb-3">
+              <h2 className="text-[10px] text-muted uppercase tracking-widest">
+                Archived members
+              </h2>
+              <span className="text-[10px] text-muted">
+                {archivedList.length} archived · still counted in team metrics
+              </span>
+            </div>
+            <div className="border border-[#2a2a2a] bg-[#1a1a1a]">
+              <ul>
+                {archivedList.map((m) => (
+                  <ArchivedMemberRow
+                    key={m.userId}
+                    member={m}
+                    windowDays={activityWindowDays}
+                    onDelete={() =>
+                      handleDelete({
+                        userId: m.userId,
+                        displayName:
+                          [m.firstName, m.lastName].filter(Boolean).join(" ") ||
+                          m.email ||
+                          "this member",
+                        fromArchived: true,
+                      })
+                    }
+                  />
                 ))}
               </ul>
             </div>
