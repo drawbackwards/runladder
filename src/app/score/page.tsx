@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
+import { ScoreBar } from "@/components/ScoreBar";
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
 import {
@@ -843,25 +844,20 @@ export default function ScorePage() {
                 <span className="text-[10px] text-muted uppercase tracking-widest mb-6">Screen Score</span>
                 <div className="flex-1 flex flex-col items-start justify-center">
                   <AnimatedScore target={result.score} />
-                  <span className="text-sm font-bold uppercase tracking-widest mt-1" style={{ color: getScoreColor(result.score) }}>
+                  <span className="text-sm font-bold uppercase tracking-widest mt-1 text-foreground">
                     {result.label}
                   </span>
 
                   <div className="mt-6 pt-4 border-t border-[#333] w-full">
                     <span className="text-[10px] text-muted uppercase tracking-widest">Gap to {nextLevel}</span>
                     <div className="flex items-baseline gap-2 mt-1">
-                      <span className="text-lg font-bold" style={{ color: getLevelColor(nextLevel) }}>+{gap}</span>
+                      <span className="text-lg font-bold text-foreground">+{gap}</span>
                       <span className="text-[11px] text-muted">points</span>
                     </div>
                   </div>
 
                   <div className="mt-6 w-full">
-                    <div className="h-1.5 bg-[#333] w-full">
-                      <div
-                        className="h-full transition-all duration-700 ease-out"
-                        style={{ width: `${(result.score / 5) * 100}%`, background: getScoreColor(result.score) }}
-                      />
-                    </div>
+                    <ScoreBar score={result.score} size="md" />
                     <div className="flex justify-between mt-2 text-[10px] text-[#444]">
                       <span>1.0</span><span>2.0</span><span>3.0</span><span>4.0</span><span>5.0</span>
                     </div>
