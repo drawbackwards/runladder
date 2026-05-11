@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
 import type { RungName, RungScores } from "@/lib/ladder";
@@ -222,6 +223,7 @@ function timeAgo(ts: number): string {
 }
 
 export default function ScorePage() {
+  const router = useRouter();
   const { isSignedIn, isLoaded } = useAuth();
   const { sessionType, ready: sessionTypeReady, pick: pickSessionType, clear: clearSessionType } =
     useSessionType();
@@ -238,6 +240,12 @@ export default function ScorePage() {
   const [isDragOver, setIsDragOver] = useState(false);
   const [pastScores, setPastScores] = useState<PastScore[]>([]);
   const [isPublic, setIsPublic] = useState(true);
+  // When set, the inline result is suppressed and a reassurance card is
+  // shown while we route the user to /dashboard/scores/[id] for the full
+  // detail view. Signed-in users never see the inline result.
+  const [redirectingScoreId, setRedirectingScoreId] = useState<string | null>(
+    null,
+  );
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Load past scores on mount
@@ -370,16 +378,14 @@ export default function ScorePage() {
         if (data.signup) {
           throw new Error("Sign up for free to get 5 Ladder scores. Log in at runladder.com/login");
         }
-        if (data.upgrade) {
-          throw new Error("You've used all 15 free scores this month. Upgrade at runladder.com/pricing for unlimited scoring.");
-        }
+        // The server's error string is already tier-aware (free cap vs
+        // team pool exceeded) — prefer it over any local hardcoded copy.
         throw new Error(data.error || "Scoring failed");
       }
-      setResult(data);
 
-      // Save to past scores
+      // Save to local past scores (used by anon users for in-session history).
       const entry: PastScore = {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        id: data.scoreId || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         score: data.score,
         label: data.label,
         summary: data.summary,
@@ -389,6 +395,17 @@ export default function ScorePage() {
       };
       savePastScore(entry);
       setPastScores(loadPastScores());
+
+      // Signed-in users go to the full score detail in their dashboard.
+      // Anon users have nowhere to go — keep the inline result for them.
+      if (data.scoreId) {
+        setRedirectingScoreId(data.scoreId);
+        setTimeout(() => {
+          router.push(`/dashboard/scores/${data.scoreId}`);
+        }, 1200);
+      } else {
+        setResult(data);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -418,6 +435,31 @@ export default function ScorePage() {
   // their score isn't saved to history anyway.
   const showSessionTypePrompt =
     isLoaded && isSignedIn && sessionTypeReady && !sessionType;
+
+  // After a successful analysis, signed-in users are routed to the full
+  // score detail in their dashboard. This screen reassures them while the
+  // navigation lands.
+  if (redirectingScoreId) {
+    return (
+      <div className="pt-32 font-mono">
+        <div className="max-w-md mx-auto px-6 py-20 text-center">
+          <p className="font-mono text-[10px] text-ladder-green uppercase tracking-widest mb-6">
+            Analysis complete
+          </p>
+          <h1 className="text-2xl font-bold text-foreground mb-3 font-sans">
+            Going to your full score…
+          </h1>
+          <p className="text-sm text-body font-sans leading-relaxed mb-8">
+            Findings, fixes, and trend live on your dashboard.
+          </p>
+          <div className="flex items-center justify-center gap-3 text-[10px] text-muted uppercase tracking-widest">
+            <span className="inline-block w-2 h-2 rounded-full bg-ladder-green animate-pulse" />
+            Loading
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="analysis-grid pt-20 font-mono">

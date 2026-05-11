@@ -85,14 +85,16 @@ export async function POST(req: NextRequest) {
     }
 
     /* ── Persist score + increment usage ── */
+    let persistedScoreId: string | null = null;
     if (userId) {
       const thumbnail = await makeThumbnail(
         Buffer.from(parsed.base64Data, "base64"),
         parsed.mediaType,
       );
 
+      const scoreId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       await persistScoreEntry(userId, {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        id: scoreId,
         score: result.score,
         label: result.label,
         screenName: result.screenName || source || "upload",
@@ -106,6 +108,7 @@ export async function POST(req: NextRequest) {
         timestamp: Date.now(),
         sessionType,
       });
+      persistedScoreId = scoreId;
     } else {
       const anonKey = `rate:anon:${ip}`;
       await redis.incr(anonKey);
@@ -118,6 +121,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ...result,
       screenName: result.screenName || source || "Screen",
+      // Echo the persisted score's id so the client can route the user
+      // straight to /dashboard/scores/[id] after analysis. Null for anon.
+      scoreId: persistedScoreId,
     });
   } catch (err) {
     console.error("[LADDER:ERROR] Score endpoint:", err);
