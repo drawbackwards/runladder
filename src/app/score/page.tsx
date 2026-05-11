@@ -503,6 +503,42 @@ export default function ScorePage() {
               </p>
             </div>
 
+            {/* Informational callouts — above the drop zone (Ward feedback).
+                Public/private toggle for signed-in users, terms note for anon. */}
+            {isLoaded && isSignedIn ? (
+              <div className="mb-4 flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsPublic(!isPublic)}
+                  className={`relative w-8 h-[18px] rounded-full transition-colors cursor-pointer ${
+                    isPublic ? "bg-ladder-green" : "bg-[#333]"
+                  }`}
+                  aria-label="Toggle public score"
+                >
+                  <span
+                    className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white transition-transform ${
+                      isPublic ? "left-[16px]" : "left-[2px]"
+                    }`}
+                  />
+                </button>
+                <span className="text-[11px] text-muted">
+                  {isPublic
+                    ? "Public score — saved to your dashboard and visible on runladder.com"
+                    : "Private score — saved to your dashboard, only you can see it"}
+                </span>
+              </div>
+            ) : (
+              <p className="mb-4 text-[11px] text-muted leading-relaxed text-center max-w-md mx-auto">
+                By scoring, you agree to our{" "}
+                <a href="/terms" className="text-ladder-green hover:text-ladder-green/80 transition-colors cursor-pointer">Terms</a>{" "}
+                and{" "}
+                <a href="/privacy" className="text-ladder-green hover:text-ladder-green/80 transition-colors cursor-pointer">Privacy Policy</a>.
+                Free scores may be published on runladder.com.{" "}
+                <a href="/login" className="text-ladder-green hover:text-ladder-green/80 transition-colors cursor-pointer">Sign in</a>{" "}
+                for private scoring.
+              </p>
+            )}
+
             {/* Drop zone */}
             <div
               onDrop={handleDrop}
@@ -511,8 +547,8 @@ export default function ScorePage() {
               onClick={() => fileRef.current?.click()}
               className={`relative border cursor-pointer transition-all duration-200 ${
                 isDragOver
-                  ? "border-ladder-green bg-ladder-green/5"
-                  : "border-[#333] hover:border-muted bg-[#1e1e1e]"
+                  ? "border-ladder-green bg-ladder-green/10 shadow-[0_0_0_4px_rgba(106,200,155,0.15)] scale-[1.01]"
+                  : "border-[#333] hover:border-ladder-green/60 hover:bg-ladder-green/[0.03] bg-[#1e1e1e]"
               }`}
             >
               <ScannerCorners />
@@ -530,39 +566,6 @@ export default function ScorePage() {
                 <p className="text-[11px] text-muted tracking-wide">
                   PNG / JPG / WebP &middot; up to 10MB
                 </p>
-                {isLoaded && isSignedIn ? (
-                  <div className="mt-4 max-w-sm mx-auto">
-                    <div className="flex items-center justify-center gap-3 mb-2">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setIsPublic(!isPublic); }}
-                        className={`relative w-8 h-[18px] rounded-full transition-colors ${
-                          isPublic ? "bg-ladder-green" : "bg-[#333]"
-                        }`}
-                      >
-                        <span className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white transition-transform ${
-                          isPublic ? "left-[16px]" : "left-[2px]"
-                        }`} />
-                      </button>
-                      <span className="text-[10px] text-[#555]">
-                        {isPublic ? "Public score — visible on runladder.com" : "Private score — only you can see this"}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-[#444] leading-relaxed text-center">
-                      Signed in. Scores saved to your{" "}
-                      <a href="/dashboard" className="text-ladder-green hover:text-ladder-green/80 transition-colors">dashboard</a>.
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-[10px] text-[#555] mt-4 max-w-xs mx-auto leading-relaxed">
-                    By scoring, you agree to our{" "}
-                    <a href="/terms" className="text-ladder-green hover:text-ladder-green/80 transition-colors">Terms</a>{" "}
-                    and{" "}
-                    <a href="/privacy" className="text-ladder-green hover:text-ladder-green/80 transition-colors">Privacy Policy</a>.
-                    Free scores may be published on runladder.com.{" "}
-                    <a href="/login" className="text-ladder-green hover:text-ladder-green/80 transition-colors">Sign in</a>{" "}
-                    for private scoring.
-                  </p>
-                )}
               </div>
               <input
                 ref={fileRef}
@@ -592,16 +595,30 @@ export default function ScorePage() {
               </button>
             </div>
 
-            {/* ── Past scores ── */}
-            {pastScores.length > 0 && (
+            {/* ── Past scores (signed-in only) ──
+                For signed-in users, link to the real backend-persisted score
+                detail. For anon users we suppress this section entirely —
+                their localStorage entries used random IDs that don't match
+                anything in /dashboard/scores and would 404 (Michael's bug). */}
+            {isLoaded && isSignedIn && pastScores.length > 0 && (
               <div className="mt-12 border-t border-[#333] pt-8">
-                <span className="text-[10px] text-muted uppercase tracking-widest">Recent public scores</span>
-                <div className="mt-4 space-y-2">
+                <div className="flex items-baseline justify-between mb-4">
+                  <span className="text-[10px] text-muted uppercase tracking-widest">
+                    Your recent scores
+                  </span>
+                  <Link
+                    href="/dashboard"
+                    className="text-[10px] text-ladder-green uppercase tracking-widest hover:text-ladder-green/80 transition-colors cursor-pointer"
+                  >
+                    View all →
+                  </Link>
+                </div>
+                <div className="space-y-2">
                   {pastScores.slice(0, 8).map((ps) => (
                     <Link
                       key={ps.id}
                       href={`/dashboard/scores/${ps.id}`}
-                      className="flex items-center gap-4 border border-[#333] bg-[#1e1e1e] p-3 hover:border-muted transition-colors"
+                      className="flex items-center gap-4 border border-[#333] bg-[#1e1e1e] p-3 hover:border-muted transition-colors cursor-pointer"
                     >
                       <span
                         className="text-lg font-bold tabular-nums w-12 text-center"

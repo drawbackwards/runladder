@@ -500,11 +500,18 @@ export default function DashboardPage() {
                   {scores.map((entry) => (
                     <div
                       key={entry.id}
-                      className="border border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1f1f1f] hover:border-[#3a3a3a] transition-colors group relative"
+                      className="border border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1f1f1f] hover:border-[#3a3a3a] transition-colors group relative flex items-stretch"
                     >
+                      {/*
+                        Card click target is everything EXCEPT the delete
+                        button. Previously the delete button lived inside the
+                        Link and used preventDefault; that's the dangerous
+                        overlap Ward flagged. Now the click areas are mutually
+                        exclusive: row Link → detail page, button → delete.
+                      */}
                       <Link
                         href={`/dashboard/scores/${entry.id}`}
-                        className="block px-4 py-3"
+                        className="block flex-1 min-w-0 px-4 py-3"
                       >
                         <div className="flex items-center gap-4">
                           {entry.thumbnail ? (
@@ -553,30 +560,26 @@ export default function DashboardPage() {
                               <UpliftBadge uplift={entry.uplift} />
                             </div>
                           )}
-
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              deleteScore(entry.id);
-                            }}
-                            disabled={deleting === entry.id}
-                            className="flex-shrink-0 text-[#3a3a3a] hover:text-ladder-red transition-all disabled:opacity-30 opacity-0 group-hover:opacity-100"
-                            title="Delete score"
-                            aria-label="Delete score"
-                          >
-                            <svg
-                              width="14"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14" />
-                            </svg>
-                          </button>
                         </div>
                       </Link>
+                      <button
+                        onClick={() => deleteScore(entry.id)}
+                        disabled={deleting === entry.id}
+                        className="flex-shrink-0 text-[#3a3a3a] hover:text-ladder-red transition-all disabled:opacity-30 opacity-0 group-hover:opacity-100 px-4 flex items-center"
+                        title="Delete score"
+                        aria-label="Delete score"
+                      >
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14" />
+                        </svg>
+                      </button>
                     </div>
                   ))}
                 </div>

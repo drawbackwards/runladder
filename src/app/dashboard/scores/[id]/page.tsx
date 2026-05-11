@@ -63,12 +63,23 @@ function timeAgo(ts: number): string {
   return `${months}mo ago`;
 }
 
+type RecentScore = {
+  id: string;
+  score: number;
+  label: string;
+  screenName?: string;
+  thumbnail?: string;
+  timestamp: number;
+  source?: string;
+};
+
 export default function ScoreDetailPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const params = useParams();
   const [data, setData] = useState<ScoreDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [recent, setRecent] = useState<RecentScore[]>([]);
 
   useEffect(() => {
     if (!isSignedIn) return;
@@ -86,7 +97,21 @@ export default function ScoreDetailPage() {
       }
     }
 
+    async function fetchRecent() {
+      try {
+        const res = await fetch("/api/dashboard");
+        if (!res.ok) return;
+        const json = await res.json();
+        if (Array.isArray(json.scores)) {
+          setRecent(json.scores);
+        }
+      } catch {
+        // Silent — recent strip is a nice-to-have, not critical.
+      }
+    }
+
     fetchScore();
+    fetchRecent();
   }, [isSignedIn, params.id]);
 
   if (!isLoaded) return null;
@@ -127,11 +152,14 @@ export default function ScoreDetailPage() {
       <div className="max-w-5xl mx-auto px-6 py-12">
 
         {/* Back + meta */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
           <Link href="/dashboard" className="text-[11px] text-muted uppercase tracking-widest hover:text-foreground transition-colors">
             &larr; Dashboard
           </Link>
           <div className="flex items-center gap-3">
+            <span className="text-[10px] uppercase tracking-widest text-ladder-green border border-ladder-green/30 bg-ladder-green/5 px-2 py-0.5">
+              ✓ Saved to your dashboard
+            </span>
             <span className={`text-[9px] uppercase tracking-widest px-2 py-0.5 border ${
               data.isPublic
                 ? "text-ladder-green border-ladder-green/30"
@@ -336,6 +364,111 @@ export default function ScoreDetailPage() {
             />
           </div>
         )}
+
+        {/* ── Methodology note + Drawbackwards moderated usability promo ──
+            Some screens (date pickers, multi-step flows, hover-states) need
+            to be experienced live to evaluate fairly. Ladder scores the
+            static frame; Drawbackwards offers 1:1 moderated sessions where
+            that gap matters. */}
+        <div className="mt-10 border border-[#333] bg-[#161616] p-6 md:p-8">
+          <p className="text-[10px] text-muted uppercase tracking-widest mb-3">
+            Methodology note
+          </p>
+          <p className="text-sm text-body leading-relaxed mb-4">
+            Ladder evaluates a screen as it sits. Some experiences — date
+            pickers, multi-step flows, hover states, anything that only
+            reveals itself in motion — read fairly only with a real user in
+            front of the live product.
+          </p>
+          <div className="border-t border-[#2a2a2a] pt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <p className="font-mono text-[10px] text-ladder-green uppercase tracking-widest mb-1">
+                Need the moving picture?
+              </p>
+              <p className="text-sm text-foreground font-sans">
+                Drawbackwards runs 1:1 moderated usability interviews to
+                surface what static scoring can&rsquo;t see.
+              </p>
+            </div>
+            <a
+              href="https://drawbackwards.com/contact?subject=Moderated%20usability%20interviews"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-5 py-2.5 rounded-full hover:bg-ladder-green/90 transition-colors"
+            >
+              Talk to Drawbackwards <span aria-hidden>→</span>
+            </a>
+          </div>
+        </div>
+
+        {/* ── Recent scores strip ── */}
+        {recent.filter((r) => r.id !== data.id).length > 0 && (
+          <div className="mt-10">
+            <div className="flex items-baseline justify-between mb-4">
+              <span className="text-[10px] text-muted uppercase tracking-widest">
+                Your recent scores
+              </span>
+              <Link
+                href="/dashboard"
+                className="text-[10px] text-ladder-green uppercase tracking-widest hover:text-ladder-green/80 transition-colors"
+              >
+                View all →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {recent
+                .filter((r) => r.id !== data.id)
+                .slice(0, 4)
+                .map((r) => (
+                  <Link
+                    key={r.id}
+                    href={`/dashboard/scores/${r.id}`}
+                    className="border border-[#333] bg-[#1e1e1e] p-3 hover:border-muted transition-colors flex flex-col gap-2"
+                  >
+                    <div className="flex items-baseline justify-between">
+                      <span
+                        className="font-mono text-xl font-bold tabular-nums"
+                        style={{ color: getScoreColor(r.score) }}
+                      >
+                        {r.score.toFixed(1)}
+                      </span>
+                      <span className="text-[9px] text-[#555] uppercase tracking-widest">
+                        {timeAgo(r.timestamp)}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-foreground truncate">
+                      {r.screenName || r.source || "Screen"}
+                    </span>
+                  </Link>
+                ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Next action CTA ──
+            Reassures the user this score is saved before they kick off
+            another analysis. "Score another" lives next to a clear path
+            back to the dashboard. */}
+        <div className="mt-10 border-t border-[#2a2a2a] pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <p className="text-xs text-muted font-sans">
+            This score is saved to your dashboard. You can come back to it any
+            time — analyzing another screen won&rsquo;t replace it.
+          </p>
+          <div className="flex items-center gap-3 shrink-0">
+            <Link
+              href="/dashboard"
+              className="text-[11px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+            >
+              Back to dashboard
+            </Link>
+            <Link
+              href="/score"
+              className="text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-5 py-2.5 rounded-full hover:bg-ladder-green/90 transition-colors"
+            >
+              Score another screen →
+            </Link>
+          </div>
+        </div>
 
         <div className="mt-6">
           <AnalysisFeedback scoreId={data.id} />

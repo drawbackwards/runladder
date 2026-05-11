@@ -141,7 +141,9 @@ export function SessionTypePill({
 }) {
   return (
     <div className="inline-flex items-center gap-2 text-[11px] font-mono border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-1.5">
-      <span className="text-muted">In a</span>
+      <span className="text-muted">
+        {type === "evaluation" ? "In an" : "In a"}
+      </span>
       <span className="font-semibold text-ladder-green">
         {type === "design" ? "Design Session" : "Evaluation Session"}
       </span>
