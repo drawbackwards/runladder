@@ -21,10 +21,12 @@
  *   team:{teamId}:usage:{YYYY-MM}        Counter, monthly pooled query count
  *   team:{teamId}:invites                Hash, token -> JSON Invite
  *   invite:{token}                       String, teamId (TTL'd lookup helper)
+ *   team-invite-by-email:{email}         String, JSON {teamId, token} (auto-claim index)
  *   user:{userId}:team                   String, teamId (one team per user)
  */
 import { randomBytes } from "crypto";
 import { redis } from "@/lib/redis";
+import { setUserSubscription } from "@/lib/tier";
 
 /* ── Types ──────────────────────────────────────────────────────── */
 
@@ -104,6 +106,8 @@ const teamUsageKey = (teamId: string, yearMonth: string) =>
   `team:${teamId}:usage:${yearMonth}`;
 const teamInvitesKey = (teamId: string) => `team:${teamId}:invites`;
 const inviteLookupKey = (token: string) => `invite:${token}`;
+const inviteByEmailKey = (email: string) =>
+  `team-invite-by-email:${email.toLowerCase().trim()}`;
 const userTeamKey = (userId: string) => `user:${userId}:team`;
 
 /* ── Internal helpers ───────────────────────────────────────────── */
@@ -439,6 +443,13 @@ export async function createInvite(args: {
   await redis.set(inviteLookupKey(token), args.teamId, {
     ex: INVITE_TTL_DAYS * 24 * 60 * 60,
   });
+  // By-email index so the invitee gets auto-claimed on first sign-in
+  // even if they never clicked the magic link.
+  await redis.set(
+    inviteByEmailKey(invite.email),
+    JSON.stringify({ teamId: args.teamId, token }),
+    { ex: INVITE_TTL_DAYS * 24 * 60 * 60 },
+  );
   return invite;
 }
 
@@ -469,6 +480,117 @@ export async function deleteInvite(
   teamId: string,
   token: string,
 ): Promise<void> {
+  // Look up the invite first so we can clear the by-email index too.
+  const raw = await redis.hget(teamInvitesKey(teamId), token);
+  const invite = parseMaybeJson<Invite>(raw);
   await redis.hdel(teamInvitesKey(teamId), token);
   await redis.del(inviteLookupKey(token));
+  if (invite?.email) {
+    // Only clear if the email index still points at this token. Avoids
+    // a race where a newer invite to the same email is stomped by an
+    // older invite being revoked.
+    const idxRaw = await redis.get(inviteByEmailKey(invite.email));
+    const idx = parseMaybeJson<{ teamId: string; token: string }>(idxRaw);
+    if (idx?.token === token) {
+      await redis.del(inviteByEmailKey(invite.email));
+    }
+  }
+}
+
+/**
+ * Look up a pending invite by email — used by /api/dashboard and /api/me
+ * to auto-claim invites when a user signs in without clicking the magic
+ * link. Returns null if no invite exists for this email.
+ *
+ * Fast path: read the by-email index. Slow-path fallback for invites that
+ * predate the index — scan every team's invite hash. The fallback is
+ * O(teams × invites) but only fires when the index is missing, and we
+ * lazily backfill the index when the fallback finds a match.
+ */
+export async function findPendingInviteByEmail(
+  email: string,
+): Promise<Invite | null> {
+  const normalized = email.toLowerCase().trim();
+
+  // Fast path
+  const idxRaw = await redis.get(inviteByEmailKey(normalized));
+  const idx = parseMaybeJson<{ teamId: string; token: string }>(idxRaw);
+  if (idx) {
+    const raw = await redis.hget(teamInvitesKey(idx.teamId), idx.token);
+    const invite = parseMaybeJson<Invite>(raw);
+    if (invite && invite.expiresAt > Date.now()) {
+      return invite;
+    }
+  }
+
+  // Fallback: scan every team for a matching pending invite.
+  const teamIds = (await redis.smembers(teamsAllKey())) as string[];
+  for (const teamId of teamIds || []) {
+    const all = (await redis.hgetall(teamInvitesKey(teamId))) as Record<
+      string,
+      unknown
+    > | null;
+    if (!all) continue;
+    for (const raw of Object.values(all)) {
+      const invite = parseMaybeJson<Invite>(raw);
+      if (!invite) continue;
+      if (invite.email.toLowerCase() !== normalized) continue;
+      if (invite.expiresAt < Date.now()) continue;
+      // Lazily backfill the index so the next lookup is a single read.
+      const ttlSeconds = Math.max(
+        60,
+        Math.floor((invite.expiresAt - Date.now()) / 1000),
+      );
+      await redis.set(
+        inviteByEmailKey(normalized),
+        JSON.stringify({ teamId: invite.teamId, token: invite.token }),
+        { ex: ttlSeconds },
+      );
+      return invite;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Auto-claim any pending team invite for any of the user's verified emails.
+ * Idempotent: if the user is already on a team, returns that team. If no
+ * pending invite exists for any email, returns null.
+ *
+ * Side effects on successful claim:
+ *   - Adds the user as a member of the team (role from the invite)
+ *   - Stamps `tier: "team"` on Clerk publicMetadata
+ *   - Deletes the invite + by-email index + token lookup
+ */
+export async function claimPendingTeamInviteForEmails(
+  userId: string,
+  emails: string[],
+): Promise<{ teamId: string; role: TeamRole } | null> {
+  // Already on a team — return that.
+  const existing = await getUserTeamId(userId);
+  if (existing) {
+    const m = await getMember(existing, userId);
+    return m ? { teamId: existing, role: m.role } : null;
+  }
+
+  // Find a pending invite for any of this user's emails.
+  for (const email of emails) {
+    if (!email) continue;
+    const invite = await findPendingInviteByEmail(email);
+    if (!invite) continue;
+    // Verify the team still exists before we promote.
+    const team = await getTeam(invite.teamId);
+    if (!team) continue;
+
+    await addMember(invite.teamId, userId, invite.role, invite.invitedBy);
+    // Stamp team tier on Clerk publicMetadata so paid-tier checks pass
+    // across every surface (web, Skill, MCP, plugin).
+    await setUserSubscription(userId, { tier: "team" });
+    await deleteInvite(invite.teamId, invite.token);
+
+    return { teamId: invite.teamId, role: invite.role };
+  }
+
+  return null;
 }

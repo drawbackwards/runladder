@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { redis, lifetimeScansKey } from "@/lib/redis";
 import { FREE_LIFETIME_LIMIT, isPaidTier } from "@/lib/plans";
 import { getUserSubscription } from "@/lib/tier";
 import { getUserStats } from "@/lib/scores";
-import { getMember, getTeam, getUserTeamId } from "@/lib/teams";
+import {
+  claimPendingTeamInviteForEmails,
+  getMember,
+  getTeam,
+  getUserTeamId,
+} from "@/lib/teams";
 
 export async function GET() {
   const { userId } = await auth();
@@ -12,6 +17,16 @@ export async function GET() {
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  // Pull the Clerk user up front so we can both auto-claim any pending team
+  // invites that were sent to one of their verified emails, and (later)
+  // surface the right banner without a second Clerk read.
+  const client = await clerkClient();
+  const user = await client.users.getUser(userId);
+  const emails = user.emailAddresses
+    .map((e) => e.emailAddress?.toLowerCase())
+    .filter((e): e is string => Boolean(e));
+  await claimPendingTeamInviteForEmails(userId, emails);
 
   const [scores, used, sub, stats, teamId] = await Promise.all([
     redis.zrange(`user:${userId}:scores`, 0, -1, { rev: true }),
