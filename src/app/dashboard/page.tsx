@@ -43,6 +43,12 @@ type CompMeta = {
   expiresAt: number | null;
 };
 
+type TeamMembership = {
+  id: string;
+  name: string;
+  role: "admin" | "member";
+};
+
 type DashboardData = {
   scores: ScoreEntry[];
   stats: UserStats;
@@ -50,6 +56,7 @@ type DashboardData = {
   tier: "free" | "pro" | "team" | "pulse";
   paid: boolean;
   comp: CompMeta | null;
+  team: TeamMembership | null;
 };
 
 function timeAgo(ts: number): string {
@@ -70,13 +77,40 @@ function UpgradeStrip({
   paid,
   tier,
   comp,
+  team,
 }: {
   usage: UsageInfo;
   paid: boolean;
   tier: "free" | "pro" | "team" | "pulse";
   comp: CompMeta | null;
+  team: TeamMembership | null;
 }) {
   const tierLabel = tier === "pro" ? "Pro" : tier === "team" ? "Team" : tier === "pulse" ? "Pulse" : "Free";
+
+  // Team members get a team-aware banner that routes to the team dashboard
+  // instead of the (broken-for-Teams) Stripe portal.
+  if (team) {
+    return (
+      <div className="border-b border-ladder-green/20 bg-ladder-green/5">
+        <div className="max-w-6xl mx-auto px-6 py-2.5 flex items-center justify-center gap-4 flex-wrap">
+          <span className="text-[11px] text-muted font-sans">
+            <span className="text-ladder-green font-semibold uppercase tracking-widest text-[10px]">
+              {team.role === "admin" ? "Team admin" : "Team member"}
+            </span>{" "}
+            — you&rsquo;re on the{" "}
+            <span className="text-foreground font-semibold">{team.name}</span>{" "}
+            account. Unlimited scoring across every Ladder surface.
+          </span>
+          <Link
+            href="/dashboard/team"
+            className="text-[10px] uppercase tracking-widest font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors"
+          >
+            Team dashboard →
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (paid && comp) {
     const expiry =
@@ -324,11 +358,12 @@ export default function DashboardPage() {
   const paid = data?.paid ?? false;
   const tier = data?.tier ?? "free";
   const comp = data?.comp ?? null;
+  const team = data?.team ?? null;
   const firstName = user?.firstName || null;
 
   return (
     <div className="pt-20 font-mono">
-      <UpgradeStrip usage={usage} paid={paid} tier={tier} comp={comp} />
+      <UpgradeStrip usage={usage} paid={paid} tier={tier} comp={comp} team={team} />
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="mb-8">
           <h1 className="text-xl text-foreground font-sans">

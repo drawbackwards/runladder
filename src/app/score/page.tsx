@@ -216,6 +216,13 @@ function timeAgo(ts: number): string {
   return `${days}d ago`;
 }
 
+type MeResponse = {
+  signedIn: boolean;
+  tier: "free" | "pro" | "team" | "pulse";
+  paid: boolean;
+  team: { id: string; name: string; role: "admin" | "member" } | null;
+};
+
 export default function ScorePage() {
   const { isSignedIn, isLoaded } = useAuth();
   const [image, setImage] = useState<string | null>(null);
@@ -231,12 +238,30 @@ export default function ScorePage() {
   const [isDragOver, setIsDragOver] = useState(false);
   const [pastScores, setPastScores] = useState<PastScore[]>([]);
   const [isPublic, setIsPublic] = useState(true);
+  const [me, setMe] = useState<MeResponse | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Load past scores on mount
   useEffect(() => {
     setPastScores(loadPastScores());
   }, []);
+
+  // Fetch tier + team info so we can hide the Pro promo for paid users
+  // (Pro, Team, Pulse) and surface team context to team members.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json: MeResponse | null) => {
+        if (!cancelled && json) setMe(json);
+      })
+      .catch(() => {
+        // Silent failure — the page still works for anonymous use.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isSignedIn]);
 
   const scanMessages = [
     "Initializing Ladder engine",
@@ -354,12 +379,8 @@ export default function ScorePage() {
       let data;
       try { data = JSON.parse(text); } catch { throw new Error("Scoring service returned an unexpected response. Please try again."); }
       if (!res.ok) {
-        if (data.signup) {
-          throw new Error("Sign up for free to get 5 Ladder scores. Log in at runladder.com/login");
-        }
-        if (data.upgrade) {
-          throw new Error("You've used all 15 free scores this month. Upgrade at runladder.com/pricing for unlimited scoring.");
-        }
+        // Prefer the server's error message — it's tier-aware (free cap,
+        // team pool exceeded, etc) and stays in sync with plans.ts.
         throw new Error(data.error || "Scoring failed");
       }
       setResult(data);
@@ -883,67 +904,92 @@ export default function ScorePage() {
               </div>
             )}
 
-            {/* Pro upgrade promo */}
-            <div className="border border-ladder-green/20 bg-[#1e1e1e] p-8">
-              <div className="flex items-start gap-6">
-                <div className="flex-1">
-                  <span className="text-[10px] text-ladder-green uppercase tracking-widest font-semibold">Upgrade to Pro</span>
-                  <h3 className="text-lg font-bold text-foreground mt-2 font-sans">See more. Fix faster.</h3>
-                  <p className="text-sm text-body leading-relaxed mt-3 font-sans">
-                    Free scores show you where you stand. Pro shows you exactly how to move up.
-                  </p>
-                  <ul className="mt-4 space-y-2">
-                    {[
-                      "Accessibility audit",
-                      "UX copy suggestions",
-                      "Per-dimension scoring (hierarchy, spacing, copy, a11y, navigation, visual)",
-                      "Fix suggestions with score uplift estimates",
-                      "Full score history + trend line",
-                      "All scores are private",
-                    ].map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-xs text-body font-sans">
+            {/* Pro upgrade promo — hidden for paid users (Pro, Team, Pulse).
+                Team members see their team banner on /dashboard instead. */}
+            {!me?.paid && (
+              <div className="border border-ladder-green/20 bg-[#1e1e1e] p-8">
+                <div className="flex items-start gap-6">
+                  <div className="flex-1">
+                    <span className="text-[10px] text-ladder-green uppercase tracking-widest font-semibold">Upgrade to Pro</span>
+                    <h3 className="text-lg font-bold text-foreground mt-2 font-sans">See more. Fix faster.</h3>
+                    <p className="text-sm text-body leading-relaxed mt-3 font-sans">
+                      Free scores show you where you stand. Pro shows you exactly how to move up.
+                    </p>
+                    <ul className="mt-4 space-y-2">
+                      {[
+                        "Accessibility audit",
+                        "UX copy suggestions",
+                        "Per-dimension scoring (hierarchy, spacing, copy, a11y, navigation, visual)",
+                        "Fix suggestions with score uplift estimates",
+                        "Full score history + trend line",
+                        "All scores are private",
+                      ].map((f) => (
+                        <li key={f} className="flex items-start gap-2 text-xs text-body font-sans">
+                          <span className="text-ladder-green mt-0.5 flex-shrink-0">+</span>
+                          {f}
+                        </li>
+                      ))}
+                      <li className="flex items-start gap-2 text-xs text-body font-sans">
                         <span className="text-ladder-green mt-0.5 flex-shrink-0">+</span>
-                        {f}
+                        Ladder for Figma — score frames in the canvas
                       </li>
-                    ))}
-                    <li className="flex items-start gap-2 text-xs text-body font-sans">
-                      <span className="text-ladder-green mt-0.5 flex-shrink-0">+</span>
-                      Ladder for Figma — score frames in the canvas
-                    </li>
-                    <li className="flex items-start gap-2 text-xs text-body font-sans">
-                      <span className="text-ladder-green mt-0.5 flex-shrink-0">+</span>
-                      Ladder for Claude — score in any AI conversation
-                    </li>
-                  </ul>
-                  <Link
-                    href="/pricing"
-                    className="inline-block mt-6 text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest"
-                  >
-                    $250/mo — Upgrade to Pro
-                  </Link>
-                </div>
-
-                {/* Pro preview thumbnail mockup */}
-                <div className="hidden md:block flex-shrink-0 w-48 border border-[#333] bg-[#161616] p-3 opacity-60">
-                  <span className="text-[8px] text-muted uppercase tracking-widest block mb-2">Pro preview</span>
-                  <div className="space-y-2">
-                    {["Hierarchy", "Spacing", "Copy", "A11y", "Navigation", "Visual"].map((dim) => (
-                      <div key={dim} className="flex items-center gap-2">
-                        <span className="text-[8px] text-[#555] w-14 truncate">{dim}</span>
-                        <div className="flex-1 h-1 bg-[#333] rounded-full">
-                          <div className="h-full bg-ladder-green/40 rounded-full" style={{ width: `${40 + Math.random() * 40}%` }} />
-                        </div>
-                      </div>
-                    ))}
+                      <li className="flex items-start gap-2 text-xs text-body font-sans">
+                        <span className="text-ladder-green mt-0.5 flex-shrink-0">+</span>
+                        Ladder for Claude — score in any AI conversation
+                      </li>
+                    </ul>
+                    <Link
+                      href="/pricing"
+                      className="inline-block mt-6 text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest"
+                    >
+                      $250/mo — Upgrade to Pro
+                    </Link>
                   </div>
-                  <div className="mt-3 border-t border-[#333] pt-2">
-                    <span className="text-[8px] text-[#555] block">A11y audit</span>
-                    <div className="mt-1 h-2 bg-[#333] rounded w-full" />
-                    <div className="mt-1 h-2 bg-[#333] rounded w-3/4" />
+
+                  {/* Pro preview thumbnail mockup */}
+                  <div className="hidden md:block flex-shrink-0 w-48 border border-[#333] bg-[#161616] p-3 opacity-60">
+                    <span className="text-[8px] text-muted uppercase tracking-widest block mb-2">Pro preview</span>
+                    <div className="space-y-2">
+                      {["Hierarchy", "Spacing", "Copy", "A11y", "Navigation", "Visual"].map((dim) => (
+                        <div key={dim} className="flex items-center gap-2">
+                          <span className="text-[8px] text-[#555] w-14 truncate">{dim}</span>
+                          <div className="flex-1 h-1 bg-[#333] rounded-full">
+                            <div className="h-full bg-ladder-green/40 rounded-full" style={{ width: `${40 + Math.random() * 40}%` }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 border-t border-[#333] pt-2">
+                      <span className="text-[8px] text-[#555] block">A11y audit</span>
+                      <div className="mt-1 h-2 bg-[#333] rounded w-full" />
+                      <div className="mt-1 h-2 bg-[#333] rounded w-3/4" />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* Team-aware footer for team members on the score result. */}
+            {me?.team && (
+              <div className="border border-ladder-green/20 bg-ladder-green/5 p-6 flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                  <span className="text-[10px] text-ladder-green uppercase tracking-widest font-semibold">
+                    {me.team.role === "admin" ? "Team admin" : "Team member"}
+                  </span>
+                  <p className="text-sm text-foreground mt-1 font-sans">
+                    This score landed on the{" "}
+                    <span className="font-semibold">{me.team.name}</span>{" "}
+                    team feed.
+                  </p>
+                </div>
+                <Link
+                  href="/dashboard/team"
+                  className="text-[10px] uppercase tracking-widest font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors"
+                >
+                  Team dashboard →
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
