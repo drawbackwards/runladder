@@ -9,7 +9,13 @@ import { UserMenu } from "./UserMenu";
 export function Nav() {
   const { isSignedIn, isLoaded } = useAuth();
   const pathname = usePathname();
-  const onDashboard = pathname?.startsWith("/dashboard") ?? false;
+  // Hide marketing nav inside product surfaces (dashboard, score). Keeps
+  // the user focused on the task and out of the marketing site once they
+  // are working in Ladder.
+  const inProduct =
+    pathname?.startsWith("/dashboard") ||
+    pathname?.startsWith("/score") ||
+    false;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
@@ -18,7 +24,7 @@ export function Nav() {
           <LadderLogo height={22} className="text-white" />
         </Link>
 
-        {!onDashboard && (
+        {!inProduct && (
           <div className="hidden md:flex items-center gap-10 text-sm font-bold text-body">
             <Link href="/framework" className="hover:text-foreground transition-colors">
               Framework
