@@ -27,6 +27,21 @@ type TeamSummary = {
   billing: BillingSummary;
 };
 
+type MemberDetail = {
+  userId: string;
+  role: "admin" | "member";
+  status: "active" | "paused" | "archived";
+  joinedAt: number;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+};
+
+type TeamDetail = {
+  team: TeamSummary & { usage: number };
+  members: MemberDetail[];
+};
+
 function fmtDate(ts: number): string {
   if (!ts) return "—";
   return new Date(ts).toLocaleDateString(undefined, {
@@ -81,6 +96,10 @@ export default function AdminTeamsPage() {
     overagePrice: string;
   } | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
+
+  // Detail (members + usage) fetched when a row expands
+  const [detail, setDetail] = useState<TeamDetail | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   async function refresh() {
     setLoading(true);
@@ -138,7 +157,7 @@ export default function AdminTeamsPage() {
     }
   }
 
-  function startEdit(team: TeamSummary) {
+  async function startEdit(team: TeamSummary) {
     setEditingId(team.id);
     setEditFields({
       name: team.name,
@@ -147,11 +166,30 @@ export default function AdminTeamsPage() {
       queryPool: String(team.queryPool),
       overagePrice: String(team.perOverageSeatPrice),
     });
+    setDetail(null);
+    setDetailLoading(true);
+    try {
+      const res = await fetch(`/api/admin/teams/${team.id}`);
+      if (res.ok) {
+        const json = (await res.json()) as TeamDetail;
+        setDetail(json);
+      }
+    } catch {
+      // Silent: the edit form still works, members list just won't show.
+    } finally {
+      setDetailLoading(false);
+    }
   }
 
   function cancelEdit() {
     setEditingId(null);
     setEditFields(null);
+    setDetail(null);
+  }
+
+  function displayName(m: MemberDetail): string {
+    const full = [m.firstName, m.lastName].filter(Boolean).join(" ").trim();
+    return full || m.email || m.userId;
   }
 
   async function saveEdit(teamId: string) {
@@ -497,6 +535,83 @@ export default function AdminTeamsPage() {
                                     Cancel
                                   </button>
                                 </div>
+                              </div>
+
+                              {/* ── Members ────────────────────────── */}
+                              <div className="mt-8 pt-6 border-t border-[#2a2a2a]">
+                                <div className="flex items-baseline justify-between mb-3">
+                                  <span className="text-[10px] text-muted uppercase tracking-widest">
+                                    Members
+                                  </span>
+                                  <span className="text-[10px] text-muted">
+                                    {detailLoading
+                                      ? "Loading…"
+                                      : detail
+                                        ? `${detail.members.length} total`
+                                        : ""}
+                                  </span>
+                                </div>
+                                {detailLoading ? (
+                                  <div className="text-xs text-muted font-sans py-4">
+                                    Loading members…
+                                  </div>
+                                ) : !detail || detail.members.length === 0 ? (
+                                  <div className="text-xs text-muted font-sans py-4">
+                                    No members yet.
+                                  </div>
+                                ) : (
+                                  <div className="border border-[#2a2a2a] bg-[#111]">
+                                    {detail.members.map((m) => {
+                                      const isOwner =
+                                        m.userId === t.ownerUserId;
+                                      const statusCls =
+                                        m.status === "active"
+                                          ? "text-ladder-green border-ladder-green/40 bg-ladder-green/5"
+                                          : m.status === "paused"
+                                            ? "text-ladder-orange border-ladder-orange/40 bg-ladder-orange/5"
+                                            : "text-muted border-[#333] bg-[#1a1a1a]";
+                                      return (
+                                        <div
+                                          key={m.userId}
+                                          className="border-b border-[#222] last:border-0 p-3 flex items-center gap-4 flex-wrap"
+                                        >
+                                          <div className="flex-1 min-w-0">
+                                            <div className="text-xs text-foreground font-sans truncate">
+                                              {displayName(m)}
+                                              {isOwner && (
+                                                <span className="text-[9px] text-ladder-green uppercase tracking-widest ml-2">
+                                                  owner
+                                                </span>
+                                              )}
+                                            </div>
+                                            {m.email && (
+                                              <div className="text-[10px] text-muted mt-0.5">
+                                                {m.email}
+                                              </div>
+                                            )}
+                                          </div>
+                                          <span
+                                            className={`text-[9px] uppercase tracking-widest border px-2 py-0.5 ${
+                                              m.role === "admin"
+                                                ? "text-ladder-green border-ladder-green/40 bg-ladder-green/5"
+                                                : "text-muted border-[#333] bg-[#1a1a1a]"
+                                            }`}
+                                          >
+                                            {m.role}
+                                          </span>
+                                          <span
+                                            className={`text-[9px] uppercase tracking-widest border px-2 py-0.5 ${statusCls}`}
+                                          >
+                                            {m.status}
+                                          </span>
+                                          <span className="text-[10px] text-muted tabular-nums">
+                                            {fmtDate(m.joinedAt)}
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
                               </div>
                             </td>
                           </tr>
