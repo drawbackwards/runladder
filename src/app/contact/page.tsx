@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { ContactForm } from "./ContactForm";
 
 export const metadata: Metadata = {
@@ -30,9 +31,15 @@ export default function ContactPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[1fr_380px] gap-16">
-          {/* Left: form */}
+          {/* Left: form.
+              Wrapped in Suspense because ContactForm calls
+              useSearchParams() — Next.js 16 fails the build if that
+              hook isn't inside a Suspense boundary during static
+              generation. */}
           <div>
-            <ContactForm />
+            <Suspense fallback={null}>
+              <ContactForm />
+            </Suspense>
           </div>
 
           {/* Right: what you get */}
