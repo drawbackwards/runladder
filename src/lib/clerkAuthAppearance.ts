@@ -32,7 +32,7 @@ export const authAppearance = {
     formFieldLabel:
       "!text-body !text-xs !uppercase !tracking-wider !mb-2 !font-medium",
     formFieldInput:
-      "!bg-card !border !border-border !text-foreground !rounded-lg focus:!border-ladder-green !ring-0 !px-4 !py-3 !text-sm placeholder:!text-muted",
+      "!bg-card !border !border-border !text-foreground !rounded-lg focus:!border-ladder-green !ring-0 !px-4 !py-3 !text-sm placeholder:!text-muted !min-h-[44px] !leading-normal !box-border",
     formButtonPrimary:
       "!bg-ladder-green hover:!bg-[#5ab88b] !text-black !font-semibold !rounded-full !normal-case !text-sm !py-3 !shadow-none !border-0 [&_*]:!text-black",
     formFieldAction: "!text-ladder-green hover:!text-[#5ab88b] !text-xs",
@@ -43,7 +43,7 @@ export const authAppearance = {
     identityPreviewText: "!text-foreground !text-sm",
     identityPreviewEditButton: "!text-ladder-green hover:!text-[#5ab88b]",
     otpCodeFieldInput:
-      "!bg-card !border !border-border !text-foreground !rounded-lg focus:!border-ladder-green",
+      "!bg-card !border !border-border !text-foreground !rounded-lg focus:!border-ladder-green !min-h-[44px] !leading-normal !box-border",
     alternativeMethodsBlockButton:
       "!bg-card !border !border-border !text-foreground hover:!bg-card-hover !rounded-full !text-sm !py-3",
     alternativeMethodsBlockButtonText: "!text-foreground !font-medium",

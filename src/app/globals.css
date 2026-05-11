@@ -435,3 +435,26 @@ h1, h2, h3, h4, h5, h6 {
 .user-menu-pop {
   animation: user-menu-pop 120ms ease-out;
 }
+
+/* ── Global interactive cursor rule ──
+   Every native button, role=button, and links that resolve to an href get the
+   pointer cursor. Without this, Tailwind's reset leaves <button> with default
+   arrow which reads as inert. Disabled controls stay default. */
+button:not([disabled]),
+[role="button"]:not([aria-disabled="true"]),
+a[href],
+label[for],
+summary,
+input[type="button"]:not(:disabled),
+input[type="submit"]:not(:disabled),
+input[type="reset"]:not(:disabled) {
+  cursor: pointer;
+}
+
+button[disabled],
+[role="button"][aria-disabled="true"],
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+input[type="reset"]:disabled {
+  cursor: not-allowed;
+}

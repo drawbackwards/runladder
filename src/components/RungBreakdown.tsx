@@ -3,6 +3,13 @@
 import { RUNG_DISPLAY_ORDER, getRungLevel, analyzeRungs } from "@/lib/ladder";
 import type { RungScores, RungName } from "@/lib/ladder";
 
+/**
+ * Per-rung breakdown bars. Bars are intentionally neutral (no rung color
+ * fill) so the color doesn't imply judgment — a screen scoring 4.8 on the
+ * Functional rung shouldn't read as "red/bad" just because the rung name
+ * is red. The rung label keeps its color as framework identity; the score
+ * number is shown in neutral foreground so the value itself speaks.
+ */
 function RungBar({
   rung,
   score,
@@ -40,18 +47,15 @@ function RungBar({
             </span>
           )}
         </div>
-        <span
-          className="font-mono text-sm font-bold tabular-nums"
-          style={{ color: level.color }}
-        >
+        <span className="font-mono text-sm font-bold tabular-nums text-foreground">
           {score.toFixed(1)}
         </span>
       </div>
 
       <div className="h-2 bg-[#333] rounded-sm overflow-hidden mb-1.5">
         <div
-          className="h-full rounded-sm transition-all duration-700 ease-out"
-          style={{ width: `${pct}%`, background: level.color }}
+          className="h-full rounded-sm bg-foreground/80 transition-all duration-700 ease-out"
+          style={{ width: `${pct}%` }}
         />
       </div>
 
@@ -87,7 +91,10 @@ export function RungBreakdown({ rungs }: { rungs: RungScores }) {
   );
 }
 
-/** Compact version for list views — just bars, no summaries */
+/**
+ * Compact version for list views — bars-only, no summaries. Same neutral
+ * treatment so list rows don't read as judgmental about each rung.
+ */
 export function RungBars({ rungs }: { rungs: RungScores }) {
   return (
     <div className="space-y-1.5">
@@ -101,14 +108,11 @@ export function RungBars({ rungs }: { rungs: RungScores }) {
             </span>
             <div className="flex-1 h-1.5 bg-[#333] rounded-sm overflow-hidden">
               <div
-                className="h-full rounded-sm"
-                style={{ width: `${pct}%`, background: level.color }}
+                className="h-full rounded-sm bg-foreground/80"
+                style={{ width: `${pct}%` }}
               />
             </div>
-            <span
-              className="text-[10px] font-bold tabular-nums w-6 text-right"
-              style={{ color: level.color }}
-            >
+            <span className="text-[10px] font-bold tabular-nums w-6 text-right text-foreground">
               {rungs[rung].score.toFixed(1)}
             </span>
           </div>
