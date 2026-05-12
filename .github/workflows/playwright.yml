@@ -26,16 +26,34 @@ jobs:
         run: npm ci
 
       - name: Wait for Vercel preview deployment
-        # Polls GitHub's deployment_status events on the PR's commit
-        # until Vercel reports the preview is ready. Outputs the URL
-        # we test against. No VERCEL_TOKEN needed — Vercel reports
-        # status via the GitHub API and GITHUB_TOKEN is enough.
+        # Polls the GitHub Deployments API for the PR's commit until
+        # Vercel reports environment=Preview with state=success. Sets
+        # the resulting URL as a step output. No VERCEL_TOKEN needed
+        # (GITHUB_TOKEN is enough). Replaces a community action that
+        # was stuck on a state-transition assumption that didn't hold.
         id: wait
-        uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          max_timeout: 600
-          environment: Preview
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -e
+          for i in $(seq 1 60); do
+            # Find the Preview deployment for this commit (most recent first).
+            DEPLOY_ID=$(gh api "repos/$REPO/deployments?sha=$COMMIT_SHA" --jq '[.[] | select(.environment == "Preview")][0].id' 2>/dev/null || echo "")
+            if [ -n "$DEPLOY_ID" ] && [ "$DEPLOY_ID" != "null" ]; then
+              URL=$(gh api "repos/$REPO/deployments/$DEPLOY_ID/statuses" --jq '[.[] | select(.state == "success")][0].environment_url' 2>/dev/null || echo "")
+              if [ -n "$URL" ] && [ "$URL" != "null" ]; then
+                echo "Preview URL: $URL"
+                echo "url=$URL" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+            fi
+            echo "Attempt $i: preview not ready yet, sleeping 10s..."
+            sleep 10
+          done
+          echo "::error::Vercel preview deployment did not reach success state within 10 minutes"
+          exit 1
 
       - name: Install Playwright browser (chromium)
         run: npx playwright install --with-deps chromium
