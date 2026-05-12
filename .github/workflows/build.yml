@@ -1,0 +1,53 @@
+name: Build
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel in-flight runs on the same ref so a rebase doesn't pile up builds.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: next build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: next build
+        # Placeholder values for env vars that are wired in Vercel. The
+        # build only needs them to compile — runtime calls never execute
+        # in CI. If a real key is required at build time later, mirror it
+        # into GitHub Actions secrets and reference it here.
+        run: npm run build
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ci_placeholder
+          CLERK_SECRET_KEY: sk_test_ci_placeholder
+          NEXT_PUBLIC_CLERK_SIGN_IN_URL: /login
+          NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: /dashboard
+          NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: /dashboard
+          UPSTASH_REDIS_REST_URL: https://example.upstash.io
+          UPSTASH_REDIS_REST_TOKEN: ci_placeholder_token
+          LADDER_SERVICE_TOKEN: ci_placeholder
+          RESEND_API_KEY: re_ci_placeholder
+          ADMIN_EMAILS: ci@example.com
+          STRIPE_SECRET_KEY: sk_test_ci
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_ci
+          STRIPE_WEBHOOK_SECRET: whsec_ci
+          STRIPE_PRO_PRICE_ID: price_ci
+          CLERK_WEBHOOK_SECRET: whsec_clerk_ci
+          ANTHROPIC_API_KEY: sk-ant-ci
