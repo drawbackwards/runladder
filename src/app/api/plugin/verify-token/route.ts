@@ -5,6 +5,8 @@ import { FREE_LIFETIME_LIMIT, isPaidTier } from "@/lib/plans";
 import { getUserSubscription } from "@/lib/tier";
 import { redis, lifetimeScansKey } from "@/lib/redis";
 import { CURRENT_API_VERSION } from "@/lib/app-version";
+import { CURRENT_PLUGIN_VERSION } from "@/lib/plugin-version";
+import { touchPluginMeta } from "@/lib/plugin-meta";
 
 const API_VERSION_HEADERS = { "X-Ladder-API-Version": CURRENT_API_VERSION };
 
@@ -65,6 +67,18 @@ export async function POST(req: NextRequest) {
     const user = await clerk.users.getUser(userId);
     const paid = isPaidTier(sub.tier);
 
+    // Record the plugin version the user is running. The plugin's
+    // ai-design-assistant backend forwards X-Ladder-Plugin-Version from
+    // the plugin's fetch to here. Fire-and-forget so a failed write
+    // never blocks the verify response.
+    const installedPluginVersion =
+      req.headers.get("x-ladder-plugin-version")?.slice(0, 32) || undefined;
+    if (installedPluginVersion) {
+      touchPluginMeta(userId, installedPluginVersion).catch(() => {
+        // best-effort
+      });
+    }
+
     // Diagnostic: log every successful verify so we can correlate with persist
     try {
       await redis.lpush(
@@ -100,6 +114,17 @@ export async function POST(req: NextRequest) {
               expiresAt: sub.comp.expiresAt ?? null,
             }
           : null,
+        /**
+         * Plugin version state. The plugin compares its own embedded
+         * LADDER_PLUGIN_VERSION against `currentPluginVersion` to
+         * decide whether to render an in-canvas "Update available"
+         * banner. Returning it on every verify means the plugin gets
+         * fresh data on its first call per session — no extra request.
+         */
+        pluginVersion: {
+          current: CURRENT_PLUGIN_VERSION,
+          installed: installedPluginVersion ?? null,
+        },
       },
       { headers: API_VERSION_HEADERS },
     );
