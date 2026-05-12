@@ -117,16 +117,16 @@ export async function analyzeScreenForReport(
   }
 
   try {
-    // Sonnet 4.6 with adaptive thinking + effort:high. Annotation
-    // analysis pins findings to specific regions of the screen, which
-    // needs careful visual reasoning — exactly the kind of work
-    // adaptive thinking is designed for. max_tokens bumped to give
-    // the thinking budget room ahead of the JSON output.
+    // Sonnet 4.6 with effort:medium. Adaptive thinking is OFF here
+    // because Vercel function timeouts (60s) can't reliably contain
+    // the latency thinking adds. Sonnet 4.6 by itself is the quality
+    // upgrade. Reserve thinking for /api/improve where users expect
+    // a longer wait. effort:medium is set explicitly because 4.6
+    // defaults to high.
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 8192,
-      thinking: { type: "adaptive" },
-      output_config: { effort: "high" },
+      max_tokens: 4096,
+      output_config: { effort: "medium" },
       system: buildAnalysisPrompt(mode, learningCtx),
       messages: [
         {
