@@ -21,15 +21,33 @@ export type LadderLevel = {
   experienceTest: string;
 };
 
+/**
+ * Level color palette — neutralized.
+ *
+ * Per Ward's direction (2026-05-11), the levels of the Ladder are no longer
+ * color-coded across the marketing site, product, or plugin. Bars are white,
+ * labels are neutral, and the score number on the page is what conveys
+ * judgment. The `color` / `cssText` / `cssBg` fields are intentionally
+ * uniform white so every existing consumer of `level.color`,
+ * `getScoreColor()`, `getLevelColor()`, etc. flips to neutral automatically.
+ *
+ * If the framework ever needs identity colors back (e.g. for a specific
+ * marketing surface), introduce a separate `accentColor` field rather than
+ * resurrecting per-level color encoding here.
+ */
+const NEUTRAL_COLOR = "#ffffff";
+const NEUTRAL_TEXT_CLASS = "text-foreground";
+const NEUTRAL_BG_CLASS = "bg-foreground";
+
 export const LEVELS: LadderLevel[] = [
   {
     level: 1,
     min: 0,
     max: 1.99,
     label: "Functional",
-    color: "#ef4444",
-    cssText: "text-ladder-red",
-    cssBg: "bg-ladder-red",
+    color: NEUTRAL_COLOR,
+    cssText: NEUTRAL_TEXT_CLASS,
+    cssBg: NEUTRAL_BG_CLASS,
     tagline: "It works. Barely.",
     description:
       "The user fights the product. Navigation is confusing, actions are unclear, and completing basic tasks requires trial and error. Built for engineering requirements, not human needs.",
@@ -41,9 +59,9 @@ export const LEVELS: LadderLevel[] = [
     min: 2,
     max: 2.99,
     label: "Usable",
-    color: "#f97316",
-    cssText: "text-ladder-orange",
-    cssBg: "bg-ladder-orange",
+    color: NEUTRAL_COLOR,
+    cssText: NEUTRAL_TEXT_CLASS,
+    cssBg: NEUTRAL_BG_CLASS,
     tagline: "Tasks complete with effort.",
     description:
       "Basic structure exists. Users can accomplish goals, but it takes more effort than it should. The interface doesn't guide, it presents. Users tolerate it but would switch.",
@@ -55,9 +73,9 @@ export const LEVELS: LadderLevel[] = [
     min: 3,
     max: 3.99,
     label: "Comfortable",
-    color: "#eab308",
-    cssText: "text-ladder-yellow",
-    cssBg: "bg-ladder-yellow",
+    color: NEUTRAL_COLOR,
+    cssText: NEUTRAL_TEXT_CLASS,
+    cssBg: NEUTRAL_BG_CLASS,
     tagline: "No thinking required. The modern minimum.",
     description:
       "Everything is where expected. The interface is intuitive. Users feel their way through without conscious thought. Friction is removed. This is the modern minimum bar.",
@@ -69,9 +87,9 @@ export const LEVELS: LadderLevel[] = [
     min: 4,
     max: 4.99,
     label: "Delightful",
-    color: "#22c55e",
-    cssText: "text-ladder-delightful",
-    cssBg: "bg-ladder-delightful",
+    color: NEUTRAL_COLOR,
+    cssText: NEUTRAL_TEXT_CLASS,
+    cssBg: NEUTRAL_BG_CLASS,
     tagline: "Anticipates needs. Users refer others.",
     description:
       "The product actively helps. It adapts to context, surfaces the right information at the right moment, and turns complexity into quick decisions. Users tell others about it.",
@@ -83,9 +101,9 @@ export const LEVELS: LadderLevel[] = [
     min: 5,
     max: 5,
     label: "Meaningful",
-    color: "#ffffff",
-    cssText: "text-ladder-white",
-    cssBg: "bg-ladder-white",
+    color: NEUTRAL_COLOR,
+    cssText: NEUTRAL_TEXT_CLASS,
+    cssBg: NEUTRAL_BG_CLASS,
     tagline: "Irreplaceable.",
     description:
       "The experience changed how the user thinks, works, or lives. Switching is unthinkable. The user can't imagine going back. Level 5 is the ceiling.",

@@ -1,41 +1,44 @@
 import Link from "next/link";
 import { LadderScore } from "@/components/LadderScore";
 
+// Level color coding removed across marketing site, product, and plugin
+// (Ward, 2026-05-11). Each level renders neutral white; the level NAME
+// conveys identity, the score number on the page conveys judgment.
 const LEVELS = [
   {
     score: "5",
     label: "Meaningful",
     desc: "Irreplaceable. Changed how they think, work, or live.",
-    color: "text-ladder-white",
-    border: "border-white/20",
+    color: "text-foreground",
+    border: "border-border",
   },
   {
     score: "4",
     label: "Delightful",
     desc: "Anticipates needs. Right help at right moment. Users refer others.",
-    color: "text-ladder-delightful",
-    border: "border-ladder-delightful/20",
+    color: "text-foreground",
+    border: "border-border",
   },
   {
     score: "3",
     label: "Comfortable",
     desc: "No thinking required. Everything where expected. The modern minimum.",
-    color: "text-ladder-yellow",
-    border: "border-ladder-yellow/20",
+    color: "text-foreground",
+    border: "border-border",
   },
   {
     score: "2",
     label: "Usable",
     desc: "Tasks complete with effort. User tolerates it but would switch.",
-    color: "text-ladder-orange",
-    border: "border-ladder-orange/20",
+    color: "text-foreground",
+    border: "border-border",
   },
   {
     score: "1",
     label: "Functional",
     desc: "User fights the product. Trial, error, frustration.",
-    color: "text-ladder-red",
-    border: "border-ladder-red/20",
+    color: "text-foreground",
+    border: "border-border",
   },
 ];
 

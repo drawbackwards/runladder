@@ -2,13 +2,13 @@
 
 import { RUNG_DISPLAY_ORDER, getRungLevel, analyzeRungs } from "@/lib/ladder";
 import type { RungScores, RungName } from "@/lib/ladder";
+import { ScoreBar } from "./ScoreBar";
 
 /**
- * Per-rung breakdown bars. Bars are intentionally neutral (no rung color
- * fill) so the color doesn't imply judgment — a screen scoring 4.8 on the
- * Functional rung shouldn't read as "red/bad" just because the rung name
- * is red. The rung label keeps its color as framework identity; the score
- * number is shown in neutral foreground so the value itself speaks.
+ * Per-rung breakdown bars. Bars are five-segmented white indicators
+ * (see ScoreBar). Rung label and score number both render neutral —
+ * level color coding is gone (Ward, 2026-05-11). The number itself
+ * is what conveys judgment.
  */
 function RungBar({
   rung,
@@ -24,25 +24,21 @@ function RungBar({
   isWeakest: boolean;
 }) {
   const level = getRungLevel(rung);
-  const pct = Math.max(2, (score / 5) * 100); // min 2% so bar is always visible
 
   return (
     <div className="group">
       <div className="flex items-baseline justify-between mb-1.5">
         <div className="flex items-center gap-2">
-          <span
-            className="font-mono text-[11px] font-bold uppercase tracking-wider"
-            style={{ color: level.color }}
-          >
+          <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-foreground">
             {level.label}
           </span>
           {isStrongest && (
-            <span className="text-[9px] text-green-400 uppercase tracking-widest">
+            <span className="text-[9px] text-muted uppercase tracking-widest">
               Strongest
             </span>
           )}
           {isWeakest && (
-            <span className="text-[9px] text-red-400 uppercase tracking-widest">
+            <span className="text-[9px] text-muted uppercase tracking-widest">
               Focus here
             </span>
           )}
@@ -52,16 +48,9 @@ function RungBar({
         </span>
       </div>
 
-      <div className="h-2 bg-[#333] rounded-sm overflow-hidden mb-1.5">
-        <div
-          className="h-full rounded-sm bg-foreground/80 transition-all duration-700 ease-out"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
+      <ScoreBar score={score} size="md" className="mb-1.5" />
 
-      <p className="text-[11px] text-muted leading-relaxed">
-        {summary}
-      </p>
+      <p className="text-[11px] text-muted leading-relaxed">{summary}</p>
     </div>
   );
 }
@@ -92,26 +81,20 @@ export function RungBreakdown({ rungs }: { rungs: RungScores }) {
 }
 
 /**
- * Compact version for list views — bars-only, no summaries. Same neutral
- * treatment so list rows don't read as judgmental about each rung.
+ * Compact version for list views — bars-only, no per-rung summaries.
+ * Same neutral five-segment treatment.
  */
 export function RungBars({ rungs }: { rungs: RungScores }) {
   return (
     <div className="space-y-1.5">
       {RUNG_DISPLAY_ORDER.map((rung) => {
         const level = getRungLevel(rung);
-        const pct = Math.max(2, (rungs[rung].score / 5) * 100);
         return (
           <div key={rung} className="flex items-center gap-2">
             <span className="text-[9px] text-muted w-20 text-right uppercase tracking-wider truncate">
               {level.label}
             </span>
-            <div className="flex-1 h-1.5 bg-[#333] rounded-sm overflow-hidden">
-              <div
-                className="h-full rounded-sm bg-foreground/80"
-                style={{ width: `${pct}%` }}
-              />
-            </div>
+            <ScoreBar score={rungs[rung].score} size="sm" className="flex-1" />
             <span className="text-[10px] font-bold tabular-nums w-6 text-right text-foreground">
               {rungs[rung].score.toFixed(1)}
             </span>

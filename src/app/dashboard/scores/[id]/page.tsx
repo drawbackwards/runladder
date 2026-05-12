@@ -7,6 +7,7 @@ import Link from "next/link";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
+import { ScoreBar } from "@/components/ScoreBar";
 import { AnalysisFeedback } from "@/components/AnalysisFeedback";
 import { ScoreAnnotations } from "@/components/ScoreAnnotations";
 
@@ -192,10 +193,10 @@ export default function ScoreDetailPage() {
             <p className="text-sm text-foreground font-sans mb-6">{data.screenName}</p>
 
             <div className="flex-1 flex flex-col items-start justify-center">
-              <span className="font-mono font-bold text-[4rem] leading-none tabular-nums" style={{ color: getScoreColor(data.score) }}>
+              <span className="font-mono font-bold text-[4rem] leading-none tabular-nums text-foreground">
                 {data.score.toFixed(1)}
               </span>
-              <span className="text-sm font-bold uppercase tracking-widest mt-1" style={{ color: getScoreColor(data.score) }}>
+              <span className="text-sm font-bold uppercase tracking-widest mt-1 text-foreground">
                 {data.label}
               </span>
 
@@ -224,18 +225,13 @@ export default function ScoreDetailPage() {
               <div className="mt-6 pt-4 border-t border-[#333] w-full">
                 <span className="text-[10px] text-muted uppercase tracking-widest">Gap to {nextLevel}</span>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-lg font-bold" style={{ color: getLevelColor(nextLevel) }}>+{gap}</span>
+                  <span className="text-lg font-bold text-foreground">+{gap}</span>
                   <span className="text-[11px] text-muted">points</span>
                 </div>
               </div>
 
               <div className="mt-6 w-full">
-                <div className="h-1.5 bg-[#333] w-full">
-                  <div
-                    className="h-full transition-all duration-700 ease-out"
-                    style={{ width: `${(data.score / 5) * 100}%`, background: getScoreColor(data.score) }}
-                  />
-                </div>
+                <ScoreBar score={data.score} size="md" />
                 <div className="flex justify-between mt-2 text-[10px] text-[#444]">
                   <span>1.0</span><span>2.0</span><span>3.0</span><span>4.0</span><span>5.0</span>
                 </div>
