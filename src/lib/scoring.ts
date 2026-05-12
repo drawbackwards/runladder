@@ -235,19 +235,20 @@ export async function scoreImage(
   }
 
   /* ── Ladder scoring ──
-   * Sonnet 4.6 with adaptive thinking + effort:high. This is the
-   * intelligence-sensitive path of the whole product — accurate
-   * visual reasoning, calibrated scores, and well-grounded findings
-   * are worth the extra thinking tokens (per-score cost rises from
-   * roughly $0.046 to $0.075, still comfortably inside the 30%
-   * COGS ceiling). max_tokens bumped to 8192 so the thinking
-   * budget has room before the JSON output starts.
+   * Sonnet 4.6 with effort:medium. Adaptive thinking is OFF here
+   * because Vercel function timeouts (60s) can't safely accommodate
+   * the variable latency thinking introduces — we saw real 504s on
+   * the plugin's analyze path with thinking on. Sonnet 4.6 alone
+   * is already a real quality jump from Sonnet 4 on visual reasoning
+   * and structured output. Thinking is reserved for /api/improve
+   * where users expect a longer wait. effort:medium is set
+   * explicitly because Sonnet 4.6 defaults to effort:high, which
+   * costs more for marginal gain on this task.
    */
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
-    max_tokens: 8192,
-    thinking: { type: "adaptive" },
-    output_config: { effort: "high" },
+    max_tokens: 4096,
+    output_config: { effort: "medium" },
     messages: [
       {
         role: "user",
