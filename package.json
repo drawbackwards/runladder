@@ -11,7 +11,8 @@
     "prebuild": "npm run build:skill",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "check:no-prompt-leak": "node scripts/check-no-prompt-leak.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.79.0",
