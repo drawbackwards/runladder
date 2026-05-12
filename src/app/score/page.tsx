@@ -70,6 +70,30 @@ function ScannerCorners() {
   );
 }
 
+/**
+ * Parse one Server-Sent Events frame into a {name, data} record.
+ * Returns null when the frame is malformed or carries no `data:` line.
+ * The streaming /api/score/stream endpoint always sends both `event:`
+ * and `data:` lines, so a null here means a stray heartbeat or a
+ * partial frame caller should skip.
+ */
+function parseSSE(
+  raw: string,
+): { name: string; data: { value?: number | string | ScoreResult; message?: string } } | null {
+  let name = "message";
+  let dataLine = "";
+  for (const line of raw.split("\n")) {
+    if (line.startsWith("event:")) name = line.slice(6).trim();
+    else if (line.startsWith("data:")) dataLine = line.slice(5).trim();
+  }
+  if (!dataLine) return null;
+  try {
+    return { name, data: JSON.parse(dataLine) };
+  } catch {
+    return null;
+  }
+}
+
 function AnimatedScore({ target }: { target: number }) {
   const [value, setValue] = useState(0);
   const color = getScoreColor(target);
@@ -245,6 +269,15 @@ export default function ScorePage() {
   const [result, setResult] = useState<ScoreResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [scanPhase, setScanPhase] = useState(0);
+  // Partial scoring state that fills in via SSE before the full result
+  // lands. Drives the skeleton overlay to swap in real values early
+  // (score number, level, screen name) while findings and rungs are
+  // still being generated.
+  const [partial, setPartial] = useState<{
+    score?: number;
+    label?: string;
+    screenName?: string;
+  } | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [pastScores, setPastScores] = useState<PastScore[]>([]);
   const [isPublic, setIsPublic] = useState(true);
@@ -354,6 +387,7 @@ export default function ScorePage() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setPartial(null);
     setScanPhase(0);
     if (img) setImage(img);
 
@@ -368,7 +402,7 @@ export default function ScorePage() {
         generateThumbnail(imageToScore),
       ]);
 
-      const res = await fetch("/api/score", {
+      const res = await fetch("/api/score/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -379,25 +413,78 @@ export default function ScorePage() {
           sessionType: sessionType ?? "design",
         }),
       });
-      const text = await res.text();
-      let data;
-      try { data = JSON.parse(text); } catch { throw new Error("Scoring service returned an unexpected response. Please try again."); }
-      if (!res.ok) {
-        if (data.signup) {
-          throw new Error("Sign up for free to get 5 Ladder scores. Log in at runladder.com/login");
+
+      if (!res.ok || !res.body) {
+        // Non-streamed error response (auth, rate limit, validation).
+        const text = await res.text();
+        let data: { error?: string; signup?: boolean } = {};
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error(
+            "Scoring service returned an unexpected response. Please try again.",
+          );
         }
-        // The server's error string is already tier-aware (free cap vs
-        // team pool exceeded) — prefer it over any local hardcoded copy.
+        if (data.signup) {
+          throw new Error(
+            "Sign up for free to get 5 Ladder scores. Log in at runladder.com/login",
+          );
+        }
         throw new Error(data.error || "Scoring failed");
+      }
+
+      // Consume the SSE stream. Each event populates state incrementally:
+      // score / label / screenName land seconds before complete, so the
+      // skeleton swaps in real values early.
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let pending = "";
+      let final: (ScoreResult & { scoreId?: string | null }) | null = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        pending += decoder.decode(value, { stream: true });
+
+        // SSE messages are separated by blank lines.
+        let split: number;
+        while ((split = pending.indexOf("\n\n")) !== -1) {
+          const raw = pending.slice(0, split);
+          pending = pending.slice(split + 2);
+          const event = parseSSE(raw);
+          if (!event) continue;
+
+          if (event.name === "score" && typeof event.data.value === "number") {
+            const v = event.data.value;
+            setPartial((p) => ({ ...(p ?? {}), score: v }));
+          } else if (event.name === "label" && typeof event.data.value === "string") {
+            const v = event.data.value;
+            setPartial((p) => ({ ...(p ?? {}), label: v }));
+          } else if (event.name === "screenName" && typeof event.data.value === "string") {
+            const v = event.data.value;
+            setPartial((p) => ({ ...(p ?? {}), screenName: v }));
+          } else if (event.name === "complete") {
+            // The server attaches scoreId onto the complete value.
+            final = event.data.value as ScoreResult & { scoreId?: string | null };
+          } else if (event.name === "error") {
+            throw new Error(
+              event.data.message || "Scoring failed. Please try again.",
+            );
+          }
+        }
+      }
+
+      if (!final) {
+        throw new Error("Scoring ended without a result. Please try again.");
       }
 
       // Save to local past scores (used by anon users for in-session history).
       const entry: PastScore = {
-        id: data.scoreId || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        score: data.score,
-        label: data.label,
-        summary: data.summary,
-        thumbnail: imageToScore.slice(0, 200), // Store tiny prefix for identification
+        id: final.scoreId || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        score: final.score,
+        label: final.label,
+        summary: final.summary,
+        thumbnail: imageToScore.slice(0, 200),
         source: fileName || "Upload",
         timestamp: Date.now(),
       };
@@ -405,20 +492,20 @@ export default function ScorePage() {
       setPastScores(loadPastScores());
 
       // Signed-in users go to the full score detail in their dashboard.
-      // Anon users have nowhere to go — keep the inline result for them.
-      if (data.scoreId) {
-        setRedirectingScoreId(data.scoreId);
+      if (final.scoreId) {
+        setRedirectingScoreId(final.scoreId);
         setTimeout(() => {
-          router.push(`/dashboard/scores/${data.scoreId}`);
+          router.push(`/dashboard/scores/${final.scoreId}`);
         }, 1200);
       } else {
-        setResult(data);
+        setResult(final);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       clearInterval(interval);
       setLoading(false);
+      setPartial(null);
     }
   }
 
@@ -780,6 +867,7 @@ export default function ScorePage() {
             image={image}
             scanPhase={scanPhase}
             scanMessages={scanMessages}
+            partial={partial}
           />
         )}
 

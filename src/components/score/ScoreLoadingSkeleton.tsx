@@ -17,6 +17,8 @@
  * All visual rhythm comes from `.shimmer` and `.typing-dot` defined
  * in globals.css. No new keyframes needed.
  */
+import { getScoreColor } from "@/lib/ladder";
+
 // Local copy of the inline ScannerCorners helper from /score/page.tsx
 // (same scanner-corner classes defined in globals.css). Inlined here
 // so the skeleton component stays self-contained.
@@ -35,10 +37,28 @@ type Props = {
   image: string;
   scanPhase: number;
   scanMessages: string[];
+  /**
+   * Partial fields streamed from /api/score/stream. As each arrives the
+   * matching placeholder is replaced with the real value, while the
+   * rest of the panel keeps shimmering. `null` = streaming hasn't
+   * started yielding fields yet (still on moderation or first tokens).
+   */
+  partial?: {
+    score?: number;
+    label?: string;
+    screenName?: string;
+  } | null;
 };
 
-export function ScoreLoadingSkeleton({ image, scanPhase, scanMessages }: Props) {
+export function ScoreLoadingSkeleton({
+  image,
+  scanPhase,
+  scanMessages,
+  partial,
+}: Props) {
   const activeMessage = scanMessages[scanPhase] ?? scanMessages[0];
+  const haveScore = typeof partial?.score === "number";
+  const haveLabel = typeof partial?.label === "string" && partial.label.length > 0;
 
   return (
     <div className="space-y-10">
@@ -60,10 +80,26 @@ export function ScoreLoadingSkeleton({ image, scanPhase, scanMessages }: Props) 
             Screen Score
           </span>
           <div className="flex-1 flex flex-col items-start justify-center">
-            {/* Big score number placeholder */}
-            <div className="shimmer h-14 w-32" />
-            {/* Level label placeholder */}
-            <div className="shimmer h-3 w-24 mt-3" />
+            {/* Big score number — fades from skeleton to the real number
+                as soon as the SSE 'score' event arrives. */}
+            {haveScore ? (
+              <span
+                className="text-6xl font-bold tabular-nums animate-fade-up"
+                style={{ color: getScoreColor(partial!.score!) }}
+              >
+                {partial!.score!.toFixed(1)}
+              </span>
+            ) : (
+              <div className="shimmer h-14 w-32" />
+            )}
+            {/* Level label — fades in on the 'label' SSE event. */}
+            {haveLabel ? (
+              <span className="text-sm font-bold uppercase tracking-widest mt-1 text-foreground animate-fade-up">
+                {partial!.label}
+              </span>
+            ) : (
+              <div className="shimmer h-3 w-24 mt-3" />
+            )}
 
             {/* Gap to next */}
             <div className="mt-6 pt-4 border-t border-[#333] w-full">
