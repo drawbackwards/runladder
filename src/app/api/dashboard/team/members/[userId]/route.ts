@@ -34,6 +34,14 @@ type RawScore = {
   uplift?: number | null;
   previousScore?: number | null;
   sessionType?: "design" | "evaluation";
+  /**
+   * Soft-delete metadata. Set by /api/dashboard/scores DELETE when the
+   * score's owner deletes it. Team admins receive deleted entries so
+   * they keep the audit trail; aggregations (stats, activity heatmap)
+   * exclude them so manager numbers reflect what's actually live.
+   */
+  deletedAt?: number;
+  deletedBy?: string;
 };
 
 /** Grandfather pre-bucket scores as design (per Ward's call). */
@@ -179,14 +187,24 @@ export async function GET(
     (s) => effectiveSessionType(s) === "evaluation",
   );
 
-  const designInWindow = designScores.filter(
+  // Aggregations (stats, heatmap) exclude soft-deleted scores so manager
+  // numbers reflect what's actually live. Deleted entries still flow
+  // through in `scores` below so the UI can render them with a tag.
+  const designLive = designScores.filter((s) => !s.deletedAt);
+  const evaluationLive = evaluationScores.filter((s) => !s.deletedAt);
+
+  const designInWindow = designLive.filter(
     (s) =>
       typeof s.timestamp === "number" && s.timestamp >= activityWindowStart,
   );
-  const evaluationInWindow = evaluationScores.filter(
+  const evaluationInWindow = evaluationLive.filter(
     (s) =>
       typeof s.timestamp === "number" && s.timestamp >= activityWindowStart,
   );
+
+  // Count of deleted entries surfaced so the UI can show "X deleted"
+  // chip without re-scanning the scores array.
+  const deletedCount = scores.filter((s) => !!s.deletedAt).length;
 
   return NextResponse.json({
     member: {
@@ -202,22 +220,26 @@ export async function GET(
     stats,
     /**
      * Design-session scores. Drives the manager's "performance" section
-     * (craft trends, design rhythm, personal records).
+     * (craft trends, design rhythm, personal records). `scores` includes
+     * soft-deleted entries with deletedAt set; `stats` and `activity`
+     * are computed on the live subset only.
      */
     design: {
-      stats: statsFromScores(designScores),
+      stats: statsFromScores(designLive),
       scores: designScores,
       activity: bucketActivity(designInWindow, ACTIVITY_WINDOW_DAYS),
     },
     /**
-     * Evaluation/audit scores. Drives the manager's "audit" section
-     * (research, competitor work, deliverables).
+     * Evaluation/audit scores. Same shape: deleted entries visible in
+     * `scores` for audit; stats / activity exclude them.
      */
     evaluation: {
-      stats: statsFromScores(evaluationScores),
+      stats: statsFromScores(evaluationLive),
       scores: evaluationScores,
       activity: bucketActivity(evaluationInWindow, ACTIVITY_WINDOW_DAYS),
     },
     activityWindowDays: ACTIVITY_WINDOW_DAYS,
+    /** Count of soft-deleted scores across all session types. */
+    deletedCount,
   });
 }

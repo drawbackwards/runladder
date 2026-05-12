@@ -55,7 +55,13 @@ export async function GET() {
       }
     }
     return entry;
-  }).filter(Boolean);
+  })
+    .filter(Boolean)
+    // Soft-deleted scores stay in Redis so team admins keep the audit
+    // trail, but the score's owner should never see them on their own
+    // dashboard. /api/dashboard/scores DELETE flips deletedAt; this is
+    // the read-side filter.
+    .filter((s: { deletedAt?: number } | null) => s && !s.deletedAt);
 
   return NextResponse.json({
     scores: parsedScores,

@@ -30,6 +30,13 @@ type RawScore = {
   timestamp?: number;
   rungs?: unknown;
   sessionType?: "design" | "evaluation";
+  /**
+   * Soft-delete tombstone. Set by /api/dashboard/scores DELETE. Read
+   * by team aggregations to exclude from manager stats (so a deleted
+   * 1.4 doesn't drag the team average) while still surfacing the
+   * entry in the audit feed via the member-detail endpoint.
+   */
+  deletedAt?: number;
 };
 
 /**
@@ -81,7 +88,12 @@ async function readRecentScores(
       }
       return entry;
     })
-    .filter((s): s is RawScore => s !== null);
+    .filter((s): s is RawScore => s !== null)
+    // Team-level aggregations (avg, weakest rung, design rhythm,
+    // heatmap) read this. Excluding soft-deleted entries here keeps
+    // the numbers honest. The full audit trail (including deleted)
+    // is exposed via the member-detail endpoint, not the team rollup.
+    .filter((s) => !s.deletedAt);
 }
 
 /**
