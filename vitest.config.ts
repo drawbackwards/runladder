@@ -13,6 +13,9 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    // Playwright lives in e2e/, has its own runner. Make sure vitest
+    // never tries to execute those files.
+    exclude: ["node_modules/**", "e2e/**", "playwright-report/**"],
     // Tests should never reach a real network or Redis. If something
     // tries to, vitest will surface the import in a stack trace.
     globals: false,

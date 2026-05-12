@@ -1,0 +1,56 @@
+name: Playwright
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: playwright-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: smoke tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Wait for Vercel preview deployment
+        # Polls GitHub's deployment_status events on the PR's commit
+        # until Vercel reports the preview is ready. Outputs the URL
+        # we test against. No VERCEL_TOKEN needed — Vercel reports
+        # status via the GitHub API and GITHUB_TOKEN is enough.
+        id: wait
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          max_timeout: 600
+          environment: Preview
+
+      - name: Install Playwright browser (chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke tests against preview
+        run: npm run test:e2e
+        env:
+          BASE_URL: ${{ steps.wait.outputs.url }}
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

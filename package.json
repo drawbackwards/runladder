@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "check:no-prompt-leak": "node scripts/check-no-prompt-leak.mjs"
+    "check:no-prompt-leak": "node scripts/check-no-prompt-leak.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.79.0",
@@ -28,6 +29,7 @@
     "svix": "^1.92.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
