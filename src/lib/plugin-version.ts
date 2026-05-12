@@ -13,4 +13,4 @@
  * time as LADDER_PLUGIN_VERSION in ai-design-assistant's plugin/ui.html
  * (they must match) and add a release note somewhere user-visible.
  */
-export const CURRENT_PLUGIN_VERSION = "1.11.4";
+export const CURRENT_PLUGIN_VERSION = "1.11.5";
