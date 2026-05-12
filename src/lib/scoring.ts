@@ -235,19 +235,20 @@ export async function scoreImage(
   }
 
   /* ── Ladder scoring ──
-   * Haiku 4.5. We switched here from Sonnet 4.6 for speed —
-   * the Skill/web scoring user wants a result in seconds, not
-   * tens of seconds. Haiku 4.5 runs ~3x the generation rate of
-   * Sonnet 4.6 (200+ tokens/sec), with TTFT under a second.
-   * Note: Haiku does not support the `effort` or `thinking`
-   * params and will 400 if either is passed — keep this call
-   * lean. Sonnet 4.6 stays as the model of record on the
-   * coming /api/improve endpoint where deeper reasoning is
-   * worth the wait.
+   * Sonnet 4.6 with thinking disabled + effort:low. We tested
+   * Haiku 4.5 for the speed win and confirmed a real quality
+   * regression — same screen scored 2.6 on Haiku vs 3.1 on
+   * Sonnet. Score calibration is the product, so we trade the
+   * 2x latency cost for accuracy and lean on the frontend
+   * (skeleton placeholders + progressive reveal) to make the
+   * Sonnet wait feel fast. effort:low is required to get the
+   * latency win — Sonnet 4.6 defaults to effort:high.
    */
   const response = await client.messages.create({
-    model: "claude-haiku-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 4096,
+    thinking: { type: "disabled" },
+    output_config: { effort: "low" },
     messages: [
       {
         role: "user",
