@@ -185,9 +185,13 @@ export async function scoreImage(
 
   const client = new Anthropic();
 
-  /* ── Content moderation check ── */
+  /* ── Content moderation check ──
+   * Cheap classification call. No adaptive thinking, no effort tuning —
+   * a binary "is this a UI screen + is it explicit" decision doesn't
+   * benefit from extra reasoning depth, and we want the fast path.
+   */
   const modCheck = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
+    model: "claude-haiku-4-5",
     max_tokens: 200,
     messages: [
       {
@@ -230,10 +234,20 @@ export async function scoreImage(
     }
   }
 
-  /* ── Ladder scoring ── */
+  /* ── Ladder scoring ──
+   * Sonnet 4.6 with adaptive thinking + effort:high. This is the
+   * intelligence-sensitive path of the whole product — accurate
+   * visual reasoning, calibrated scores, and well-grounded findings
+   * are worth the extra thinking tokens (per-score cost rises from
+   * roughly $0.046 to $0.075, still comfortably inside the 30%
+   * COGS ceiling). max_tokens bumped to 8192 so the thinking
+   * budget has room before the JSON output starts.
+   */
   const response = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 2048,
+    model: "claude-sonnet-4-6",
+    max_tokens: 8192,
+    thinking: { type: "adaptive" },
+    output_config: { effort: "high" },
     messages: [
       {
         role: "user",

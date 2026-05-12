@@ -117,9 +117,16 @@ export async function analyzeScreenForReport(
   }
 
   try {
+    // Sonnet 4.6 with adaptive thinking + effort:high. Annotation
+    // analysis pins findings to specific regions of the screen, which
+    // needs careful visual reasoning — exactly the kind of work
+    // adaptive thinking is designed for. max_tokens bumped to give
+    // the thinking budget room ahead of the JSON output.
     const response = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 3000,
+      model: "claude-sonnet-4-6",
+      max_tokens: 8192,
+      thinking: { type: "adaptive" },
+      output_config: { effort: "high" },
       system: buildAnalysisPrompt(mode, learningCtx),
       messages: [
         {
