@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useOrganization } from "@clerk/nextjs";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
 import { ScoreBar } from "@/components/ScoreBar";
 import type { RungName, RungScores } from "@/lib/ladder";
@@ -226,6 +226,12 @@ function timeAgo(ts: number): string {
 export default function ScorePage() {
   const router = useRouter();
   const { isSignedIn, isLoaded } = useAuth();
+  // Active Clerk organization = the user is currently scoring in a team
+  // context. Only team members ever see the design/evaluation session
+  // prompt — for free/Pro users the bucketing has no surface to show up
+  // in, so the prompt is pure friction.
+  const { organization, isLoaded: orgLoaded } = useOrganization();
+  const onTeam = orgLoaded && !!organization;
   const { sessionType, ready: sessionTypeReady, pick: pickSessionType, clear: clearSessionType } =
     useSessionType();
   const [image, setImage] = useState<string | null>(null);
@@ -431,11 +437,17 @@ export default function ScorePage() {
   const hasInput = image || urlScreenshots.length > 0;
   const showUploadUI = !result && !loading && !capturing;
 
-  // Signed-in users must declare intent before scoring so the score lands
-  // in the right bucket (design vs evaluation). Anon users skip this:
-  // their score isn't saved to history anyway.
+  // Session-type prompt is a Teams-only feature: design vs evaluation
+  // bucketing only matters when a manager view groups scores by type.
+  // Free, Pro, and Pulse users scoring outside a team context don't
+  // need to declare intent. The pill that lets you change session
+  // type is gated on the same condition below.
   const showSessionTypePrompt =
-    isLoaded && isSignedIn && sessionTypeReady && !sessionType;
+    isLoaded &&
+    isSignedIn &&
+    onTeam &&
+    sessionTypeReady &&
+    !sessionType;
 
   // After a successful analysis, signed-in users are routed to the full
   // score detail in their dashboard. This screen reassures them while the
@@ -469,7 +481,7 @@ export default function ScorePage() {
       )}
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-12">
 
-        {isLoaded && isSignedIn && sessionType && !result && !loading && !capturing && (
+        {isLoaded && isSignedIn && onTeam && sessionType && !result && !loading && !capturing && (
           <div className="flex justify-end mb-4">
             <SessionTypePill type={sessionType} onChange={clearSessionType} />
           </div>
