@@ -305,3 +305,208 @@ export function isScoringError(
 
 // Re-export designTypeClassifierPrompt for callers that want to classify before scoring
 export { designTypeClassifierPrompt };
+
+/**
+ * Streaming variant of scoreImage.
+ *
+ * Yields events as the scoring response is generated, so callers can
+ * surface partial state to the user (the score number lands seconds
+ * before the full payload). Order of events:
+ *
+ *   1. `score` — emitted as soon as the model writes the "score":N.N field
+ *   2. `label` — as soon as "label":"..." appears
+ *   3. `screenName` — as soon as "screenName":"..." appears
+ *   4. `complete` — once the full response is parsed (includes everything)
+ *   5. `error` — on any failure (terminates the generator)
+ *
+ * Moderation still runs first (non-streaming) — it's a fast Haiku call
+ * and rejecting non-UI / explicit images before we spend Sonnet tokens
+ * is the right cost/safety order.
+ */
+export type ScoringStreamEvent =
+  | { kind: "score"; value: number }
+  | { kind: "label"; value: string }
+  | { kind: "screenName"; value: string }
+  | { kind: "complete"; value: ScoreResult }
+  | { kind: "error"; value: string; status: number };
+
+export async function* scoreImageStream(
+  {
+    mediaType,
+    base64Data,
+  }: { mediaType: MediaType; base64Data: string },
+  opts: { applyAiLens?: boolean } = {},
+): AsyncGenerator<ScoringStreamEvent> {
+  if (base64Data.length > 7_000_000) {
+    yield {
+      kind: "error",
+      value: "Image too large. Please use an image under 5MB.",
+      status: 400,
+    };
+    return;
+  }
+
+  const client = new Anthropic();
+
+  /* ── Moderation (Haiku, non-streaming, fast) ── */
+  try {
+    const modCheck = await client.messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: 200,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: { type: "base64", media_type: mediaType, data: base64Data },
+            },
+            { type: "text", text: "Classify this image." },
+          ],
+        },
+      ],
+      system: MODERATION_PROMPT,
+    });
+    const modText = modCheck.content.find((b) => b.type === "text");
+    if (modText && modText.type === "text") {
+      try {
+        const modResult = JSON.parse(
+          modText.text.replace(/```json|```/g, "").trim(),
+        );
+        if (modResult.isExplicit) {
+          yield {
+            kind: "error",
+            value:
+              "This image contains content that violates our usage policy. Ladder scores UI/UX screens only.",
+            status: 400,
+          };
+          return;
+        }
+        if (!modResult.isUI) {
+          yield {
+            kind: "error",
+            value:
+              "This doesn't appear to be a UI screen. Please upload a screenshot of a website, app, or design mockup.",
+            status: 400,
+          };
+          return;
+        }
+      } catch {
+        // Fail open for usability — proceed with scoring
+        console.warn("[LADDER:WARN] Moderation parse failed, proceeding with score");
+      }
+    }
+  } catch (e) {
+    console.error("[LADDER:ERROR] Moderation failed:", e);
+    // Fail open — proceed to scoring
+  }
+
+  /* ── Streaming scoring call ── */
+  const stream = client.messages.stream({
+    model: "claude-sonnet-4-6",
+    max_tokens: 4096,
+    thinking: { type: "disabled" },
+    output_config: { effort: "low" },
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "image",
+            source: {
+              type: "base64",
+              media_type: mediaType,
+              data: base64Data,
+            },
+          },
+          {
+            type: "text",
+            text: "Score this screen against the Ladder framework. Be honest.",
+          },
+        ],
+      },
+    ],
+    system: buildLadderPrompt(opts),
+  });
+
+  // Accumulate text deltas. Re-scan the buffer after each chunk for
+  // the small set of "early" fields the UI cares about — score,
+  // label, screenName. Regexes are tolerant of the ```json fence
+  // because they don't pin to start-of-string.
+  let buffer = "";
+  let sentScore = false;
+  let sentLabel = false;
+  let sentScreenName = false;
+
+  try {
+    for await (const event of stream) {
+      if (
+        event.type === "content_block_delta" &&
+        event.delta.type === "text_delta"
+      ) {
+        buffer += event.delta.text;
+
+        if (!sentScore) {
+          const m = buffer.match(/"score"\s*:\s*([\d.]+)/);
+          if (m) {
+            const v = parseFloat(m[1]);
+            if (!isNaN(v) && v >= 1 && v <= 5) {
+              sentScore = true;
+              yield { kind: "score", value: v };
+            }
+          }
+        }
+        if (!sentLabel) {
+          // Match the level label (Functional|Usable|Comfortable|Delightful|Meaningful).
+          // Anchored to the top-level "label" key, not the per-rung
+          // "rungs.<x>.score" siblings.
+          const m = buffer.match(/"label"\s*:\s*"([^"]+)"/);
+          if (m) {
+            sentLabel = true;
+            yield { kind: "label", value: m[1] };
+          }
+        }
+        if (!sentScreenName) {
+          const m = buffer.match(/"screenName"\s*:\s*"([^"]+)"/);
+          if (m) {
+            sentScreenName = true;
+            yield { kind: "screenName", value: m[1] };
+          }
+        }
+      }
+    }
+
+    /* ── Parse final ── */
+    const final = await stream.finalMessage();
+    const textBlock = final.content.find((b) => b.type === "text");
+    if (!textBlock || textBlock.type !== "text") {
+      yield { kind: "error", value: "No response from scoring engine", status: 500 };
+      return;
+    }
+    const clean = textBlock.text.replace(/```json|```/g, "").trim();
+    let result: ScoreResult;
+    try {
+      result = JSON.parse(clean);
+    } catch {
+      console.error("[LADDER:ERROR] JSON parse failed:", clean.slice(0, 200));
+      yield { kind: "error", value: "Failed to parse scoring response", status: 500 };
+      return;
+    }
+    if (
+      typeof result.score !== "number" ||
+      !result.label ||
+      !result.summary
+    ) {
+      yield { kind: "error", value: "Invalid scoring response shape", status: 500 };
+      return;
+    }
+    yield { kind: "complete", value: result };
+  } catch (e) {
+    console.error("[LADDER:ERROR] Streaming scoring failed:", e);
+    yield {
+      kind: "error",
+      value: "Scoring failed. Please try again.",
+      status: 500,
+    };
+  }
+}
