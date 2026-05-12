@@ -9,7 +9,10 @@ import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
 import { ScoreBar } from "@/components/ScoreBar";
 import { AnalysisFeedback } from "@/components/AnalysisFeedback";
-import { ScoreAnnotations } from "@/components/ScoreAnnotations";
+// ScoreAnnotations removed from the score detail flow in v0.4.1.
+// The redline / evaluation feature lives as its own surface
+// (separate page, separate entry point) per the ROADMAP. Component
+// + API stay in the codebase as the foundation for that build.
 
 type Finding = {
   title: string;
@@ -352,14 +355,13 @@ export default function ScoreDetailPage() {
           </div>
         )}
 
-        {data.sessionType === "evaluation" && data.thumbnail && (
-          <div className="mt-6">
-            <ScoreAnnotations
-              scoreId={data.id}
-              imageDataUrl={data.thumbnail}
-            />
-          </div>
-        )}
+        {/* ── Redline annotations removed from the score view ──
+            Per ROADMAP "Redline / evaluation surface". The component
+            and the /api/dashboard/scores/[id]/annotations endpoint are
+            still in the codebase so the future feature can pick them
+            up unchanged. Scoring should be one focused job: produce
+            the score. Annotation belongs in its own surface that
+            users explicitly enter when they're ready to mark up. */}
 
         {/* ── Methodology note + Drawbackwards moderated usability promo ──
             Some screens (date pickers, multi-step flows, hover-states) need
