@@ -20,6 +20,19 @@ import { defineConfig, devices } from "@playwright/test";
  */
 const BASE_URL = process.env.BASE_URL || "https://runladder.com";
 
+/**
+ * Vercel Deployment Protection bypass. Preview URLs are gated behind
+ * Vercel's protection by default — every request without the bypass
+ * secret returns 401. CI passes the secret as an env var so Playwright
+ * can reach the actual preview content. Locally, leave unset (prod
+ * isn't protected).
+ *
+ * Generate this in Vercel → Project Settings → Deployment Protection →
+ * "Protection Bypass for Automation", then add it as a GitHub repo
+ * secret named VERCEL_AUTOMATION_BYPASS_SECRET.
+ */
+const VERCEL_BYPASS = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+
 export default defineConfig({
   testDir: "./e2e",
   testMatch: /.*\.spec\.ts$/,
@@ -36,10 +49,14 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: process.env.CI ? "on-first-retry" : "off",
     screenshot: process.env.CI ? "only-on-failure" : "off",
-    // Be polite — preview deployments are real Vercel deployments and
-    // we don't want to slam Anthropic / Redis with concurrent calls.
     actionTimeout: 10_000,
     navigationTimeout: 15_000,
+    // Send the Vercel protection bypass on every request when the
+    // secret is set (CI hits a protected preview). Without this the
+    // marketing pages return 401 and every render test fails.
+    extraHTTPHeaders: VERCEL_BYPASS
+      ? { "x-vercel-protection-bypass": VERCEL_BYPASS }
+      : {},
   },
   projects: [
     {
