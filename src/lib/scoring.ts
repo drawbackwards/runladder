@@ -235,20 +235,20 @@ export async function scoreImage(
   }
 
   /* ── Ladder scoring ──
-   * Sonnet 4.6 with effort:medium. Adaptive thinking is OFF here
-   * because Vercel function timeouts (60s) can't safely accommodate
-   * the variable latency thinking introduces — we saw real 504s on
-   * the plugin's analyze path with thinking on. Sonnet 4.6 alone
-   * is already a real quality jump from Sonnet 4 on visual reasoning
-   * and structured output. Thinking is reserved for /api/improve
-   * where users expect a longer wait. effort:medium is set
-   * explicitly because Sonnet 4.6 defaults to effort:high, which
-   * costs more for marginal gain on this task.
+   * Sonnet 4.6 with thinking disabled + effort:low. Tuned for
+   * speed: per the model migration guide, this configuration
+   * performs similar to or better than Sonnet 4.5 no-thinking,
+   * which is the fast non-thinking baseline. Sonnet 4.6 defaults
+   * to effort:high, so setting low explicitly is necessary —
+   * not optional — to actually get the latency win. Thinking
+   * is reserved for the /api/improve endpoint where users
+   * expect a longer wait.
    */
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 4096,
-    output_config: { effort: "medium" },
+    thinking: { type: "disabled" },
+    output_config: { effort: "low" },
     messages: [
       {
         role: "user",
