@@ -117,16 +117,16 @@ export async function analyzeScreenForReport(
   }
 
   try {
-    // Sonnet 4.6 with effort:medium. Adaptive thinking is OFF here
-    // because Vercel function timeouts (60s) can't reliably contain
-    // the latency thinking adds. Sonnet 4.6 by itself is the quality
-    // upgrade. Reserve thinking for /api/improve where users expect
-    // a longer wait. effort:medium is set explicitly because 4.6
-    // defaults to high.
+    // Sonnet 4.6 with thinking disabled + effort:low. Per the
+    // migration guide this matches or beats Sonnet 4.5 no-thinking
+    // on speed. effort:low is required to get the latency win —
+    // Sonnet 4.6 defaults to effort:high. Thinking is reserved
+    // for /api/improve.
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 4096,
-      output_config: { effort: "medium" },
+      thinking: { type: "disabled" },
+      output_config: { effort: "low" },
       system: buildAnalysisPrompt(mode, learningCtx),
       messages: [
         {
