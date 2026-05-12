@@ -51,6 +51,17 @@ Core self-serve Pro shipped 2026-05-02. Remaining work is admin tooling, lifecyc
 - **Per-rung refinement dashboard** — let Ward tune individual rung scoring without a deploy.
 - **Model selection as an admin setting** — toggle Sonnet vs Haiku per mode for cost/quality tradeoff.
 
+## Redline / evaluation surface
+
+Pulled out of the score detail page so scoring stays focused on producing the score. The annotation primitives still live in the codebase (`src/components/ScoreAnnotations.tsx`, `src/components/admin/AnnotatedScreen.tsx`, `/api/dashboard/scores/[id]/annotations`, `src/lib/annotation-analysis.ts`) — this is a UX/surface build, not a from-scratch implementation.
+
+- **Dedicated /dashboard/scores/[id]/redline route** — the canvas where a user pulls findings onto the screenshot, draws rectangles, leaves notes. Entered from a clearly-labeled "Redline this screen" CTA on the score detail page, not auto-shown.
+- **Mode picker on entry** — manual rectangles vs auto-generate from the score's findings (the auto path uses `annotation-analysis.ts`, already on Sonnet 4.6).
+- **Multi-annotation review** — diff your annotations vs the model's annotations vs a teammate's annotations. Useful for design reviews and calibration sessions.
+- **Export** — flatten the annotated screen to PNG / PDF for sharing in design crit, Slack, or a Figma frame.
+- **Pricing copy in `src/app/pricing/page.tsx` ("redline annotations on every score")** — leave alone for now; rewrite when the surface ships.
+- **Plugin parity** — eventually the Figma plugin gets a "Redline this frame" action that hands off to the runladder redline surface (or renders inline). Out of scope until web is shipped.
+
 ## Plugin (Ladder for Figma)
 
 - **Compare-mode activity logging** — currently only single-frame modes log to `user:{id}:activity`
