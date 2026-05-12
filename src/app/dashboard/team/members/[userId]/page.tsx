@@ -23,6 +23,11 @@ type ScoreEntry = {
   timestamp: number;
   uplift?: number | null;
   sessionType?: "design" | "evaluation";
+  /**
+   * Set when the member soft-deleted this score. Managers see deleted
+   * entries in the audit feed with a tag; stats / heatmap exclude them.
+   */
+  deletedAt?: number;
 };
 
 type Member = {
@@ -140,11 +145,24 @@ function TabButton({
 }
 
 function ScoreRow({ entry }: { entry: ScoreEntry }) {
+  const isDeleted = typeof entry.deletedAt === "number";
   return (
-    <div className="border border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1f1f1f] hover:border-[#3a3a3a] transition-colors">
+    <div
+      className={`border transition-colors ${
+        isDeleted
+          ? // Faded + dashed border for audit-only entries the member
+            // has removed from their own view.
+            "border-dashed border-[#3a2a2a] bg-[#1a1414] opacity-70 hover:opacity-100 hover:bg-[#1f1818]"
+          : "border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1f1f1f] hover:border-[#3a3a3a]"
+      }`}
+    >
       <div className="px-4 py-3 flex items-center gap-4">
         {entry.thumbnail ? (
-          <div className="flex-shrink-0 w-12 h-12 border border-[#2a2a2a] bg-[#111] overflow-hidden">
+          <div
+            className={`flex-shrink-0 w-12 h-12 border border-[#2a2a2a] bg-[#111] overflow-hidden ${
+              isDeleted ? "grayscale" : ""
+            }`}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={entry.thumbnail}
@@ -158,7 +176,9 @@ function ScoreRow({ entry }: { entry: ScoreEntry }) {
 
         <div className="flex-shrink-0 w-12 text-center">
           <span
-            className="text-xl font-bold tabular-nums"
+            className={`text-xl font-bold tabular-nums ${
+              isDeleted ? "line-through decoration-from-font" : ""
+            }`}
             style={{ color: getScoreColor(entry.score) }}
           >
             {entry.score.toFixed(1)}
@@ -167,9 +187,28 @@ function ScoreRow({ entry }: { entry: ScoreEntry }) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="text-sm text-foreground font-sans truncate">
+            <p
+              className={`text-sm font-sans truncate ${
+                isDeleted
+                  ? "text-muted line-through decoration-from-font"
+                  : "text-foreground"
+              }`}
+            >
               {entry.screenName || entry.source}
             </p>
+            {isDeleted && (
+              <span
+                className="text-[8px] uppercase tracking-widest border px-1.5 py-0.5 flex-shrink-0"
+                style={{
+                  color: "#ef4444",
+                  borderColor: "rgba(239,68,68,0.4)",
+                  backgroundColor: "rgba(239,68,68,0.06)",
+                }}
+                title={`Deleted by member on ${fmtDate(entry.deletedAt)}. Visible to admins only.`}
+              >
+                Deleted
+              </span>
+            )}
             {entry.isPublic === false && (
               <span className="text-[8px] text-[#888] uppercase tracking-widest border border-[#3a3a3a] px-1.5 py-0.5 flex-shrink-0">
                 Private
@@ -182,6 +221,14 @@ function ScoreRow({ entry }: { entry: ScoreEntry }) {
             </span>
             <span className="text-[#444] mx-1.5">·</span>
             {timeAgo(entry.timestamp)}
+            {isDeleted && entry.deletedAt && (
+              <>
+                <span className="text-[#444] mx-1.5">·</span>
+                <span className="text-ladder-red/80">
+                  deleted {timeAgo(entry.deletedAt)}
+                </span>
+              </>
+            )}
             {entry.source && (
               <>
                 <span className="text-[#444] mx-1.5">·</span>
@@ -415,13 +462,30 @@ export default function TeamMemberDetailPage() {
           />
         </div>
 
-        <div className="mb-3 flex items-baseline justify-between">
+        <div className="mb-3 flex items-baseline justify-between gap-3 flex-wrap">
           <span className="text-[10px] text-muted uppercase tracking-widest">
             Score history
           </span>
           <span className="text-[10px] text-muted">
-            {bucket.scores.length} score
-            {bucket.scores.length !== 1 ? "s" : ""}
+            {(() => {
+              const total = bucket.scores.length;
+              const deleted = bucket.scores.filter((s) => !!s.deletedAt).length;
+              if (deleted === 0) {
+                return (
+                  <>
+                    {total} score{total !== 1 ? "s" : ""}
+                  </>
+                );
+              }
+              return (
+                <>
+                  {total} score{total !== 1 ? "s" : ""} ·{" "}
+                  <span className="text-ladder-red/80">
+                    {deleted} deleted
+                  </span>
+                </>
+              );
+            })()}
           </span>
         </div>
 

@@ -19,9 +19,15 @@ export async function GET(
   for (const entry of scores as string[]) {
     try {
       const parsed = typeof entry === "string" ? JSON.parse(entry) : entry;
-      if (parsed.id === id) {
-        return NextResponse.json(parsed);
+      if (parsed.id !== id) continue;
+      // Soft-deleted scores are invisible to the owner. Team admins
+      // view another member's history via /api/dashboard/team/members/
+      // [userId], not this endpoint, so the auth user IS always the
+      // score owner here — 404 is correct.
+      if (parsed.deletedAt) {
+        return NextResponse.json({ error: "Score not found" }, { status: 404 });
       }
+      return NextResponse.json(parsed);
     } catch {
       continue;
     }
