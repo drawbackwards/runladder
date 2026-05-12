@@ -29,17 +29,19 @@ jobs:
         run: npm ci
 
       - name: Unit tests (vitest)
-        # Pure-function library tests. Fast (under a second locally),
-        # no network, no Redis. Catches regressions on the score math,
-        # tier gating, screen-key normalization, image data URL parsing,
-        # and super-admin allowlist before they ship.
+        # Pure-function library tests + auth-gate contract tests for
+        # every /api/admin and /api/dashboard/team route. Fast (under a
+        # second locally), no network, no Redis. Catches regressions on
+        # the score math, tier gating, screen-key normalization, image
+        # data URL parsing, super-admin allowlist, and forgotten auth()
+        # checks before they ship.
         run: npm test
 
       - name: next build
         # Placeholder values for env vars that are wired in Vercel. The
         # build only needs them to compile — runtime calls never execute
-        # in CI. If a real key is required at build time later, mirror it
-        # into GitHub Actions secrets and reference it here.
+        # in CI. If a real key is required at build time later, mirror
+        # it into GitHub Actions secrets and reference it here.
         run: npm run build
         env:
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ci_placeholder
@@ -58,3 +60,13 @@ jobs:
           STRIPE_PRO_PRICE_ID: price_ci
           CLERK_WEBHOOK_SECRET: whsec_clerk_ci
           ANTHROPIC_API_KEY: sk-ant-ci
+
+      - name: Prompt-leak guard
+        # Greps the post-build client output (.next/static + public)
+        # for known structural phrases from the scoring prompt. Catches
+        # accidental imports of src/lib/scoring.ts or
+        # src/lib/ladder-framework.ts into a 'use client' component, a
+        # debug log that includes the prompt, or a source map that
+        # exposes server code. Enforces the unbreakable rule from
+        # memory/feedback_never_expose_prompts_rubric.md.
+        run: npm run check:no-prompt-leak
