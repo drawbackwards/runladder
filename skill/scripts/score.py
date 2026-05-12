@@ -90,9 +90,137 @@ def latest_desktop_screenshot() -> Optional[Path]:
     return shots[0]
 
 
+# \u2500\u2500\u2500 Claude Code conversation image extraction \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+# Claude Code stores attached images inside the conversation JSONL log at
+# ~/.claude/projects/<project-slug>/<session-id>.jsonl. A user dropping an
+# image into the chat is the most natural way to feed this script, so we
+# read the most recent user-message image attachment directly and save it
+# to a temp PNG/JPEG before falling back to clipboard / Desktop scans.
+#
+# Project slug is the CWD with "/" replaced by "-" and a leading "-".
+# The active session is the most recently modified JSONL in that dir.
+# We scan the file from the bottom up (the latest user attachment wins).
+
+_IMAGE_MIME_EXT = {
+    "image/png": ".png",
+    "image/jpeg": ".jpg",
+    "image/jpg": ".jpg",
+    "image/webp": ".webp",
+    "image/gif": ".gif",
+}
+
+
+def _claude_project_dir() -> Optional[Path]:
+    """Resolve the current Claude Code project dir for cwd, if it exists.
+
+    Slug rule: Claude Code replaces both "/" and "." with "-" in the
+    absolute cwd. Because absolute paths start with "/", the slug
+    naturally begins with "-" — no extra prefix needed. Example:
+      /Users/foo/.claude/worktrees/bar  ->
+      -Users-foo--claude-worktrees-bar
+
+    Falls back to the longest project dir whose name is a prefix of the
+    target slug, so running from a subdirectory of a tracked project
+    still resolves."""
+    try:
+        cwd = os.getcwd()
+    except OSError:
+        return None
+    projects_root = Path.home() / ".claude" / "projects"
+    if not projects_root.is_dir():
+        return None
+    target = cwd.replace("/", "-").replace(".", "-")
+    proj = projects_root / target
+    if proj.is_dir():
+        return proj
+    candidates = [
+        d for d in projects_root.iterdir()
+        if d.is_dir() and target.startswith(d.name)
+    ]
+    if candidates:
+        candidates.sort(key=lambda d: len(d.name), reverse=True)
+        return candidates[0]
+    return None
+
+
+def _latest_jsonl(project_dir: Path) -> Optional[Path]:
+    jsonls = list(project_dir.glob("*.jsonl"))
+    if not jsonls:
+        return None
+    jsonls.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    return jsonls[0]
+
+
+def conversation_image() -> Optional[Path]:
+    """Extract the most recent image attachment from the active Claude Code
+    conversation. Returns a temp file path containing the decoded image, or
+    None if no attachment is found (running outside Claude Code, no image
+    in this conversation, unparseable JSONL, etc.)."""
+    proj = _claude_project_dir()
+    if proj is None:
+        return None
+    jsonl = _latest_jsonl(proj)
+    if jsonl is None:
+        return None
+
+    try:
+        # JSONL files can be large with embedded base64. Read once, scan
+        # lines from newest to oldest.
+        lines = jsonl.read_text(errors="ignore").splitlines()
+    except OSError:
+        return None
+
+    for line in reversed(lines):
+        if '"type":"image"' not in line:
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        # Only user messages \u2014 assistant tool results sometimes carry
+        # images too (e.g., screenshot tools) and we don't want to
+        # accidentally score those.
+        if obj.get("type") != "user":
+            continue
+        msg = obj.get("message") or {}
+        content = msg.get("content")
+        if not isinstance(content, list):
+            continue
+        for block in reversed(content):
+            if not isinstance(block, dict) or block.get("type") != "image":
+                continue
+            source = block.get("source") or {}
+            if source.get("type") != "base64":
+                continue
+            media_type = source.get("media_type")
+            data = source.get("data")
+            if not media_type or not data:
+                continue
+            ext = _IMAGE_MIME_EXT.get(media_type)
+            if not ext:
+                continue
+            try:
+                raw = base64.b64decode(data)
+            except Exception:
+                continue
+            tmp = Path(tempfile.gettempdir()) / f"ladder-claude-attachment{ext}"
+            try:
+                tmp.write_bytes(raw)
+            except OSError:
+                return None
+            return tmp
+
+    return None
+
+
 def resolve_image(arg: Optional[str]) -> Path:
-    """Resolve image path. Explicit arg wins; on miss, try tolerant matching.
-    With no arg, fall back to macOS clipboard, then latest ~/Desktop screenshot."""
+    """Resolve image path. Explicit arg wins; on miss, try tolerant
+    matching. With no arg, look in the following order, picking the first
+    that exists:
+      1. Most recent image attachment in the active Claude Code
+         conversation (handles "drop image into chat, run ladder").
+      2. macOS clipboard (Cmd+Ctrl+Shift+4 just before).
+      3. Latest Screenshot*.png on ~/Desktop (Cmd+Shift+4 just before)."""
     if arg:
         p = Path(arg).expanduser()
         if p.exists():
@@ -112,18 +240,29 @@ def resolve_image(arg: Optional[str]) -> Path:
             return matches[0]
         sys.stderr.write(f"Image not found: {arg}\n")
         sys.exit(2)
+
+    # The user-said-run-ladder-with-an-image-dropped-in-chat path. Most
+    # natural Skill UX, so it's first.
+    chat = conversation_image()
+    if chat:
+        sys.stderr.write(f"Using image from this Claude conversation: {chat}\n")
+        return chat
+
     clip = clipboard_image()
     if clip:
         sys.stderr.write(f"Using image from clipboard: {clip}\n")
         return clip
+
     shot = latest_desktop_screenshot()
     if shot:
         sys.stderr.write(f"Using latest Desktop screenshot: {shot.name}\n")
         return shot
+
     sys.stderr.write(
-        "No image provided. On macOS, either:\n"
-        "  - Cmd+Shift+4 (saves to Desktop), then re-run, or\n"
-        "  - Cmd+Ctrl+Shift+4 (copies to clipboard), then re-run, or\n"
+        "No image provided. Either:\n"
+        "  - Drop a screenshot into Claude and ask for a Ladder score, or\n"
+        "  - Cmd+Shift+4 saves a screenshot to Desktop, re-run, or\n"
+        "  - Cmd+Ctrl+Shift+4 copies a screenshot to clipboard, re-run, or\n"
         "  - Pass a path: python scripts/score.py /path/to/image.png\n"
     )
     sys.exit(2)

@@ -2,6 +2,12 @@
 
 All notable changes to the Ladder Skill bundle (SKILL.md, README.md, scripts/) are listed here. The Skill tracks its own version independently of the runladder.com web app.
 
+## 1.0.4 — 2026-05-11
+
+- `score.py` now reads images dropped directly into the Claude conversation. When a user attaches a screenshot in chat and says "Run Ladder", the script extracts the most recent user-message image from the active Claude Code session JSONL (`~/.claude/projects/<slug>/<session>.jsonl`) and scores it. This becomes the highest-priority source, ahead of clipboard and Desktop screenshots, so the most natural Skill UX ("drop image, run Ladder") now works without forcing the user to first save to disk or copy to clipboard.
+- Project slug resolution fixed: Claude Code rewrites both `/` and `.` to `-` in the cwd to derive the project dir name. Earlier code only rewrote `/`, so cwds containing `.claude` (worktrees, hidden dirs) never resolved.
+- `SKILL.md` (unchanged) already documents zero-arg invocation; the new behavior simply expands what zero-arg picks up.
+
 ## 1.0.3 — 2026-04-18
 
 - `score.py` can now be invoked with **no arguments**. On macOS it reads the clipboard first (via AppleScript `«class PNGf»`), then falls back to the most recent `~/Desktop/Screenshot*.png`. This means a user can just hit Cmd+Shift+4, then say "Run Ladder" without typing a path.
