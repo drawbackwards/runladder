@@ -9,13 +9,13 @@
  * Every test in this file is safe to run against any environment, in
  * any order, repeatedly. Read-only, no mutations.
  */
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 /**
  * Asserts a page navigates, returns sub-400, and has non-trivial body
  * content (so we know it didn't render a blank error page).
  */
-async function expectPageRenders(page, url: string, minBodyChars = 200) {
+async function expectPageRenders(page: Page, url: string, minBodyChars = 200) {
   const response = await page.goto(url, { waitUntil: "domcontentloaded" });
   const status = response?.status() ?? 0;
   expect(status, `${url} status`).toBeLessThan(400);
