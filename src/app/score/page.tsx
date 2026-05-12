@@ -7,6 +7,7 @@ import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel 
 import { ScoreBar } from "@/components/ScoreBar";
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
+import { ScoreLoadingSkeleton } from "@/components/score/ScoreLoadingSkeleton";
 import {
   SessionTypeModal,
   SessionTypePill,
@@ -768,41 +769,18 @@ export default function ScorePage() {
           </div>
         )}
 
-        {/* ── Scanning state ── */}
+        {/* ── Scanning state ──
+            Renders the same shape as the final scorecard, but with
+            shimmer placeholders. Gives the user a visible preview of
+            the destination while the model is generating, instead of
+            a centered spinner that tells them nothing.
+        */}
         {loading && image && (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="relative border border-ladder-green/30 bg-[#1e1e1e] p-1 scanner-active">
-              <ScannerCorners />
-              <img src={image} alt="Scanning" className="w-full max-h-[420px] object-contain opacity-70" />
-            </div>
-            <div className="border border-[#333] bg-[#1e1e1e] p-5">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex gap-1">
-                  <span className="typing-dot" />
-                  <span className="typing-dot" />
-                  <span className="typing-dot" />
-                </div>
-                <span className="text-[11px] text-ladder-green uppercase tracking-widest">Analyzing</span>
-              </div>
-              <div className="space-y-2">
-                {scanMessages.map((msg, i) => (
-                  <div
-                    key={msg}
-                    className={`flex items-center gap-3 text-[11px] tracking-wide transition-all duration-300 ${
-                      i < scanPhase ? "text-muted" : i === scanPhase ? "text-ladder-green" : "text-[#333]"
-                    }`}
-                  >
-                    <span className={`w-1.5 h-1.5 flex-shrink-0 ${
-                      i < scanPhase ? "bg-muted" : i === scanPhase ? "bg-ladder-green" : "bg-[#333]"
-                    }`} />
-                    {msg}
-                    {i < scanPhase && <span className="text-muted ml-auto">done</span>}
-                    {i === scanPhase && <span className="text-ladder-green ml-auto animate-pulse">...</span>}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <ScoreLoadingSkeleton
+            image={image}
+            scanPhase={scanPhase}
+            scanMessages={scanMessages}
+          />
         )}
 
         {/* ── Results ── */}
