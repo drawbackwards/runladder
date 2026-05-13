@@ -37,9 +37,9 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
     key: "free",
     name: "Free",
     price: "$0",
-    period: "forever",
+    period: "",
     highlight: false,
-    limit: "5 scores to get started",
+    limit: "5-score trial",
     features: [
       "Overall Ladder score + coaching",
       "Score on web, Claude Skill, or Figma",
@@ -55,17 +55,16 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
     price: "$1,000",
     period: "/ mo",
     highlight: true,
-    limit: "2,000 scores / month",
+    limit: "2,000 scores/mo",
     features: [
       "2,000 scores per month on web, Claude Skill, and Figma",
       "All scores are private",
       "UX copy suggestions",
       "Accessibility audit",
       "Per-dimension scoring (hierarchy, spacing, copy, a11y, navigation, visual)",
-      "Full score history + trend line",
+      "Full score history without trend line",
       "Fix suggestions with score uplift",
       "Higher volume? Talk to us",
-      "Access to customer sentiment and Ladder Pulse scoring data + insights, if subscribed",
     ],
     cta: "Subscribe",
     href: "/score",
@@ -78,16 +77,17 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
     price: "Custom",
     period: "",
     highlight: false,
-    limit: "25,000 pooled scores / month",
+    limit: "25,000 pooled scores/mo",
     features: [
       "Everything in Professional",
       "25,000 scores per month pooled across the team",
       "Manager dashboard + designer performance tracking",
       "Design rhythm + activity heatmap per designer",
-      "Audit toolkit with redline annotations on every score",
-      "Design / evaluation session bucketing across the team",
-      "Custom volume + SSO available — talk to us",
+      "Design Reviews. Bucket every iteration of a frame, drop pinned crit on the canvas, watch the score lift across the sprint.",
+      "Team Take. Peer designers submit a separate score with rationale on every frame, shown alongside the Ladder score.",
+      "Custom volume + SSO available, talk to us",
       "Access to customer sentiment and Ladder Pulse scoring data + insights, if subscribed (coming soon)",
+      "Audit toolkit with redline annotations on every score (coming soon)",
     ],
     cta: "Apply to be a beta tester",
     href: "/contact?interest=teams-beta",
@@ -185,7 +185,7 @@ export default async function PricingPage() {
 
               {/* Usage limit */}
               <div className="border border-border rounded-lg px-4 py-3 mb-8">
-                <p className="font-mono text-xs text-ladder-green">
+                <p className="font-mono text-xs text-ladder-green whitespace-nowrap overflow-hidden text-ellipsis">
                   {tier.limit}
                 </p>
               </div>
@@ -289,10 +289,10 @@ export default async function PricingPage() {
             {/* Features */}
             <ul className="space-y-3 mb-10 flex-1">
               {[
-                "Customer feedback, reviews, and support transcripts mapped to Ladder scores",
+                "Customer feedback, reviews, and support transcripts mapped to Ladder scores (coming soon)",
                 "Field reports and internal ops signals",
                 "Custom bespoke dashboards and interfaces",
-                "Real-time tracking and alerting",
+                "Tracking and alerting",
                 "Dedicated onboarding and support",
               ].map((f) => (
                 <li key={f} className="text-sm text-body flex items-start gap-2.5">

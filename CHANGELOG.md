@@ -6,6 +6,19 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.4.15 / api 1.0.0 — 2026-05-13
+
+**Reviews: the social layer for Ladder.**
+
+- **Reviews on the dashboard.** New `/dashboard/reviews` lets a manager group iterations of a design into a Review, watch scores evolve frame-by-frame, and invite peers to weigh in. A compact "Active reviews" entry point sits on `/dashboard` so the workflow is one click away.
+- **Frame workspace.** `/dashboard/reviews/[slug]/frames/[frameId]` is the centerpiece — the screen renders with pinned crit overlaid (click any pin to open its thread), a right-rail tabbed panel for Pins / Team Takes / Findings, and a horizontal iteration strip showing version-to-version score lift.
+- **Team Take subscore.** Peer designers submit their own score from 1.0–5.0 with a one-line rationale on every frame. The aggregate is shown alongside the Ladder score, never replacing it. "Ladder 3.4 / Team Take 3.5 (2 peers)" — same scale, separate field, trust in the AI preserved.
+- **Pin annotations.** Click anywhere on a frame to drop a pinned thread, Figma-style. Replies, resolve toggle, author attribution. Mock interactivity ships now; persistence lands with the next build.
+- **Pricing copy refresh.** Cleaner Free and Pro tier copy: dropped "forever", shortened green pills to "5-score trial" / "2,000 scores/mo" / "25,000 pooled scores/mo" so they never wrap. Pro tier explicit on score history without trend line. Team tier now leads with the Reviews + Team Take features. Pulse tier marks customer sentiment "coming soon" and drops "real-time" from the tracking line.
+- **Login footer.** Hash-aware footer on `/login` so the create-account view (`/login#/create`) no longer shows "New here? Create an account" under a form that's already creating an account.
+
+---
+
 ## app 0.3.0 / api 1.0.0 — 2026-05-05
 
 **Teams beta — invite, manage, measure, learn.**
