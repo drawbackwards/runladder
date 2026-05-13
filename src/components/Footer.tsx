@@ -60,9 +60,11 @@ export function Footer() {
               v{CURRENT_APP_VERSION}
             </span>
           </div>
-          <p className="text-xs text-muted leading-relaxed">
-            &copy; 2026 Drawbackwards, LLC. Ladder&trade; is a trademark of Drawbackwards, LLC. All rights reserved.
-            The Ladder framework, scoring methodology, and associated materials are proprietary.{" "}
+          {/* Single muted copyright line — the canonical licensing
+              terms, AI-agent policy, and trademark detail all live on
+              /legal. Footer just carries the mark + the entry point. */}
+          <p className="text-[11px] text-muted leading-relaxed">
+            &copy; 2026 Drawbackwards, LLC. Ladder&trade; is a trademark of Drawbackwards.{" "}
             <Link href="/legal" className="hover:text-foreground transition-colors">
               Licensing terms
             </Link>.
