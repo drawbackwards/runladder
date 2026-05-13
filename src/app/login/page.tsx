@@ -1,8 +1,8 @@
 import { SignIn } from "@clerk/nextjs";
-import Link from "next/link";
 import type { Metadata } from "next";
 import { AuthShell } from "@/components/AuthShell";
 import { authAppearance } from "@/lib/clerkAuthAppearance";
+import { LoginFooter } from "./LoginFooter";
 
 export const metadata: Metadata = {
   title: "Log in | Ladder",
@@ -11,24 +11,7 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <AuthShell
-      footer={
-        <div className="space-y-2">
-          <p>
-            New here?{" "}
-            <Link
-              href="/sign-up"
-              className="text-ladder-green hover:text-ladder-green/80 font-medium"
-            >
-              Create an account
-            </Link>
-          </p>
-          <p className="text-muted text-xs">
-            Got an invite from your team? Check your email for the join link.
-          </p>
-        </div>
-      }
-    >
+    <AuthShell footer={<LoginFooter />}>
       <SignIn
         routing="hash"
         signUpUrl="/sign-up"
