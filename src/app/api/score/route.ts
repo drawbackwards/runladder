@@ -12,7 +12,9 @@ import {
   ANON_LIMIT,
   PRO_MONTHLY_LIMIT,
   isPaidTier,
+  monthlyHardCapForTier,
 } from "@/lib/plans";
+import { getMonthlyScans } from "@/lib/usage";
 import { getUserTier } from "@/lib/tier";
 import { persistScoreEntry } from "@/lib/scores";
 
@@ -50,6 +52,27 @@ export async function POST(req: NextRequest) {
             },
             { status: 429 }
           );
+        }
+      } else {
+        // Paid-tier hard ceiling — 2x the soft cap. Above this we
+        // stop scoring entirely and direct the user to start a
+        // higher-volume conversation. The soft-cap zone between the
+        // soft cap and this hard ceiling is intentionally wide so
+        // there's plenty of room for the meter, email alert, and
+        // "talk to us" outreach to land before the wall.
+        const hardCap = monthlyHardCapForTier(tier);
+        if (hardCap !== null) {
+          const monthly = await getMonthlyScans(userId);
+          if (monthly >= hardCap) {
+            return NextResponse.json(
+              {
+                error: `Monthly scoring paused — you're at ${monthly.toLocaleString()} scores, past 2x your tier's cap. Email hello@drawbackwards.com to lift the ceiling.`,
+                hardCapped: true,
+                contact: "hello@drawbackwards.com",
+              },
+              { status: 429 }
+            );
+          }
         }
       }
     } else {

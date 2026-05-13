@@ -22,6 +22,8 @@ type UsageData = {
   tier: "free" | "pro" | "team" | "pulse";
   monthlyUsed: number;
   monthlyLimit: number | null;
+  /** Hard ceiling (2x soft) — past this scoring is blocked. */
+  monthlyHardCap: number | null;
   lifetimeUsed: number;
   lifetimeLimit: number | null;
   daysUntilReset: number;
@@ -82,17 +84,25 @@ export function UsageMeter() {
   if (data.monthlyLimit === null) return null;
   const used = data.monthlyUsed;
   const limit = data.monthlyLimit;
-  const pct = Math.min(100, (used / limit) * 100);
+  const hardCap = data.monthlyHardCap ?? limit * 2;
+  // The bar's full width represents the hard cap (the wall), with a
+  // tick marker at the soft cap. That way the user can SEE the gap
+  // between "we should talk" (soft) and "we have to stop" (hard).
+  const pct = Math.min(100, (used / hardCap) * 100);
+  const softTickPct = (limit / hardCap) * 100; // typically 50% with 2x multiplier
+  const blocked = used >= hardCap;
   const over = used > limit;
-  const warn = !over && pct >= 80;
+  const warn = !over && used / limit >= 0.8;
   const tierLabel = data.tier === "pro" ? "Pro" : "Team pool";
 
-  // Bar color shifts at 80% (amber) and ≥100% (red).
-  const barClass = over
-    ? "bg-red-400"
-    : warn
-      ? "bg-amber-400"
-      : "bg-ladder-green";
+  // Bar color shifts at 80% of soft (amber) and ≥100% of soft (red).
+  const barClass = blocked
+    ? "bg-red-500"
+    : over
+      ? "bg-red-400"
+      : warn
+        ? "bg-amber-400"
+        : "bg-ladder-green";
 
   return (
     <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
@@ -113,12 +123,37 @@ export function UsageMeter() {
           Resets in {data.daysUntilReset}d
         </span>
       </div>
-      <div className="h-1.5 bg-[#0e0e0e]">
-        <div className={`h-full ${barClass} transition-all`} style={{ width: `${pct}%` }} />
+      {/* Bar normalized to the hard cap; the tick at softTickPct marks
+          the soft cap so the user can see where "talk to us" begins
+          and where "scoring stops" lives. */}
+      <div className="relative h-1.5 bg-[#0e0e0e]">
+        <div
+          className={`h-full ${barClass} transition-all`}
+          style={{ width: `${pct}%` }}
+        />
+        <div
+          className="absolute top-[-2px] bottom-[-2px] w-px bg-[#555]"
+          style={{ left: `${softTickPct}%` }}
+          title={`Soft cap: ${limit.toLocaleString()}`}
+        />
       </div>
-      {over ? (
+      <p className="text-[10px] text-muted mt-1 font-mono">
+        Hard cap at {hardCap.toLocaleString()}
+      </p>
+      {blocked ? (
+        <p className="text-[11px] text-red-400 mt-3">
+          Scoring paused — you&apos;re past 2x your monthly cap.{" "}
+          <a
+            href="mailto:hello@drawbackwards.com?subject=Ladder%20hard-cap%20reached"
+            className="underline"
+          >
+            Email us to lift the ceiling
+          </a>
+          .
+        </p>
+      ) : over ? (
         <p className="text-[11px] text-muted mt-3">
-          You&apos;ve passed your monthly cap. We won&apos;t block you —{" "}
+          You&apos;ve passed your monthly cap. Still scoring through to {hardCap.toLocaleString()} —{" "}
           <a
             href="mailto:hello@drawbackwards.com?subject=Ladder%20higher%20volume%20inquiry"
             className="text-ladder-green hover:underline"

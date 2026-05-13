@@ -11,7 +11,9 @@ import {
   ANON_LIMIT,
   PRO_MONTHLY_LIMIT,
   isPaidTier,
+  monthlyHardCapForTier,
 } from "@/lib/plans";
+import { getMonthlyScans } from "@/lib/usage";
 import { getUserTier } from "@/lib/tier";
 import { persistScoreEntry } from "@/lib/scores";
 
@@ -60,6 +62,22 @@ export async function POST(req: NextRequest) {
           429,
           { upgrade: true },
         );
+      }
+    } else {
+      // Paid-tier hard ceiling at 2x the soft cap. See /api/score for
+      // the rationale — keep both endpoints in lockstep so the user
+      // gets identical enforcement whether they're using the SSE
+      // stream or the JSON endpoint.
+      const hardCap = monthlyHardCapForTier(tier);
+      if (hardCap !== null) {
+        const monthly = await getMonthlyScans(userId);
+        if (monthly >= hardCap) {
+          return errorResponse(
+            `Monthly scoring paused — you're at ${monthly.toLocaleString()} scores, past 2x your tier's cap. Email hello@drawbackwards.com to lift the ceiling.`,
+            429,
+            { hardCapped: true, contact: "hello@drawbackwards.com" },
+          );
+        }
       }
     }
   } else {

@@ -4,6 +4,7 @@ import { getUserSubscription } from "@/lib/tier";
 import {
   FREE_LIFETIME_LIMIT,
   monthlyScoreCapForTier,
+  monthlyHardCapForTier,
 } from "@/lib/plans";
 import {
   getMonthlyScans,
@@ -47,6 +48,13 @@ export async function GET() {
     tier,
     monthlyUsed,
     monthlyLimit: monthlyScoreCapForTier(tier),
+    /**
+     * Hard ceiling (2x the soft cap). Paid users who reach this stop
+     * scoring entirely — the meter surfaces it as the bar's right
+     * edge so they can see how much runway is left between "we
+     * should talk" and "we have to stop and talk."
+     */
+    monthlyHardCap: monthlyHardCapForTier(tier),
     lifetimeUsed,
     lifetimeLimit: tier === "free" ? FREE_LIFETIME_LIMIT : null,
     daysUntilReset: daysUntilMonthEnd(),

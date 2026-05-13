@@ -64,7 +64,10 @@ The script reads the token from `~/.ladder/token`, sends the image to the Ladder
 
 - **401** — Token is missing or revoked. Tell the user to regenerate at https://runladder.com/dashboard.
 - **403** — The request was blocked by the user's Claude workspace network allowlist. Tell the user to ask their workspace admin to add `runladder.com` to the allowed network domains in Claude's workspace settings. (The Ladder API itself never returns 403, so this is always an upstream block.)
-- **429** — Monthly score limit reached. Tell the user to upgrade at https://runladder.com/pricing.
+- **429** — Score blocked by a cap. Inspect the response body:
+  - `upgrade: true` → free user used their 5 lifetime scores. Tell them to upgrade at https://runladder.com/pricing.
+  - `hardCapped: true` → paid user past 2x their monthly cap (e.g. 4,000 on a 2,000-cap Pro plan). Tell them scoring is paused for the rest of the month and to email hello@drawbackwards.com to lift the ceiling.
+  - Neither flag → fall back to the error message in the body.
 - **400** — Image isn't a UI screen, is too large (>5 MB), or is invalid. Ask for a different image.
 - **500** — Transient server issue. Try again in a moment.
 

@@ -43,3 +43,22 @@ export function monthlyScoreCapForTier(tier: Tier): number | null {
   if (tier === "team") return TEAM_MONTHLY_POOL;
   return null;
 }
+
+/**
+ * Hard ceiling on monthly scans for paid tiers, expressed as a
+ * multiplier of the soft cap. Above the soft cap we surface the
+ * meter and email ops; above the hard cap we actually return 429
+ * and stop scoring.
+ *
+ * Multiplier 2 means a Pro user shuts off at 4,000 scores/month
+ * and Team at 50,000. The 2,000–4,000 / 25,000–50,000 zone is
+ * deliberate — gives the user (and us) a wide warning band to
+ * have a "let's talk about higher volume" conversation before
+ * anything actually breaks.
+ */
+export const HARD_CAP_MULTIPLIER = 2;
+
+export function monthlyHardCapForTier(tier: Tier): number | null {
+  const soft = monthlyScoreCapForTier(tier);
+  return soft === null ? null : soft * HARD_CAP_MULTIPLIER;
+}
