@@ -34,6 +34,8 @@ type TeamMember = {
   joinedAt: number;
   stats: MemberStats | null;
   recentScans: number;
+  /** Scores this calendar month. Powers the Usage column + team pool bar. */
+  monthlyScans: number;
   activity: DailyActivity[];
   evaluationsInWindow: number;
 };
@@ -65,12 +67,20 @@ type Insights = {
   strongestRung: { rung: string; avg: number; count: number } | null;
 };
 
+/** Team-wide monthly pool usage. Sum of every visible member's
+ *  monthlyScans, plus the soft cap from /lib/plans. */
+type TeamPool = {
+  used: number;
+  limit: number;
+};
+
 type TeamData = {
   isManager: boolean;
   members: TeamMember[];
   archived: ArchivedMember[];
   insights: Insights | null;
   activityWindowDays: number;
+  pool: TeamPool;
 };
 
 function fmtDate(input: number | string | Date | null | undefined): string {
@@ -266,6 +276,116 @@ function InsightsPanel({ insights }: { insights: Insights }) {
   );
 }
 
+/**
+ * Team pool meter. Shows monthly scoring volume against the soft
+ * 25,000-score pool, plus a stacked segment-bar breaking down which
+ * members are using the most of it. Visible to admins only because
+ * it sits at the same scope as the rest of the manager dashboard.
+ *
+ * Segment math: each member's monthlyScans / poolLimit gives their
+ * slice. We render the top contributors in tier colors so a manager
+ * can scan "who's driving usage?" without clicking into rows. Total
+ * width caps at 100% even if usage has gone over (the trailing copy
+ * communicates the overage state separately).
+ */
+function TeamPoolMeter({
+  pool,
+  members,
+}: {
+  pool: TeamPool;
+  members: TeamMember[];
+}) {
+  const pct = Math.min(100, (pool.used / pool.limit) * 100);
+  const over = pool.used > pool.limit;
+  const warn = !over && pct >= 80;
+  const baseClass = over
+    ? "bg-red-400/30"
+    : warn
+      ? "bg-amber-400/30"
+      : "bg-ladder-green/30";
+  const activeClass = over
+    ? "bg-red-400"
+    : warn
+      ? "bg-amber-400"
+      : "bg-ladder-green";
+
+  // Top five contributors get their own segments; the rest fold into a
+  // single tail block. Keeps the bar readable at any team size.
+  const sortedActive = members
+    .filter((m) => m.monthlyScans > 0)
+    .sort((a, b) => b.monthlyScans - a.monthlyScans);
+  const top = sortedActive.slice(0, 5);
+  const tail = sortedActive.slice(5);
+  const tailSum = tail.reduce((s, m) => s + m.monthlyScans, 0);
+  const segments = [
+    ...top.map((m) => ({
+      key: m.userId ?? m.membershipId,
+      label:
+        m.firstName ?? m.email ?? "Member",
+      value: m.monthlyScans,
+    })),
+    ...(tailSum > 0
+      ? [{ key: "tail", label: `${tail.length} others`, value: tailSum }]
+      : []),
+  ];
+
+  return (
+    <section className="mb-10">
+      <div className="flex items-baseline justify-between mb-3">
+        <h2 className="text-[10px] text-muted uppercase tracking-widest">
+          Team pool
+        </h2>
+        <span className="text-[10px] text-muted font-mono">
+          {pool.used.toLocaleString()} / {pool.limit.toLocaleString()} this month
+        </span>
+      </div>
+      <div className={`relative h-2 ${baseClass}`}>
+        {/* Stacked breakdown by contributor. Tooltips on hover via title. */}
+        {segments.map((seg, i) => {
+          const segPct = Math.min(100, (seg.value / pool.limit) * 100);
+          return (
+            <div
+              key={seg.key}
+              className={`absolute top-0 h-full ${activeClass} border-r border-[#1a1a1a] last:border-r-0`}
+              style={{
+                left: `${segments
+                  .slice(0, i)
+                  .reduce((sum, s) => sum + (s.value / pool.limit) * 100, 0)}%`,
+                width: `${segPct}%`,
+                opacity: 1 - i * 0.12,
+              }}
+              title={`${seg.label}: ${seg.value.toLocaleString()} scores`}
+            />
+          );
+        })}
+      </div>
+      {over ? (
+        <p className="text-[11px] text-muted mt-3">
+          You&apos;ve passed the standard team pool.{" "}
+          <a
+            href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20higher%20volume%20inquiry"
+            className="text-ladder-green hover:underline"
+          >
+            Talk to us about a custom volume
+          </a>
+          .
+        </p>
+      ) : warn ? (
+        <p className="text-[11px] text-muted mt-3">
+          Approaching the team pool ceiling.{" "}
+          <a
+            href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20higher%20volume%20inquiry"
+            className="text-ladder-green hover:underline"
+          >
+            We&apos;ll size you up
+          </a>{" "}
+          before it bites.
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
 function MemberRow({
   member,
   isAdmin,
@@ -335,6 +455,12 @@ function MemberRow({
           <p className="text-[10px] text-muted/70 font-sans mt-1">
             + {member.evaluationsInWindow} evaluation
             {member.evaluationsInWindow === 1 ? "" : "s"} in window
+          </p>
+        )}
+        {member.monthlyScans > 0 && (
+          <p className="text-[10px] text-muted/70 font-sans mt-1">
+            {member.monthlyScans.toLocaleString()} score
+            {member.monthlyScans === 1 ? "" : "s"} this month
           </p>
         )}
       </div>
@@ -729,6 +855,10 @@ export default function TeamPage() {
 
         {isAdmin && teamData?.insights && (
           <InsightsPanel insights={teamData.insights} />
+        )}
+
+        {isAdmin && teamData?.pool && (
+          <TeamPoolMeter pool={teamData.pool} members={memberList} />
         )}
 
         {isAdmin && (
