@@ -96,9 +96,9 @@ export default function Home() {
             <span className="text-ladder-green">every experience</span>
           </h1>
           <p className="text-lg text-body max-w-2xl mx-auto mb-12 leading-relaxed">
-            Ladder is the framework Ward Andrews and the team at Drawbackwards
-            built over two decades of designing products for the Fortune 50.
-            Now it&apos;s an AI-powered scoring engine anyone can use.
+            Ladder is the framework the team at Drawbackwards built over two
+            decades of designing products for the Fortune 50. Now it&apos;s an
+            AI-powered scoring engine anyone can use.
           </p>
           <div className="flex items-center justify-center gap-6">
             <Link
