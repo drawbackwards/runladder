@@ -242,7 +242,7 @@ export default function ProductsPage() {
               href="/score"
               className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-base"
             >
-              Score a screen, free
+              Get your first Ladder score
             </Link>
           </div>
         </div>

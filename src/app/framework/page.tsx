@@ -92,7 +92,7 @@ export default function FrameworkPage() {
               href="/score"
               className="text-body border border-border px-8 py-4 rounded-full hover:text-foreground hover:border-muted transition-colors text-base"
             >
-              Try a free score
+              Get your first Ladder score
             </Link>
           </div>
         </div>
@@ -510,7 +510,7 @@ export default function FrameworkPage() {
               href="/score"
               className="text-body border border-border px-8 py-4 rounded-full hover:text-foreground hover:border-muted transition-colors text-base"
             >
-              Try a free score
+              Get your first Ladder score
             </Link>
           </div>
         </div>

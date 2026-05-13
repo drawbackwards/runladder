@@ -562,6 +562,43 @@ export default function ScorePage() {
     );
   }
 
+  // Signed-out gate. As of v0.4.14 web scoring requires a Clerk
+  // account — matches every other Ladder surface (Skill, Plugin,
+  // MCP, API). Anonymous "try one score" was removed because it was
+  // an inconsistent backdoor on a professional product and the
+  // friction it saved didn't pay back in conversion. Free tier
+  // remains 5 scores lifetime, but you have to sign up to start.
+  if (isLoaded && !isSignedIn) {
+    return (
+      <div className="pt-32 font-mono">
+        <div className="max-w-md mx-auto px-6 py-20 text-center">
+          <p className="font-mono text-[10px] text-ladder-green uppercase tracking-widest mb-6">
+            Ladder score
+          </p>
+          <h1 className="text-3xl font-bold text-foreground mb-4 font-sans">
+            Get your first Ladder score
+          </h1>
+          <p className="text-sm text-body font-sans leading-relaxed mb-8">
+            Free accounts get 5 scores. No credit card. Your scores
+            stay private to you across the web, Skill, and Figma.
+          </p>
+          <Link
+            href="/sign-up"
+            className="inline-block bg-ladder-green text-background font-semibold px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
+          >
+            Sign up free
+          </Link>
+          <p className="text-[11px] text-muted font-sans mt-6">
+            Already have an account?{" "}
+            <Link href="/login" className="text-ladder-green hover:text-ladder-green/80 transition-colors">
+              Sign in
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="analysis-grid pt-20 font-mono">
       {showSessionTypePrompt && (

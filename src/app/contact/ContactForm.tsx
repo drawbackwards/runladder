@@ -82,14 +82,14 @@ export function ContactForm() {
         </p>
         <p className="text-sm text-body leading-relaxed max-w-md mx-auto">
           Thanks for reaching out. Someone from our team will get back to
-          you within one business day. In the meantime, try scoring a
-          screen. It&apos;s free.
+          you within one business day. In the meantime, grab your first
+          Ladder score. Free accounts include 5.
         </p>
         <a
           href="/score"
           className="inline-block mt-6 text-sm font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors"
         >
-          Score a screen
+          Get your first Ladder score
         </a>
       </div>
     );

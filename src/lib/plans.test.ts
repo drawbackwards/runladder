@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ANON_LIMIT, FREE_LIFETIME_LIMIT, isPaidTier } from "./plans";
+import { FREE_LIFETIME_LIMIT, isPaidTier } from "./plans";
 
 /**
  * plans.ts is the single source of truth for tier gating across every
@@ -25,9 +25,5 @@ describe("free quota constants", () => {
   // bump.
   it("FREE_LIFETIME_LIMIT is 5", () => {
     expect(FREE_LIFETIME_LIMIT).toBe(5);
-  });
-
-  it("ANON_LIMIT is 1 per IP per 24h", () => {
-    expect(ANON_LIMIT).toBe(1);
   });
 });
