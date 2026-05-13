@@ -6,6 +6,14 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.4.16 / api 1.0.0 — 2026-05-13
+
+**Move Active Reviews to the team dashboard.**
+
+- Reviews is a manager workflow, so the entry-point card belongs on `/dashboard/team`, not the personal dashboard. Removed from `/dashboard`. Now renders on `/dashboard/team` directly under the team pool meter, gated on `isAdmin`. Non-admin team members will get their own "Reviews you're invited to" panel in a later pass.
+
+---
+
 ## app 0.4.15 / api 1.0.0 — 2026-05-13
 
 **Reviews: the social layer for Ladder.**

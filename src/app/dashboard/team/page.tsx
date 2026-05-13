@@ -15,6 +15,7 @@ import {
   type DailyActivity,
 } from "@/components/ActivityHeatmap";
 import { Avatar } from "@/components/Avatar";
+import { ActiveReviewsCard } from "@/components/reviews/ActiveReviewsCard";
 
 type MemberStats = {
   totalScans: number;
@@ -860,6 +861,8 @@ export default function TeamPage() {
         {isAdmin && teamData?.pool && (
           <TeamPoolMeter pool={teamData.pool} members={memberList} />
         )}
+
+        {isAdmin && <ActiveReviewsCard />}
 
         {isAdmin && (
           <section className="mb-10">
