@@ -235,20 +235,24 @@ export async function scoreImage(
   }
 
   /* ── Ladder scoring ──
-   * Sonnet 4.6 with thinking disabled + effort:low. We tested
-   * Haiku 4.5 for the speed win and confirmed a real quality
-   * regression — same screen scored 2.6 on Haiku vs 3.1 on
-   * Sonnet. Score calibration is the product, so we trade the
-   * 2x latency cost for accuracy and lean on the frontend
-   * (skeleton placeholders + progressive reveal) to make the
-   * Sonnet wait feel fast. effort:low is required to get the
-   * latency win — Sonnet 4.6 defaults to effort:high.
+   * Haiku 4.5. Explicit trade-off: Haiku scores ~0.5 lower than
+   * Sonnet 4.6 on the same screen, but generates 3x faster
+   * (~200 tokens/sec, sub-second TTFT) at 1/3 the cost. With
+   * streaming + skeleton UX layered on top, the user sees the
+   * score number 1-2 seconds after submit. Speed + UX is the
+   * priority here; the streaming layer keeps the perceived
+   * calibration shift small because the user gets the number
+   * before they can re-anchor expectations.
+   *
+   * Note: Haiku doesn't support the `effort` or `thinking`
+   * params and will 400 if either is passed — keep this body
+   * lean. Sonnet 4.6 stays as the model of record for the
+   * coming /api/improve endpoint and admin annotation analysis,
+   * where the cost/quality balance flips the other way.
    */
   const response = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-haiku-4-5",
     max_tokens: 4096,
-    thinking: { type: "disabled" },
-    output_config: { effort: "low" },
     messages: [
       {
         role: "user",
@@ -401,12 +405,14 @@ export async function* scoreImageStream(
     // Fail open — proceed to scoring
   }
 
-  /* ── Streaming scoring call ── */
+  /* ── Streaming scoring call ──
+   * Haiku 4.5 (matches the non-streaming scoreImage). Haiku
+   * doesn't support effort/thinking — omit. The speed combined
+   * with SSE means the score number lands ~1s after submit.
+   */
   const stream = client.messages.stream({
-    model: "claude-sonnet-4-6",
+    model: "claude-haiku-4-5",
     max_tokens: 4096,
-    thinking: { type: "disabled" },
-    output_config: { effort: "low" },
     messages: [
       {
         role: "user",
