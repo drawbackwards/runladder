@@ -12,7 +12,7 @@ import type { Tier } from "@/lib/plans";
 export const metadata: Metadata = {
   title: "Pricing | Ladder",
   description:
-    "Score your first screen free. Professional from $250/mo. Team and Pulse pricing is custom.",
+    "Score your first screen free. Professional from $1,000/mo. Team and Pulse pricing is custom.",
 };
 
 type TierKey = "free" | "pro" | "team";
@@ -52,7 +52,7 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
   {
     key: "pro",
     name: "Professional",
-    price: "$250",
+    price: "$1,000",
     period: "/ mo",
     highlight: true,
     limit: "Unlimited scoring",

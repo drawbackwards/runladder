@@ -56,7 +56,7 @@ Attach the screenshot to the chat and say **Run Ladder**.
 The Skill counts against the same monthly pool as the web app and every other Ladder surface:
 
 - **Free:** 15 scores / month (shared across Skill, web, and Figma plugin)
-- **Pro:** Unlimited scores, private results — [$250/mo](https://runladder.com/pricing)
+- **Pro:** Unlimited scores, private results — [$1,000/mo](https://runladder.com/pricing)
 
 ## Privacy & IP
 

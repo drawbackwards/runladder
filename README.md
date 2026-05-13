@@ -31,7 +31,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Stripe billing
 
-Self-serve Pro at $250/mo. Free tier is 5 lifetime scans, enforced via Clerk
+Self-serve Pro at $1,000/mo. Free tier is 5 lifetime scans, enforced via Clerk
 publicMetadata.tier and a Redis lifetime counter.
 
 ### Required env vars
@@ -45,7 +45,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000   # https://runladder.com in prod
 
 ### One-time Stripe Dashboard setup
 
-1. Create a product **Ladder Pro** with a recurring monthly price of **$250 USD**.
+1. Create a product **Ladder Pro** with a recurring monthly price of **$1,000 USD**.
    Copy the `price_...` ID into `STRIPE_PRO_PRICE_ID`.
 2. **Customer Portal:** Settings → Billing → Customer portal — enable cancellation
    and plan switching. Save.
