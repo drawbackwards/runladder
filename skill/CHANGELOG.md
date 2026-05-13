@@ -2,6 +2,10 @@
 
 All notable changes to the Ladder Skill bundle (SKILL.md, README.md, scripts/) are listed here. The Skill tracks its own version independently of the runladder.com web app.
 
+## 1.0.6 — 2026-05-13
+
+- 429 error playbook in `SKILL.md` now distinguishes `upgrade: true` (free user used their 5 lifetime scores) from `hardCapped: true` (paid user past 2x their monthly cap). Claude now gives the right next step for each — upgrade page for free, email hello@drawbackwards.com for paid users who've hit the hard ceiling.
+
 ## 1.0.5 — 2026-05-13
 
 - API now returns a `usage` block on every successful score: tier, status (ok / approaching / over), and the relevant counter (monthly for paid tiers, lifetime for free). `SKILL.md` adds a step instructing Claude to surface the count when status is "approaching" or "over" so users running the Skill exclusively still get a heads-up before they hit their cap — they no longer have to visit the dashboard to know where they stand.

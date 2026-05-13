@@ -12,6 +12,7 @@ import {
   PRO_MONTHLY_LIMIT,
   isPaidTier,
   monthlyScoreCapForTier,
+  monthlyHardCapForTier,
 } from "@/lib/plans";
 import { getUserTier } from "@/lib/tier";
 import { persistScoreEntry } from "@/lib/scores";
@@ -62,6 +63,25 @@ export async function POST(req: NextRequest) {
           },
           { status: 429 }
         );
+      }
+    } else {
+      // Paid-tier hard ceiling at 2x the soft cap. Same enforcement as
+      // /api/score and /api/score/stream so Skill users hit the wall
+      // at the same point as web users. The SKILL.md prompt handles
+      // the 429 — see step 5 of the script for the user-facing copy.
+      const hardCap = monthlyHardCapForTier(tier);
+      if (hardCap !== null) {
+        const monthly = await getMonthlyScans(userId);
+        if (monthly >= hardCap) {
+          return NextResponse.json(
+            {
+              error: `Monthly scoring paused — you're at ${monthly.toLocaleString()} scores, past 2x your tier's cap. Email hello@drawbackwards.com to lift the ceiling.`,
+              hardCapped: true,
+              contact: "hello@drawbackwards.com",
+            },
+            { status: 429 }
+          );
+        }
       }
     }
 
