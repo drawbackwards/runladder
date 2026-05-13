@@ -7,9 +7,14 @@ import {
 } from "@/lib/scoring";
 import { makeThumbnail } from "@/lib/thumbnail";
 import { userIdFromBearer, touchSkillToken } from "@/lib/skill-auth";
-import { FREE_LIFETIME_LIMIT, isPaidTier } from "@/lib/plans";
+import {
+  FREE_LIFETIME_LIMIT,
+  isPaidTier,
+  monthlyScoreCapForTier,
+} from "@/lib/plans";
 import { getUserTier } from "@/lib/tier";
 import { persistScoreEntry } from "@/lib/scores";
+import { getMonthlyScans, daysUntilMonthEnd } from "@/lib/usage";
 
 export const maxDuration = 60;
 
@@ -109,6 +114,35 @@ export async function POST(req: NextRequest) {
     });
     await touchSkillToken(userId, installedVersion);
 
+    /* ── Usage block ──
+     * The Skill user lives in a Claude conversation; they never see
+     * the dashboard meter. So the score response carries everything
+     * Claude needs to surface their usage state inline — what tier
+     * they're on, where they sit against the cap, and a status flag
+     * (ok / approaching / over) so the SKILL.md prompt can branch
+     * cleanly without making Claude do percentage math.
+     *
+     * Convention for status:
+     *   ok          – under 80% of cap. Skill doesn't need to mention it.
+     *   approaching – ≥ 80% of cap. Skill surfaces a soft heads-up.
+     *   over        – past cap. Skill surfaces "no hard block, talk to us" copy.
+     */
+    const monthlyLimit = monthlyScoreCapForTier(tier);
+    const lifetimeUsed = (await redis.get<number>(usedKey)) ?? 0;
+    const monthlyUsed = monthlyLimit !== null ? await getMonthlyScans(userId) : 0;
+    const usageStatus = ((): "ok" | "approaching" | "over" => {
+      // Free tier reads against lifetime, paid tiers against monthly.
+      if (tier === "free") {
+        if (lifetimeUsed >= FREE_LIFETIME_LIMIT) return "over";
+        if (lifetimeUsed >= FREE_LIFETIME_LIMIT - 1) return "approaching";
+        return "ok";
+      }
+      if (monthlyLimit === null) return "ok";
+      if (monthlyUsed > monthlyLimit) return "over";
+      if (monthlyUsed / monthlyLimit >= 0.8) return "approaching";
+      return "ok";
+    })();
+
     return NextResponse.json({
       score: result.score,
       label: result.label,
@@ -118,6 +152,15 @@ export async function POST(req: NextRequest) {
       rungs: result.rungs,
       findings: result.findings,
       dashboardUrl: `https://runladder.com/dashboard/scores/${scoreEntry.id}`,
+      usage: {
+        tier,
+        status: usageStatus,
+        monthlyUsed: monthlyLimit !== null ? monthlyUsed : null,
+        monthlyLimit,
+        lifetimeUsed: tier === "free" ? lifetimeUsed : null,
+        lifetimeLimit: tier === "free" ? FREE_LIFETIME_LIMIT : null,
+        daysUntilReset: monthlyLimit !== null ? daysUntilMonthEnd() : null,
+      },
     });
   } catch (err) {
     console.error("[LADDER:ERROR] Skill score endpoint:", err);

@@ -27,6 +27,25 @@ The script reads the token from `~/.ladder/token`, sends the image to the Ladder
 
 4. **Present the result.** Lead with the score and the level. Then the summary. Then the top 2 findings and their fixes. End with the dashboard URL.
 
+5. **Surface usage state if relevant.** The response includes a `usage` object:
+
+   ```json
+   {
+     "tier": "free" | "pro" | "team" | "pulse",
+     "status": "ok" | "approaching" | "over",
+     "monthlyUsed": 247,        // null for free tier
+     "monthlyLimit": 2000,      // null for free / pulse
+     "lifetimeUsed": 3,         // only on free tier
+     "lifetimeLimit": 5,        // only on free tier
+     "daysUntilReset": 18       // only when monthlyLimit is set
+   }
+   ```
+
+   - **`status: "ok"`** — say nothing about usage. The user just wants their score.
+   - **`status: "approaching"`** — add a short line after the dashboard link: *"You're at X of Y scores this month — heads up."* (Free: *"X of 5 free scores used."*)
+   - **`status: "over"`** — add: *"You're past your monthly cap of Y. No hard block — runladder.com will keep scoring — but it's a good moment to email hello@drawbackwards.com about higher volume."*
+   - Free tier at `lifetimeLimit`: *"That was your last free score. Upgrade at runladder.com/pricing to keep going."*
+
 ## Example output format
 
 > **3.2 — Comfortable**
@@ -38,6 +57,8 @@ The script reads the token from `~/.ladder/token`, sends the image to the Ladder
 > - Add clear shipping ETA near CTA (+0.2 → Comfortable)
 >
 > [Full result and history on your Ladder dashboard](https://runladder.com/dashboard)
+>
+> *(Approaching example: "You're at 1,640 of 2,000 scores this month — heads up.")*
 
 ## If the API returns an error
 

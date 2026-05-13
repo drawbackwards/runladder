@@ -2,6 +2,11 @@
 
 All notable changes to the Ladder Skill bundle (SKILL.md, README.md, scripts/) are listed here. The Skill tracks its own version independently of the runladder.com web app.
 
+## 1.0.5 — 2026-05-13
+
+- API now returns a `usage` block on every successful score: tier, status (ok / approaching / over), and the relevant counter (monthly for paid tiers, lifetime for free). `SKILL.md` adds a step instructing Claude to surface the count when status is "approaching" or "over" so users running the Skill exclusively still get a heads-up before they hit their cap — they no longer have to visit the dashboard to know where they stand.
+- Free tier still hard-blocks at 5 lifetime; paid tiers stay soft-capped (no scoring interruption).
+
 ## 1.0.4 — 2026-05-11
 
 - `score.py` now reads images dropped directly into the Claude conversation. When a user attaches a screenshot in chat and says "Run Ladder", the script extracts the most recent user-message image from the active Claude Code session JSONL (`~/.claude/projects/<slug>/<session>.jsonl`) and scores it. This becomes the highest-priority source, ahead of clipboard and Desktop screenshots, so the most natural Skill UX ("drop image, run Ladder") now works without forcing the user to first save to disk or copy to clipboard.
