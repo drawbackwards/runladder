@@ -1,4 +1,9 @@
-import { redis, lifetimeScansKey } from "@/lib/redis";
+import {
+  redis,
+  lifetimeScansKey,
+  monthlyScansKey,
+  currentYearMonth,
+} from "@/lib/redis";
 
 /**
  * Single source of truth for persisting a Ladder score to a user's
@@ -121,12 +126,22 @@ export async function persistScoreEntry(
 
   // Aggregate stats. We update via HINCRBY/HSET so concurrent scores don't
   // clobber each other. avgScore is derived (sumScores / totalScans).
+  //
+  // The monthlyScansKey counter is set with a ~40-day TTL — enough that
+  // querying "this month's usage" mid-month always hits a live key, and
+  // a buffer past month-end so a late-arriving query during the next
+  // month's first day still finds the prior month for trend graphs.
+  const yyyymm = currentYearMonth(new Date(entry.timestamp));
+  const monthlyKey = monthlyScansKey(userId, yyyymm);
   const ops: Promise<unknown>[] = [
     redis.zadd(SCORE_HISTORY_KEY(userId), {
       score: entry.timestamp,
       member: JSON.stringify(entry),
     }),
     redis.incr(lifetimeScansKey(userId)),
+    redis.incr(monthlyKey),
+    // Forty-day TTL: month length (max 31) + 9-day buffer for late reads.
+    redis.expire(monthlyKey, 60 * 60 * 24 * 40),
     redis.set(LASTSCORE_KEY(userId, screenKey), {
       score: entry.score,
       ts: entry.timestamp,

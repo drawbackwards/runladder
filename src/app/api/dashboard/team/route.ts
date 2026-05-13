@@ -4,6 +4,8 @@ import { redis } from "@/lib/redis";
 import { getUserStats, type UserStats } from "@/lib/scores";
 import { RUNG_NAMES, type RungName } from "@/lib/ladder";
 import { listArchivedMembers } from "@/lib/team-archives";
+import { getMonthlyScans } from "@/lib/usage";
+import { TEAM_MONTHLY_POOL } from "@/lib/plans";
 
 /**
  * Team dashboard data — manager view.
@@ -160,6 +162,13 @@ type MemberSummary = {
   stats: UserStats | null;
   /** Design-session scans inside the insights window (last 30 days). */
   recentScans: number;
+  /**
+   * Scores this calendar month — drives the manager's "Usage" column
+   * and rolls up into the team-pool meter at the top of the page.
+   * Reads from user:{id}:scans:{yyyy-mm} which is also the source of
+   * the per-user UsageMeter on /dashboard.
+   */
+  monthlyScans: number;
   /** Daily activity bucket for design sessions only — fuels the row heatmap. */
   activity: DailyActivity[];
   /**
@@ -255,14 +264,16 @@ export async function GET() {
           ...base,
           stats: null,
           recentScans: 0,
+          monthlyScans: 0,
           activity: [],
           evaluationsInWindow: 0,
         };
       }
 
-      const [stats, recent] = await Promise.all([
+      const [stats, recent, monthlyScans] = await Promise.all([
         getUserStats(memberUserId),
         readRecentScores(memberUserId, activityWindowStart),
+        getMonthlyScans(memberUserId),
       ]);
 
       // Performance metrics (recentScans, team avg, rung insights) and the
@@ -300,6 +311,7 @@ export async function GET() {
         ...base,
         stats,
         recentScans: memberRecentCount,
+        monthlyScans,
         activity: bucketActivity(designRecent, ACTIVITY_WINDOW_DAYS),
         evaluationsInWindow,
       };
@@ -409,11 +421,21 @@ export async function GET() {
     };
   }
 
+  // Team pool meter — sum every visible member's this-month scans
+  // and compare to the standard pool ceiling. Surfaced on the team
+  // page so the manager can see how close they are before overage
+  // conversations come up.
+  const poolUsed = members.reduce((sum, m) => sum + (m.monthlyScans ?? 0), 0);
+
   return NextResponse.json({
     isManager,
     members,
     archived,
     insights,
     activityWindowDays: ACTIVITY_WINDOW_DAYS,
+    pool: {
+      used: poolUsed,
+      limit: TEAM_MONTHLY_POOL,
+    },
   });
 }

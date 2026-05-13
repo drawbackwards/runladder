@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
 import { SkillTokenCard } from "@/components/SkillTokenCard";
 import { FigmaPluginCard } from "@/components/FigmaPluginCard";
+import { UsageMeter } from "@/components/UsageMeter";
 import { TeamCard } from "@/components/TeamCard";
 import { TeamSetupBanner } from "@/components/TeamSetupBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
@@ -588,6 +589,7 @@ export default function DashboardPage() {
           </main>
 
           <aside className="space-y-4">
+            <UsageMeter />
             <TeamCard />
             <FigmaPluginCard />
             <SkillTokenCard />
