@@ -9,6 +9,7 @@ import { makeThumbnail } from "@/lib/thumbnail";
 import { userIdFromBearer, touchSkillToken } from "@/lib/skill-auth";
 import {
   FREE_LIFETIME_LIMIT,
+  PRO_MONTHLY_LIMIT,
   isPaidTier,
   monthlyScoreCapForTier,
 } from "@/lib/plans";
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
       if (used >= FREE_LIFETIME_LIMIT) {
         return NextResponse.json(
           {
-            error: `You've used all ${FREE_LIFETIME_LIMIT} free Ladder scores. Upgrade at https://runladder.com/pricing for unlimited scoring.`,
+            error: `You've used all ${FREE_LIFETIME_LIMIT} free Ladder scores. Upgrade at https://runladder.com/pricing for ${PRO_MONTHLY_LIMIT.toLocaleString()} scores per month.`,
             upgrade: true,
           },
           { status: 429 }

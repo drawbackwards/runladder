@@ -169,7 +169,7 @@ function UpgradeStrip({
             <span className="text-ladder-green font-semibold uppercase tracking-widest text-[10px]">
               {tierLabel}
             </span>{" "}
-            — unlimited scoring across every Ladder surface.
+            — high-volume scoring across every Ladder surface. See your monthly meter in the side panel.
           </span>
           <ManageSubscriptionButton className="text-[10px] uppercase tracking-widest font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors">
             Manage subscription →

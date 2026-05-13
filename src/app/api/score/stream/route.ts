@@ -6,7 +6,12 @@ import {
   scoreImageStream,
 } from "@/lib/scoring";
 import { makeThumbnail } from "@/lib/thumbnail";
-import { FREE_LIFETIME_LIMIT, ANON_LIMIT, isPaidTier } from "@/lib/plans";
+import {
+  FREE_LIFETIME_LIMIT,
+  ANON_LIMIT,
+  PRO_MONTHLY_LIMIT,
+  isPaidTier,
+} from "@/lib/plans";
 import { getUserTier } from "@/lib/tier";
 import { persistScoreEntry } from "@/lib/scores";
 
@@ -51,7 +56,7 @@ export async function POST(req: NextRequest) {
       const used = (await redis.get<number>(usedKey)) ?? 0;
       if (used >= FREE_LIFETIME_LIMIT) {
         return errorResponse(
-          `You've used all ${FREE_LIFETIME_LIMIT} free Ladder scores. Upgrade to Pro for unlimited scoring.`,
+          `You've used all ${FREE_LIFETIME_LIMIT} free Ladder scores. Upgrade to Pro for ${PRO_MONTHLY_LIMIT.toLocaleString()} scores per month.`,
           429,
           { upgrade: true },
         );
