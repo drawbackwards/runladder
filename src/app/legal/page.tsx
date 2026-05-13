@@ -18,7 +18,7 @@ export default function LegalPage() {
           Ladder&trade; is proprietary. Here&apos;s what you can and can&apos;t do with it.
         </h1>
         <p className="text-sm text-muted mb-12">
-          Last updated: April 18, 2026
+          Last updated: May 13, 2026
         </p>
 
         {/* ── Summary card ── */}
@@ -250,48 +250,20 @@ export default function LegalPage() {
             </p>
           </section>
 
-          {/* ── 5. What is not protected ── */}
-          <section>
-            <h2 className="text-lg font-bold text-foreground mb-3">
-              5. What Is Not Protected
-            </h2>
-            <p>
-              We respect the boundaries of intellectual property. The following are
-              not claimed as Ladder IP:
-            </p>
-            <ul className="mt-3 space-y-2 ml-4">
-              <li className="flex items-start gap-2">
-                <span className="text-muted mt-0.5">&bull;</span>
-                <span>
-                  The general idea of a 1-to-5 scoring scale for user experience
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-muted mt-0.5">&bull;</span>
-                <span>
-                  The general concept of level-based or rung-based UX measurement
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-muted mt-0.5">&bull;</span>
-                <span>
-                  Other differently-named experience quality frameworks that do not
-                  use Ladder terminology, branding, or copyrighted rubrics
-                </span>
-              </li>
-            </ul>
-            <p className="mt-3">
-              What <em>is</em> protected: the Ladder name, the specific written
-              wording of our level definitions and rubrics, our tuned prompts and
-              scoring engine, our logo and brand, and our compiled dataset of
-              scores and Pulse signals.
-            </p>
-          </section>
+          {/* Section 5 ("What Is Not Protected") removed in v0.4.6.
+              Volunteering specific carve-outs on a public IP page maps
+              the boundary for competitors. Standard practice across
+              Apple, Stripe, and other strong-IP brands: list what IS
+              protected; let any "this isn't yours" argument be made
+              in court by the party trying to make it.
 
-          {/* ── 6. Enforcement ── */}
+              Sections renumbered: Enforcement is now 5, Contact 6,
+              Related Policies 7. */}
+
+          {/* ── 5. Enforcement ── */}
           <section>
             <h2 className="text-lg font-bold text-foreground mb-3">
-              6. Enforcement
+              5. Enforcement
             </h2>
             <p>
               We actively monitor for unauthorized use of the Ladder name,
@@ -307,10 +279,10 @@ export default function LegalPage() {
             </p>
           </section>
 
-          {/* ── 7. Contact ── */}
+          {/* ── 6. Contact ── */}
           <section className="border border-border bg-card/30 p-6 sm:p-8">
             <h2 className="text-lg font-bold text-foreground mb-3">
-              7. License Ladder for Commercial Use
+              6. License Ladder for Commercial Use
             </h2>
             <p>
               Commercial licensing, partner programs, and IP inquiries are handled
@@ -344,10 +316,10 @@ export default function LegalPage() {
             </div>
           </section>
 
-          {/* ── 8. Related ── */}
+          {/* ── 7. Related ── */}
           <section>
             <h2 className="text-lg font-bold text-foreground mb-3">
-              8. Related Policies
+              7. Related Policies
             </h2>
             <ul className="space-y-2 ml-4">
               <li className="flex items-start gap-2">
