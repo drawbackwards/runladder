@@ -4,6 +4,7 @@ import {
   monthlyScansKey,
   currentYearMonth,
 } from "@/lib/redis";
+import { maybeAlertCapCrossed, ANY_TIER_CAP_THRESHOLD } from "@/lib/usage";
 
 /**
  * Single source of truth for persisting a Ladder score to a user's
@@ -131,15 +132,21 @@ export async function persistScoreEntry(
   // querying "this month's usage" mid-month always hits a live key, and
   // a buffer past month-end so a late-arriving query during the next
   // month's first day still finds the prior month for trend graphs.
+  //
+  // The monthly increment is awaited standalone so we can capture the
+  // post-increment count and drive the soft-cap-crossed alert from it.
+  // One extra Redis round-trip is fine; the cap-alert path needs the
+  // value and the rest of the writes don't.
   const yyyymm = currentYearMonth(new Date(entry.timestamp));
   const monthlyKey = monthlyScansKey(userId, yyyymm);
+  const newMonthlyCount = await redis.incr(monthlyKey);
+
   const ops: Promise<unknown>[] = [
     redis.zadd(SCORE_HISTORY_KEY(userId), {
       score: entry.timestamp,
       member: JSON.stringify(entry),
     }),
     redis.incr(lifetimeScansKey(userId)),
-    redis.incr(monthlyKey),
     // Forty-day TTL: month length (max 31) + 9-day buffer for late reads.
     redis.expire(monthlyKey, 60 * 60 * 24 * 40),
     redis.set(LASTSCORE_KEY(userId, screenKey), {
@@ -153,6 +160,16 @@ export async function persistScoreEntry(
     redis.hset(STATS_KEY(userId), { lastScoreAt: entry.timestamp }),
   ];
   await Promise.all(ops);
+
+  // Soft-cap crossing alert. Cheap integer compare against the lowest
+  // paid cap (Pro) gatekeeps this — only run the alert pipeline when
+  // there's a chance the user has actually crossed. Fire-and-forget so
+  // a slow email send never blocks the score response.
+  if (newMonthlyCount > ANY_TIER_CAP_THRESHOLD) {
+    maybeAlertCapCrossed(userId, newMonthlyCount).catch((err) => {
+      console.error("[LADDER:CAP-ALERT] background failure:", err);
+    });
+  }
 
   // Update bestScore only if the new score beats the current best.
   const currentBestRaw = await redis.hget<number | string>(
