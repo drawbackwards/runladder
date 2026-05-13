@@ -114,6 +114,37 @@ export default function Home() {
               Learn the framework
             </Link>
           </div>
+
+          {/* ── Trusted by client strip ──
+              Logos of companies whose UX has been evaluated and
+              improved against the Ladder framework. SVGs ship in
+              various source colors; the `filter` knocks them down
+              to a uniform muted white so the row reads as a single
+              strip on the dark theme. */}
+          <div className="mt-24">
+            <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
+              Trusted to level up UX quality for teams like
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-10 gap-y-8 items-center justify-items-center">
+              {[
+                { src: "/logos/clients/bcbs-logo.svg", alt: "Blue Cross Blue Shield" },
+                { src: "/logos/clients/choice-hotels-logo.svg", alt: "Choice Hotels" },
+                { src: "/logos/clients/firstsolar-logo.svg", alt: "First Solar" },
+                { src: "/logos/clients/general-dynamics-logo.svg", alt: "General Dynamics" },
+                { src: "/logos/clients/godaddy-logo.svg", alt: "GoDaddy" },
+                { src: "/logos/clients/sophos-logo.svg", alt: "Sophos" },
+              ].map((logo) => (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  key={logo.src}
+                  src={logo.src}
+                  alt={logo.alt}
+                  className="max-h-8 w-auto opacity-60 hover:opacity-100 transition-opacity"
+                  style={{ filter: "brightness(0) invert(1)" }}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
