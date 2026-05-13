@@ -11,7 +11,7 @@
  */
 
 // runladder.com (this web app). Visible in the footer.
-export const CURRENT_APP_VERSION = "0.4.5";
+export const CURRENT_APP_VERSION = "0.4.6";
 
 // Ladder API (plugin/analyze, framework, score, skill/score, etc.). Sent
 // back to every API caller via the X-Ladder-API-Version response header
