@@ -29,6 +29,19 @@ export const metadata: Metadata = {
     siteName: "Ladder",
     url: "https://runladder.com",
   },
+  // Favicons live under /public (icon-192, icon-512, apple-touch-icon,
+  // favicon.svg, site.webmanifest) plus /src/app/favicon.ico which
+  // Next.js picks up by convention. The icons entry below maps the
+  // browser-visible variants. Manifest covers Android / PWA installs.
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
