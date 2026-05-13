@@ -254,7 +254,7 @@ export function UserMenu() {
               >
                 <span>Upgrade to Pro</span>
                 <span className="text-ladder-green text-[10px] uppercase tracking-widest font-semibold">
-                  $250/mo
+                  $1,000/mo
                 </span>
               </Link>
             )}
