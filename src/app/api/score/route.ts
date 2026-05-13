@@ -9,7 +9,6 @@ import {
 import { makeThumbnail } from "@/lib/thumbnail";
 import {
   FREE_LIFETIME_LIMIT,
-  ANON_LIMIT,
   PRO_MONTHLY_LIMIT,
   isPaidTier,
   monthlyHardCapForTier,
@@ -31,61 +30,54 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    /* ── Auth (optional — anonymous users allowed with lower limit) ── */
+    /* ── Auth required ── Web scoring requires a Clerk account. The
+     * anonymous "try one score" path was removed in v0.4.14 to match
+     * every other Ladder surface (Skill, Plugin, MCP, API), which all
+     * gate at the door. Marketing CTAs now point at sign-up first. */
     const { userId } = await auth();
-    const ip =
-      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      req.headers.get("x-real-ip") ||
-      "unknown";
+    if (!userId) {
+      return NextResponse.json(
+        {
+          error: `Sign up for free to get ${FREE_LIFETIME_LIMIT} Ladder scores.`,
+          signup: true,
+        },
+        { status: 401 }
+      );
+    }
 
     /* ── Rate limiting ── */
-    if (userId) {
-      const tier = await getUserTier(userId);
-      if (!isPaidTier(tier)) {
-        const usedKey = lifetimeScansKey(userId);
-        const used = (await redis.get<number>(usedKey)) ?? 0;
-        if (used >= FREE_LIFETIME_LIMIT) {
+    const tier = await getUserTier(userId);
+    if (!isPaidTier(tier)) {
+      const usedKey = lifetimeScansKey(userId);
+      const used = (await redis.get<number>(usedKey)) ?? 0;
+      if (used >= FREE_LIFETIME_LIMIT) {
+        return NextResponse.json(
+          {
+            error: `You've used all ${FREE_LIFETIME_LIMIT} free Ladder scores. Upgrade to Pro for ${PRO_MONTHLY_LIMIT.toLocaleString()} scores per month.`,
+            upgrade: true,
+          },
+          { status: 429 }
+        );
+      }
+    } else {
+      // Paid-tier hard ceiling — 2x the soft cap. Above this we stop
+      // scoring entirely and direct the user to start a higher-volume
+      // conversation. The soft-cap zone between the soft cap and this
+      // hard ceiling is intentionally wide so the meter, email alert,
+      // and "talk to us" outreach can all land before the wall.
+      const hardCap = monthlyHardCapForTier(tier);
+      if (hardCap !== null) {
+        const monthly = await getMonthlyScans(userId);
+        if (monthly >= hardCap) {
           return NextResponse.json(
             {
-              error: `You've used all ${FREE_LIFETIME_LIMIT} free Ladder scores. Upgrade to Pro for ${PRO_MONTHLY_LIMIT.toLocaleString()} scores per month.`,
-              upgrade: true,
+              error: `Monthly scoring paused — you're at ${monthly.toLocaleString()} scores, past 2x your tier's cap. Email hello@drawbackwards.com to lift the ceiling.`,
+              hardCapped: true,
+              contact: "hello@drawbackwards.com",
             },
             { status: 429 }
           );
         }
-      } else {
-        // Paid-tier hard ceiling — 2x the soft cap. Above this we
-        // stop scoring entirely and direct the user to start a
-        // higher-volume conversation. The soft-cap zone between the
-        // soft cap and this hard ceiling is intentionally wide so
-        // there's plenty of room for the meter, email alert, and
-        // "talk to us" outreach to land before the wall.
-        const hardCap = monthlyHardCapForTier(tier);
-        if (hardCap !== null) {
-          const monthly = await getMonthlyScans(userId);
-          if (monthly >= hardCap) {
-            return NextResponse.json(
-              {
-                error: `Monthly scoring paused — you're at ${monthly.toLocaleString()} scores, past 2x your tier's cap. Email hello@drawbackwards.com to lift the ceiling.`,
-                hardCapped: true,
-                contact: "hello@drawbackwards.com",
-              },
-              { status: 429 }
-            );
-          }
-        }
-      }
-    } else {
-      const anonKey = `rate:anon:${ip}`;
-      const count = (await redis.get<number>(anonKey)) ?? 0;
-      if (count >= ANON_LIMIT) {
-        return NextResponse.json(
-          {
-            error: `Sign up for free to get ${FREE_LIFETIME_LIMIT} Ladder scores.`,
-            signup: true,
-          },
-          { status: 429 }
-        );
       }
     }
 
@@ -113,45 +105,32 @@ export async function POST(req: NextRequest) {
     }
 
     /* ── Persist score + increment usage ── */
-    let persistedScoreId: string | null = null;
-    if (userId) {
-      const thumbnail = await makeThumbnail(
-        Buffer.from(parsed.base64Data, "base64"),
-        parsed.mediaType,
-      );
+    const thumbnail = await makeThumbnail(
+      Buffer.from(parsed.base64Data, "base64"),
+      parsed.mediaType,
+    );
 
-      const scoreId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      await persistScoreEntry(userId, {
-        id: scoreId,
-        score: result.score,
-        label: result.label,
-        screenName: result.screenName || source || "upload",
-        summary: result.summary,
-        next: result.next,
-        findings: result.findings,
-        rungs: result.rungs,
-        source: source || "upload",
-        thumbnail,
-        isPublic: !!isPublic,
-        timestamp: Date.now(),
-        sessionType,
-      });
-      persistedScoreId = scoreId;
-    } else {
-      const anonKey = `rate:anon:${ip}`;
-      await redis.incr(anonKey);
-      const ttl = await redis.ttl(anonKey);
-      if (ttl < 0) {
-        await redis.expire(anonKey, 60 * 60 * 24);
-      }
-    }
+    const scoreId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    await persistScoreEntry(userId, {
+      id: scoreId,
+      score: result.score,
+      label: result.label,
+      screenName: result.screenName || source || "upload",
+      summary: result.summary,
+      next: result.next,
+      findings: result.findings,
+      rungs: result.rungs,
+      source: source || "upload",
+      thumbnail,
+      isPublic: !!isPublic,
+      timestamp: Date.now(),
+      sessionType,
+    });
 
     return NextResponse.json({
       ...result,
       screenName: result.screenName || source || "Screen",
-      // Echo the persisted score's id so the client can route the user
-      // straight to /dashboard/scores/[id] after analysis. Null for anon.
-      scoreId: persistedScoreId,
+      scoreId,
     });
   } catch (err) {
     console.error("[LADDER:ERROR] Score endpoint:", err);

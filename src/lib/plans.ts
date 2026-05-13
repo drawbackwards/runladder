@@ -8,8 +8,10 @@ export type Tier = "free" | "pro" | "team" | "pulse";
 /** Free-tier lifetime score quota. Shared across all surfaces (web, Skill, Figma, MCP, API). */
 export const FREE_LIFETIME_LIMIT = 5;
 
-/** Anonymous (unauthenticated) rate limit, per IP, per 24 hours. */
-export const ANON_LIMIT = 1;
+// ANON_LIMIT removed in v0.4.14 — anonymous scoring was retired so
+// the web aligns with every other Ladder surface (Skill, Plugin, MCP,
+// API) which all gate at the door. Marketing CTAs now route through
+// /sign-up first.
 
 /**
  * Soft monthly caps shown to paid users on /pricing and the dashboard

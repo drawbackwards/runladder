@@ -47,7 +47,7 @@ const PRODUCTS = [
     name: "runladder.com",
     desc: "You shipped a screen. Is it actually good? Get a trusted quality score in seconds. No installs, no signup, no second-guessing.",
     href: "/score",
-    cta: "Score a screen free",
+    cta: "Get your first Ladder score",
   },
   {
     name: "Ladder Pulse",
@@ -105,7 +105,7 @@ export default function Home() {
               href="/score"
               className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-base"
             >
-              Score a screen, free
+              Get your first Ladder score
             </Link>
             <Link
               href="/framework"
@@ -437,7 +437,7 @@ export default function Home() {
             href="/score"
             className="inline-block bg-ladder-green text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-lg"
           >
-            Score a screen, free
+            Get your first Ladder score
           </Link>
         </div>
       </section>
