@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LegalNotice } from "@/components/LegalNotice";
+// LegalNotice removed in v0.4.5 — canonical legal text lives on /legal,
+// linked from the footer. Marketing pages stay clean.
 
 export const metadata: Metadata = {
   title: "The Ladder Framework | How Ladder Transforms Organizations",
@@ -512,7 +513,6 @@ export default function FrameworkPage() {
               Try a free score
             </Link>
           </div>
-          <LegalNotice />
         </div>
       </section>
     </>

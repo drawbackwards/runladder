@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
-import { LegalNotice } from "@/components/LegalNotice";
+// LegalNotice removed in v0.4.5 — the canonical legal text lives on
+// /legal and is linked from the footer. Marketing pages stay clean.
 import { SubscribeButton } from "@/components/SubscribeButton";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { getUserSubscription } from "@/lib/tier";
@@ -409,8 +410,6 @@ export default async function PricingPage() {
             ))}
           </div>
         </div>
-
-        <LegalNotice />
       </div>
     </div>
   );
