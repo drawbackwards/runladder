@@ -219,8 +219,8 @@ export default function LegalPage() {
               not limited to Claude, ChatGPT, Gemini, and custom agents &mdash; may
               generate, compute, or return Ladder scores{" "}
               <strong className="text-foreground">
-                only when routed through the official Ladder API, Claude skill, or
-                MCP server
+                only when routed through the official Ladder API, Claude skill,
+                MCP server, or Ladder for Figma plugin
               </strong>
               .
             </p>
