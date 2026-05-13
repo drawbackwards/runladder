@@ -47,7 +47,7 @@ const TROUBLESHOOTING: { title: string; body: React.ReactNode }[] = [
         <a href="/pricing" className="text-ladder-green hover:underline">
           Upgrade to Pro
         </a>{" "}
-        for unlimited.
+        for 2,000 scores per month.
       </>
     ),
   },
