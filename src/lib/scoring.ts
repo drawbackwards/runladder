@@ -140,6 +140,53 @@ export type ScoringError = {
 };
 
 /**
+ * Extract a single JSON object from arbitrary model output.
+ *
+ * Why this exists: smaller models (Haiku) sometimes ignore the
+ * "return ONLY JSON" instruction and append explanation text, or
+ * wrap the JSON in ```json fences with trailing prose. JSON.parse
+ * fails on anything after the closing brace ("Unexpected
+ * non-whitespace character after JSON at position N").
+ *
+ * Strategy: strip code fences, find the first `{`, then walk the
+ * string with a tiny brace counter that respects strings + escapes
+ * so we land on the matching closing `}`. Whatever the model wrote
+ * before or after is discarded.
+ */
+function extractJsonObject(raw: string): string {
+  const stripped = raw.replace(/```json|```/g, "").trim();
+  const start = stripped.indexOf("{");
+  if (start === -1) return stripped; // let the caller's parse fail with a useful error
+
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  for (let i = start; i < stripped.length; i++) {
+    const c = stripped[i];
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (c === "\\") {
+      escape = true;
+      continue;
+    }
+    if (c === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (c === "{") depth++;
+    else if (c === "}") {
+      depth--;
+      if (depth === 0) return stripped.slice(start, i + 1);
+    }
+  }
+  // Unbalanced braces — return what we have and let the parser fail.
+  return stripped.slice(start);
+}
+
+/**
  * Parse a data URL into its base64 payload + media type.
  * Returns null if the input isn't a supported image data URL.
  */
@@ -280,7 +327,7 @@ export async function scoreImage(
     return { error: "No response from scoring engine", status: 500 };
   }
 
-  const clean = textBlock.text.replace(/```json|```/g, "").trim();
+  const clean = extractJsonObject(textBlock.text);
   let result: ScoreResult;
   try {
     result = JSON.parse(clean);
@@ -489,7 +536,7 @@ export async function* scoreImageStream(
       yield { kind: "error", value: "No response from scoring engine", status: 500 };
       return;
     }
-    const clean = textBlock.text.replace(/```json|```/g, "").trim();
+    const clean = extractJsonObject(textBlock.text);
     let result: ScoreResult;
     try {
       result = JSON.parse(clean);
