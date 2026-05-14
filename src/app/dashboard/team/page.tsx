@@ -355,12 +355,22 @@ function TeamPoolMeter({
       <span className="text-[10px] text-muted uppercase tracking-widest whitespace-nowrap">
         Team pool
       </span>
-      <span className="text-[11px] text-foreground font-mono tabular-nums whitespace-nowrap">
-        {pool.used.toLocaleString()}{" "}
-        <span className="text-muted">
-          / {pool.limit.toLocaleString()} this month
+      <div className="flex items-baseline gap-1.5 whitespace-nowrap font-mono">
+        <span
+          className="text-sm text-foreground font-semibold tabular-nums"
+          title="Scores used this month"
+        >
+          {pool.used.toLocaleString()}
         </span>
-      </span>
+        <span className="text-[10px] text-muted">of</span>
+        <span
+          className="text-sm text-foreground font-semibold tabular-nums"
+          title="Monthly pool cap"
+        >
+          {pool.limit.toLocaleString()}
+        </span>
+        <span className="text-[10px] text-muted">scores · this month</span>
+      </div>
       <div className={`relative flex-1 min-w-[120px] h-1.5 ${baseClass}`}>
         {segments.map((seg, i) => {
           const segPct = Math.min(100, (seg.value / pool.limit) * 100);

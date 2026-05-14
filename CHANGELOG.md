@@ -6,6 +6,14 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.4.18 / api 1.0.0 — 2026-05-13
+
+**Team pool meter: show the 25K cap prominently.**
+
+- The pool meter on `/dashboard/team` was compacted in v0.4.17, but the limit number (25,000 default) ended up in muted text where it could be missed at a glance. Restructured the inline numbers so both used and cap render at the same weight, foreground color, semibold mono, tabular-nums. Reads "0 of 25,000 scores · this month" with both numerals equally legible.
+
+---
+
 ## app 0.4.17 / api 1.0.0 — 2026-05-13
 
 **Reviews: request flow, interactive pins, scoring integration.**
