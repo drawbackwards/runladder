@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, useOrganization } from "@clerk/nextjs";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
@@ -644,8 +644,12 @@ export default function ScorePage() {
 
             {/* Review context banner — present when /score is opened with
                 ?review=<slug>. Tells the user the score will land inside
-                that Review. */}
-            <ScoreReviewContextBanner />
+                that Review. Suspense boundary required because the banner
+                reads useSearchParams; without it, static prerender of
+                /score bails out (Next.js CSR bailout). */}
+            <Suspense fallback={null}>
+              <ScoreReviewContextBanner />
+            </Suspense>
 
             {/* Informational callouts — above the drop zone (Ward feedback).
                 Public/private toggle for signed-in users, terms note for anon. */}
