@@ -16,6 +16,7 @@ import {
 } from "@/components/ActivityHeatmap";
 import { Avatar } from "@/components/Avatar";
 import { ActiveReviewsCard } from "@/components/reviews/ActiveReviewsCard";
+import { ReviewRequestsPanel } from "@/components/reviews/ReviewRequestsPanel";
 
 type MemberStats = {
   totalScans: number;
@@ -330,18 +331,37 @@ function TeamPoolMeter({
       : []),
   ];
 
+  const overOrWarn = over || warn;
+  const ceilingLink = (
+    <a
+      href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20higher%20volume%20inquiry"
+      className="text-ladder-green hover:underline"
+    >
+      Talk to us
+    </a>
+  );
+
   return (
-    <section className="mb-10">
-      <div className="flex items-baseline justify-between mb-3">
-        <h2 className="text-[10px] text-muted uppercase tracking-widest">
-          Team pool
-        </h2>
-        <span className="text-[10px] text-muted font-mono">
-          {pool.used.toLocaleString()} / {pool.limit.toLocaleString()} this month
+    <section
+      className="mb-6 border border-[#2a2a2a] bg-[#1a1a1a] px-4 py-2.5 flex items-center gap-4 flex-wrap"
+      title={
+        over
+          ? "Team is over the pool ceiling — talk to us about a custom volume"
+          : warn
+            ? "Approaching the team pool ceiling"
+            : undefined
+      }
+    >
+      <span className="text-[10px] text-muted uppercase tracking-widest whitespace-nowrap">
+        Team pool
+      </span>
+      <span className="text-[11px] text-foreground font-mono tabular-nums whitespace-nowrap">
+        {pool.used.toLocaleString()}{" "}
+        <span className="text-muted">
+          / {pool.limit.toLocaleString()} this month
         </span>
-      </div>
-      <div className={`relative h-2 ${baseClass}`}>
-        {/* Stacked breakdown by contributor. Tooltips on hover via title. */}
+      </span>
+      <div className={`relative flex-1 min-w-[120px] h-1.5 ${baseClass}`}>
         {segments.map((seg, i) => {
           const segPct = Math.min(100, (seg.value / pool.limit) * 100);
           return (
@@ -360,29 +380,12 @@ function TeamPoolMeter({
           );
         })}
       </div>
-      {over ? (
-        <p className="text-[11px] text-muted mt-3">
-          You&apos;ve passed the standard team pool.{" "}
-          <a
-            href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20higher%20volume%20inquiry"
-            className="text-ladder-green hover:underline"
-          >
-            Talk to us about a custom volume
-          </a>
-          .
-        </p>
-      ) : warn ? (
-        <p className="text-[11px] text-muted mt-3">
-          Approaching the team pool ceiling.{" "}
-          <a
-            href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20higher%20volume%20inquiry"
-            className="text-ladder-green hover:underline"
-          >
-            We&apos;ll size you up
-          </a>{" "}
-          before it bites.
-        </p>
-      ) : null}
+      {overOrWarn && (
+        <span className="text-[10px] text-muted">
+          {over ? "Over ceiling. " : "Near ceiling. "}
+          {ceilingLink}.
+        </span>
+      )}
     </section>
   );
 }
@@ -861,6 +864,8 @@ export default function TeamPage() {
         {isAdmin && teamData?.pool && (
           <TeamPoolMeter pool={teamData.pool} members={memberList} />
         )}
+
+        {isAdmin && <ReviewRequestsPanel />}
 
         {isAdmin && <ActiveReviewsCard />}
 

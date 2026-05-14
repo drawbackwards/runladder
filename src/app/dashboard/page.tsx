@@ -11,6 +11,7 @@ import { TeamCard } from "@/components/TeamCard";
 import { TeamSetupBanner } from "@/components/TeamSetupBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { ActivityHeatmap, type DailyActivity } from "@/components/ActivityHeatmap";
+import { RequestReviewCTA } from "@/components/reviews/RequestReviewCTA";
 import { FREE_LIFETIME_LIMIT } from "@/lib/plans";
 
 type ScoreEntry = {
@@ -470,6 +471,8 @@ export default function DashboardPage() {
         </div>
 
         <TeamSetupBanner tier={tier} />
+
+        {(tier === "team" || tier === "pulse") && <RequestReviewCTA />}
 
         <DesignRhythmCard scores={scores} />
 

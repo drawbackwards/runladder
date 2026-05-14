@@ -86,6 +86,28 @@ export type MockReview = {
   unread: number;
 };
 
+/**
+ * A designer-initiated request for the manager to start (or extend) a
+ * Review on a specific screen. Lives on the manager's team dashboard
+ * until accepted or declined.
+ */
+export type MockReviewRequest = {
+  id: string;
+  requestedBy: MockReviewer;
+  requestedAt: string;
+  /** Short name of the screen the requester wants feedback on. */
+  subject: string;
+  /** Placeholder gradient hue for the thumbnail. */
+  hue: number;
+  /** Current Ladder score on the screen, if it has been scored. */
+  currentScore: number | null;
+  /** Free-text context from the requester. */
+  note: string;
+  /** Optional: review the requester suggests adding this to. */
+  suggestedReviewId?: string;
+  status: "pending" | "accepted" | "declined";
+};
+
 // --- Reviewers ---------------------------------------------------------
 
 const SARAH: MockReviewer = { id: "sarah", name: "Sarah Chen", initials: "SC", role: "owner" };
@@ -267,6 +289,42 @@ export const MOCK_REVIEWS: MockReview[] = [
         ],
       },
     ],
+  },
+];
+
+// --- Review requests ---------------------------------------------------
+
+export const MOCK_REVIEW_REQUESTS: MockReviewRequest[] = [
+  {
+    id: "req_settings_v2",
+    requestedBy: ALEX,
+    requestedAt: "2026-05-12T16:30:00Z",
+    subject: "Account settings v2",
+    hue: 78,
+    currentScore: 2.6,
+    note: "Pushed the new settings screen yesterday. Hierarchy feels off at the top and I can't tell if the dividers are doing anything. Would love eyes before the sprint review Friday.",
+    status: "pending",
+  },
+  {
+    id: "req_pricing_mobile",
+    requestedBy: JORDAN,
+    requestedAt: "2026-05-13T09:14:00Z",
+    subject: "Pricing page, mobile",
+    hue: 12,
+    currentScore: 3.1,
+    note: "Mobile pricing is comfortable on Ladder but the tier comparison feels cramped. Could use a designer eye on the breakpoint behavior.",
+    suggestedReviewId: "rev_pricing_refresh",
+    status: "pending",
+  },
+  {
+    id: "req_empty_state",
+    requestedBy: DANA,
+    requestedAt: "2026-05-13T11:42:00Z",
+    subject: "Dashboard empty state",
+    hue: 220,
+    currentScore: null,
+    note: "Brand new empty state, not scored yet. Want to crit before I commit to the direction.",
+    status: "pending",
   },
 ];
 

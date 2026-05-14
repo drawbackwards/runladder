@@ -6,6 +6,19 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.4.17 / api 1.0.0 — 2026-05-13
+
+**Reviews: request flow, interactive pins, scoring integration.**
+
+- **Designer-initiated review requests.** New `/dashboard/reviews/request` form lets a designer ask their manager for human eyes on a screen. Picks an optional Review to attach to. A "Request a review" CTA card sits on `/dashboard` for team-tier members.
+- **Manager-side requests panel.** `/dashboard/team` now shows incoming review requests above Active reviews. Each card carries the requester avatar, screen thumbnail, current Ladder score, and a context note. Accept expands an in-row "Add to" picker (suggested Review highlighted) or "Start a new Review". Decline dismisses. Seeded with three sample requests for the mock.
+- **Drop-a-pin interactivity.** On the frame workspace, click "+ Drop a pin", then click anywhere on the screen image. A dashed-outline pending pin appears with an inline comment input. Submit drops it as a real pin in local state, selected by default in the right rail.
+- **Submit-a-Team-Take.** The "+ Submit your Team Take" button on the frame workspace now opens an inline form. Score (1.0–5.0) plus a one-line rationale. Submit adds your take to the list and updates the aggregate subscore.
+- **Scoring assign-to-Review.** "+ Score a frame" on a review detail page and "+ Score next iteration" on the frame workspace now route to `/score?review=<slug>`. /score reads that param and surfaces a "Adding to [Review name]" banner above the upload zone so the user knows the next score lands inside that Review. Mock-grade — real persistence ships with the next pass.
+- **Compact team pool meter.** The pool meter on `/dashboard/team` is now a one-line slim bar instead of a section card. Same data, tooltip-on-hover for the over/near-ceiling messaging. Frees up the vertical real estate for the manager workflow.
+
+---
+
 ## app 0.4.16 / api 1.0.0 — 2026-05-13
 
 **Move Active Reviews to the team dashboard.**
