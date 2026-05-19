@@ -9,12 +9,13 @@ import { UserMenu } from "./UserMenu";
 export function Nav() {
   const { isSignedIn, isLoaded } = useAuth();
   const pathname = usePathname();
-  // Hide marketing nav inside product surfaces (dashboard, score). Keeps
-  // the user focused on the task and out of the marketing site once they
-  // are working in Ladder.
+  // Hide marketing nav inside product surfaces (dashboard, score, hq).
+  // Keeps the user focused on the task and out of the marketing site
+  // once they are working in Ladder.
   const inProduct =
     pathname?.startsWith("/dashboard") ||
     pathname?.startsWith("/score") ||
+    pathname?.startsWith("/hq") ||
     false;
 
   return (

@@ -1,0 +1,74 @@
+---
+title: Feature Inventory
+owner: Michael
+updatedAt: 2026-05-19
+updatedBy: Sara
+---
+
+## What goes here
+
+Every Ladder feature with its surface, role gating, status, and link to the PR that shipped it (or the issue tracking the work). One row per feature.
+
+Status values: **Shipped**, **In flight**, **Roadmap**, **Paused**.
+
+Michael owns keeping this current. The [Roadmap](/hq/roadmap) board on GitHub is the live view; this page is the human-readable index.
+
+## How to add a row
+
+When you ship a feature, add an entry here in the same PR. Use this row template:
+
+```
+| Feature | Surface | Roles | Status | Linked PR |
+| --- | --- | --- | --- | --- |
+| Feature name | web/plugin/skill/api/pulse/admin | free/pro/teams/admin | Shipped/In flight/Roadmap | #176 |
+```
+
+## Web app (runladder.com)
+
+| Feature | Roles | Status | Linked PR |
+| --- | --- | --- | --- |
+| Public scoring tool (`/score`) | All signed-in | Shipped | - |
+| Personal dashboard (`/dashboard`) | All signed-in | Shipped | - |
+| Team dashboard (`/dashboard/team`) | Team Members + Leaders | Shipped | - |
+| Team pool meter (25K cap) | Team Leaders | Shipped | [#176](https://github.com/drawbackwards/runladder/pull/176) |
+| Active Reviews on `/dashboard/team` | Team Members + Leaders | Shipped | [#174](https://github.com/drawbackwards/runladder/pull/174) |
+| Reviews + interactive pins + scoring integration | Pro+ | Shipped | [#175](https://github.com/drawbackwards/runladder/pull/175) |
+| Sign-up required for scoring | All | Shipped | [#172](https://github.com/drawbackwards/runladder/pull/172) |
+| Top 100 ranked products | All | Roadmap | - |
+| Public profile (`/[username]`) | All signed-in | Roadmap | - |
+| Pricing page overhaul (Free 5-lifetime, Pro $250) | All | In flight | - |
+| Ladder Lift CTA on sub-3.0 scores | Free users | Roadmap | - |
+
+## Figma plugin
+
+| Feature | Roles | Status | Linked PR |
+| --- | --- | --- | --- |
+| Plugin v1.0.6 (bundle synced from runladder) | Pro+ | Shipped | - |
+
+Stub. Chester / Ward to fill in plugin-specific features and link to the `ai-design-assistant` repo PRs.
+
+## Claude Skill
+
+Stub. Ward to fill in. Skill bundle versions in `src/lib/skill-version.ts`.
+
+## Ladder Pulse
+
+Stub. Ward to fill in. Lumin Digital is the first customer (see [Decisions Log](/hq/decisions)).
+
+## API + MCP
+
+Stub. Ward to fill in. API version tracked in `src/lib/app-version.ts` as `CURRENT_API_VERSION`.
+
+## Admin
+
+Stub. Ward to fill in. Admin features at `/admin`, `/admin/comps`, `/admin/evaluations`, `/admin/feedback`.
+
+## Pro-only features
+
+Pulled out separately so the Pro upgrade case is easy to articulate. See [Decisions Log → Pro features](/hq/decisions#pro-features-that-are-pro-only).
+
+- A11y audit on score results
+- UX copywriting suggestions
+- Enhanced dashboard
+- 1,000 queries/month (vs 5 lifetime free)
+- All surfaces (web, plugin, Skill)

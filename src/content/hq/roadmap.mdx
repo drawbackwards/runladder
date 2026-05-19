@@ -1,0 +1,66 @@
+---
+title: Roadmap
+owner: Michael
+updatedAt: 2026-05-19
+updatedBy: Sara
+---
+
+## How the roadmap works
+
+Ladder's roadmap lives in **GitHub Projects** on the `drawbackwards/runladder` repo. This page is the human-readable summary; the board is the live state.
+
+Columns on the board:
+
+- **Backlog.** Captured but not scheduled.
+- **This Week.** Owner committed to ship by Friday.
+- **In Flight.** Branch open or PR up.
+- **Shipped.** Merged to main.
+- **Blocked.** Waiting on someone or something.
+
+Labels on every issue:
+
+- **Surface:** `web`, `plugin`, `skill`, `api`, `pulse`, `admin`
+- **Role:** `free`, `pro`, `teams`, `admin`
+- **Status:** matches the column
+- **Owner:** GitHub @-handle
+
+Each label maps to a section in [Feature Inventory](/hq/features). When a label is missing, the feature can't be tracked.
+
+## Setting up the board
+
+**Stub.** Ward to create the GitHub Project after this PR merges, then update this page with:
+
+- A direct link to the Project board
+- An embedded view of the "This Week" column (if GitHub Projects supports embedding)
+- The first three weeks' priorities
+
+## Current priorities (placeholder)
+
+This list refreshes every Wednesday during the weekly review.
+
+| Priority | Owner | Status |
+| --- | --- | --- |
+| Stand up `/hq` team hub | Ward | In flight |
+| MCP server v1 | Ward | Roadmap |
+| Claude Skill v1.1 polish | Ward + Chester | Roadmap |
+| Public API documentation | Ward | Roadmap |
+| Pricing page overhaul (Free 5-lifetime) | Ward + Jordan | In flight |
+| Top 100 launch | Michael | Roadmap |
+| Engineering hire trigger evaluation | Ward | Backlog |
+
+## Weekly review cadence
+
+**Wednesdays. 30 minutes.** Michael runs it. Agenda:
+
+1. Move anything in "This Week" that didn't ship to next week with a note on why.
+2. Pull from "Backlog" into "This Week" up to capacity.
+3. Surface blockers. Anything in "Blocked" for two weeks gets a hard decision: ship around or kill.
+4. Flag any [/hq](/hq) page that hasn't been updated in 30 days for refresh.
+
+## Launching publicly
+
+Public marketing launch is gated on MCP, Skill, and API being live. See [Decisions Log → Public launch](/hq/decisions#public-launch-is-gated-on-mcp-skill-and-api-being-live). This page tracks the three live-flags.
+
+- [ ] MCP server live at api.runladder.com
+- [ ] Claude Skill v1.x in the Anthropic skill registry
+- [ ] Public API v1 documented at api.runladder.com

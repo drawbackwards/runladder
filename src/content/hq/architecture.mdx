@@ -1,0 +1,45 @@
+---
+title: Architecture
+owner: Ward
+updatedAt: 2026-05-19
+updatedBy: Sara
+---
+
+## One scoring engine, five thin clients
+
+Every Ladder surface is a thin client over the same scoring engine. The framework, the rubric, the prompts, and the model invocation live server-side. Surfaces do nothing but capture input (URL, screenshot, feedback, Figma frame, MCP call), send it to the API, and render the result.
+
+This is non-negotiable. See [Decisions Log](/hq/decisions#never-expose-prompts) for why.
+
+## System diagram
+
+<ArchitectureDiagram />
+
+## Where the code lives
+
+| Concern | Repo / location |
+| --- | --- |
+| Web app (runladder.com) | `drawbackwards/runladder` (this repo) |
+| Figma plugin | `drawbackwards/ai-design-assistant` |
+| Claude Skill | `drawbackwards/runladder` (`scripts/sync-skill-version.mjs` syncs the bundle) |
+| API + MCP | Migrating from `ai-design-assistant` into this repo over time |
+| Pulse | `drawbackwards/runladder` (`/dashboard/pulse`) |
+| Admin console | `drawbackwards/runladder` (`/admin`) |
+
+## Shared services
+
+**Scoring engine.** Anthropic Claude with the Ladder rubric prompt. Server-side only. Same engine across every surface so a score from the Figma plugin matches a score from the API.
+
+**Auth.** Clerk for human users on web surfaces. API keys for developer surfaces (API, MCP). Same identity, different transport.
+
+**Billing.** Stripe. Subscriptions for Pro and Pulse, usage-based metering for over-cap scoring. See [API Protocols](/hq/api) for tier limits.
+
+**Data.** Upstash Redis today. Postgres planned for richer analytics and scoring history. Migration not yet scheduled.
+
+## Versioning
+
+Every surface ships its own version and shows it to users. See [API Protocols](/hq/api) for the contract.
+
+- `src/lib/app-version.ts`: runladder web app (`CURRENT_APP_VERSION`) and API (`CURRENT_API_VERSION`)
+- `src/lib/skill-version.ts`: Figma skill bundle (`CURRENT_SKILL_VERSION`)
+- Bump on every user-visible change. Always add a matching `CHANGELOG.md` entry.
