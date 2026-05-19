@@ -13,6 +13,7 @@ type HqFrontmatter = {
   title?: string;
   updatedAt?: string;
   updatedBy?: string;
+  lastPr?: number;
 };
 
 const mdxComponents = {
@@ -75,6 +76,7 @@ export default async function HqSectionPage({
         title={frontmatter.title ?? meta.title}
         updatedAt={frontmatter.updatedAt}
         updatedBy={frontmatter.updatedBy}
+        lastPr={frontmatter.lastPr}
         intent={meta.intent}
       />
       {content}

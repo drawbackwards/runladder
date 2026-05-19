@@ -2,6 +2,7 @@
 title: Decisions Log
 updatedAt: 2026-05-19
 updatedBy: Sara
+lastPr: 178
 ---
 
 ## How to use this page
@@ -9,6 +10,29 @@ updatedBy: Sara
 The why behind big choices. Read this before you push back on a feature, a price, or a roadmap call. Most decisions look arbitrary until you know the constraint that drove them. New entries go at the top with a date and one-line rule.
 
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
+
+---
+
+## /hq stays in lockstep with the code (2026-05-19)
+
+**UNBREAKABLE rule.** Every PR that touches code in this repo updates the matching `/hq` page in the same PR. Bump `updatedAt`, `updatedBy`, and `lastPr` in the page's frontmatter. The `LastUpdated` header renders the stamp so anyone reading the page can see when it was last verified against the code and which PR did the verifying.
+
+Why: `/hq` is the team's source of truth. If it drifts from the code, it dies. The only way to keep it alive is to make doc updates part of the same commit as code changes. Ward made this an unbreakable rule when we stood `/hq` up.
+
+How to apply: see the project [CLAUDE.md](https://github.com/drawbackwards/runladder/blob/main/CLAUDE.md) for the map of "when you change X, update Y in `/hq`". If a code change has no doc consequence, say so in the commit body. Otherwise the doc update is part of the PR.
+
+Map (lives in CLAUDE.md but reproduced here for the team):
+
+| When you change... | Update... |
+| --- | --- |
+| A user-visible web/plugin/Skill feature | `/hq/features` row, `/hq/journeys` flow if it changes |
+| An API endpoint, MCP tool, or auth shape | `/hq/api` |
+| Pricing, positioning, roles, model, ICP, or any strategic decision | `/hq/decisions` |
+| `src/lib/admin.ts` auth tiers | `/hq/roles` |
+| Roadmap status (priority moved, gate flipped) | `/hq/roadmap` |
+| Engine architecture, shared services, surface boundaries | `/hq/architecture` |
+| Vocabulary (new term, renamed concept) | `/hq/glossary` |
+| Brand rules (voice, colors, taboos) | `/hq/brand` |
 
 ---
 

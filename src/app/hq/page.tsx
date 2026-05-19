@@ -8,8 +8,12 @@ export default function HqIndex() {
         <h1 className="text-3xl font-bold text-foreground mb-2">Ladder HQ</h1>
         <p className="text-sm text-muted max-w-2xl">
           Internal team hub. Source of truth for the platform, the people,
-          and the protocols. Every feature PR should touch the page that
-          documents it.
+          and the protocols.
+        </p>
+        <p className="text-xs text-muted max-w-2xl mt-3 italic">
+          Every PR that touches code updates the page that documents it,
+          in the same PR. Each page shows its last updated date and the PR
+          that did the verifying.
         </p>
       </header>
 

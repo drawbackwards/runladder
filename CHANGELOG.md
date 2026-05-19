@@ -8,8 +8,9 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ## app 0.5.1 / api 1.0.0 (2026-05-19)
 
-**Ladder HQ: drop human-owner labels, Sara seeds every section.**
+**Ladder HQ: drop human-owner labels, Sara seeds every section, lockstep protocol baked in.**
 
+- **Lockstep protocol.** Every PR that touches code in this repo updates the matching `/hq` page in the same PR. Bump `updatedAt`, `updatedBy`, and `lastPr` in the page frontmatter every time. The `LastUpdated` header renders the timestamp and PR number (linked to GitHub) so anyone reading the page can see when it was last verified against the code. New section added to CLAUDE.md with the code-area-to-doc map. New Decisions Log entry codifies the rule.
 - **Owner labels removed from chrome.** The `/hq` index cards no longer show "Owner: X" tags and per-page headers no longer display an owner line. Pages are seeded by Sara from platform memory and the live codebase. Surface ownership (the matrix of who's accountable for shipping web vs plugin vs Skill, etc.) still lives on `/hq/team` where it belongs.
 - **User Journeys populated.** Full walkthroughs of the core flows on each surface (web sign-up to score to upgrade, Figma plugin first-run, Claude Skill flow, Pulse data flow, API key flow, MCP agent flow) with Mermaid diagrams for each.
 - **Feature Inventory populated.** Every surface (web, plugin, Skill, Pulse, API + MCP, admin, HQ) now lists shipped, in-flight, and roadmap features with PR links where known. Pro-only and Teams-only features called out separately so the upgrade case is easy to articulate.
