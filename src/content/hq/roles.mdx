@@ -2,7 +2,7 @@
 title: Roles
 updatedAt: 2026-05-19
 updatedBy: Sara
-lastPr: 178
+lastPr: 179
 ---
 
 ## End-user roles
@@ -12,13 +12,13 @@ These are the tiers a customer can hold. Drives every gated feature on every sur
 | Role | Bought via | What it unlocks |
 | --- | --- | --- |
 | **Anonymous** | - | Marketing pages only. No scoring. Sign-up required to score. |
-| **Free** | Sign-up | 5 lifetime scores on web. Base score only. No a11y or UX copywriting tabs. |
-| **Pro** | Stripe self-serve, $250 | 1,000 queries/month, all surfaces, a11y and UX copywriting unlocked, enhanced dashboard. |
-| **Team Member** | Invited by Team Leader | Shares the team pool (25,000 queries/month). All Pro features. Sees team leaderboard. |
-| **Team Leader** | Drawbackwards engagement | Manages seats, invites Team Members, sees team dashboard, controls billing. Comes via MSA + SOW. |
-| **Pulse User** | Pulse engagement | All Pro features + Pulse dashboard at `/dashboard/pulse`. 50,000-query pool. |
+| **Free** | Sign-up | 5 lifetime scores. Base score only. No a11y or UX copywriting tabs. |
+| **Pro** | Stripe self-serve, $1,000/mo (public) | 2,000 scores/mo, all surfaces, a11y and UX copywriting unlocked, enhanced dashboard. Hard cap at 4,000 scores/mo (2x soft cap). |
+| **Team Member** | Invited by Team Leader | Shares the team pool (25,000 pooled scores/mo). All Pro features. Sees team leaderboard. |
+| **Team Leader** | Drawbackwards engagement (Beta) | Manages seats, invites Team Members, sees team dashboard, controls billing. Comes via MSA + SOW. Public price: Custom. |
+| **Pulse User** | Pulse engagement | All Team features + Pulse data ingest and customer-feedback dashboard (lives in `ladder-beta`). Public price: Custom. |
 
-See [Decisions Log → Pricing](/hq/decisions#pricing-free-5-lifetime-pro-250-self-serve-teams-contact-only) for the rationale.
+See [Decisions Log -- Public pricing](/hq/decisions#public-pricing-free-5-lifetime-pro-1000mo-self-serve-team-and-pulse-custom) for the rationale.
 
 ## Internal roles
 
@@ -34,12 +34,12 @@ These gate access to platform internals. Email-based allowlist defined in `src/l
 
 | Capability | Free | Pro | Team Member | Team Leader | Pulse | Admin | Super Admin |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Score a screen | 5/lifetime | 1K/mo | Pool | Pool | Pool | Yes | Yes |
+| Score a screen | 5 lifetime | 2K/mo (4K hard cap) | Pool | Pool | Pool | Yes | Yes |
 | A11y audit | - | Yes | Yes | Yes | Yes | Yes | Yes |
 | UX copywriting | - | Yes | Yes | Yes | Yes | Yes | Yes |
 | Personal dashboard | Basic | Enhanced | Enhanced | Enhanced | Enhanced | Yes | Yes |
 | Team dashboard + leaderboard | - | - | View | Manage | - | View | Manage |
-| Pulse dashboard | - | - | - | - | Yes | View | View |
+| Pulse dashboard (in `ladder-beta`) | - | - | - | - | Yes | View | View |
 | Invite team members | - | - | - | Yes | - | - | Yes |
 | `/admin` console | - | - | - | - | - | Yes | Yes |
 | `/hq` team hub | - | - | - | - | - | Yes | Yes (Chester, Sean via TEAM_EMAILS) |

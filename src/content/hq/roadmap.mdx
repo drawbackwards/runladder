@@ -2,64 +2,210 @@
 title: Roadmap
 updatedAt: 2026-05-19
 updatedBy: Sara
-lastPr: 178
+lastPr: 179
 ---
 
 ## How this page works
 
-This is the human-readable roadmap. When the GitHub Project board for `drawbackwards/runladder` is set up, it becomes the live source of truth and this page links to it. Until then, this is the snapshot.
+The platform roadmap. What's gated on what, what we're working this week, and the longer threads.
 
-Priorities refresh every Wednesday during the weekly review. Sara updates this page when a priority lands or shifts.
+Priorities refresh every Wednesday during the weekly review. Sara updates this page when a priority lands or shifts. Every PR that changes roadmap status bumps `lastPr` per the [lockstep protocol](/hq/decisions#hq-stays-in-lockstep-with-the-code).
+
+The GitHub Project board for `drawbackwards/runladder` is the live source of truth when it ships. Until then, this page is the snapshot.
 
 ## Public launch gate
 
 Public marketing launch is gated on three developer surfaces being live. See [Decisions Log → Public launch](/hq/decisions#public-launch-is-gated-on-mcp-skill-and-api-being-live).
 
-- [ ] MCP server live at `api.runladder.com/mcp` with `ladder.score` tool
-- [ ] Claude Skill v1 in the Anthropic skill registry
-- [ ] Public Ladder API v1 documented at api.runladder.com
+- [ ] MCP server live (likely at `api.runladder.com/mcp`)
+- [ ] Claude Skill distributed beyond manual install (marketplace.json published)
+- [ ] Public Ladder API v1 documented and callable (at `api.runladder.com/v1/*`)
 
-All three are this-month work per the accelerated [API headless strategy](/hq/decisions). Until all three flip, no paid acquisition push. Soft launches with the design community on `/framework` are fine.
+Until all three flip, no paid acquisition push. Soft launches with the design community on `/framework` are fine.
 
 ## This week (active)
 
 | Priority | Surface | Status |
 | --- | --- | --- |
-| Ladder HQ content fill (Sara seeds all sections) | `/hq` | In flight (this PR) |
-| Pricing page overhaul (Free 5-lifetime, Pro $250, Teams contact) | Web | In flight |
-| MCP server v1 (`ladder.score` tool) | API + MCP | In flight |
-| Claude Skill polish for registry submission | Skill | In flight |
-| Pulse pipeline for Lumin Digital | Pulse | Ongoing (Sept 2025 to Sept 2026 engagement) |
+| HQ audit corrections + GTM strategy + roadmap expansion | `/hq` | In flight (this PR) |
+| Pricing page polish (Pulse tier card + API tier display) | Web | In flight |
+| Pulse pipeline for Lumin Digital | Pulse (ladder-beta) | Ongoing (Sept 2025 to Sept 2026 engagement) |
 
 ## Next 30 days
 
 | Priority | Surface | Notes |
 | --- | --- | --- |
-| Public API v1 documentation at api.runladder.com | API | Public-launch gate |
-| Anthropic Skill registry submission | Skill | Public-launch gate |
+| Skill distribution: publish `marketplace.json` in this repo | Skill | See [Skill distribution roadmap](#skill-distribution-roadmap) |
+| `api.runladder.com` Phase 1 (DNS + subdomain serving runladder.com/api) | API | See [api.runladder.com roadmap](#apirunladdercom-roadmap) |
+| MCP server design + spec | API + MCP | Decide tool surface, auth, transport |
+| Claude Skill polish for broader install | Skill | Onboarding, error handling, docs |
 | Ladder Lift CTA on sub-3.0 scores | Web | Free to Teams bridge per [Decisions Log](/hq/decisions#ladder-lift-bridges-free--teams) |
-| Top 100 launch (`/top-100`) | Web | Marketing surface, content engine |
-| Figma plugin relaunch + marketplace demo | Plugin | Re-review restarted 2026-04-18 |
 | Trademark filing + legal protection | Business | Required before public references add the trademark symbol |
 
 ## This quarter
 
 | Priority | Surface | Notes |
 | --- | --- | --- |
-| Public marketing launch | All | Gated on the three above |
+| `api.runladder.com` Phase 2 (public API endpoints with Bearer auth) | API | Splits internal vs public scoring |
+| MCP server v1 build | API + MCP | Public-launch gate |
+| Top 100 launch (`/top-100`) | Web | Marketing surface, content engine |
+| Public profile (`/[username]`) | Web | After Top 100 ships |
+| Figma plugin relaunch + marketplace demo | Plugin | Re-review restarted 2026-04-18 |
 | Pro upsell flow polish (a11y + UX copywriting unlock) | Web | Conversion lever |
-| Pulse expansion (theme clustering, drill-down) | Pulse | Beyond Lumin pilot |
+| `/dashboard/settings` (account, billing, API keys) | Web | Required before public API ships (key issuance UI) |
 | Engineering hire trigger evaluation | Team | See [Decisions Log → Engineering model](/hq/decisions#engineering-model-current-state) |
-| `/[username]` public profile pages | Web | After Top 100 ships |
+
+## Skill distribution roadmap
+
+The Ladder Skill (`Ladder for Claude`) works today: bundle v1.0.6, backend at `/api/skill/*`. Distribution is currently manual (Ward installed it in his Claude.ai by hand). Broader distribution path:
+
+### Phase 1: publish `marketplace.json` (Now to 30 days)
+
+Anthropic's Skills distribution model uses **plugin marketplaces** defined by a `marketplace.json` file in a public git repo. Anyone with the repo URL can `/plugin marketplace add drawbackwards/runladder` and then `/plugin install ladder`.
+
+Concrete steps:
+
+1. Create `.claude-plugin/marketplace.json` at the root of `drawbackwards/runladder`.
+2. Add the Ladder Skill bundle as a plugin in the manifest (point at the existing `src/lib/skill-version.ts` bundle definition).
+3. Test installation flow with a fresh Claude.ai account.
+4. Document install steps on `/framework` (or a dedicated `/skill` page) so designers know how to add it.
+5. Cross-link from runladder marketing pages.
+
+Owner: Ward + Sara (build) or Chester + Michael with Ward approval. Sean reviews.
+
+### Phase 2: submit to `anthropics/skills` (30 to 60 days)
+
+Anthropic maintains a public marketplace at [anthropics/skills](https://github.com/anthropics/skills). External skills can be listed there for broader discovery.
+
+Concrete steps:
+
+1. Verify Anthropic's submission policy (open PR vs application form).
+2. Prepare a Ladder skill description that matches their listing format.
+3. Submit via the appropriate channel.
+4. Maintain the listing as the bundle updates.
+
+Owner: Michael (PM coordinates), Ward signs off on listing copy.
+
+### Phase 3: Teams enterprise deployment (after Teams scales)
+
+Anthropic supports admin workspace-wide skill deployment (shipped December 2025). When a Teams customer onboards, their workspace admin can install Ladder for the whole team in one move.
+
+Concrete steps:
+
+1. Document the workspace deploy flow in the Teams onboarding handoff.
+2. Add a "deploy Ladder to your Claude.ai workspace" step to the Drawbackwards Teams engagement SOW.
+3. Build a smooth handoff so Teams customers don't have to figure this out themselves.
+
+Owner: Michael (PM), with Drawbackwards delivery lead on each engagement.
+
+## api.runladder.com roadmap
+
+The dedicated public API surface and MCP server do not exist yet. `api.runladder.com` DNS returns NXDOMAIN today. Below is the phased plan.
+
+### Phase 1: domain + DNS (1 day)
+
+1. Register `api.runladder.com` subdomain at the DNS provider.
+2. Point at Vercel (same project or new project, see Phase 2).
+3. Add an `auth-gate` redirect so anything hitting the bare domain returns a friendly "Ladder API coming soon" page until Phase 2 ships.
+
+Owner: Ward.
+
+### Phase 2: architecture decision and scaffold (1 to 2 weeks)
+
+Pick one of three options for what lives at the subdomain:
+
+- **Option A: Rewrite to `runladder.com/api/*`.** Simplest. Single Vercel project. Routes rewritten at the edge. Less isolation; harder to apply different rate limits or auth.
+- **Option B: Separate Vercel project for the public API.** Cleanest separation. Lets us version the public contract independently of the web app. More infra to maintain.
+- **Option C: Same project, subdomain-aware routing.** Middle ground. Single deploy, route handlers check `Host` header to gate public vs internal endpoints.
+
+Recommended: **Option A for Phase 2** (fastest to ship), revisit Option B when public API traffic warrants it.
+
+Whichever option, add a `/v1/score` endpoint (separate from `/api/score`) that:
+
+- Authenticates via Bearer token (`Authorization: Bearer ldr_live_...`)
+- Accepts a richer input shape (URL or image, surface tag, options)
+- Returns the same scoring result the web app uses
+- Emits `X-Ladder-API-Version`, `X-Ladder-Quota-Remaining`, `X-Ladder-Surface` headers
+- Counts against tier limits in the same `plans.ts` system
+
+Owner: Ward + Sara.
+
+### Phase 3: API key issuance UI (1 week)
+
+Build `/dashboard/settings`:
+
+1. List existing API keys (masked).
+2. Generate new keys with a label.
+3. Rotate or revoke individual keys.
+4. Show usage stats per key (this month, lifetime).
+
+Owner: Ward + Sara (eng), Chester (design).
+
+### Phase 4: MCP server (2 to 3 weeks)
+
+Build the MCP server as a separate route on `api.runladder.com/mcp` (or a separate transport per MCP spec).
+
+Tool surface (target):
+
+- `ladder.score(url? | image?, surface)` returns `{ score, rung, rungColor, breakdown, scoreId }`
+- `ladder.framework()` returns the framework reference (rungs, ranges, definitions)
+- `ladder.account()` returns the caller's tier and remaining quota
+
+Auth: Bearer API key in MCP config. Never exposes the rubric or the prompt.
+
+Owner: Ward + Sara. Sean engineering review.
+
+### Phase 5: OpenAPI spec + docs site (1 to 2 weeks)
+
+1. Write the OpenAPI 3.1 spec for the public API.
+2. Choose a docs tool (Mintlify, Scalar, Docusaurus, or MDX in this repo).
+3. Publish at `api.runladder.com/docs` (or just the root of `api.runladder.com`).
+4. Include MCP server config example, auth flow, rate limit table, error codes, example requests.
+
+Owner: Michael (writes copy), Ward + Sara (implements).
+
+### Phase 6: Public-launch gate flip
+
+When Phases 1 to 5 are live, all three public-launch gates flip (MCP, Skill marketplace, public API docs). At that point:
+
+- Decisions Log entry: public launch gate flipped, paid acquisition unblocked.
+- Marketing push: blog announcement, social, designer newsletter outreach, Top 100 launch coordinated.
+- GTM funnel activates as documented in [/hq/gtm](/hq/gtm).
+
+## Pulse consolidation (future)
+
+`drawbackwards/ladder-beta` (Pulse) and `drawbackwards/ladder` (original Rails) stay in their own repos for now. See [Decisions Log → Pulse and original Ladder stay in separate repos](/hq/decisions#pulse-and-original-ladder-stay-in-separate-repos-for-now).
+
+Triggers that would move this from future to active:
+
+- Lumin Digital engagement renewal or expansion that requires shared infra.
+- Pulse signs a second customer and the duplicate-engine cost (OpenAI in ladder-beta, Anthropic in runladder) starts to bite.
+- runladder API ships and ladder-beta could reasonably consume it instead of OpenAI.
+
+No commitment to a quarter. Track here, revisit when a trigger fires.
+
+## Hiring trigger
+
+Engineering is Ward + Sara as AI pair + Chester and Michael with Ward's approval on web/plugin/Skill + Sean for weekly audit. See [Decisions Log → Engineering model](/hq/decisions#engineering-model-current-state).
+
+Triggers that would move "engineering hire" from future to active:
+
+- Pulse pipeline scale issues that need dedicated time.
+- API uptime SLA after public launch.
+- Anthropic skill marketplace traction that creates broader API demand.
+- Sean's audit hours stop being enough.
+
+No active recruiting until one of those fires.
 
 ## Standing items
 
 These never close. They show up in the review when they need attention.
 
-- **Documentation drift.** Any `/hq` page untouched in 30 days gets a refresh nudge.
+- **Documentation drift.** Any `/hq` page untouched in 30 days gets a refresh nudge during weekly review.
 - **Prompt-leak check.** `scripts/check-no-prompt-leak.mjs` runs pre-build. A trip is a P0.
 - **Versioning sync.** Web app, API, and Skill versions all bump independently. Always pair a version bump with a `CHANGELOG.md` entry.
 - **Decisions Log review.** When the world changes (pricing experiment results, customer feedback, market shift), revisit the affected entry. Update or remove the stale memory.
+- **Evidence audit.** Every claim of "Live" in `/hq/features` must point to a file, route, or PR. See [Decisions Log → Every claim of live must point to evidence](/hq/decisions#every-claim-of-live-in-hq-must-point-to-a-route-file-or-pr).
 
 ## Weekly review
 

@@ -2,44 +2,61 @@
 title: Architecture
 updatedAt: 2026-05-19
 updatedBy: Sara
-lastPr: 178
+lastPr: 179
 ---
 
-## One scoring engine, five thin clients
+## One scoring framework, three codebases (today)
 
-Every Ladder surface is a thin client over the same scoring engine. The framework, the rubric, the prompts, and the model invocation live server-side. Surfaces do nothing but capture input (URL, screenshot, feedback, Figma frame, MCP call), send it to the API, and render the result.
+Ladder is one framework and one customer-facing brand, but the code today lives across three separate repositories. Pulse and the original Ladder will eventually fold into runladder, but that's a future decision, not active work. See [Decisions Log](/hq/decisions#pulse-and-original-ladder-stay-in-separate-repos-for-now).
 
-This is non-negotiable. See [Decisions Log](/hq/decisions#never-expose-prompts) for why.
+## Codebase map
+
+| Repo | Stack | Hosting | Surfaces | Notes |
+| --- | --- | --- | --- | --- |
+| `drawbackwards/runladder` | Next.js 16, React 19, TypeScript, Tailwind 4 | Vercel | Marketing, public scoring tool, dashboard, Reviews, Pulse marketing page, Plugin backend, Skill backend, admin, HQ | This repo. Where most active development happens. |
+| `drawbackwards/ai-design-assistant` | Plugin codebase + first-gen API | Vercel | Figma plugin bundle (v1.0.6), legacy plugin/API endpoints | Plugin source lives here. Some endpoints have migrated to runladder. |
+| `drawbackwards/ladder-beta` | Next.js + Prisma | Fly.io | Pulse product surface, Pulse data pipeline | Where the live Pulse engagement (Lumin Digital) runs. Default branch `dev`. |
+| `drawbackwards/ladder` | Ruby on Rails | (legacy) | Original Ladder backend | Predecessor to ladder-beta. Still touched occasionally. `ladder-beta` connects via `RAILS_BASE_API_URL`. |
+
+## What lives where (current truth, not the future state)
+
+| Concern | Today | Future |
+| --- | --- | --- |
+| Marketing pages, public scoring, dashboard | `runladder` | Same |
+| Figma plugin source | `ai-design-assistant` | Likely stays separate (Figma deploy target) |
+| Plugin backend endpoints (`/api/plugin/*`) | `runladder` | Same |
+| Claude Skill bundle source | `runladder` (`src/lib/skill-version.ts`, `scripts/sync-skill-version.mjs`) | Same |
+| Claude Skill backend (`/api/skill/*`) | `runladder` | Same |
+| Public Ladder API (api.runladder.com) | Does not exist yet | Roadmap, see [Roadmap](/hq/roadmap#apirunladdercom-roadmap) |
+| MCP server | Does not exist yet | Roadmap |
+| Pulse marketing page (`/pulse`) | `runladder` | Same |
+| **Pulse product + data pipeline** | **`ladder-beta` on Fly.io** | Eventually fold into `runladder`, no timeline |
+| **Original Ladder (Rails)** | **`ladder` repo** | Eventually fold or deprecate, no timeline |
+| Admin console (`/admin`) | `runladder` | Same |
+| Engineering standards docs | `drawbackwards/engineering-standards` | Same |
 
 ## System diagram
 
+This diagram shows the future-target architecture (one engine, thin clients). Today, Pulse uses its own engine in `ladder-beta`. Consolidation onto a single shared engine is roadmap.
+
 <ArchitectureDiagram />
 
-## Where the code lives
+## Shared services (target state, partial today)
 
-| Concern | Repo / location |
-| --- | --- |
-| Web app (runladder.com) | `drawbackwards/runladder` (this repo) |
-| Figma plugin | `drawbackwards/ai-design-assistant` |
-| Claude Skill | `drawbackwards/runladder` (`scripts/sync-skill-version.mjs` syncs the bundle) |
-| API + MCP | Migrating from `ai-design-assistant` into this repo over time |
-| Pulse | `drawbackwards/runladder` (`/dashboard/pulse`) |
-| Admin console | `drawbackwards/runladder` (`/admin`) |
+**Scoring engine.** Anthropic Claude with the Ladder rubric prompt. Server-side only. Today this runs in `runladder` for web, plugin, and Skill surfaces. Pulse runs its own scoring stack in `ladder-beta`. Consolidation is roadmap.
 
-## Shared services
+**Auth.** Clerk for human users on `runladder` surfaces. Plugin token + Skill token (server-issued via `/api/plugin/issue-token` and `/api/skill/token`). API keys for `api.runladder.com` are roadmap (the issuance UI doesn't exist yet either).
 
-**Scoring engine.** Anthropic Claude with the Ladder rubric prompt. Server-side only. Same engine across every surface so a score from the Figma plugin matches a score from the API.
+**Billing.** Stripe. Subscriptions live in `runladder`. Pulse and the legacy Ladder engagement (Lumin Digital) bill outside of Stripe via Drawbackwards agency contracts.
 
-**Auth.** Clerk for human users on web surfaces. API keys for developer surfaces (API, MCP). Same identity, different transport.
-
-**Billing.** Stripe. Subscriptions for Pro and Pulse, usage-based metering for over-cap scoring. See [API Protocols](/hq/api) for tier limits.
-
-**Data.** Upstash Redis today. Postgres planned for richer analytics and scoring history. Migration not yet scheduled.
+**Data.** Upstash Redis in `runladder` for scoring history and tier counters. Pulse uses Prisma + Postgres on Fly.io in `ladder-beta`. Postgres in `runladder` is planned but not scheduled.
 
 ## Versioning
 
 Every surface ships its own version and shows it to users. See [API Protocols](/hq/api) for the contract.
 
 - `src/lib/app-version.ts`: runladder web app (`CURRENT_APP_VERSION`) and API (`CURRENT_API_VERSION`)
-- `src/lib/skill-version.ts`: Figma skill bundle (`CURRENT_SKILL_VERSION`)
+- `src/lib/skill-version.ts`: Skill bundle (`CURRENT_SKILL_VERSION`)
 - Bump on every user-visible change. Always add a matching `CHANGELOG.md` entry.
+
+`ladder-beta` and `ladder` versions live in their own repos and follow their own bump cadence. Their version stamps are not yet visible from `/hq`. Tracking is roadmap.
