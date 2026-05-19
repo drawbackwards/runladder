@@ -70,6 +70,11 @@ export const HQ_SECTIONS: HqSection[] = [
     title: "Roadmap",
     intent: "What's in flight this week, what's queued, what's been shipped.",
   },
+  {
+    slug: "gtm",
+    title: "Go-to-Market",
+    intent: "Funnel, channels, sales motion, pricing strategy, public-launch sequence, metrics, risks.",
+  },
 ];
 
 export function findSection(slug: string): HqSection | undefined {

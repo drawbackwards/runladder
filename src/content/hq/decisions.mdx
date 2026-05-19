@@ -2,7 +2,7 @@
 title: Decisions Log
 updatedAt: 2026-05-19
 updatedBy: Sara
-lastPr: 178
+lastPr: 179
 ---
 
 ## How to use this page
@@ -10,6 +10,37 @@ lastPr: 178
 The why behind big choices. Read this before you push back on a feature, a price, or a roadmap call. Most decisions look arbitrary until you know the constraint that drove them. New entries go at the top with a date and one-line rule.
 
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
+
+---
+
+## Every claim of "live" in /hq must point to a route, file, or PR (2026-05-19)
+
+**UNBREAKABLE rule.** A feature is tagged Live only if you can name the file path, route, or PR that proves it. Otherwise tag it In flight (code exists, partial) or Roadmap (no code yet).
+
+Why: the v0.5.0 / v0.5.1 seed of `/hq` invented a few things that didn't exist (an `api.runladder.com` domain that wasn't registered, a `/dashboard/settings` route that doesn't exist, an MCP server with three named tools). Ward caught it in the v0.5.2 audit. The fix is a discipline: no Live without evidence. The fix is also a workflow: I do not write a feature row claiming Live without first grepping the codebase.
+
+How to apply:
+
+- Every row in [/hq/features](/hq/features) Live column must have an Evidence column pointing to a file or PR.
+- Every flow in [/hq/journeys](/hq/journeys) tagged Live must reference a real route handler.
+- Every endpoint in [/hq/api](/hq/api) Live table must exist under `src/app/api/`.
+- If the answer to "does this exist" is "kind of" or "partially", it's In flight, not Live.
+- If the answer is "we plan to", it's Roadmap.
+
+---
+
+## Pulse and original Ladder stay in separate repos for now (2026-05-19)
+
+**Pulse runs in `drawbackwards/ladder-beta` (Next.js + Prisma on Fly.io). The original Ladder backend runs in `drawbackwards/ladder` (Rails). Both stay separate. Eventual consolidation into `runladder` is a future decision, not active work.**
+
+Why: Pulse is a working revenue line (Lumin Digital is paying $90K for the current engagement) and the codebase is mature enough that pulling it into `runladder` mid-engagement would create risk without near-term upside. The Rails original is the dependency `ladder-beta` reads from (`RAILS_BASE_API_URL`), so it goes when `ladder-beta` goes. Trying to consolidate now slows down both the public launch on `runladder` and the customer work in `ladder-beta`.
+
+How to apply:
+
+- Track Pulse features and surfaces in [/hq/features → Ladder Pulse](/hq/features#ladder-pulse--drawbackwardsladder-beta) and [/hq/journeys → Ladder Pulse](/hq/journeys#ladder-pulse--live-runs-in-a-separate-codebase). State the repo and stack honestly.
+- Track Rails original in [/hq/features → Original Ladder](/hq/features#original-ladder--drawbackwardsladder).
+- The `/pulse` page on runladder.com is marketing only. Do not pretend it's the product surface.
+- Consolidation decision is on the [Roadmap](/hq/roadmap) as a future item, no commitment to a quarter.
 
 ---
 

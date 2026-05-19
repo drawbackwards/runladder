@@ -6,6 +6,21 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.2 / api 1.0.0 (2026-05-19)
+
+**Ladder HQ: audit corrections, full platform roadmap, Go-to-Market strategy, Skill distribution plan.**
+
+- **Audit corrections.** v0.5.0 and v0.5.1 invented things that didn't exist. This release tells the truth: `api.runladder.com` does not exist (DNS NXDOMAIN), MCP server does not exist, `/dashboard/settings` does not exist, the `POST /v1/score` shape was fiction. Every page now distinguishes Live (file/route/PR evidence) vs In flight (code partially exists) vs Roadmap (no code yet).
+- **Codebase map** added to `/hq/architecture`. Three repos called out: `runladder` (this), `ladder-beta` (Pulse on Fly.io), `ladder` (original Rails). Pulse and Ladder stay in separate repos for now; consolidation is roadmap.
+- **API Protocols rewritten** at `/hq/api`. Full table of every endpoint that actually exists in `src/app/api/`. Auth tiers documented honestly. Real `POST /api/score` shape pulled from the actual route file. Roadmap clearly separated from today.
+- **User Journeys re-tagged** with Live / In flight / Roadmap on every flow. Pulse flow notes that Pulse runs in `ladder-beta`. Token issuance flows reference the real `/api/plugin/issue-token` and `/api/skill/token` routes, not the fictional `/dashboard/settings`.
+- **Feature Inventory** every row now has an Evidence column. If a row claims Live, it points to a file path or PR. Otherwise it's In flight or Roadmap. Pulse and Original Ladder get their own sections so the repo split is clear.
+- **Decisions Log** two new entries: (1) Every claim of "live" in /hq must point to a route, file, or PR (UNBREAKABLE rule). (2) Pulse and original Ladder stay in separate repos for now; consolidation is a future decision, not active.
+- **Roadmap expanded** at `/hq/roadmap` with a full platform plan: public-launch gate tracker, This Week / Next 30 Days / This Quarter, **Skill distribution roadmap** (publish `marketplace.json`, submit to `anthropics/skills`, Teams enterprise deployment), **api.runladder.com roadmap** (6 phases: DNS + Phase 1 redirect, architecture decision, API key UI, MCP server, OpenAPI spec, public launch flip), Pulse consolidation triggers, hiring trigger triggers, standing items, weekly review cadence.
+- **Go-to-Market strategy** new page at `/hq/gtm`. CRO-voice draft: north star, positioning recap, ICP, full funnel (awareness, activation, engagement, conversion, expansion, retention) with surface mapping, three-motion sales (PLG for Pro, sales-assisted for Lift, enterprise for Teams and Pulse), channel strategy (owned, earned, partner, paid), public-launch sequence by day, metrics dashboard, risks called out, open questions for Ward.
+
+---
+
 ## app 0.5.1 / api 1.0.0 (2026-05-19)
 
 **Ladder HQ: drop human-owner labels, Sara seeds every section, lockstep protocol baked in.**

@@ -2,137 +2,120 @@
 title: API Protocols
 updatedAt: 2026-05-19
 updatedBy: Sara
-lastPr: 178
+lastPr: 179
 ---
 
-## Surfaces under one contract
+## Two surfaces, one to come
 
-Every Ladder surface calls the same scoring API. The web app, the Figma plugin, the Claude Skill, Pulse, and direct API customers all hit the same endpoints with the same payload shape and get the same response shape. That's the contract.
+Today, the Ladder API exists as **internal endpoints under `runladder.com/api/*`**, gated by Clerk session (web) or short-lived tokens (Plugin, Skill). There is no public `api.runladder.com` yet. The MCP server does not exist yet either.
 
-The API and MCP server live at **api.runladder.com**. (Migration in progress from the `ai-design-assistant` backend.)
+The future-target public API and MCP server are tracked in [Roadmap → api.runladder.com](/hq/roadmap#apirunladdercom-roadmap).
 
-## Auth
+## What exists today (verified in `src/app/api/`)
 
-| Caller | Auth method | Token shape |
-| --- | --- | --- |
-| Web app | Clerk session cookie | Standard browser auth |
-| Figma plugin | Plugin token (server-issued) | Bearer in `Authorization` header |
-| Claude Skill | Skill token (user-issued from dashboard) | Bearer in `Authorization` header |
-| Direct API | API key (issued in dashboard settings) | Bearer in `Authorization` header |
-| MCP | API key in MCP config | Per MCP transport |
+All endpoints below are real routes in this repo. Find them under `src/app/api/`. Auth is Clerk session for the web flow; short-lived server-issued tokens for Plugin and Skill.
 
-**Never put an API key in client-side code.** Plugin tokens and Skill tokens are scoped to a single user; API keys are scoped to an account and have higher rate limits but more blast radius.
+| Endpoint | Method | Auth | Purpose |
+| --- | --- | --- | --- |
+| `/api/score` | POST | Clerk session | Score an image (data URL). Primary web scoring endpoint. |
+| `/api/score/stream` | POST | Clerk session | Streaming variant of the score endpoint. |
+| `/api/framework` | GET | Public | The Ladder framework reference. Does not include rubric. |
+| `/api/top-100` | GET | Public | Top 100 listing. |
+| `/api/dashboard` | GET | Clerk session | Personal dashboard data. |
+| `/api/dashboard/scores` | GET | Clerk session | User's score history. |
+| `/api/dashboard/scores/[id]` | GET | Clerk session | Individual score detail. |
+| `/api/dashboard/scores/[id]/annotations` | GET, POST | Clerk session | Reviews pin annotations. |
+| `/api/dashboard/team` | GET | Clerk Org (team) | Team dashboard data. |
+| `/api/skill/token` | POST | Clerk session | Issue a Skill token for use in Claude.ai. |
+| `/api/skill/score` | POST | Skill token | Scoring callable from the Ladder Skill. |
+| `/api/plugin/issue-token` | POST | Clerk session | Issue a plugin token for use in the Figma plugin. |
+| `/api/plugin/verify-token` | POST | Plugin token | Token introspection for the plugin. |
+| `/api/plugin/analyze` | POST | Plugin token | Scoring callable from the Figma plugin. |
+| `/api/plugin/meta` | GET | Public | Plugin metadata (version, etc.). |
+| `/api/plugin/persist-score` | POST | Plugin token | Save a plugin-originated score. |
+| `/api/stripe/checkout` | POST | Clerk session | Pro upgrade Stripe checkout session. |
+| `/api/stripe/portal` | POST | Clerk session | Stripe customer portal. |
+| `/api/stripe/webhooks` | POST | Stripe webhook signature | Stripe event ingest. |
+| `/api/webhooks/clerk` | POST | Clerk webhook signature | Auto-grant `tier: team` on org join (shipped v0.3.0). |
+| `/api/auth-gate` | GET | Public | Site password-gate check for pre-launch. |
+| `/api/contact` | POST | Public | Contact form submission. |
+| `/api/vote` | POST | Clerk session | Top 100 voting. |
+| `/api/screenshot` | POST | Server-internal | Render a screenshot via puppeteer-core. |
+| `/api/admin/*` | GET, POST, etc. | `ADMIN_EMAILS` | Admin console backends. |
+
+### POST /api/score (the real shape)
+
+Reading [`src/app/api/score/route.ts`](https://github.com/drawbackwards/runladder/blob/main/src/app/api/score/route.ts):
+
+- Auth: requires Clerk session (`auth()`). Anonymous calls return 401 with `{ error, signup: true }`.
+- Bot detection: rejects common HTTP clients (curl, wget, python-requests, httpie, postman, scrapy, phantomjs) with 403.
+- Input: image data URL parsed via `parseImageDataUrl` from `src/lib/scoring.ts`. (Not the `{input: {url}, options: {surface}}` JSON shape this page used to claim.)
+- Limits: read from `src/lib/plans.ts` (`FREE_LIFETIME_LIMIT`, `PRO_MONTHLY_LIMIT`, `monthlyHardCapForTier`). Free tier hard-blocks past the lifetime cap.
+- Persistence: scores are written to Upstash Redis via `persistScoreEntry`.
+
+Detailed request/response shape lives in the route file. When the public API ships at `api.runladder.com`, we document the formal shape on that surface.
+
+## Auth tiers (today)
+
+| Caller | Auth method | Token type | Issued by |
+| --- | --- | --- | --- |
+| Web app | Clerk session cookie | n/a | Clerk |
+| Figma plugin | Plugin token | Short-lived bearer | `POST /api/plugin/issue-token` (Clerk session required) |
+| Claude Skill | Skill token | Short-lived bearer | `POST /api/skill/token` (Clerk session required) |
+| Admin | Email allowlist | n/a | `src/lib/admin.ts` (`ADMIN_EMAILS` env) |
+| Team Hub | Email allowlist | n/a | `src/lib/admin.ts` (`TEAM_EMAILS` env) |
+| Public API key | **Roadmap** | Bearer `ldr_live_...` | UI doesn't exist yet (issuance is roadmap) |
+| MCP | **Roadmap** | Bearer in MCP config | n/a |
+
+There is **no `/dashboard/settings` route today**. Plugin and Skill tokens are issued via API calls from in-product flows. The settings UI that issues these tokens is roadmap.
 
 ## Versioning
 
-Every response includes `X-Ladder-API-Version`. The current contract version lives in `src/lib/app-version.ts` as `CURRENT_API_VERSION`. Bump rules:
+Every response from `src/app/api/*` already carries `X-Ladder-API-Version` (or will once the protocol is fully applied; check `src/lib/app-version.ts` for `CURRENT_API_VERSION`, currently `1.0.0`).
+
+Bump rules when the public API ships:
 
 - **Patch** (`1.0.x`): bug fixes, no contract change.
 - **Minor** (`1.x.0`): additive fields, backwards compatible.
 - **Major** (`x.0.0`): breaking change. Communicate in `CHANGELOG.md` and notify Pro+ customers by email.
 
-Every surface also ships its own version (web app, Skill bundle, plugin). See [Architecture → Versioning](/hq/architecture#versioning).
+Surface versions (independent):
+
+- `CURRENT_APP_VERSION` in `src/lib/app-version.ts` (web app)
+- `CURRENT_API_VERSION` in `src/lib/app-version.ts` (API contract)
+- `CURRENT_SKILL_VERSION` in `src/lib/skill-version.ts` (Skill bundle)
+- Plugin version in `drawbackwards/ai-design-assistant`
+- `ladder-beta` and `ladder` track their own versions in their repos
 
 ## Rate limits
 
-Per-tier monthly query limits. See [Roles](/hq/roles) for the full table.
+Implemented in `src/app/api/score/route.ts` using helpers from `src/lib/plans.ts`. Per-tier monthly limits live in code. The values on [/hq/decisions#pricing-free-5-lifetime-pro-250-self-serve-teams-contact-only](/hq/decisions#pricing-free-5-lifetime-pro-250-self-serve-teams-contact-only) reflect intent; the canonical numbers are in `plans.ts`.
 
-| Tier | Monthly queries | Burst | Overage |
-| --- | --- | --- | --- |
-| Free | 5 lifetime | 1/sec | Hard cap, no overage |
-| Pro | 1,000 | 10/sec | Tiered overage billing |
-| Teams | 25,000 pool | 20/sec | Tiered overage billing |
-| Pulse | 50,000 pool | 50/sec | Tiered overage billing |
+| Tier | Monthly queries | Notes |
+| --- | --- | --- |
+| Free | 5 lifetime | Hard-blocked past cap, no overage |
+| Pro | `PRO_MONTHLY_LIMIT` | Tiered overage (roadmap to verify exact billing) |
+| Teams | 25,000 pool | Sold via MSA + SOW |
+| Pulse | 50,000 pool | Sold via direct engagement |
 
-Rate-limit responses use HTTP 429 with `Retry-After` and `X-Ladder-Quota-Remaining` headers.
+Rate-limit responses target HTTP 429 with `Retry-After` and `X-Ladder-Quota-Remaining` headers once the public API ships. Today's responses are 401/403 with tier-specific messages.
 
 ## Never expose the prompt
 
-Server-side only. Every surface must be a thin client.
+Server-side only. Every surface is a thin client.
 
 - Prompts, rubric text, scoring logic, model parameters: server-side only.
 - API responses include the final score and breakdown, never the reasoning trace or rubric tokens.
-- The `scripts/check-no-prompt-leak.mjs` pre-build check exists for this. If it trips, fix the leak.
+- `scripts/check-no-prompt-leak.mjs` runs pre-build. If it trips, fix the leak.
 
 See [Decisions Log → Never expose prompts](/hq/decisions#never-expose-prompts-rubric-or-scoring-logic).
 
-## Endpoint shape
+## Public API + MCP (roadmap, not built)
 
-The public API exposes the scoring engine and the framework reference. All endpoints sit under `https://api.runladder.com/v1/`.
+The public Ladder API at `api.runladder.com` and the MCP server are not in code yet. The full plan, with concrete steps, lives at [Roadmap → api.runladder.com](/hq/roadmap#apirunladdercom-roadmap).
 
-| Endpoint | Method | Purpose |
-| --- | --- | --- |
-| `/v1/score` | POST | Score a URL or image. Primary endpoint. |
-| `/v1/score/[id]` | GET | Fetch a stored score by ID (Pro+ history). |
-| `/v1/framework` | GET | The Ladder framework reference (names, ranges, definitions). Cacheable. Does not include rubric. |
-| `/v1/account` | GET | Caller's account info: tier, remaining quota, surfaces enabled. |
-| `/v1/account/keys` | GET, POST, DELETE | API key management for the calling account. |
+Until that ships, anything you read in this page about "v1/score" paths, MCP tools, or Bearer API keys is the future-target contract, not today's reality.
 
-### POST /v1/score request
+## Key rotation (target state)
 
-```json
-{
-  "input": { "url": "https://example.com" },
-  "options": { "surface": "web", "include": ["breakdown", "a11y"] }
-}
-```
-
-`input` accepts either `url` (string) or `image` (base64 or URL). `options.surface` is required so we can attribute usage to the right tier counter. `options.include` is optional; defaults to `["breakdown"]`. A11y and UX copywriting requested by Free callers return a `403 pro_required` error.
-
-### POST /v1/score response
-
-```json
-{
-  "score": 3.42,
-  "rung": "Comfortable",
-  "rungColor": "#eab308",
-  "breakdown": { "...": "per-rung subscores" },
-  "a11y": { "...": "Pro only" },
-  "uxCopy": { "...": "Pro only" },
-  "scoredAt": "2026-05-19T20:14:33Z",
-  "scoreId": "scr_01HX..."
-}
-```
-
-Response headers: `X-Ladder-API-Version`, `X-Ladder-Quota-Remaining`, `X-Ladder-Surface`.
-
-## MCP server
-
-The MCP server exposes scoring as a tool callable by any MCP-aware AI agent (Claude, Cursor, custom agents). Available at `https://api.runladder.com/mcp`.
-
-### MCP tool surface
-
-| Tool | Input | Output |
-| --- | --- | --- |
-| `ladder.score` | `{ url?: string, image?: string, surface: string }` | `{ score, rung, rungColor, breakdown, scoreId }` |
-| `ladder.framework` | `{}` | The framework reference (rungs, ranges, definitions). |
-| `ladder.account` | `{}` | Caller's tier and remaining quota. |
-
-The MCP server is a thin transport over the same `/v1/score` endpoint. Agents that read `ladder.framework` first get the Ladder vocabulary so they can interpret the score they get back. They never see the rubric or the prompts.
-
-### MCP config example
-
-For Claude Desktop, the user adds an entry to their MCP config:
-
-```json
-{
-  "mcpServers": {
-    "ladder": {
-      "url": "https://api.runladder.com/mcp",
-      "headers": { "Authorization": "Bearer ldr_live_..." }
-    }
-  }
-}
-```
-
-API keys for MCP are issued in `/dashboard/settings`, same surface as direct API keys.
-
-### Why MCP matters
-
-This surface is what makes Ladder agent-native. Every AI workflow that touches design (a coding agent reviewing a UI, a research agent comparing competitors, a PM agent triaging customer feedback) can call `ladder.score` and get a number to act on. The MCP shape is part of the public-launch gate. See [Decisions Log → Public launch](/hq/decisions#public-launch-is-gated-on-mcp-skill-and-api-being-live).
-
-## Key rotation
-
-API keys are rotatable from `/dashboard/settings`. Skill tokens rotate from the same page. Old tokens are valid for 24 hours after rotation to give callers time to update config.
-
-Admin-issued tokens (super admin or admin) rotate by editing `SUPER_ADMIN_EMAILS` or `ADMIN_EMAILS`. The hardcoded super admin list requires PR + deploy + passphrase.
+Once API key issuance UI ships, keys rotate from `/dashboard/settings`. Old tokens valid for 24 hours after rotation. Today, Plugin and Skill tokens rotate by re-issuing via the API. Admin allowlists rotate via `ADMIN_EMAILS` env vars; `SUPER_ADMIN_EMAILS` rotates only via PR + deploy + Ward's passphrase.
