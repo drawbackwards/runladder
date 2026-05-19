@@ -115,6 +115,42 @@ Same as all Drawbackwards repos:
 - Tailwind utility classes, no CSS modules
 - `const` by default, `let` only when needed, never `var`
 
+## /hq docs lockstep (UNBREAKABLE)
+
+Every PR that touches code in this repo MUST update the matching `/hq` page in the same PR. The team relies on `/hq` as truth. If it drifts from the code, it dies.
+
+When you change code:
+
+1. Find the `/hq` page(s) that document the area you changed.
+2. Update the relevant content in the same PR (new feature row in `/hq/features`, updated flow in `/hq/journeys`, new endpoint in `/hq/api`, etc.).
+3. Bump the frontmatter:
+
+```yaml
+---
+title: <section title>
+updatedAt: <today YYYY-MM-DD>
+updatedBy: <your name, or Sara if AI pair>
+lastPr: <the PR number this change ships in>
+---
+```
+
+The `LastUpdated` header on the page renders these three fields so anyone reading the page can see when it was last verified against the code and which PR did the verifying.
+
+Map of code areas to docs:
+
+| When you change... | Update... |
+|---|---|
+| A user-visible web/plugin/Skill feature | `/hq/features` row, `/hq/journeys` flow if it changes |
+| An API endpoint, MCP tool, or auth shape | `/hq/api` (endpoint shape, examples) |
+| Pricing, positioning, roles, model, ICP, or any strategic decision | `/hq/decisions` (new entry or revise existing) |
+| `src/lib/admin.ts` auth tiers | `/hq/roles` capability matrix |
+| Roadmap status (priority moved, gate flipped) | `/hq/roadmap` |
+| Engine architecture, shared services, surface boundaries | `/hq/architecture` |
+| Vocabulary (new term, renamed concept) | `/hq/glossary` |
+| Brand rules (voice, colors, taboos) | `/hq/brand` |
+
+If a code change has no doc consequence, say so in the commit body. Otherwise the doc update is part of the PR. Sara enforces this for AI-paired work. Ward, Chester, and Michael enforce it for their own PRs.
+
 ## Related Repos
 
 - **drawbackwards/ai-design-assistant** — Figma plugin + current API (will migrate API here over time)

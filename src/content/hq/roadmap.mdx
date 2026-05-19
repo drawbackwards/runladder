@@ -1,66 +1,72 @@
 ---
 title: Roadmap
-owner: Michael
 updatedAt: 2026-05-19
 updatedBy: Sara
+lastPr: 178
 ---
 
-## How the roadmap works
+## How this page works
 
-Ladder's roadmap lives in **GitHub Projects** on the `drawbackwards/runladder` repo. This page is the human-readable summary; the board is the live state.
+This is the human-readable roadmap. When the GitHub Project board for `drawbackwards/runladder` is set up, it becomes the live source of truth and this page links to it. Until then, this is the snapshot.
 
-Columns on the board:
+Priorities refresh every Wednesday during the weekly review. Sara updates this page when a priority lands or shifts.
 
-- **Backlog.** Captured but not scheduled.
-- **This Week.** Owner committed to ship by Friday.
-- **In Flight.** Branch open or PR up.
-- **Shipped.** Merged to main.
-- **Blocked.** Waiting on someone or something.
+## Public launch gate
 
-Labels on every issue:
+Public marketing launch is gated on three developer surfaces being live. See [Decisions Log → Public launch](/hq/decisions#public-launch-is-gated-on-mcp-skill-and-api-being-live).
 
-- **Surface:** `web`, `plugin`, `skill`, `api`, `pulse`, `admin`
-- **Role:** `free`, `pro`, `teams`, `admin`
-- **Status:** matches the column
-- **Owner:** GitHub @-handle
+- [ ] MCP server live at `api.runladder.com/mcp` with `ladder.score` tool
+- [ ] Claude Skill v1 in the Anthropic skill registry
+- [ ] Public Ladder API v1 documented at api.runladder.com
 
-Each label maps to a section in [Feature Inventory](/hq/features). When a label is missing, the feature can't be tracked.
+All three are this-month work per the accelerated [API headless strategy](/hq/decisions). Until all three flip, no paid acquisition push. Soft launches with the design community on `/framework` are fine.
 
-## Setting up the board
+## This week (active)
 
-**Stub.** Ward to create the GitHub Project after this PR merges, then update this page with:
-
-- A direct link to the Project board
-- An embedded view of the "This Week" column (if GitHub Projects supports embedding)
-- The first three weeks' priorities
-
-## Current priorities (placeholder)
-
-This list refreshes every Wednesday during the weekly review.
-
-| Priority | Owner | Status |
+| Priority | Surface | Status |
 | --- | --- | --- |
-| Stand up `/hq` team hub | Ward | In flight |
-| MCP server v1 | Ward | Roadmap |
-| Claude Skill v1.1 polish | Ward + Chester | Roadmap |
-| Public API documentation | Ward | Roadmap |
-| Pricing page overhaul (Free 5-lifetime) | Ward + Jordan | In flight |
-| Top 100 launch | Michael | Roadmap |
-| Engineering hire trigger evaluation | Ward | Backlog |
+| Ladder HQ content fill (Sara seeds all sections) | `/hq` | In flight (this PR) |
+| Pricing page overhaul (Free 5-lifetime, Pro $250, Teams contact) | Web | In flight |
+| MCP server v1 (`ladder.score` tool) | API + MCP | In flight |
+| Claude Skill polish for registry submission | Skill | In flight |
+| Pulse pipeline for Lumin Digital | Pulse | Ongoing (Sept 2025 to Sept 2026 engagement) |
 
-## Weekly review cadence
+## Next 30 days
 
-**Wednesdays. 30 minutes.** Michael runs it. Agenda:
+| Priority | Surface | Notes |
+| --- | --- | --- |
+| Public API v1 documentation at api.runladder.com | API | Public-launch gate |
+| Anthropic Skill registry submission | Skill | Public-launch gate |
+| Ladder Lift CTA on sub-3.0 scores | Web | Free to Teams bridge per [Decisions Log](/hq/decisions#ladder-lift-bridges-free--teams) |
+| Top 100 launch (`/top-100`) | Web | Marketing surface, content engine |
+| Figma plugin relaunch + marketplace demo | Plugin | Re-review restarted 2026-04-18 |
+| Trademark filing + legal protection | Business | Required before public references add the trademark symbol |
 
-1. Move anything in "This Week" that didn't ship to next week with a note on why.
-2. Pull from "Backlog" into "This Week" up to capacity.
-3. Surface blockers. Anything in "Blocked" for two weeks gets a hard decision: ship around or kill.
-4. Flag any [/hq](/hq) page that hasn't been updated in 30 days for refresh.
+## This quarter
 
-## Launching publicly
+| Priority | Surface | Notes |
+| --- | --- | --- |
+| Public marketing launch | All | Gated on the three above |
+| Pro upsell flow polish (a11y + UX copywriting unlock) | Web | Conversion lever |
+| Pulse expansion (theme clustering, drill-down) | Pulse | Beyond Lumin pilot |
+| Engineering hire trigger evaluation | Team | See [Decisions Log → Engineering model](/hq/decisions#engineering-model-current-state) |
+| `/[username]` public profile pages | Web | After Top 100 ships |
 
-Public marketing launch is gated on MCP, Skill, and API being live. See [Decisions Log → Public launch](/hq/decisions#public-launch-is-gated-on-mcp-skill-and-api-being-live). This page tracks the three live-flags.
+## Standing items
 
-- [ ] MCP server live at api.runladder.com
-- [ ] Claude Skill v1.x in the Anthropic skill registry
-- [ ] Public API v1 documented at api.runladder.com
+These never close. They show up in the review when they need attention.
+
+- **Documentation drift.** Any `/hq` page untouched in 30 days gets a refresh nudge.
+- **Prompt-leak check.** `scripts/check-no-prompt-leak.mjs` runs pre-build. A trip is a P0.
+- **Versioning sync.** Web app, API, and Skill versions all bump independently. Always pair a version bump with a `CHANGELOG.md` entry.
+- **Decisions Log review.** When the world changes (pricing experiment results, customer feedback, market shift), revisit the affected entry. Update or remove the stale memory.
+
+## Weekly review
+
+**Wednesdays, 30 minutes.** Michael runs it. Agenda:
+
+1. Move anything in "This week" that didn't ship to next week with a note on why.
+2. Pull from "Next 30 days" into "This week" up to capacity.
+3. Surface blockers. Anything blocked for two weeks gets a hard decision: ship around or kill.
+4. Flag any `/hq` page that hasn't been updated in 30 days.
+5. Walk the public-launch gate tracker. If any of the three flipped, plan the next gate.

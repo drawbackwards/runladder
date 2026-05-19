@@ -7,17 +7,19 @@ import { findSection, HQ_SECTIONS } from "@/content/hq/_sections";
 import { LastUpdated } from "@/components/hq/LastUpdated";
 import { MermaidDiagram } from "@/components/hq/MermaidDiagram";
 import { ArchitectureDiagram } from "@/components/hq/ArchitectureDiagram";
+import { Diagram } from "@/components/hq/Diagram";
 
 type HqFrontmatter = {
   title?: string;
-  owner?: string;
   updatedAt?: string;
   updatedBy?: string;
+  lastPr?: number;
 };
 
 const mdxComponents = {
   Mermaid: MermaidDiagram,
   ArchitectureDiagram,
+  Diagram,
 };
 
 export async function generateStaticParams() {
@@ -46,13 +48,9 @@ export default async function HqSectionPage({
   if (!file) {
     return (
       <article className="hq-prose">
-        <LastUpdated
-          title={meta.title}
-          owner={meta.owner}
-          intent={meta.intent}
-        />
+        <LastUpdated title={meta.title} intent={meta.intent} />
         <p className="text-muted italic">
-          This section hasn&apos;t been written yet. Owner: {meta.owner}.
+          This section hasn&apos;t been written yet.
         </p>
         <p className="text-xs text-muted mt-4">
           Drop the content in <code>src/content/hq/{slug}.mdx</code>.
@@ -76,9 +74,9 @@ export default async function HqSectionPage({
     <article className="hq-prose">
       <LastUpdated
         title={frontmatter.title ?? meta.title}
-        owner={frontmatter.owner ?? meta.owner}
         updatedAt={frontmatter.updatedAt}
         updatedBy={frontmatter.updatedBy}
+        lastPr={frontmatter.lastPr}
         intent={meta.intent}
       />
       {content}

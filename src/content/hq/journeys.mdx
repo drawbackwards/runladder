@@ -1,78 +1,122 @@
 ---
 title: User Journeys
-owner: Chester
 updatedAt: 2026-05-19
 updatedBy: Sara
+lastPr: 178
 ---
 
-## What goes here
+## How to read this page
 
-Annotated walkthroughs of the core flows on each surface. One section per surface. Each flow shows the screens (or steps), the decisions the user is making, where they drop off today, and what we want to improve. Diagrams in Mermaid.
+One section per surface. Each section walks the primary flow, calls out the key decision points, names the screens or steps, and flags what we want to improve next. Diagrams are Mermaid, defined in `src/content/hq/diagrams.ts` and referenced by name.
 
-This is Chester's primary doc to seed. Pull annotated screens from `public/screenshots/` and embed them inline.
+The flows below are what's live today plus what's about to ship. Anything in stub-or-roadmap is called out inline.
 
 ## Web app (runladder.com)
 
-**Owner: Chester.** Stub.
+The web app is the canonical surface. Everything else routes to it eventually for billing, account management, and the public marketing story.
 
-Flows to document:
+### First-time score
 
-1. Anonymous → marketing → sign-up → first score
-2. Free user → 5 lifetime cap hit → Pro upgrade
-3. Pro user → dashboard → repeat scoring
-4. Sub-3.0 score → Ladder Lift CTA → contact form
+<Diagram name="WEB_FIRST_SCORE" />
+
+Key beats:
+
+- Anonymous visitors can read marketing pages but cannot score. Sign-up gate sits on the scoring CTA (decided in v0.4.14, see [Decisions Log](/hq/decisions#sign-up-is-required-to-score)).
+- Sign-up is Clerk email-code or Google OAuth. No password.
+- First score lands on `/score?just-signed-up=1` so we can show first-time UX (currently a quiet welcome line).
+- Score result branches on score value: sub-3.0 surfaces a Ladder Lift CTA, 3.0-plus surfaces the Pro upgrade prompt with a11y and UX copywriting locked.
+
+### Free to Pro upgrade
+
+<Diagram name="WEB_FREE_TO_PRO" />
+
+Triggers for the upgrade conversation:
+
+- Lifetime free cap (5 scores) hit.
+- User clicks a Pro-only tab (a11y audit, UX copywriting) on a score result.
+- User hits the Pricing page directly.
+
+The Stripe checkout is self-serve at $250. On success the user lands on `/dashboard?welcome=pro` and Pro features unlock immediately.
+
+### Team manager flow (post-engagement)
+
+After a Drawbackwards Teams engagement closes, the manager gets an admin invite. From there:
+
+1. Land on `/dashboard/team` with an empty roster.
+2. Invite designers by email. Clerk Organization handles the invite.
+3. Accepted invitees auto-get a `tier: "team"` complimentary subscription via `/api/webhooks/clerk` (shipped in v0.3.0).
+4. Manager sees the team pool meter (25,000 monthly default), member roster with letter grades A-F, and the Reviews workflow.
+5. Reviews flow: designer requests review, manager accepts or declines, designer scores iterations in `/dashboard/reviews/[slug]`, manager and peers add Team Takes and pin annotations.
+
+See [Feature Inventory → Web app](/hq/features#web-app-runladdercom) for shipped Reviews features.
 
 ## Figma plugin
 
-**Owner: Chester.** Stub.
+The plugin (`drawbackwards/ai-design-assistant` repo) lives in Figma's canvas. The current bundle is v1.0.6, synced from this repo via `scripts/sync-skill-version.mjs`.
 
-Flows to document:
+### Plugin first-run
 
-1. First install → auth → in-canvas score
-2. Score a frame → review breakdown → iterate
-3. Free cap → Pro upgrade from plugin
+<Diagram name="PLUGIN_FIRST_RUN" />
+
+Key beats:
+
+- Plugin token is issued from `/dashboard/settings` on runladder.com and pasted into the plugin once.
+- Token is server-issued, single-user, scoped to plugin requests. Never expose it client-side outside Figma's plugin sandbox.
+- Score request hits the same Ladder API as the web app. Same engine, same response shape.
+- Free users hit the 5-lifetime cap inside the plugin same as on web.
+
+Open questions to resolve before relaunch (see [Decisions Log](/hq/decisions)):
+
+- Plugin demo flow for the Figma marketplace listing.
+- Whether the plugin should support batch scoring of a frame stack.
 
 ## Claude Skill
 
-**Owner: Ward.** Stub.
+The Skill (`Ladder for Claude`) is a bundle invoked inside Claude.ai conversations. Version tracked in `src/lib/skill-version.ts`.
 
-Flows to document:
+### Skill flow
 
-1. Skill install in Claude.ai → first score from a conversation
-2. Skill auth model (Skill token, where it comes from)
-3. Pro vs Free behavior in-skill
+<Diagram name="SKILL_FLOW" />
+
+Key beats:
+
+- Skill token issued from `/dashboard/settings`. User pastes it into Claude.ai once.
+- Skill is a thin client. It pulls the URL or image from the conversation context, sends to the Ladder API, and renders the result back into the conversation as a structured block.
+- Free users hit the 5-lifetime cap same as everywhere.
+- This is the surface that proves the agent-native positioning. An AI can ask for a Ladder score the same way a human can.
 
 ## Ladder Pulse
 
-**Owner: Ward.** Stub.
+Pulse is the customer-feedback scoring surface. First customer is Lumin Digital (Sept 2025 to Sept 2026 engagement). The Pulse dashboard lives at `/dashboard/pulse` and is gated to Pulse-tier accounts.
 
-Flows to document:
+### Pulse data flow
 
-1. Customer feedback data ingest
-2. Scoring run + dashboard render
-3. Lumin Digital reference flow (see [Decisions Log → Pulse customer](/hq/decisions))
+<Diagram name="PULSE_DATA_FLOW" />
 
-## API + MCP
+Key beats:
 
-**Owner: Ward.** Stub.
+- Pulse customers send feedback in scheduled batches or via the Pulse ingest endpoint.
+- The scoring engine runs against each feedback item and tags it with a Ladder rung plus a sentiment vector.
+- Dashboard renders aggregate trends (rung distribution over time, top-themes-at-risk, weakest rung this month).
+- Pulse pool is 50,000 queries per month; overage is tiered, not blocked.
 
-Flows to document:
+## Ladder API and MCP
 
-1. Developer signs up → API key generation
-2. First API call → score response → versioned headers
-3. MCP server connect from an AI agent → call shape
+Direct callers (developer or AI agent). Lives at api.runladder.com once the migration from `ai-design-assistant` completes.
 
-## Diagram conventions
+### API key flow
 
-Use Mermaid for flow diagrams. Example pattern:
+<Diagram name="API_KEY_FLOW" />
 
-```
-<Mermaid chart={`
-flowchart LR
-  Start([Landing]) --> SignUp[Sign-up]
-  SignUp --> Score[Score screen]
-  Score --> Result{Score < 3.0?}
-  Result -->|Yes| Lift[Ladder Lift CTA]
-  Result -->|No| Upgrade[Pro upgrade prompt]
-`} />
-```
+### MCP agent flow
+
+<Diagram name="MCP_AGENT_FLOW" />
+
+Key beats:
+
+- The MCP server exposes scoring as a tool that any MCP-aware agent (Claude, Cursor, custom) can call.
+- Same auth model as direct API: Bearer token in the MCP config.
+- The agent doesn't see the rubric, the prompt, or the reasoning. It gets the final score, the rung, and a structured breakdown.
+- This surface is what makes Ladder agent-native. Every AI workflow that touches design can call this.
+
+See [API Protocols](/hq/api) for endpoint shape, rate limits, and the never-expose-prompts rule.
