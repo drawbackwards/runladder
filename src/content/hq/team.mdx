@@ -2,7 +2,7 @@
 title: Team Assignments
 updatedAt: 2026-05-19
 updatedBy: Sara
-lastPr: 178
+lastPr: 180
 ---
 
 ## Roster
@@ -10,8 +10,8 @@ lastPr: 178
 | Name | Role | Notes |
 | --- | --- | --- |
 | **Ward Andrews** | Founder. Vision, brand, strategy, engineering lead | Final call on everything. Available via Slack and direct |
-| **Michael Sidler** | Project manager. Owns blog, teardowns, framework pages | Day-to-day coordinator. First escalation point |
-| **Chester Schendel** | Scoring quality, visual + interaction design | Owns the rubric review loop and design refinement |
+| **Michael Sidler** | Project manager. Owns blog, teardowns, framework pages. Engineering across all surfaces with Ward's approval | Day-to-day coordinator. First escalation point. Full-surface eng access added 2026-05-19 |
+| **Chester Schendel** | Scoring quality, visual + interaction design. Engineering on web, plugin, Skill with Ward's approval | Owns the rubric review loop and design refinement |
 | **Jordan Hunke** | UI/UX design, marketing content (video, art) | Marketing surface + product polish |
 | **Sean Coleman** | Engineering audit | 1 hour per week, on-demand when Ward or Michael ask for it |
 
@@ -24,10 +24,10 @@ Owner is the person accountable for the surface shipping and staying healthy. Su
 | Web app (runladder.com) | Ward (eng), Chester (design) | Chester (build), Michael (build), Jordan | Sean |
 | Figma plugin | Ward (eng), Chester (design) | Chester (build), Michael (build), Jordan | Sean |
 | Claude Skill | Ward | Chester (build), Michael (build) | Sean |
-| API + MCP | Ward | - | Sean |
-| Pulse | Ward | Chester (scoring) | Sean |
-| Admin console | Ward | - | Sean |
-| Scoring engine + quality | Chester | Ward | Sean |
+| API + MCP | Ward | Michael (build) | Sean |
+| Pulse | Ward | Michael (build), Chester (scoring) | Sean |
+| Admin console | Ward | Michael (build) | Sean |
+| Scoring engine + quality | Chester | Ward, Michael | Sean |
 | Blog + teardowns + framework | Michael | Jordan, Ward | Ward |
 | Marketing content (video, art) | Jordan | Michael | Ward |
 | Brand identity | Ward | Jordan | - |
@@ -36,13 +36,15 @@ Owner is the person accountable for the surface shipping and staying healthy. Su
 
 ## Engineering model
 
-Ward leads engineering with Claude (Sara) as AI pair. **Chester and Michael can also build in Claude on the web app, Figma plugin, and Claude Skill, with Ward's prior approval on scope.** Sean does the weekly audit and on-demand review.
+Ward leads engineering with Claude (Sara) as AI pair. **Michael can build any surface (web, plugin, Skill, API, MCP, Pulse, admin) with Ward's prior approval on scope. Chester can build on web, plugin, and Skill with Ward's prior approval.** Sean does the weekly audit and on-demand review.
 
-The API, MCP server, Pulse data pipeline, and admin console stay Ward-only on the engineering side. Higher blast radius (auth keys, billing, customer data, prompts) means a tighter gate.
+The Ward-approval gate stays in place for every non-trivial PR on every surface. This is intentional and consistent with Ladder's agent-native positioning. See [Decisions Log -- Engineering model](/hq/decisions#engineering-model-current-state) for the full rationale and the 2026-05-19 update that gave Michael full-surface scope. Hiring trigger is tracked on the [Roadmap](/hq/roadmap).
 
-This model is intentional and consistent with Ladder's agent-native positioning. See [Decisions Log → Engineering model](/hq/decisions#engineering-model-current-state) for the full rationale. Hiring trigger is tracked on the [Roadmap](/hq/roadmap).
+**For Michael and Chester:** before you open a PR, post in #ladder-platform with the proposed scope and tag Ward. Once he gives a green light, build and open the PR. Sean's weekly audit catches any engineering smells. Ward's approval is the gate that lets the PR merge.
 
-**For Chester and Michael:** before you open a PR, post in #ladder-platform with the proposed scope and tag Ward. Once he gives a green light, build and open the PR. Sean's weekly audit catches any engineering smells. Ward's approval is the gate that lets the PR merge.
+## Post-merge `/hq` verification
+
+Every PR that ships live in any Ladder platform repo triggers a Sara-driven `/hq` check and a confirmation message back to Ward. See [Decisions Log -- Post-merge /hq verification](/hq/decisions#post-merge-hq-verification-across-all-ladder-platform-repos).
 
 ## Day-to-day
 
@@ -52,7 +54,7 @@ This model is intentional and consistent with Ladder's agent-native positioning.
 
 **PR review.** Engineering PRs go through Sean for one-hour weekly review. Non-blocking PRs (typos, copy fixes, content) merge after a one-emoji approval from any teammate.
 
-**Escalation path.** Michael → Ward. Don't go around Michael unless it's a production fire on a surface he doesn't own.
+**Escalation path.** Michael to Ward. Don't go around Michael unless it's a production fire on a surface he doesn't own.
 
 ## Updating this page
 

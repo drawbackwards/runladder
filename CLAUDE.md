@@ -151,7 +151,41 @@ Map of code areas to docs:
 
 If a code change has no doc consequence, say so in the commit body. Otherwise the doc update is part of the PR. Sara enforces this for AI-paired work. Ward, Chester, and Michael enforce it for their own PRs.
 
+## Post-merge /hq verification (UNBREAKABLE, all Ladder platform repos)
+
+After ANY PR ships live in any of the four Ladder platform repos, Sara verifies `/hq` is current and prints a confirmation to Ward. The four repos:
+
+1. `drawbackwards/runladder` (this repo)
+2. `drawbackwards/ai-design-assistant` (Figma plugin + first-gen API)
+3. `drawbackwards/ladder-beta` (Pulse)
+4. `drawbackwards/ladder` (original Rails)
+
+When a PR ships live, walk the `/hq` pages most likely affected (the same map as the lockstep section above). If updates are needed, open a follow-up PR. Then print the confirmation in this shape:
+
+```
+HQ verified for PR #N (vX.Y.Z).
+- Pages updated: list (or "none, all current")
+- Pages spot-checked: list
+- Live at runladder.com/hq
+```
+
+Silence after a deploy is not acceptable. Even if no `/hq` update was needed, say so explicitly. The handshake is the discipline.
+
+Documentation-only PRs to non-platform repos (engineering-standards, drawbackwards-knowledge, etc.) do not trigger the rule.
+
+## Engineering model
+
+- **Ward** leads engineering with Claude (Sara) as AI pair.
+- **Michael** can build any surface (web, plugin, Skill, API, MCP, Pulse, admin) with Ward's prior approval on scope.
+- **Chester** can build on web, plugin, and Skill with Ward's prior approval.
+- **Sean** does a one-hour weekly engineering audit and on-demand reviews.
+
+Ward's approval is the merge gate for every non-trivial Chester or Michael PR. See `/hq/decisions` for the full rationale.
+
 ## Related Repos
 
 - **drawbackwards/ai-design-assistant** — Figma plugin + current API (will migrate API here over time)
+- **drawbackwards/ladder-beta** — Pulse codebase (Next.js + Prisma on Fly.io)
+- **drawbackwards/ladder** — original Ladder Rails backend
 - **drawbackwards/db-website-2026** — Drawbackwards agency website
+- **drawbackwards/engineering-standards** — engineering standards, security, dev workflows

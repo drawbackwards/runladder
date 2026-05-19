@@ -6,6 +6,15 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.3 / api 1.0.0 (2026-05-19)
+
+**Engineering model update + post-merge /hq verification protocol.**
+
+- **Michael graduates to full-surface engineering scope.** Was previously web/plugin/Skill only; now can build on any surface (API, MCP, Pulse, admin included) with Ward's prior approval. Chester stays scoped to web/plugin/Skill where his design lens applies directly. `/hq/decisions` Engineering model entry updated, `/hq/team` matrix updated to show Michael as build support on every surface, project CLAUDE.md reflects the new model.
+- **Post-merge `/hq` verification protocol.** New unbreakable rule: after ANY PR ships live in any of the four Ladder platform repos (`runladder`, `ai-design-assistant`, `ladder-beta`, `ladder`), Sara verifies `/hq` is current and prints a confirmation to Ward. Confirmation format includes pages updated, pages spot-checked, and a link to /hq. Silence after a deploy is not acceptable; "no updates needed, all current" must still be said explicitly. New Decisions Log entry codifies it. CLAUDE.md gains a dedicated section. New `feedback-hq-post-merge-verification` memory enforces it across future Sara sessions.
+
+---
+
 ## app 0.5.2 / api 1.0.0 (2026-05-19)
 
 **Ladder HQ: audit corrections, full platform roadmap, Go-to-Market strategy, Skill distribution plan, pricing scrub.**
