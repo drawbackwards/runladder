@@ -1,26 +1,19 @@
 ---
 title: Feature Inventory
-owner: Michael
 updatedAt: 2026-05-19
 updatedBy: Sara
 ---
 
-## What goes here
+## How to read this page
 
-Every Ladder feature with its surface, role gating, status, and link to the PR that shipped it (or the issue tracking the work). One row per feature.
+Every Ladder feature with surface, role gating, status, and link to the PR that shipped it. One row per feature. Status values: **Shipped**, **In flight**, **Roadmap**, **Paused**.
 
-Status values: **Shipped**, **In flight**, **Roadmap**, **Paused**.
-
-Michael owns keeping this current. The [Roadmap](/hq/roadmap) board on GitHub is the live view; this page is the human-readable index.
-
-## How to add a row
-
-When you ship a feature, add an entry here in the same PR. Use this row template:
+When you ship a feature, add the row here in the same PR. Use this template:
 
 ```
-| Feature | Surface | Roles | Status | Linked PR |
-| --- | --- | --- | --- | --- |
-| Feature name | web/plugin/skill/api/pulse/admin | free/pro/teams/admin | Shipped/In flight/Roadmap | #176 |
+| Feature | Roles | Status | Linked PR |
+| --- | --- | --- | --- |
+| Feature name | free / pro / teams / pulse / admin | Shipped | #176 |
 ```
 
 ## Web app (runladder.com)
@@ -29,46 +22,118 @@ When you ship a feature, add an entry here in the same PR. Use this row template
 | --- | --- | --- | --- |
 | Public scoring tool (`/score`) | All signed-in | Shipped | - |
 | Personal dashboard (`/dashboard`) | All signed-in | Shipped | - |
-| Team dashboard (`/dashboard/team`) | Team Members + Leaders | Shipped | - |
-| Team pool meter (25K cap) | Team Leaders | Shipped | [#176](https://github.com/drawbackwards/runladder/pull/176) |
-| Active Reviews on `/dashboard/team` | Team Members + Leaders | Shipped | [#174](https://github.com/drawbackwards/runladder/pull/174) |
-| Reviews + interactive pins + scoring integration | Pro+ | Shipped | [#175](https://github.com/drawbackwards/runladder/pull/175) |
-| Sign-up required for scoring | All | Shipped | [#172](https://github.com/drawbackwards/runladder/pull/172) |
-| Top 100 ranked products | All | Roadmap | - |
+| Framework page (`/framework`) | Public | Shipped | - |
+| Sign-up required for scoring | All | Shipped (v0.4.14) | [#172](https://github.com/drawbackwards/runladder/pull/172) |
+| Reviews on dashboard | Pro+ | Shipped (v0.4.15) | [#173](https://github.com/drawbackwards/runladder/pull/173) |
+| Active Reviews on team dashboard | Team Members + Leaders | Shipped (v0.4.16) | [#174](https://github.com/drawbackwards/runladder/pull/174) |
+| Reviews: request flow, pins, scoring integration | Pro+ | Shipped (v0.4.17) | [#175](https://github.com/drawbackwards/runladder/pull/175) |
+| Team pool meter (25K cap rendered prominently) | Team Leaders | Shipped (v0.4.18) | [#176](https://github.com/drawbackwards/runladder/pull/176) |
+| Ladder HQ internal team hub (`/hq`) | Admin + Team | Shipped (v0.5.0) | [#177](https://github.com/drawbackwards/runladder/pull/177) |
+| Pricing page (Free 5-lifetime, Pro $250, Teams contact) | Public | In flight | - |
+| Top 100 ranked products (`/top-100`) | Public | Roadmap | - |
 | Public profile (`/[username]`) | All signed-in | Roadmap | - |
-| Pricing page overhaul (Free 5-lifetime, Pro $250) | All | In flight | - |
-| Ladder Lift CTA on sub-3.0 scores | Free users | Roadmap | - |
+| Ladder Lift CTA on sub-3.0 scores | Free | Roadmap | - |
+| Blog (`/blog`) | Public | Shipped (content ongoing) | - |
+| Teardowns (`/teardowns`) | Public | Roadmap | - |
 
 ## Figma plugin
 
-| Feature | Roles | Status | Linked PR |
-| --- | --- | --- | --- |
-| Plugin v1.0.6 (bundle synced from runladder) | Pro+ | Shipped | - |
+Repo: `drawbackwards/ai-design-assistant`. Bundle version synced via `scripts/sync-skill-version.mjs`. Current version 1.0.6.
 
-Stub. Chester / Ward to fill in plugin-specific features and link to the `ai-design-assistant` repo PRs.
+| Feature | Roles | Status | Notes |
+| --- | --- | --- | --- |
+| In-canvas frame scoring | Pro+ | Shipped | Plugin token auth |
+| Inline score result + rung breakdown | Pro+ | Shipped | - |
+| Free 5-lifetime cap inside plugin | Free | Shipped | Same cap as web |
+| Plugin v1.0.6 bundle sync from runladder | All | Shipped (v0.4.18 era) | - |
+| Batch scoring of a frame stack | Pro+ | Roadmap | See [Journeys](/hq/journeys) for open questions |
+| Marketplace listing demo flow | Public | Roadmap | Gates the relaunch |
 
 ## Claude Skill
 
-Stub. Ward to fill in. Skill bundle versions in `src/lib/skill-version.ts`.
+Bundle version in `src/lib/skill-version.ts` as `CURRENT_SKILL_VERSION`. Currently `1.0.6` synced.
+
+| Feature | Roles | Status | Notes |
+| --- | --- | --- | --- |
+| Score a URL or image from a Claude conversation | Pro+ | In flight | Skill token auth |
+| Skill token issuance in `/dashboard/settings` | All signed-in | Roadmap | Required for Skill auth |
+| Structured score block rendered in conversation | All Skill users | In flight | - |
+| Free 5-lifetime cap inside Skill | Free | Roadmap | Matches web and plugin |
+| Anthropic Skill registry listing | Public | Roadmap | One of three public-launch gates |
 
 ## Ladder Pulse
 
-Stub. Ward to fill in. Lumin Digital is the first customer (see [Decisions Log](/hq/decisions)).
+Lives at `/dashboard/pulse`. First customer is Lumin Digital (engagement Sept 2025 to Sept 2026, $90K).
 
-## API + MCP
+| Feature | Roles | Status | Notes |
+| --- | --- | --- | --- |
+| Pulse dashboard at `/dashboard/pulse` | Pulse | In flight | Lumin live |
+| Feedback batch ingest endpoint | Pulse | In flight | Lumin pipeline |
+| Aggregate trends (rung distribution, weakest rung) | Pulse | In flight | - |
+| Drill-down on individual feedback items | Pulse | Roadmap | - |
+| Theme clustering across feedback | Pulse | Roadmap | - |
+| Teams bundle handoff for Pulse customers | Pulse | Roadmap | Lumin interested per memory |
 
-Stub. Ward to fill in. API version tracked in `src/lib/app-version.ts` as `CURRENT_API_VERSION`.
+## API and MCP
 
-## Admin
+API and MCP server live at `api.runladder.com` (migration in progress from `ai-design-assistant`). API version in `src/lib/app-version.ts` as `CURRENT_API_VERSION` (currently 1.0.0).
 
-Stub. Ward to fill in. Admin features at `/admin`, `/admin/comps`, `/admin/evaluations`, `/admin/feedback`.
+| Feature | Roles | Status | Notes |
+| --- | --- | --- | --- |
+| `POST /v1/score` (single score) | Pro+ | In flight | Migration from plugin backend |
+| `X-Ladder-API-Version` response header on every call | All | In flight | Versioning protocol |
+| API key issuance in `/dashboard/settings` | Pro+ | Roadmap | Required for direct API |
+| Rate-limit response (429 + `Retry-After`) | All | Roadmap | Tier-based quotas |
+| MCP server with `ladder.score` tool | Pro+ | In flight | One of three public-launch gates |
+| MCP config and connection docs | Public | Roadmap | api.runladder.com |
+| Public OpenAPI spec | Public | Roadmap | One of three public-launch gates |
+
+See [API Protocols](/hq/api) for the contract.
+
+## Admin console (`/admin`)
+
+Gated by `ADMIN_EMAILS` env var. Defaults: Ward, Michael, Jordan.
+
+| Feature | Roles | Status | Notes |
+| --- | --- | --- | --- |
+| User records + tier management | Admin | Shipped | `/admin` |
+| Invite codes (generate, view, copy, revoke) | Admin | Shipped | `/admin` |
+| Evaluations (rubric evaluation runs) | Admin | Shipped | `/admin/evaluations` |
+| Feedback inbox | Admin | Shipped | `/admin/feedback` |
+| Comps (comparison scoring runs) | Admin | Shipped | `/admin/comps` |
+| Plugin backend proxy (`pluginFetch`) | Admin | Shipped | `src/lib/admin.ts` |
+| Super-admin protection on `SUPER_ADMIN_EMAILS` | Super Admin | Shipped | Hardcoded, passphrase-gated |
+
+## Ladder HQ (`/hq`)
+
+The internal team hub. Gated by `TEAM_EMAILS` (admins also pass).
+
+| Feature | Roles | Status | Linked PR |
+| --- | --- | --- | --- |
+| `/hq` route, sidebar, 11 sections | Admin + Team | Shipped (v0.5.0) | [#177](https://github.com/drawbackwards/runladder/pull/177) |
+| MDX rendering with Mermaid diagrams | - | Shipped (v0.5.0) | [#177](https://github.com/drawbackwards/runladder/pull/177) |
+| `TEAM_EMAILS` auth tier | - | Shipped (v0.5.0) | [#177](https://github.com/drawbackwards/runladder/pull/177) |
+| Sara-seeded content for all 11 sections | Admin + Team | In flight | Current PR |
+| Embedded GitHub Project board on Roadmap page | Admin + Team | Roadmap | Awaits Project setup |
+| Per-page "last updated" automated from git | Admin + Team | Roadmap | Currently manual in frontmatter |
 
 ## Pro-only features
 
-Pulled out separately so the Pro upgrade case is easy to articulate. See [Decisions Log → Pro features](/hq/decisions#pro-features-that-are-pro-only).
+Pulled out so the Pro upgrade case is easy to articulate. See [Decisions Log → Pro features](/hq/decisions#pro-features-that-are-pro-only).
 
 - A11y audit on score results
 - UX copywriting suggestions
-- Enhanced dashboard
-- 1,000 queries/month (vs 5 lifetime free)
+- Enhanced personal dashboard
+- 1,000 queries per month (vs 5 lifetime free)
 - All surfaces (web, plugin, Skill)
+
+## Teams-only features
+
+Built on top of Pro. Sold as a Drawbackwards engagement.
+
+- Team dashboard at `/dashboard/team` with manager view
+- Letter-grade scoring per member (A-F based on 30-day Comfortable+ rate)
+- Team performance insights (avg score, strongest/weakest rung)
+- Reviews + interactive pins + Team Take aggregate scoring
+- 25,000-query monthly pool
+- Manager-controlled seat invites via Clerk Organizations

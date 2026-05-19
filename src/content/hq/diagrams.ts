@@ -1,13 +1,13 @@
 /**
- * Mermaid diagram source strings for /hq pages.
+ * Mermaid diagram sources for /hq pages.
  *
- * Defined here (not inline in MDX) because `next-mdx-remote/rsc` strips
- * multi-line JSX expression values from MDX. Importing each diagram as a
- * named export and rendering through a wrapper component is the reliable
- * pattern.
+ * Defined here as a named map instead of inline in MDX because
+ * `next-mdx-remote/rsc` strips multi-line JSX expression values from
+ * MDX. Reference these by name from MDX via `<Diagram name="..." />`.
  */
 
-export const ARCHITECTURE_DIAGRAM = `
+export const DIAGRAMS = {
+  ARCHITECTURE: `
 graph TB
   subgraph Users["Who's calling"]
     direction LR
@@ -67,4 +67,122 @@ graph TB
   class Web,Plugin,Skill,Pulse,APIMCP surface
   class Engine,Auth,Billing,Data core
   class Browser,Designer,AIUser,PM,Dev user
-`;
+`,
+
+  WEB_FIRST_SCORE: `
+flowchart LR
+  Land["Landing /"]
+  Score["/score"]
+  Login["/login"]
+  SignUp["Create account"]
+  Result["Score result"]
+  Lift["Ladder Lift CTA"]
+  Upgrade["Pro upgrade prompt"]
+
+  Land --> Score
+  Score -->|"signed out"| Login
+  Login --> SignUp
+  SignUp --> Score
+  Score --> Result
+  Result -->|"below 3.0"| Lift
+  Result -->|"3.0 and up"| Upgrade
+`,
+
+  WEB_FREE_TO_PRO: `
+flowchart LR
+  Score["Score result"]
+  Cap{"Hit 5-lifetime cap?"}
+  Locked["A11y tab locked"]
+  Pricing["/pricing"]
+  Checkout["Stripe checkout"]
+  Confirm["/dashboard?welcome=pro"]
+
+  Score --> Cap
+  Score --> Locked
+  Cap -->|"Yes"| Pricing
+  Locked -->|"clicks tab"| Pricing
+  Pricing --> Checkout
+  Checkout --> Confirm
+`,
+
+  PLUGIN_FIRST_RUN: `
+flowchart LR
+  Install[Install plugin]
+  Open[Open in Figma]
+  Auth[Auth via plugin token]
+  Frame[Select frame]
+  Score[Score frame]
+  Result[Inline score + breakdown]
+
+  Install --> Open
+  Open --> Auth
+  Auth --> Frame
+  Frame --> Score
+  Score --> Result
+`,
+
+  SKILL_FLOW: `
+flowchart LR
+  Convo[Claude.ai conversation]
+  Invoke["Skill invocation"]
+  Auth[Auth via Skill token]
+  Input[Skill reads URL or screenshot from context]
+  API[Calls Ladder API]
+  Result[Score returned inline in conversation]
+
+  Convo --> Invoke
+  Invoke --> Auth
+  Auth --> Input
+  Input --> API
+  API --> Result
+`,
+
+  PULSE_DATA_FLOW: `
+flowchart LR
+  Source["Customer feedback source<br/>CSV, NPS, support tickets"]
+  Ingest["Pulse ingest endpoint"]
+  Score["Scoring engine batch run"]
+  Dashboard["/dashboard/pulse"]
+  Insight["Aggregate trends + drill-down"]
+
+  Source --> Ingest
+  Ingest --> Score
+  Score --> Dashboard
+  Dashboard --> Insight
+`,
+
+  API_KEY_FLOW: `
+flowchart LR
+  SignUp["Sign up on runladder.com"]
+  Upgrade["Upgrade to Pro or Teams"]
+  Settings["/dashboard/settings"]
+  Key["Generate API key"]
+  Call["POST /v1/score"]
+  Response["Score + X-Ladder-API-Version header"]
+
+  SignUp --> Upgrade
+  Upgrade --> Settings
+  Settings --> Key
+  Key --> Call
+  Call --> Response
+`,
+
+  MCP_AGENT_FLOW: `
+flowchart LR
+  Agent[AI agent]
+  Config[MCP config with API key]
+  Connect[Connect to api.runladder.com MCP server]
+  Tool["ladder.score(url or image)"]
+  Result[Score returned as structured tool output]
+
+  Agent --> Config
+  Config --> Connect
+  Connect --> Tool
+  Tool --> Result
+`,
+} as const;
+
+export type DiagramName = keyof typeof DIAGRAMS;
+
+// Back-compat export for the original ArchitectureDiagram component.
+export const ARCHITECTURE_DIAGRAM = DIAGRAMS.ARCHITECTURE;

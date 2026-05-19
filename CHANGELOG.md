@@ -6,6 +6,18 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.1 / api 1.0.0 (2026-05-19)
+
+**Ladder HQ: drop human-owner labels, Sara seeds every section.**
+
+- **Owner labels removed from chrome.** The `/hq` index cards no longer show "Owner: X" tags and per-page headers no longer display an owner line. Pages are seeded by Sara from platform memory and the live codebase. Surface ownership (the matrix of who's accountable for shipping web vs plugin vs Skill, etc.) still lives on `/hq/team` where it belongs.
+- **User Journeys populated.** Full walkthroughs of the core flows on each surface (web sign-up to score to upgrade, Figma plugin first-run, Claude Skill flow, Pulse data flow, API key flow, MCP agent flow) with Mermaid diagrams for each.
+- **Feature Inventory populated.** Every surface (web, plugin, Skill, Pulse, API + MCP, admin, HQ) now lists shipped, in-flight, and roadmap features with PR links where known. Pro-only and Teams-only features called out separately so the upgrade case is easy to articulate.
+- **API Protocols filled.** Endpoint shape, request and response examples for `POST /v1/score`, full MCP server section (`ladder.score`, `ladder.framework`, `ladder.account` tools, config example, why it matters).
+- **Roadmap populated.** Public-launch gate tracker, "This week" / "Next 30 days" / "This quarter" priorities, standing items (doc drift, prompt-leak check, versioning sync, decisions log review), weekly review cadence.
+
+---
+
 ## app 0.5.0 / api 1.0.0 (2026-05-19)
 
 **Ladder HQ: internal team hub at `/hq`.**

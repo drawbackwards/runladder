@@ -20,12 +20,7 @@ export default function HqIndex() {
             href={`/hq/${section.slug}`}
             className="block border border-border bg-card p-5 hover:border-ladder-green transition-colors"
           >
-            <div className="flex items-baseline justify-between mb-2">
-              <h2 className="text-base font-bold text-foreground">{section.title}</h2>
-              <span className="text-[10px] uppercase tracking-widest text-muted">
-                Owner: {section.owner}
-              </span>
-            </div>
+            <h2 className="text-base font-bold text-foreground mb-2">{section.title}</h2>
             <p className="text-sm text-body leading-snug">{section.intent}</p>
           </Link>
         ))}

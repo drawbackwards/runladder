@@ -1,6 +1,5 @@
 ---
 title: API Protocols
-owner: Ward
 updatedAt: 2026-05-19
 updatedBy: Sara
 ---
@@ -56,11 +55,80 @@ Server-side only. Every surface must be a thin client.
 
 See [Decisions Log → Never expose prompts](/hq/decisions#never-expose-prompts-rubric-or-scoring-logic).
 
+## Endpoint shape
+
+The public API exposes the scoring engine and the framework reference. All endpoints sit under `https://api.runladder.com/v1/`.
+
+| Endpoint | Method | Purpose |
+| --- | --- | --- |
+| `/v1/score` | POST | Score a URL or image. Primary endpoint. |
+| `/v1/score/[id]` | GET | Fetch a stored score by ID (Pro+ history). |
+| `/v1/framework` | GET | The Ladder framework reference (names, ranges, definitions). Cacheable. Does not include rubric. |
+| `/v1/account` | GET | Caller's account info: tier, remaining quota, surfaces enabled. |
+| `/v1/account/keys` | GET, POST, DELETE | API key management for the calling account. |
+
+### POST /v1/score request
+
+```json
+{
+  "input": { "url": "https://example.com" },
+  "options": { "surface": "web", "include": ["breakdown", "a11y"] }
+}
+```
+
+`input` accepts either `url` (string) or `image` (base64 or URL). `options.surface` is required so we can attribute usage to the right tier counter. `options.include` is optional; defaults to `["breakdown"]`. A11y and UX copywriting requested by Free callers return a `403 pro_required` error.
+
+### POST /v1/score response
+
+```json
+{
+  "score": 3.42,
+  "rung": "Comfortable",
+  "rungColor": "#eab308",
+  "breakdown": { "...": "per-rung subscores" },
+  "a11y": { "...": "Pro only" },
+  "uxCopy": { "...": "Pro only" },
+  "scoredAt": "2026-05-19T20:14:33Z",
+  "scoreId": "scr_01HX..."
+}
+```
+
+Response headers: `X-Ladder-API-Version`, `X-Ladder-Quota-Remaining`, `X-Ladder-Surface`.
+
 ## MCP server
 
-The MCP server exposes scoring as a tool callable by AI agents. Config and connection docs go on api.runladder.com once that domain ships.
+The MCP server exposes scoring as a tool callable by any MCP-aware AI agent (Claude, Cursor, custom agents). Available at `https://api.runladder.com/mcp`.
 
-Stub for full MCP shape. Ward + Sara to fill in once the MCP server is live.
+### MCP tool surface
+
+| Tool | Input | Output |
+| --- | --- | --- |
+| `ladder.score` | `{ url?: string, image?: string, surface: string }` | `{ score, rung, rungColor, breakdown, scoreId }` |
+| `ladder.framework` | `{}` | The framework reference (rungs, ranges, definitions). |
+| `ladder.account` | `{}` | Caller's tier and remaining quota. |
+
+The MCP server is a thin transport over the same `/v1/score` endpoint. Agents that read `ladder.framework` first get the Ladder vocabulary so they can interpret the score they get back. They never see the rubric or the prompts.
+
+### MCP config example
+
+For Claude Desktop, the user adds an entry to their MCP config:
+
+```json
+{
+  "mcpServers": {
+    "ladder": {
+      "url": "https://api.runladder.com/mcp",
+      "headers": { "Authorization": "Bearer ldr_live_..." }
+    }
+  }
+}
+```
+
+API keys for MCP are issued in `/dashboard/settings`, same surface as direct API keys.
+
+### Why MCP matters
+
+This surface is what makes Ladder agent-native. Every AI workflow that touches design (a coding agent reviewing a UI, a research agent comparing competitors, a PM agent triaging customer feedback) can call `ladder.score` and get a number to act on. The MCP shape is part of the public-launch gate. See [Decisions Log → Public launch](/hq/decisions#public-launch-is-gated-on-mcp-skill-and-api-being-live).
 
 ## Key rotation
 
