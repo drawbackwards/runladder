@@ -2,7 +2,7 @@
 title: Decisions Log
 updatedAt: 2026-05-19
 updatedBy: Sara
-lastPr: 179
+lastPr: 180
 ---
 
 ## How to use this page
@@ -10,6 +10,32 @@ lastPr: 179
 The why behind big choices. Read this before you push back on a feature, a price, or a roadmap call. Most decisions look arbitrary until you know the constraint that drove them. New entries go at the top with a date and one-line rule.
 
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
+
+---
+
+## Post-merge /hq verification across all Ladder platform repos (2026-05-19)
+
+**UNBREAKABLE rule.** Every time a PR ships live in any of the four Ladder platform repos (`runladder`, `ai-design-assistant`, `ladder-beta`, `ladder`), Sara verifies `/hq` is current and prints a confirmation to Ward.
+
+The confirmation shape:
+
+> **HQ verified for PR #N (vX.Y.Z).**
+> - Pages updated: list (or "none, all current")
+> - Pages spot-checked: list
+> - Live at runladder.com/hq
+
+Silence after a deploy is not acceptable. Even if no `/hq` update was needed, say so explicitly. The handshake is the discipline.
+
+Why: the v0.5.1 audit revealed `/hq` had drifted because doc updates were happening reactively. The post-merge verification print forces the check to happen at the natural moment (just shipped) and makes the discipline visible to Ward.
+
+How to apply:
+
+- After every Ladder-platform PR merge, walk the `/hq` pages most likely affected (Features, Journeys, API, Decisions, Roles, Roadmap, Architecture, Glossary, Brand, GTM).
+- If updates are needed, open a follow-up PR. Bump `lastPr` per [the lockstep protocol](/hq/decisions#hq-stays-in-lockstep-with-the-code).
+- If no updates needed, print the confirmation with "Pages updated: none, all current."
+- Documentation-only PRs to non-platform repos (engineering-standards, drawbackwards-knowledge, etc.) do not trigger this rule.
+
+This rule sits alongside [the lockstep protocol](/hq/decisions#hq-stays-in-lockstep-with-the-code) and [the public-pricing rule](/hq/decisions#hq-documents-public-pricing-only). All three are part of the same hygiene system.
 
 ---
 
@@ -197,13 +223,13 @@ How to apply: free-tier surfaces show a11y and UX copywriting as locked tabs wit
 
 ## Engineering model (current state)
 
-**Ward leads engineering with Claude (Sara) as AI pair. Chester and Michael can also build with Claude on the web app, Figma plugin, and Claude Skill, with Ward's prior approval. Sean does a one-hour weekly engineering audit and on-demand reviews.**
+**Ward leads engineering with Claude (Sara) as AI pair. Michael can build any surface (web, plugin, Skill, API, MCP, Pulse, admin). Chester can build on web, plugin, and Skill. All non-trivial PRs need Ward's prior approval. Sean does a one-hour weekly engineering audit and on-demand reviews.**
 
-**Restricted surfaces:** the Ladder API, MCP server, Pulse data pipeline, and admin console stay Ward-only on the engineering side. Higher blast radius (auth keys, billing, customer data, prompts).
+Updated 2026-05-19 to give Michael full-surface scope (was previously web/plugin/Skill only). Chester stays scoped to web/plugin/Skill, the surfaces where his design and interaction lens applies directly.
 
-Why: Ladder is small enough that the founder + AI pair model ships faster than hiring would. Expanding the build capacity to Chester and Michael (also using Claude) is the practical way to scale engineering without breaking the agent-native story or paying for a hire. Sensitive surfaces stay gated because a bad change on API or Pulse has much higher cost than on web/plugin/skill.
+Why: Ladder is small enough that the founder + AI pair model ships faster than hiring would. Michael is the PM, drives day-to-day coordination, and has cross-surface context, so restricting him to three surfaces created bottlenecks. The Ward-approval gate stays in place on every non-trivial PR to keep blast radius controlled on sensitive surfaces (API, MCP, Pulse, admin).
 
-How to apply: default to Ward + Sara on engineering. For non-trivial web/plugin/skill work, Ward can hand off to Chester or Michael after he approves the scope. Sean's review is engineering audit, not a PR gate. Ward's approval is the gate that lets a Chester or Michael PR merge. Hiring trigger is tracked on the [Roadmap](/hq/roadmap).
+How to apply: default to Ward + Sara on engineering. For any surface, Ward can hand off to Michael after approving scope. For web/plugin/Skill, Chester is also an option. Sean's review is engineering audit, not a PR gate. Ward's approval is the gate that lets a Michael or Chester PR merge. Hiring trigger is tracked on the [Roadmap](/hq/roadmap).
 
 ---
 
