@@ -21,9 +21,9 @@ Owner is the person accountable for the surface shipping and staying healthy. Su
 
 | Surface | Owner | Support | Review |
 | --- | --- | --- | --- |
-| Web app (runladder.com) | Ward (eng), Chester (design) | Jordan | Sean |
-| Figma plugin | Ward (eng), Chester (design) | Jordan | Sean |
-| Claude Skill | Ward | - | Sean |
+| Web app (runladder.com) | Ward (eng), Chester (design) | Chester (build), Michael (build), Jordan | Sean |
+| Figma plugin | Ward (eng), Chester (design) | Chester (build), Michael (build), Jordan | Sean |
+| Claude Skill | Ward | Chester (build), Michael (build) | Sean |
 | API + MCP | Ward | - | Sean |
 | Pulse | Ward | Chester (scoring) | Sean |
 | Admin console | Ward | - | Sean |
@@ -34,11 +34,15 @@ Owner is the person accountable for the surface shipping and staying healthy. Su
 | PM + coordination | Michael | Ward | - |
 | Strategy + pricing | Ward | Michael | - |
 
-## Engineering reality
+## Engineering model
 
-There is no dedicated human engineer on the team today. Engineering is Ward + Claude (Sara) as AI pair + Sean for weekly audit. This is intentional for now and consistent with Ladder's agent-native positioning. See [Decisions Log → Engineering model](/hq/decisions#engineering-model-current-state).
+Ward leads engineering with Claude (Sara) as AI pair. **Chester and Michael can also build in Claude on the web app, Figma plugin, and Claude Skill, with Ward's prior approval on scope.** Sean does the weekly audit and on-demand review.
 
-The gap will tighten first on Pulse pipeline scale, then on API uptime as developer adoption grows. Hiring trigger is tracked on the [Roadmap](/hq/roadmap).
+The API, MCP server, Pulse data pipeline, and admin console stay Ward-only on the engineering side. Higher blast radius (auth keys, billing, customer data, prompts) means a tighter gate.
+
+This model is intentional and consistent with Ladder's agent-native positioning. See [Decisions Log → Engineering model](/hq/decisions#engineering-model-current-state) for the full rationale. Hiring trigger is tracked on the [Roadmap](/hq/roadmap).
+
+**For Chester and Michael:** before you open a PR, post in #ladder-platform with the proposed scope and tag Ward. Once he gives a green light, build and open the PR. Sean's weekly audit catches any engineering smells. Ward's approval is the gate that lets the PR merge.
 
 ## Day-to-day
 

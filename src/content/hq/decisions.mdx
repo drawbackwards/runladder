@@ -126,11 +126,13 @@ How to apply: free-tier surfaces show a11y and UX copywriting as locked tabs wit
 
 ## Engineering model (current state)
 
-**Engineering is Ward as lead, with Claude (Sara) as AI pair, and Sean for one-hour weekly audit.** No dedicated human engineer on the team today.
+**Ward leads engineering with Claude (Sara) as AI pair. Chester and Michael can also build with Claude on the web app, Figma plugin, and Claude Skill, with Ward's prior approval. Sean does a one-hour weekly engineering audit and on-demand reviews.**
 
-Why: Ladder is small enough that the founder + AI + reviewer model ships faster than hiring would. The agent-native positioning makes this an authentic story, not a workaround.
+**Restricted surfaces:** the Ladder API, MCP server, Pulse data pipeline, and admin console stay Ward-only on the engineering side. Higher blast radius (auth keys, billing, customer data, prompts).
 
-How to apply: feature scope must fit the model. As Pulse data pipeline and API scale, this gap will tighten first. Hiring decision is on the [Roadmap](/hq/roadmap).
+Why: Ladder is small enough that the founder + AI pair model ships faster than hiring would. Expanding the build capacity to Chester and Michael (also using Claude) is the practical way to scale engineering without breaking the agent-native story or paying for a hire. Sensitive surfaces stay gated because a bad change on API or Pulse has much higher cost than on web/plugin/skill.
+
+How to apply: default to Ward + Sara on engineering. For non-trivial web/plugin/skill work, Ward can hand off to Chester or Michael after he approves the scope. Sean's review is engineering audit, not a PR gate. Ward's approval is the gate that lets a Chester or Michael PR merge. Hiring trigger is tracked on the [Roadmap](/hq/roadmap).
 
 ---
 
