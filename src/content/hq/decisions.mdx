@@ -1,0 +1,143 @@
+---
+title: Decisions Log
+owner: Ward
+updatedAt: 2026-05-19
+updatedBy: Sara
+---
+
+## How to use this page
+
+The why behind big choices. Read this before you push back on a feature, a price, or a roadmap call. Most decisions look arbitrary until you know the constraint that drove them. New entries go at the top with a date and one-line rule.
+
+If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
+
+---
+
+## Positioning
+
+**Ladder is agent-native measurement infrastructure, not SaaS-with-AI.**
+
+Why: the market is full of design QA tools and accessibility scanners. None of them give an AI agent a number it can act on. Ladder's wedge is that every surface (web, plugin, Skill, MCP, API) is callable by a human or an agent, returns the same score, and that score is the contract.
+
+How to apply: when in doubt between "make this prettier for humans" and "make this callable by an agent," favor the agent path. Humans get UI on top of the same API.
+
+---
+
+## Never expose prompts, rubric, or scoring logic
+
+**UNBREAKABLE rule.** Prompts, rubric, scoring instructions, model parameters, and any internal reasoning stays server-side. Every surface is a thin client over the API.
+
+Why: the rubric is the moat. The scoring engine is what makes a Ladder score worth trusting. If the prompt leaks, anyone can replicate the framework and our pricing collapses to zero.
+
+How to apply: never log a prompt to a client surface. Never serialize the rubric into Figma plugin code, the Skill bundle, or any browser-visible payload. The `scripts/check-no-prompt-leak.mjs` pre-build check exists for exactly this reason. If you trip it, fix the leak before you fix the lint warning.
+
+---
+
+## Public launch is gated on MCP, Skill, and API being live
+
+**No public marketing push until all three developer surfaces ship.**
+
+Why: positioning is agent-native. Launching the consumer site before the agent infrastructure makes us look like another design tool. Launching after positions us as infrastructure with a polished consumer face.
+
+How to apply: ship MCP, Skill, and v1 of the public API before any paid acquisition spin-up. Soft launches with the design community on the framework page are fine.
+
+---
+
+## Pricing: Free 5-lifetime, Pro $250 self-serve, Teams contact-only
+
+**Free** is a try-before-you-buy at 5 scores per account, ever. **Pro** is $250 for individuals, self-serve on Stripe. **Teams** is contact-only, sold as a Drawbackwards engagement (see Teams sales model below).
+
+Query allowances on the platform:
+
+| Tier | Monthly queries | Surfaces |
+| --- | --- | --- |
+| Free | 5 lifetime | Web only |
+| Pro | 1,000 | All surfaces |
+| Teams | 25,000 pool | All surfaces |
+| Pulse | 50,000 pool | All surfaces |
+
+Overage is tiered, not blocked.
+
+Why: the Free → Pro gap was a leaky funnel when Free was generous. Lifetime cap forces the upgrade decision. Teams stays contact-only because the buyer is a Director of Design, not a credit-card buyer, and the deal value supports a sales motion.
+
+How to apply: don't offer ad-hoc discounts on Pro. Don't offer self-serve Teams. If a buyer pushes for self-serve at the Teams price, that's a Ladder Lift candidate.
+
+---
+
+## Teams is an agency engagement, not self-serve SaaS
+
+**Teams is sold as an MSA + SOW Drawbackwards engagement.** Up to 10 seats included in the SOW. Stripe is used only for usage overage past the included pool. Renewal is annual via SOW, not auto-billed subscription.
+
+Why: Teams buyers are companies with design quality problems, not seat-buyers. The deal includes humans (workshop, audit, onboarding) that don't fit a SaaS contract. Selling Teams as SaaS undervalues the engagement and starves the agency.
+
+How to apply: any "team plan signup" copy on runladder.com routes to a contact form, not Stripe checkout. Sales runs through Ward + Michael.
+
+---
+
+## Ladder Lift bridges Free → Teams
+
+**Ladder Lift** is a named Drawbackwards engagement: audit + workshop + 3 months of Teams access at $18–25K. It lives on drawbackwards.com, not runladder.com.
+
+Why: sub-3.0 scores on the public scoring tool are a high-intent qualifier. We need a CTA that captures that intent at a price point a Director can approve without procurement. Ladder Lift is that bridge.
+
+How to apply: any score under 3.0 on a /score result for a non-signed-in user should surface a Lift CTA. Pro and Teams users see the upgrade path instead.
+
+---
+
+## ICP: founder-built app stuck at Functional
+
+**Primary ICP archetype.** Founder built the product. App scored 1.5–2.5 on Ladder. Internal growth team was hired and is fighting design debt. No design quality infrastructure in place.
+
+Why: this archetype has the sharpest pain (the founder can see the score, the team can see the score, no one has a system to climb the rungs), the clearest budget (growth team has a number to hit), and the cleanest path to Lift → Teams.
+
+How to apply: marketing copy speaks to this archetype. Top 100 entries that match the archetype get teardown priority. Skip enterprise design system buyers for now.
+
+---
+
+## Ladder level order is always 5 → 1
+
+**Always render rungs high to low.** Meaningful first, Functional last. Never low to high. Applies to UI, copy, docs, emails, slides, sales decks, everywhere.
+
+Why: the framework is aspirational, not a checklist. Starting at Meaningful sets the bar. Starting at Functional anchors to the floor and reads as a defect ladder, not a quality framework.
+
+How to apply: if you see 1 → 5 anywhere, file an issue. No exceptions.
+
+---
+
+## Sign-up is required to score
+
+**No anonymous scoring on any surface.** Removed in v0.4.14.
+
+Why: anonymous scoring inflated query costs, made attribution impossible, and gave us no usable signal for the funnel. Forcing sign-up converts intent to data we can act on.
+
+How to apply: scoring CTAs always route through sign-up. The free-tier ceiling (5 lifetime) is the natural conversion lever.
+
+---
+
+## Pro features that are Pro-only
+
+A11y audit and UX copywriting are **Pro-only**, not free. Free gets the base Ladder score.
+
+Why: a11y and UX copywriting are the highest-leverage upgrades for the ICP archetype. Putting them behind Pro gives the upgrade decision a clear reason ("I want a11y on this score").
+
+How to apply: free-tier surfaces show a11y and UX copywriting as locked tabs with upgrade copy. Pro unlocks them. See [Roles](/hq/roles).
+
+---
+
+## Engineering model (current state)
+
+**Engineering is Ward as lead, with Claude (Sara) as AI pair, and Sean for one-hour weekly audit.** No dedicated human engineer on the team today.
+
+Why: Ladder is small enough that the founder + AI + reviewer model ships faster than hiring would. The agent-native positioning makes this an authentic story, not a workaround.
+
+How to apply: feature scope must fit the model. As Pulse data pipeline and API scale, this gap will tighten first. Hiring decision is on the [Roadmap](/hq/roadmap).
+
+---
+
+## Trademark and proprietary framework
+
+**The Ladder framework is proprietary.** Trademark filings and legal protection are in motion. Treat the rubric, scoring math, and level definitions as IP.
+
+Why: a public framework that anyone can copy collapses the moat. Ladder needs to be cite-able by name and defensible in court.
+
+How to apply: framework page on runladder.com describes the framework. The full rubric does not appear anywhere a competitor can scrape it. Public references must include the trademark symbol once it's filed.

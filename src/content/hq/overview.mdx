@@ -1,0 +1,48 @@
+---
+title: Platform Overview
+owner: Ward
+updatedAt: 2026-05-19
+updatedBy: Sara
+---
+
+## What Ladder is
+
+Ladder is the quality score for every experience. One framework, one scoring engine, one auth, one billing surface across every place a team or AI agent needs a number for design quality.
+
+Five rungs, high to low: **Meaningful (5)**, **Delightful (4)**, **Comfortable (3)**, **Usable (2)**, **Functional (1)**. Three is the modern minimum. Below three you fight the product. Above three you stop thinking about it.
+
+## The five surfaces
+
+| Surface | Who it's for | What it does |
+| --- | --- | --- |
+| **runladder.com** (web) | Anyone with a URL or screenshot | Public scoring, dashboard, Top 100, framework education, content engine |
+| **Ladder for Figma** | Designers in canvas | In-canvas scoring against the live framework |
+| **Ladder for Claude** (Skill) | Anyone in Claude.ai | Scoring inside AI conversations |
+| **Ladder Pulse** | Product and CX teams | Scoring derived from customer feedback data |
+| **Ladder API + MCP** | Developers and AI agents | Programmatic scoring as infrastructure |
+
+## How they connect
+
+Every surface is a thin client. They all call the same Ladder API. The prompts, rubric, and scoring logic live server-side and never leak to clients. See [API Protocols](/hq/api) for the rule.
+
+Auth is shared (Clerk on web, API keys on developer surfaces). Billing is shared (Stripe, with usage-based metering). The framework definition (rung names, score thresholds, color tokens) is one source of truth referenced everywhere.
+
+## What's on each domain
+
+| Domain | Role |
+| --- | --- |
+| **runladder.com** | Marketing, web app, public scoring, Top 100, framework, blog, teardowns |
+| **api.runladder.com** | Public API + MCP server for developers and AI agents |
+| **admin.runladder.com** | Platform admin console (admin role only) |
+
+## Brand split
+
+Ladder is the product. Drawbackwards is the agency. The agency sells Ladder-powered services (Ladder Lift, ongoing design partnerships) at drawbackwards.com. The product surface at runladder.com keeps that separation clean. The only place the agency appears here is "Built by Drawbackwards" in the footer. See [Brand](/hq/brand) for the full rule.
+
+## Suggested reading order for new teammates
+
+1. This page
+2. [Architecture](/hq/architecture)
+3. [Roles](/hq/roles)
+4. [Decisions Log](/hq/decisions)
+5. The surface you're going to work on first

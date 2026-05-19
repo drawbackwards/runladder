@@ -6,6 +6,19 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.0 / api 1.0.0 (2026-05-19)
+
+**Ladder HQ: internal team hub at `/hq`.**
+
+- **New `/hq` route.** Authenticated team-only knowledge base behind a new `TEAM_EMAILS` env tier. Sidebar nav, 11 sections (Platform Overview, Architecture, User Journeys, Roles, Feature Inventory, Team Assignments, API Protocols, Decisions Log, Glossary, Brand, Roadmap). Renders MDX with Mermaid diagrams.
+- **TEAM_EMAILS auth tier.** New `getTeamEmailWithStatus()` helper in `src/lib/admin.ts` returns `anonymous` / `unauthorized` / `team` for clean server-component gating. Admins automatically pass. Set `TEAM_EMAILS` on Vercel with Chester and Sean's addresses so they can see `/hq` without inheriting `/admin` powers.
+- **MDX rendering via `next-mdx-remote/rsc`.** Frontmatter parsed with `gray-matter` for typed access. Custom components (`Mermaid`) registered on the page. Bespoke prose styling under `.hq-prose` in globals.css matches Ladder dark theme.
+- **Mermaid diagrams.** Client component with dark theme tokens (Ladder green border on nodes). First diagram is the platform architecture on `/hq/architecture` showing the five surfaces over the shared scoring engine, auth, and billing.
+- **Seeded content.** Platform Overview, Architecture, Decisions Log (pricing, positioning, launch gating, ICP, Ladder Lift, engineering model, never-expose-prompts, level order 5→1, trademark), Team Assignments (full surface ownership matrix), Roles (capability matrix), Brand, Glossary. Stubs for User Journeys (Chester), Feature Inventory and Roadmap (Michael), API Protocols.
+- **Nav.** `/hq` joins `/dashboard` and `/score` as an in-product surface so marketing nav hides.
+
+---
+
 ## app 0.4.18 / api 1.0.0 — 2026-05-13
 
 **Team pool meter: show the 25K cap prominently.**

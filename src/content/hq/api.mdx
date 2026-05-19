@@ -1,0 +1,69 @@
+---
+title: API Protocols
+owner: Ward
+updatedAt: 2026-05-19
+updatedBy: Sara
+---
+
+## Surfaces under one contract
+
+Every Ladder surface calls the same scoring API. The web app, the Figma plugin, the Claude Skill, Pulse, and direct API customers all hit the same endpoints with the same payload shape and get the same response shape. That's the contract.
+
+The API and MCP server live at **api.runladder.com**. (Migration in progress from the `ai-design-assistant` backend.)
+
+## Auth
+
+| Caller | Auth method | Token shape |
+| --- | --- | --- |
+| Web app | Clerk session cookie | Standard browser auth |
+| Figma plugin | Plugin token (server-issued) | Bearer in `Authorization` header |
+| Claude Skill | Skill token (user-issued from dashboard) | Bearer in `Authorization` header |
+| Direct API | API key (issued in dashboard settings) | Bearer in `Authorization` header |
+| MCP | API key in MCP config | Per MCP transport |
+
+**Never put an API key in client-side code.** Plugin tokens and Skill tokens are scoped to a single user; API keys are scoped to an account and have higher rate limits but more blast radius.
+
+## Versioning
+
+Every response includes `X-Ladder-API-Version`. The current contract version lives in `src/lib/app-version.ts` as `CURRENT_API_VERSION`. Bump rules:
+
+- **Patch** (`1.0.x`): bug fixes, no contract change.
+- **Minor** (`1.x.0`): additive fields, backwards compatible.
+- **Major** (`x.0.0`): breaking change. Communicate in `CHANGELOG.md` and notify Pro+ customers by email.
+
+Every surface also ships its own version (web app, Skill bundle, plugin). See [Architecture → Versioning](/hq/architecture#versioning).
+
+## Rate limits
+
+Per-tier monthly query limits. See [Roles](/hq/roles) for the full table.
+
+| Tier | Monthly queries | Burst | Overage |
+| --- | --- | --- | --- |
+| Free | 5 lifetime | 1/sec | Hard cap, no overage |
+| Pro | 1,000 | 10/sec | Tiered overage billing |
+| Teams | 25,000 pool | 20/sec | Tiered overage billing |
+| Pulse | 50,000 pool | 50/sec | Tiered overage billing |
+
+Rate-limit responses use HTTP 429 with `Retry-After` and `X-Ladder-Quota-Remaining` headers.
+
+## Never expose the prompt
+
+Server-side only. Every surface must be a thin client.
+
+- Prompts, rubric text, scoring logic, model parameters: server-side only.
+- API responses include the final score and breakdown, never the reasoning trace or rubric tokens.
+- The `scripts/check-no-prompt-leak.mjs` pre-build check exists for this. If it trips, fix the leak.
+
+See [Decisions Log → Never expose prompts](/hq/decisions#never-expose-prompts-rubric-or-scoring-logic).
+
+## MCP server
+
+The MCP server exposes scoring as a tool callable by AI agents. Config and connection docs go on api.runladder.com once that domain ships.
+
+Stub for full MCP shape. Ward + Sara to fill in once the MCP server is live.
+
+## Key rotation
+
+API keys are rotatable from `/dashboard/settings`. Skill tokens rotate from the same page. Old tokens are valid for 24 hours after rotation to give callers time to update config.
+
+Admin-issued tokens (super admin or admin) rotate by editing `SUPER_ADMIN_EMAILS` or `ADMIN_EMAILS`. The hardcoded super admin list requires PR + deploy + passphrase.

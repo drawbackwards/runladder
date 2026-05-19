@@ -3,18 +3,24 @@
  * plus a typed proxy for the plugin backend (ai-design-assistant) admin
  * endpoints while plugin data still lives there.
  *
- * Auth model:
+ * Auth model (three tiers, additive):
  *   SUPER_ADMIN_EMAILS — hardcoded, always admin, never removable via UI.
  *                        Editing this list is privileged: PR + merge + deploy
  *                        in production, plus an out-of-band passphrase
  *                        confirmation by Ward.
  *   ADMIN_EMAILS env   — comma-separated regular admin allowlist (Vercel).
  *                        Super admins are merged in regardless of this value.
+ *                        Gates /admin pages and /api/admin/* routes.
+ *   TEAM_EMAILS env    — comma-separated team allowlist for /hq (internal
+ *                        team hub). Does NOT grant platform admin powers.
+ *                        Admins are merged in automatically (any admin can
+ *                        also see /hq).
  *
  * Env vars (runladder project):
  *   PLUGIN_BACKEND_URL   — e.g. https://ai-design-assistant-ebon.vercel.app
  *   PLUGIN_ADMIN_KEY     — same value as ai-design-assistant's ADMIN_KEY env var
  *   ADMIN_EMAILS         — comma-separated regular admin allowlist
+ *   TEAM_EMAILS          — comma-separated team-hub allowlist
  */
 import { auth, clerkClient } from "@clerk/nextjs/server";
 
@@ -33,6 +39,16 @@ const ENV_ADMIN_EMAILS = (
 const ADMIN_EMAILS = Array.from(
   new Set([...SUPER_ADMIN_EMAILS.map((e) => e.toLowerCase()), ...ENV_ADMIN_EMAILS]),
 );
+
+// Team allowlist for /hq. Populate via TEAM_EMAILS env on Vercel with
+// Chester, Sean, and any other Drawbackwards teammates who need to see
+// the internal hub without inheriting /admin powers.
+const ENV_TEAM_EMAILS = (process.env.TEAM_EMAILS || "")
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+const TEAM_EMAILS = Array.from(new Set([...ADMIN_EMAILS, ...ENV_TEAM_EMAILS]));
 
 /**
  * Returns the authenticated admin's email, or null if unauthorized.
@@ -66,6 +82,35 @@ export function isSuperAdmin(email: string | null | undefined): boolean {
  */
 export function canRemoveAdmin(email: string): boolean {
   return !isSuperAdmin(email);
+}
+
+/**
+ * Team-hub auth check with a three-state result so server components can
+ * choose between sign-in redirect and a 403 page.
+ *
+ *   anonymous    — no signed-in user, redirect to sign-in
+ *   unauthorized — signed in but not on the team allowlist, show 403
+ *   team         — on the allowlist (or an admin), render the page
+ *
+ * Admins automatically pass because TEAM_EMAILS includes ADMIN_EMAILS.
+ */
+export async function getTeamEmailWithStatus(): Promise<
+  | { status: "anonymous" }
+  | { status: "unauthorized"; email: string }
+  | { status: "team"; email: string; isAdmin: boolean }
+> {
+  const { userId } = await auth();
+  if (!userId) return { status: "anonymous" };
+
+  const client = await clerkClient();
+  const user = await client.users.getUser(userId);
+  const email = user.primaryEmailAddress?.emailAddress?.toLowerCase();
+  if (!email) return { status: "anonymous" };
+
+  if (TEAM_EMAILS.includes(email)) {
+    return { status: "team", email, isAdmin: ADMIN_EMAILS.includes(email) };
+  }
+  return { status: "unauthorized", email };
 }
 
 /* ── Plugin backend proxy ────────────────────────────────────────────── */

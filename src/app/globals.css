@@ -458,3 +458,146 @@ input[type="submit"]:disabled,
 input[type="reset"]:disabled {
   cursor: not-allowed;
 }
+
+/* ── /hq team-hub prose styles ── */
+
+.hq-prose {
+  font-family: var(--font-sans);
+  color: var(--color-body);
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
+.hq-prose h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.hq-prose h2:first-child {
+  margin-top: 0;
+}
+
+.hq-prose h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.hq-prose h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+.hq-prose p {
+  margin-bottom: 1rem;
+}
+
+.hq-prose a {
+  color: var(--color-ladder-green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.hq-prose a:hover {
+  opacity: 0.8;
+}
+
+.hq-prose ul, .hq-prose ol {
+  margin-bottom: 1rem;
+  padding-left: 1.25rem;
+}
+
+.hq-prose ul { list-style: disc; }
+.hq-prose ol { list-style: decimal; }
+
+.hq-prose li {
+  margin-bottom: 0.4rem;
+}
+
+.hq-prose li > ul, .hq-prose li > ol {
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.hq-prose code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: #2a2a2a;
+  color: var(--color-foreground);
+  padding: 0.1rem 0.35rem;
+  border-radius: 2px;
+}
+
+.hq-prose pre {
+  background: #111;
+  border: 1px solid var(--color-border);
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+}
+
+.hq-prose pre code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+}
+
+.hq-prose blockquote {
+  border-left: 2px solid var(--color-ladder-green);
+  padding-left: 1rem;
+  margin: 1.25rem 0;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+.hq-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.875rem;
+}
+
+.hq-prose th, .hq-prose td {
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.hq-prose th {
+  color: var(--color-muted);
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: #222;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hq-prose tr:last-child td {
+  border-bottom: none;
+}
+
+.hq-prose hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 2rem 0;
+}
+
+.hq-prose strong {
+  color: var(--color-foreground);
+  font-weight: 700;
+}

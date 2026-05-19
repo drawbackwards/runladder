@@ -1,0 +1,49 @@
+---
+title: Brand
+owner: Jordan
+updatedAt: 2026-05-19
+updatedBy: Sara
+---
+
+## The two-brand architecture
+
+| | runladder.com | drawbackwards.com |
+| --- | --- | --- |
+| Role | Product: Ladder, the quality score | Agency: services built on Ladder |
+| Content | Scoring tool, dashboard, Top 100, framework, API docs, blog | Client work, services, team, agency blog |
+| Audience | Designers, PMs, developers, AI agents | Directors of Design, founders buying engagements |
+| Money flow | Pro self-serve, Teams via agency | MSA + SOW for Lift, Teams, retainers |
+
+This site is Ladder. Do not build agency content here. Drawbackwards appears only as **"Built by Drawbackwards"** in the footer, small and subtle.
+
+## Visual identity
+
+- **Accent color.** Ladder green `#6AC89B`. Use sparingly. It's the score indicator, not a paint roller.
+- **Background.** `#1a1a1a` dark. Light text. Always.
+- **Typography.** Inter for body, IBM Plex Mono for scores and data.
+- **Score colors.** Functional `#ef4444` (red), Usable `#f97316` (orange), Comfortable `#eab308` (yellow), Delightful `#22c55e` (green), Meaningful `#ffffff` (white). Never swap these. Never invent new score colors.
+
+## Rules that don't bend
+
+- **No emojis in product UI.** Marketing assets and external posts can use them sparingly. Product surfaces stay clean.
+- **No em dashes anywhere in copy.** Period, colon, or restructure the sentence. Applies to UI, marketing, blog, emails, docs.
+- **Ladder level order is always 5 → 1.** High to low. Never low to high. See [Decisions Log → Level order](/hq/decisions#ladder-level-order-is-always-5--1).
+- **No corporate buzzwords.** "Leverage", "synergy", "robust", "best-in-class", "next-generation" are banned. Plain language.
+- **Short sentences.** Under 15 words when you can.
+- **Reframe, don't complain.** If the copy is fighting itself, rewrite. Don't apologize for the product.
+
+## Voice
+
+Direct, human, slightly understated. Ladder is confident infrastructure, not a hype product. Write like you're explaining to a smart designer who hasn't seen this before but who will catch you the moment you start performing.
+
+Bad: "Unlock unprecedented design quality insights with our AI-powered scoring platform."
+
+Good: "Score any screen against a five-rung framework. The number tells you what to fix next."
+
+## Logo and lockups
+
+The Ladder logo lives in `src/components/LadderLogo.tsx`. Always pair with the wordmark or the bare mark, never both. Marketing copy should reference **Ladder** as the product name, not "the Ladder platform" or "Ladder.ai".
+
+## Trademark
+
+Ladder, the framework, and the rubric are proprietary. See [Decisions Log → Trademark](/hq/decisions#trademark-and-proprietary-framework). Once the trademark filing lands, all public references add the trademark symbol on first use per page.

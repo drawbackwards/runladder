@@ -1,0 +1,78 @@
+---
+title: User Journeys
+owner: Chester
+updatedAt: 2026-05-19
+updatedBy: Sara
+---
+
+## What goes here
+
+Annotated walkthroughs of the core flows on each surface. One section per surface. Each flow shows the screens (or steps), the decisions the user is making, where they drop off today, and what we want to improve. Diagrams in Mermaid.
+
+This is Chester's primary doc to seed. Pull annotated screens from `public/screenshots/` and embed them inline.
+
+## Web app (runladder.com)
+
+**Owner: Chester.** Stub.
+
+Flows to document:
+
+1. Anonymous → marketing → sign-up → first score
+2. Free user → 5 lifetime cap hit → Pro upgrade
+3. Pro user → dashboard → repeat scoring
+4. Sub-3.0 score → Ladder Lift CTA → contact form
+
+## Figma plugin
+
+**Owner: Chester.** Stub.
+
+Flows to document:
+
+1. First install → auth → in-canvas score
+2. Score a frame → review breakdown → iterate
+3. Free cap → Pro upgrade from plugin
+
+## Claude Skill
+
+**Owner: Ward.** Stub.
+
+Flows to document:
+
+1. Skill install in Claude.ai → first score from a conversation
+2. Skill auth model (Skill token, where it comes from)
+3. Pro vs Free behavior in-skill
+
+## Ladder Pulse
+
+**Owner: Ward.** Stub.
+
+Flows to document:
+
+1. Customer feedback data ingest
+2. Scoring run + dashboard render
+3. Lumin Digital reference flow (see [Decisions Log → Pulse customer](/hq/decisions))
+
+## API + MCP
+
+**Owner: Ward.** Stub.
+
+Flows to document:
+
+1. Developer signs up → API key generation
+2. First API call → score response → versioned headers
+3. MCP server connect from an AI agent → call shape
+
+## Diagram conventions
+
+Use Mermaid for flow diagrams. Example pattern:
+
+```
+<Mermaid chart={`
+flowchart LR
+  Start([Landing]) --> SignUp[Sign-up]
+  SignUp --> Score[Score screen]
+  Score --> Result{Score < 3.0?}
+  Result -->|Yes| Lift[Ladder Lift CTA]
+  Result -->|No| Upgrade[Pro upgrade prompt]
+`} />
+```
