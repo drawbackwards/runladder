@@ -7,27 +7,28 @@ lastPr: 179
 
 ## How to read this page
 
-A working draft of Ladder's go-to-market strategy, written in CRO voice. This is what we want the next twelve months to look like, the bets we're making, and the metrics we'll judge ourselves on. Treat the numbers as targets, not promises, until we have a Q1 of post-launch data.
+Ladder's go-to-market strategy, written in CRO voice. Funnel mechanics, channel mix, sales motion, public-launch sequence, metrics, risks. The shape of how revenue happens, not the specific revenue projections.
+
+**Per [Decisions Log -- /hq documents PUBLIC pricing only](/hq/decisions#hq-documents-public-pricing-only), this page does not list specific Team or Pulse dollar targets, customer ACVs, or Ladder Lift price bands.** Pro at $1,000/mo is on the public pricing page and shows up here. Internal targets and projections live in Ward + Michael's working memory and the Drawbackwards sales pipeline.
 
 This page changes as we learn. Every shift bumps `lastPr` and a Decisions Log entry captures the why.
 
 ## North star
 
-**Revenue from teams who treat design quality as infrastructure.** Not free-tool MAU. Not API call volume. Not signed-up email addresses. Revenue from customers who pay for Pro, Teams, or Pulse because Ladder gives them a number their team can act on.
+**Revenue from teams who treat design quality as infrastructure.** Not free-tool MAU. Not API call volume. Not signed-up email addresses. Revenue from customers who pay for Pro, Team, or Pulse because Ladder gives them a number their team can act on.
 
-Year 1 post-public-launch target ranges (call these stretch, not committed):
+Year 1 post-public-launch target shape (specific dollar bands live in non-/hq memory):
 
-- **Pro:** 250 paying users at $250 = ~$62k ARR equivalent (Pro is one-time today, see Decisions Log on whether it converts to recurring).
-- **Teams:** 5 active engagements at $50k average ACV through Drawbackwards = $250k.
-- **Pulse:** 3 active engagements at $100k average (Lumin baseline) = $300k.
-- **Ladder Lift:** 8 to 12 engagements at $20k = $200k.
-- **Total target:** **$800k to $1M ARR-equivalent in Year 1 post-launch.**
+- **Pro**: a healthy self-serve subscription base, anchored by $1,000/mo public price.
+- **Team**: a small handful of multi-seat engagements sold through Drawbackwards.
+- **Pulse**: continue Lumin Digital. Add at least one more Pulse engagement.
+- **Ladder Lift**: when the concept productizes, becomes the high-volume bridge from sub-3.0 free scores into Team.
 
-Real numbers depend on when the public-launch gate flips. See [Roadmap → Public launch gate](/hq/roadmap#public-launch-gate).
+Real targets depend on when the public-launch gate flips. See [Roadmap -- Public launch gate](/hq/roadmap#public-launch-gate).
 
 ## Positioning (recap)
 
-**Ladder is agent-native measurement infrastructure, not SaaS-with-AI.** Every surface (web, plugin, Skill, MCP, API) returns the same score from the same engine. Humans and AI agents are equal-class callers. See [Decisions Log → Positioning](/hq/decisions#positioning).
+**Ladder is agent-native measurement infrastructure, not SaaS-with-AI.** Every surface (web, plugin, Skill, MCP, API) returns the same score from the same engine. Humans and AI agents are equal-class callers. See [Decisions Log -- Positioning](/hq/decisions#positioning).
 
 The CRO read: positioning is a wedge against three adjacent categories.
 
@@ -35,15 +36,15 @@ The CRO read: positioning is a wedge against three adjacent categories.
 - **Customer feedback platforms** (Sprig, Hotjar, Pendo): we turn feedback into a single rung-mapped score, not a wall of charts. Pulse competes here directly.
 - **AI design copilots** (UX-focused LLM wrappers): we are infrastructure those copilots can call, not a copilot ourselves.
 
-The Drawbackwards moat: agency expertise that no pure-software competitor has. Ladder Lift and Teams are the products. The agency is the channel.
+The Drawbackwards moat: agency expertise that no pure-software competitor has. Team and Pulse engagements are the products. The agency is the channel.
 
 ## ICP (recap)
 
-**Primary archetype:** founder-built product, scored 1.5 to 2.5 on Ladder, growth team hired, no design quality infrastructure. See [Decisions Log → ICP](/hq/decisions#icp-founder-built-app-stuck-at-functional).
+**Primary archetype:** founder-built product, scored 1.5 to 2.5 on Ladder, growth team hired, no design quality infrastructure. See [Decisions Log -- ICP](/hq/decisions#icp-founder-built-app-stuck-at-functional).
 
 Secondary archetypes (for prioritization, not equal weight):
 
-- **Design-led teams at Series B+ companies** buying Pro for individuals or Teams for design orgs.
+- **Design-led teams at Series B+ companies** buying Pro for individuals or Team for design orgs.
 - **Product orgs measuring customer experience operationally**, buying Pulse for ongoing feedback scoring.
 - **Developer / AI-tooling teams** integrating the MCP and API into their own agent workflows.
 
@@ -51,7 +52,7 @@ We do not chase: enterprise design system buyers (out of scope), pure accessibil
 
 ## The funnel
 
-CRO mental model: **awareness → activation → engagement → conversion → expansion → retention.** Surface map below.
+CRO mental model: **awareness to activation to engagement to conversion to expansion to retention.** Surface map below.
 
 ### Awareness
 
@@ -77,16 +78,16 @@ CRO bet: the **public scoring tool is the wedge**. Every other channel ultimatel
 A visitor becomes a user.
 
 - Activation event: **first score completed.** Today this requires sign-up (Clerk magic link or Google OAuth, decided in v0.4.14).
-- The sign-up gate is intentional. See [Decisions Log → Sign-up required](/hq/decisions#sign-up-is-required-to-score). Anonymous scoring was removed because it inflated cost and killed attribution.
-- Activation target: 40 percent of `/score` page visitors complete a first score within session one.
+- The sign-up gate is intentional. See [Decisions Log -- Sign-up required](/hq/decisions#sign-up-is-required-to-score). Anonymous scoring was removed because it inflated cost and killed attribution.
+- Activation target: a healthy share of `/score` page visitors complete a first score within session one. Specific target lives in the metrics dashboard (non-/hq).
 
 ### Engagement
 
 A user scores more than once and explores the framework.
 
-- Free users get 5 lifetime scores. Hard cap, no overage. Constant in `src/lib/plans.ts` as `FREE_LIFETIME_LIMIT`. See [Decisions Log → Pricing](/hq/decisions#pricing-free-5-lifetime-pro-250-self-serve-teams-contact-only).
+- Free users get 5 lifetime scores. Hard cap, no overage. Constant in `src/lib/plans.ts` as `FREE_LIFETIME_LIMIT`. See [Decisions Log -- Pricing](/hq/decisions#public-pricing-free-5-lifetime-pro-1000mo-self-serve-team-and-pulse-custom).
 - Engagement events to track: score count, framework page reads, Top 100 visits, blog reads.
-- Engagement target: 60 percent of activated users score 2 or more before hitting the cap. Below that, our score result page isn't selling the next score well enough.
+- Engagement target: most activated users score more than once before hitting the cap. Below that, our score result page isn't selling the next score well enough.
 
 ### Conversion
 
@@ -94,15 +95,13 @@ A free user becomes a paying customer or routes into a sales engagement.
 
 Two paths, depending on score:
 
-- **Sub-3.0 score (`Functional` or `Usable`):** Ladder Lift CTA. The buyer is in pain. The score is the qualifier. Route to a contact form, Drawbackwards delivery lead handles discovery. Lift is **$18 to 25k**, MSA + SOW, includes audit + workshop + 3 months of Teams. See [Decisions Log → Ladder Lift](/hq/decisions#ladder-lift-bridges-free--teams).
-- **3.0-plus score (`Comfortable` and up):** Pro upgrade prompt. The buyer is curious. A11y and UX copywriting tabs are locked. The lifetime cap is approaching. Stripe checkout self-serve at **$250**. No procurement, no sales call.
+- **Sub-3.0 score (`Functional` or `Usable`)**: the buyer is in pain. The score is the qualifier. Route to a contact form. The Ladder Lift concept will productize this conversation when ready (see [Decisions Log -- Ladder Lift](/hq/decisions#ladder-lift-is-an-internal-concept-not-yet-productized)). In the meantime, sub-3.0 routes to a generic "Talk to Drawbackwards" CTA.
+- **3.0-plus score (`Comfortable` and up)**: the buyer is curious. A11y and UX copywriting tabs are locked. The lifetime cap is approaching. **Pro upgrade self-serve at $1,000/mo** on Stripe. No procurement, no sales call.
 
-Conversion targets:
+Conversion math (specific targets in non-/hq metrics):
 
-- **Sub-3.0 score to Lift discovery call:** 5 percent of sub-3.0 scorers click the CTA. Of those, 25 percent take a discovery call. Of those, 30 percent close. Implied: 0.4 percent of sub-3.0 scorers become Lift customers.
-- **Free to Pro:** 8 percent of free users who hit the 5-lifetime cap upgrade to Pro within 30 days.
-
-Both numbers are CRO bets. Real numbers replace them after one full quarter of post-launch data.
+- Sub-3.0 to discovery call to close: a multi-step funnel that Drawbackwards owns. Track each step.
+- Free to Pro: lifetime cap is the natural conversion lever. Pro's $1,000/mo signals "serious tool" which is intentional positioning.
 
 ### Expansion
 
@@ -110,12 +109,12 @@ A paying customer buys more.
 
 | Land | Expand to | Path |
 | --- | --- | --- |
-| Pro individual | Teams | They mention a team. Drawbackwards delivery lead reaches out with a Lift proposal. |
-| Lift customer | Teams | Lift includes 3 months of Teams. Renewal at end of Lift converts to a Teams MSA. |
-| Teams customer | Pulse | Pulse is the next infrastructure layer: scoring customer feedback instead of designed screens. Drawbackwards sells this in. |
-| Pulse customer | Teams bundle | Lumin Digital pattern (per memory). Customer wants seat-based design scoring on top of Pulse. |
+| Pro individual | Team | They mention a team. Drawbackwards delivery lead reaches out with an engagement proposal. |
+| Discovery call | Team | When Lift productizes, the bridge runs through it. Today, manual handoff from Drawbackwards. |
+| Team customer | Pulse | Pulse is the next infrastructure layer: scoring customer feedback instead of designed screens. Drawbackwards sells this in. |
+| Pulse customer | Team bundle | Lumin Digital pattern (customer signaled interest in adding Team on top of Pulse). |
 
-CRO target: **Net revenue retention > 110 percent** within 12 months of first Teams or Pulse engagement.
+CRO target: **net revenue retention > 110 percent** within 12 months of first Team or Pulse engagement.
 
 ### Retention
 
@@ -123,12 +122,12 @@ A customer keeps paying.
 
 Retention levers in priority order:
 
-1. **Reviews + Team Take social layer.** Teams customers who use Reviews engage more designers, run more scores, generate internal momentum. The product becomes the team's daily process. Shipped v0.4.15 to v0.4.17.
-2. **Letter grades on `/dashboard/team`.** Managers see designer trends. Pulls Teams into weekly leadership conversations.
+1. **Reviews + Team Take social layer.** Team customers who use Reviews engage more designers, run more scores, generate internal momentum. The product becomes the team's daily process. Shipped v0.4.15 to v0.4.17.
+2. **Letter grades on `/dashboard/team`.** Managers see designer trends. Pulls Team into weekly leadership conversations.
 3. **Pulse continuous feedback scoring.** Pulse is by nature recurring (data keeps flowing). Renewal logic is operational, not negotiated.
-4. **Engineering standards integration (future).** When Drawbackwards engineering standards ship, Teams + Lift customers get an upgrade path into ongoing audit work.
+4. **Engineering standards integration (future).** When Drawbackwards engineering standards ship, Team + Lift customers get an upgrade path into ongoing audit work.
 
-Churn risk: customers who only used Ladder for a one-time audit (Lift without renewal). Mitigation: bake Teams renewal into the Lift SOW from day one.
+Churn risk: customers who only used Ladder for a one-time audit (Lift without renewal). Mitigation: bake Team renewal into the Lift SOW from day one when it productizes.
 
 ## Sales motion
 
@@ -137,27 +136,22 @@ Three motions, layered.
 ### 1. Product-led (PLG) for Pro
 
 - Channel: free scoring tool.
-- Auth: Stripe self-serve.
-- ACV: $250 (one-time today, see open question below).
+- Auth: Stripe self-serve at $1,000/mo (live).
 - Touch: zero sales touch. Marketing email follow-up only.
 - Owner: Sara (lifecycle emails when shipped), Jordan (marketing pages).
 
-Open question: is Pro one-time or recurring? Today the price is $250, which reads like one-time. For ARR math, we need to either move Pro to $250/year subscription or accept $250 as a foot-in-the-door for the Lift conversion. Flag for Decisions Log clarification.
-
-### 2. Sales-assisted for Ladder Lift
+### 2. Sales-assisted for sub-3.0 scores (Ladder Lift when ready)
 
 - Channel: sub-3.0 score CTA, direct outreach, content.
-- ACV: $18 to 25k per engagement.
-- Touch: discovery call, audit proposal, MSA + SOW.
-- Cycle: 30 to 60 days from CTA click to signed SOW.
+- Touch: discovery call, audit proposal, MSA + SOW. Specific deal sizing in non-/hq memory.
+- Cycle: a few weeks to a couple of months from CTA click to signed SOW.
 - Owner: Ward + Michael, Drawbackwards delivery lead per engagement.
 
-### 3. Enterprise for Teams and Pulse
+### 3. Enterprise for Team and Pulse
 
-- Channel: Lift conversion, direct sales, customer expansion.
-- ACV: Teams $30 to $100k, Pulse $80 to $200k.
+- Channel: Lift conversion (future), direct sales, customer expansion.
 - Touch: multi-call, executive sponsor, procurement.
-- Cycle: 60 to 120 days.
+- Cycle: two to four months.
 - Owner: Ward (close), Michael (PM), Drawbackwards delivery org.
 
 ## Channel strategy
@@ -166,10 +160,10 @@ Owned, earned, partner, paid. Tracked separately because the unit economics diff
 
 ### Owned
 
-- **runladder.com:** the wedge. Optimize for sign-up to score conversion.
-- **drawbackwards.com:** the agency channel. Optimize for Lift inquiry conversion.
-- **/framework, /top-100, /teardowns, /blog:** content marketing. Optimize for repeat visits and shares.
-- **Email lifecycle:** Pro upgrade nudges, Teams expansion offers, Pulse case studies. Roadmap (not built).
+- **runladder.com**: the wedge. Optimize for sign-up to score conversion.
+- **drawbackwards.com**: the agency channel. Optimize for engagement inquiry conversion.
+- **/framework, /top-100, /teardowns, /blog**: content marketing. Optimize for repeat visits and shares.
+- **Email lifecycle**: Pro upgrade nudges, Team expansion offers, Pulse case studies. Roadmap (not built).
 
 ### Earned
 
@@ -181,12 +175,12 @@ Owned, earned, partner, paid. Tracked separately because the unit economics diff
 
 - **Anthropic Skills marketplace** (Roadmap, see [Skill distribution](/hq/roadmap#skill-distribution-roadmap)).
 - **Figma plugin marketplace** (in re-review).
-- **MCP ecosystem:** developer tools that integrate the MCP server when it ships.
-- **Drawbackwards client relationships:** the highest-warmth channel for Teams and Pulse. Existing clients become beta customers.
+- **MCP ecosystem**: developer tools that integrate the MCP server when it ships.
+- **Drawbackwards client relationships**: the highest-warmth channel for Team and Pulse. Existing clients become beta customers.
 
 ### Paid
 
-**Not active.** Public-launch gate must flip before paid acquisition starts. See [Decisions Log → Public launch](/hq/decisions#public-launch-is-gated-on-mcp-skill-and-api-being-live).
+**Not active.** Public-launch gate must flip before paid acquisition starts. See [Decisions Log -- Public launch](/hq/decisions#public-launch-is-gated-on-mcp-skill-and-api-being-live).
 
 When paid kicks in, sequence:
 
@@ -195,7 +189,7 @@ When paid kicks in, sequence:
 3. Search ads on "design quality framework", "UX audit tool", "design system score".
 4. Sponsored newsletters in design community (Sidebar, UX Tools, etc.).
 
-Test budget: $5k per channel, kill what doesn't show CAC payback under 12 months.
+Test budget per channel: small, killable. Kill what doesn't show CAC payback within a reasonable window.
 
 ## Public launch sequence
 
@@ -207,7 +201,7 @@ When the three public-launch gates flip ([MCP, Skill marketplace, public API](/h
 | Day 1 | Drawbackwards-published blog post announcing the launch. Cross-post to LinkedIn, Twitter. |
 | Day 2 to 5 | Top 100 entries seeded (10 to 20 well-known apps). Each gets a public scorecard. Social shares from accounts. |
 | Day 7 | Email to existing free users: "Pro is live, here's what you unlock." |
-| Day 7 | Email to Drawbackwards client list: "Ladder Lift is available. Sub-3.0 score discount for first 5 sign-ups." |
+| Day 7 | Email to Drawbackwards client list: "Ongoing Team engagement is available. Sub-3.0 score discount for first 5 sign-ups." |
 | Day 10 | Designer leader outreach: founder interviews on 2 to 3 podcasts or newsletters. |
 | Day 14 | Paid acquisition test budgets activate (LinkedIn, Twitter, Search, Newsletters). |
 | Day 21 | First retrospective: top-of-funnel volume, sign-up rate, free to Pro conversion. Adjust. |
@@ -215,7 +209,7 @@ When the three public-launch gates flip ([MCP, Skill marketplace, public API](/h
 
 ## Metrics dashboard
 
-The numbers we watch weekly. Most are roadmap to track in `/admin` (today the data exists, the dashboards don't).
+The numbers we watch weekly. Most are roadmap to track in `/admin` (today the data exists, the dashboards don't). Specific revenue and ACV numbers live in non-/hq memory; only the categories show up here.
 
 ### Top of funnel
 
@@ -227,26 +221,24 @@ The numbers we watch weekly. Most are roadmap to track in `/admin` (today the da
 ### Conversion
 
 - Free to Pro conversion rate (lifetime cap to checkout)
-- Sub-3.0 score to Lift CTA click rate
-- Lift CTA click to discovery call rate
-- Lift discovery call to signed SOW rate
-- Teams expansion rate (Lift to Teams renewal)
+- Sub-3.0 score to discovery call click rate
+- Discovery call to signed SOW rate
+- Team expansion rate (engagement to renewal)
 
-### Revenue
+### Revenue (categories, not specifics)
 
-- ARR-equivalent by tier (Pro, Teams, Pulse, Lift)
-- ACV by tier
-- New revenue per quarter
-- Expansion revenue per quarter
-- Churn revenue per quarter
-- Net revenue retention (NRR)
+- Pro MRR
+- Team engagements active
+- Pulse engagements active
+- Net revenue retention
+- Expansion vs new revenue split
 
 ### Engagement and retention
 
 - Scores per active user per month
-- Reviews created per Teams customer per month
-- Pro renewal rate (if Pro converts to recurring)
-- Teams renewal rate at SOW end
+- Reviews created per Team customer per month
+- Pro renewal rate
+- Team renewal rate at SOW end
 - Pulse data ingest volume
 
 ### Channel performance
@@ -260,17 +252,17 @@ The numbers we watch weekly. Most are roadmap to track in `/admin` (today the da
 CRO must name them out loud.
 
 1. **Public-launch gate slips past Q3 2026.** Year 1 target compresses. Mitigation: prioritize MCP + Skill marketplace over polish work. Phase the gate aggressively in [Roadmap](/hq/roadmap).
-2. **Free to Pro conversion under 5 percent.** Targets miss by 2x. Mitigation: tighten the lifetime cap pitch, test pricing experiments.
-3. **Lift sales cycle is longer than 60 days.** Drawbackwards delivery capacity becomes the bottleneck. Mitigation: pre-built Lift package, fewer custom proposals.
-4. **Pulse engine drift.** ladder-beta runs on OpenAI, runladder on Anthropic. Consolidation roadmap is open-ended. Mitigation: track in [Roadmap → Pulse consolidation](/hq/roadmap#pulse-consolidation-future).
+2. **Free to Pro conversion underperforms.** Targets miss. Mitigation: tighten the lifetime cap pitch, test pricing experiments (Pro $1,000/mo is the current public price; alternatives stay in non-/hq memory).
+3. **Sales cycle longer than expected.** Drawbackwards delivery capacity becomes the bottleneck. Mitigation: pre-built engagement packages, fewer custom proposals.
+4. **Pulse engine drift.** ladder-beta runs on OpenAI, runladder on Anthropic. Consolidation roadmap is open-ended. Mitigation: track in [Roadmap -- Pulse consolidation](/hq/roadmap#pulse-consolidation-future).
 5. **Anthropic marketplace policy change.** If Anthropic gates third-party Skill listings, Skill distribution path (b) breaks. Mitigation: marketplace.json in our own repo (path a) still works regardless.
 6. **Trademark dispute.** Ladder is a common word. If a competitor challenges the mark, marketing has to rebrand mid-launch. Mitigation: trademark filing in flight (see [Decisions Log](/hq/decisions#trademark-and-proprietary-framework)).
 
 ## Open questions
 
-These need Ward's call before the strategy locks.
+These need Ward's call before the strategy locks. (Ward + Michael own the answers; this page captures the questions for team visibility, not the answers.)
 
-1. **Is Pro $250 one-time or annual?** ARR math hinges on this. Recommendation: convert to $250/year subscription with first-year discount option for friction-sensitive buyers.
-2. **What's the Teams ACV floor?** Currently a Drawbackwards engagement (MSA + SOW), bespoke. Recommendation: publish a starting price ("$30k for up to 10 seats and 25,000 queries") so the buyer can self-qualify before reaching out.
-3. **Should the Ladder Lift land on runladder.com (as a CTA) or drawbackwards.com (as a service page)?** Per [Decisions Log → Ladder Lift](/hq/decisions#ladder-lift-bridges-free--teams), Lift lives on drawbackwards.com. Recommendation: confirmed, with a CTA bridge from runladder.com sub-3.0 results.
-4. **Who owns marketing operations?** Today this page is Sara's plan. The actual execution (email, paid, content cadence) needs a human owner. Recommendation: Michael as MarketingOps owner, Jordan supports on assets.
+1. **Team published floor.** Should we publish a Team starting price so buyers can self-qualify, or stay Custom?
+2. **Pulse pricing model.** Is Pulse pay-per-engagement, annual subscription, or something hybrid? Lumin's structure may not generalize.
+3. **Ladder Lift productization.** When does Lift become public? What does the sub-3.0 CTA say in the meantime?
+4. **Marketing operations owner.** Suggested: Michael as MarketingOps lead, Jordan supports on assets. Confirm with Michael.

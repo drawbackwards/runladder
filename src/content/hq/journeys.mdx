@@ -36,7 +36,7 @@ Triggers for the upgrade conversation:
 - User clicks a Pro-only tab (a11y audit, UX copywriting) on a score result.
 - User hits the Pricing page directly.
 
-The Stripe checkout is self-serve at $250 (via `POST /api/stripe/checkout`). On success the user lands on `/dashboard?welcome=pro` and Pro features unlock immediately.
+The Stripe checkout is self-serve at the Pro price on `/pricing` ($1,000/mo today, via `POST /api/stripe/checkout`). On success the user lands on `/dashboard?welcome=pro` and Pro features unlock immediately.
 
 ### Team manager flow (Live, post-engagement)
 
@@ -90,7 +90,7 @@ Key beats:
 
 **Pulse runs in `drawbackwards/ladder-beta` (Next.js + Prisma on Fly.io), not in `runladder`.** The `/pulse` route on runladder.com is a marketing landing page that points at `/contact`, not the Pulse product surface.
 
-First customer is Lumin Digital (Sept 2025 to Sept 2026 engagement, $90K). Pulse customer data, scoring, and dashboards all live in `ladder-beta`. Consolidation into `runladder` is a future decision, not active (see [Decisions Log](/hq/decisions#pulse-and-original-ladder-stay-in-separate-repos-for-now)).
+First customer is Lumin Digital (Sept 2025 to Sept 2026 engagement). Pulse customer data, scoring, and dashboards all live in `ladder-beta`. Consolidation into `runladder` is a future decision, not active (see [Decisions Log](/hq/decisions#pulse-and-original-ladder-stay-in-separate-repos-for-now)).
 
 ### Pulse data flow (Live, in ladder-beta)
 
@@ -102,7 +102,7 @@ Key beats (per `ladder-beta` README):
 - Data persists in Prisma + Postgres on Fly.io.
 - Scoring uses OpenAI (`OPEN_AI_API_KEY` env), separate from `runladder`'s Anthropic scoring engine. Engine consolidation is roadmap.
 - Dashboard renders aggregate trends inside `ladder-beta` (not on runladder.com).
-- Pulse pool target is 50,000 queries per month per [Decisions Log → Pricing](/hq/decisions#pricing-free-5-lifetime-pro-250-self-serve-teams-contact-only).
+- Pulse pool size is set per engagement (publicly Custom on `/pricing`). See [Decisions Log -- Public pricing](/hq/decisions#public-pricing-free-5-lifetime-pro-1000mo-self-serve-team-and-pulse-custom) for what's public.
 
 ## Ladder API and MCP: Roadmap (not built)
 

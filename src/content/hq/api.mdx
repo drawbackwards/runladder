@@ -96,7 +96,7 @@ Implemented in `src/app/api/score/route.ts` using helpers from `src/lib/plans.ts
 | Free | 5 lifetime | Hard-blocked past cap, no overage |
 | Pro | `PRO_MONTHLY_LIMIT` | Tiered overage (roadmap to verify exact billing) |
 | Teams | 25,000 pool | Sold via MSA + SOW |
-| Pulse | 50,000 pool | Sold via direct engagement |
+| Pulse | Custom (set per engagement) | Sold via direct Drawbackwards engagement |
 
 Rate-limit responses target HTTP 429 with `Retry-After` and `X-Ladder-Quota-Remaining` headers once the public API ships. Today's responses are 401/403 with tier-specific messages.
 

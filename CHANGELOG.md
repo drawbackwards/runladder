@@ -8,7 +8,11 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ## app 0.5.2 / api 1.0.0 (2026-05-19)
 
-**Ladder HQ: audit corrections, full platform roadmap, Go-to-Market strategy, Skill distribution plan.**
+**Ladder HQ: audit corrections, full platform roadmap, Go-to-Market strategy, Skill distribution plan, pricing scrub.**
+
+**Pricing scrub.** Two issues caught by Ward late in PR review: (1) `/hq` was citing Pro at $250 in multiple places, but Pro went to $1,000/mo in v0.4.8 (PR #166) and that's live on Stripe today. All references corrected. (2) `/hq` is read by everyone in `TEAM_EMAILS` / `ADMIN_EMAILS`, including engineering audit and design roles who don't need to see internal sales numbers. Specific Team floor pricing, Pulse engagement ACVs, customer dollar values, and Ladder Lift price bands all removed from `/hq`. They stay in non-`/hq` memory. New Decisions Log entry codifies the rule: "/hq documents PUBLIC pricing only". The GTM page now talks revenue strategy qualitatively, not in specific dollar projections.
+
+
 
 - **Audit corrections.** v0.5.0 and v0.5.1 invented things that didn't exist. This release tells the truth: `api.runladder.com` does not exist (DNS NXDOMAIN), MCP server does not exist, `/dashboard/settings` does not exist, the `POST /v1/score` shape was fiction. Every page now distinguishes Live (file/route/PR evidence) vs In flight (code partially exists) vs Roadmap (no code yet).
 - **Codebase map** added to `/hq/architecture`. Three repos called out: `runladder` (this), `ladder-beta` (Pulse on Fly.io), `ladder` (original Rails). Pulse and Ladder stay in separate repos for now; consolidation is roadmap.

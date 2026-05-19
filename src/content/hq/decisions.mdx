@@ -13,6 +13,23 @@ If you want to challenge a decision, file an issue in GitHub with the proposed c
 
 ---
 
+## /hq documents PUBLIC pricing only (2026-05-19)
+
+**Pro at $1,000/mo is public on runladder.com/pricing.** Team and Pulse are listed as "Custom" publicly, so they show as Custom in /hq too. Specific internal targets (Team floor, Pulse engagement ACVs, Ladder Lift price bands, customer dollar values) live in Ward's memory and the Drawbackwards sales pipeline, not in /hq.
+
+Why: `/hq` is read by everyone in `TEAM_EMAILS` or `ADMIN_EMAILS`. That includes engineering audit and design roles who do not need to see internal sales numbers. The principle: if a price isn't on `/pricing`, it doesn't belong here.
+
+How to apply:
+
+- Pricing references in `/hq` use only what's on runladder.com/pricing: Free 5-score trial, Pro $1,000/mo with 2,000 scores/mo, Team Custom, Pulse Custom.
+- Do NOT write specific Team or Pulse dollar amounts in `/hq`.
+- Do NOT name customer ACVs.
+- Do NOT include Ladder Lift price bands.
+- For strategy and GTM, talk qualitatively about expansion ("Pro to Team is a step change in scale, sold via Drawbackwards engagement") instead of specific numbers.
+- Ward and Michael keep the full pricing context in non-/hq memory. Ask if you need a number for a sales conversation.
+
+---
+
 ## Every claim of "live" in /hq must point to a route, file, or PR (2026-05-19)
 
 **UNBREAKABLE rule.** A feature is tagged Live only if you can name the file path, route, or PR that proves it. Otherwise tag it In flight (code exists, partial) or Roadmap (no code yet).
@@ -33,7 +50,7 @@ How to apply:
 
 **Pulse runs in `drawbackwards/ladder-beta` (Next.js + Prisma on Fly.io). The original Ladder backend runs in `drawbackwards/ladder` (Rails). Both stay separate. Eventual consolidation into `runladder` is a future decision, not active work.**
 
-Why: Pulse is a working revenue line (Lumin Digital is paying $90K for the current engagement) and the codebase is mature enough that pulling it into `runladder` mid-engagement would create risk without near-term upside. The Rails original is the dependency `ladder-beta` reads from (`RAILS_BASE_API_URL`), so it goes when `ladder-beta` goes. Trying to consolidate now slows down both the public launch on `runladder` and the customer work in `ladder-beta`.
+Why: Pulse is a working revenue line (Lumin Digital is the live engagement) and the codebase is mature enough that pulling it into `runladder` mid-engagement would create risk without near-term upside. The Rails original is the dependency `ladder-beta` reads from (`RAILS_BASE_API_URL`), so it goes when `ladder-beta` goes. Trying to consolidate now slows down both the public launch on `runladder` and the customer work in `ladder-beta`.
 
 How to apply:
 
@@ -97,24 +114,24 @@ How to apply: ship MCP, Skill, and v1 of the public API before any paid acquisit
 
 ---
 
-## Pricing: Free 5-lifetime, Pro $250 self-serve, Teams contact-only
+## Public pricing: Free 5-lifetime, Pro $1,000/mo self-serve, Team and Pulse Custom
 
-**Free** is a try-before-you-buy at 5 scores per account, ever. **Pro** is $250 for individuals, self-serve on Stripe. **Teams** is contact-only, sold as a Drawbackwards engagement (see Teams sales model below).
+**Free** is a try-before-you-buy at 5 scores per account, ever. **Pro** is $1,000/mo for individuals, self-serve on Stripe. **Team** is publicly Custom (Apply to be a beta tester CTA on `/pricing`). **Pulse** is publicly Custom (Contact CTA).
 
-Query allowances on the platform:
+Public limits (visible on `/pricing` and enforced in `src/lib/plans.ts`):
 
-| Tier | Monthly queries | Surfaces |
+| Tier | Limit | Surfaces |
 | --- | --- | --- |
-| Free | 5 lifetime | Web only |
-| Pro | 1,000 | All surfaces |
-| Teams | 25,000 pool | All surfaces |
-| Pulse | 50,000 pool | All surfaces |
+| Free | 5 lifetime scores | Web + Skill + Figma |
+| Pro | 2,000 scores/mo (soft cap, hard cap 2x) | All surfaces + API keys (when public API ships) |
+| Team | 25,000 pooled scores/mo (Beta) | All Pro features + manager workflow |
+| Pulse | Custom (set per engagement) | All Team features + Pulse data ingest in `ladder-beta` |
 
-Overage is tiered, not blocked.
+Pro went from $250/mo to $1,000/mo in v0.4.8 ([PR #166](https://github.com/drawbackwards/runladder/pull/166)) on 2026-04-28. Subscribe button is live via Stripe.
 
-Why: the Free → Pro gap was a leaky funnel when Free was generous. Lifetime cap forces the upgrade decision. Teams stays contact-only because the buyer is a Director of Design, not a credit-card buyer, and the deal value supports a sales motion.
+Why: the Free to Pro gap was a leaky funnel when Free was generous. Lifetime cap forces the upgrade decision. Team stays contact-only because the buyer is a Director of Design, not a credit-card buyer, and the deal value supports a sales motion.
 
-How to apply: don't offer ad-hoc discounts on Pro. Don't offer self-serve Teams. If a buyer pushes for self-serve at the Teams price, that's a Ladder Lift candidate.
+How to apply: don't offer ad-hoc discounts on Pro. Don't offer self-serve Team. Internal price targets stay in memory per [/hq documents PUBLIC pricing only](#hq-documents-public-pricing-only).
 
 ---
 
@@ -128,13 +145,13 @@ How to apply: any "team plan signup" copy on runladder.com routes to a contact f
 
 ---
 
-## Ladder Lift bridges Free → Teams
+## Ladder Lift is an internal concept (not yet productized)
 
-**Ladder Lift** is a named Drawbackwards engagement: audit + workshop + 3 months of Teams access at $18–25K. It lives on drawbackwards.com, not runladder.com.
+**Ladder Lift** is a concept Ward is shaping internally: a Drawbackwards engagement that bridges sub-3.0 free scores into a Team subscription. It is not yet a published product. Specifics (engagement stages, price band, deliverables) live in memory, not in `/hq`.
 
-Why: sub-3.0 scores on the public scoring tool are a high-intent qualifier. We need a CTA that captures that intent at a price point a Director can approve without procurement. Ladder Lift is that bridge.
+Why: the productization isn't ready. The shape (Drawbackwards audit + workshop + month-three Team handoff) is roughly defined, but the public-facing pitch and the runladder.com surface are not. Naming a price in `/hq` would commit to a number we haven't committed to publicly.
 
-How to apply: any score under 3.0 on a /score result for a non-signed-in user should surface a Lift CTA. Pro and Teams users see the upgrade path instead.
+How to apply: do not document Lift specifics in `/hq`. In the meantime, sub-3.0 scores on `/score` should route to a generic "Talk to Drawbackwards about ongoing design work" CTA (see [Roadmap](/hq/roadmap) for the CTA wiring). When Lift productizes, this entry updates to reflect the public shape.
 
 ---
 
