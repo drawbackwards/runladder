@@ -6,6 +6,19 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.4 / api 1.0.0 (2026-05-26)
+
+**Auth + onboarding fixes ahead of the Ladder Team sale.**
+
+- **Post-auth redirects.** `ClerkProvider` now sets `signInUrl`/`signUpUrl`, `signInFallbackRedirectUrl`/`signUpFallbackRedirectUrl`, and `afterSignOutUrl`, so any Clerk flow (not just the embedded login/signup pages) has a redirect target. The org-invitation redirect on Clerk's hosted portal is governed by the dashboard Home URL and is tracked separately (#181).
+- **Password gate bypasses signed-in users.** `PasswordGate` lets any signed-in user through the `SITE_PASSWORD` wall, including invitees returning from Clerk's hosted portal with a session. This unblocks the Team onboarding flow; cold visitors still see the wall. The gate is dead code once `SITE_PASSWORD` is removed from Vercel (cleanup TODO added). New Decisions Log entry codifies the rationale.
+- **OTP form background fix.** An over-broad `globals.css` selector (`[class*="bg"]`) was matching Clerk's hashed internal classes and painting a dark background behind the OTP digits. Scoped `.cl-form` transparent and excluded it from the catch-all rule.
+- **Login UI cleanup.** Removed the dark background behind the identity-preview email field and removed the redundant Ladder logo above the auth form (the nav already shows it).
+- **Onboarding env docs.** Added `.env.local.example` documenting every env var needed for local onboarding work.
+- `/hq` updated: Decisions Log (gate bypass) and User Journeys (Team manager flow access note + invite-redirect known issue). PR #198.
+
+---
+
 ## app 0.5.3 / api 1.0.0 (2026-05-19)
 
 **Engineering model update + post-merge /hq verification protocol.**
