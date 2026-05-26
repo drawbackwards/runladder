@@ -46,7 +46,7 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
       "Scores are public",
     ],
     cta: "Start free",
-    href: "/score",
+    href: "https://runladder.com/login#/create?redirect_url=https%3A%2F%2Frunladder.com%2Fdashboard",
     solidCta: true,
   },
   {
@@ -82,6 +82,8 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
       "Everything in Professional",
       "25,000 scores per month pooled across the team",
       "Manager dashboard + designer performance tracking",
+      "Team leaderboard",
+      "Seat management: invite, archive, and remove team members",
       "Design rhythm + activity heatmap per designer",
       "Design Reviews. Bucket every iteration of a frame, drop pinned crit on the canvas, watch the score lift across the sprint.",
       "Team Take. Peer designers submit a separate score with rationale on every frame, shown alongside the Ladder score.",

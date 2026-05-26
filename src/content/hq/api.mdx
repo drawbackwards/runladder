@@ -1,8 +1,8 @@
 ---
 title: API Protocols
-updatedAt: 2026-05-19
+updatedAt: 2026-05-26
 updatedBy: Sara
-lastPr: 179
+lastPr: 181
 ---
 
 ## Two surfaces, one to come
@@ -33,7 +33,8 @@ All endpoints below are real routes in this repo. Find them under `src/app/api/`
 | `/api/plugin/analyze` | POST | Plugin token | Scoring callable from the Figma plugin. |
 | `/api/plugin/meta` | GET | Public | Plugin metadata (version, etc.). |
 | `/api/plugin/persist-score` | POST | Plugin token | Save a plugin-originated score. |
-| `/api/stripe/checkout` | POST | Clerk session | Pro upgrade Stripe checkout session. |
+| `/api/stripe/checkout` | POST | Clerk session | Pro upgrade Stripe checkout session (returns `{ url }`). |
+| `/api/stripe/checkout` | GET | Clerk session | Creates Pro checkout session and 302-redirects to Stripe. Used as Clerk post-auth redirect target (`?plan=pro`). |
 | `/api/stripe/portal` | POST | Clerk session | Stripe customer portal. |
 | `/api/stripe/webhooks` | POST | Stripe webhook signature | Stripe event ingest. |
 | `/api/webhooks/clerk` | POST | Clerk webhook signature | Auto-grant `tier: team` on org join (shipped v0.3.0). |

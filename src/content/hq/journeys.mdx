@@ -1,8 +1,8 @@
 ---
 title: User Journeys
-updatedAt: 2026-05-19
+updatedAt: 2026-05-26
 updatedBy: Sara
-lastPr: 179
+lastPr: 181
 ---
 
 ## How to read this page
@@ -36,7 +36,14 @@ Triggers for the upgrade conversation:
 - User clicks a Pro-only tab (a11y audit, UX copywriting) on a score result.
 - User hits the Pricing page directly.
 
-The Stripe checkout is self-serve at the Pro price on `/pricing` ($1,000/mo today, via `POST /api/stripe/checkout`). On success the user lands on `/dashboard?welcome=pro` and Pro features unlock immediately.
+The Stripe checkout is self-serve at the Pro price on `/pricing` ($1,000/mo today). Updated flow (v0.5.4):
+
+1. Unauthenticated user clicks Subscribe on `/pricing` — redirects to Clerk full-page sign-up/login (no modal).
+2. After auth, Clerk redirects to `GET /api/stripe/checkout?plan=pro`, which creates a Stripe session server-side and returns a 302 to Stripe checkout.
+3. On success the user lands on `/dashboard?upgraded=pro` and Pro features unlock immediately.
+4. On cancel, user lands on `/pricing?canceled=1`.
+
+Free tier CTA on `/pricing` now redirects to `/dashboard` after signup (previously `/`).
 
 ### Team manager flow (Live, post-engagement)
 

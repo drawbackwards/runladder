@@ -1,8 +1,8 @@
 ---
 title: Feature Inventory
-updatedAt: 2026-05-19
+updatedAt: 2026-05-26
 updatedBy: Sara
-lastPr: 179
+lastPr: 181
 ---
 
 ## How to read this page
@@ -39,7 +39,9 @@ When you ship a feature, add the row here in the same PR. Template:
 | HQ content + PR-stamp protocol | Admin + Team | Live (v0.5.1) | [#178](https://github.com/drawbackwards/runladder/pull/178) |
 | Blog (`/blog`) | Public | Live | `src/app/blog/`, content ongoing |
 | `/pulse` marketing landing page | Public | Live | `src/app/pulse/page.tsx` (NOT the Pulse product surface, just marketing) |
-| Pricing page (Free 5-lifetime, Pro $1,000/mo, Team Custom Beta) | Public | Live (v0.4.8 + v0.4.9) | `src/app/pricing/page.tsx`, [#166](https://github.com/drawbackwards/runladder/pull/166), [#167](https://github.com/drawbackwards/runladder/pull/167) |
+| Pricing page (Free 5-lifetime, Pro $1,000/mo, Team Custom Beta) | Public | Live (v0.4.8 + v0.4.9, updated v0.5.4) | `src/app/pricing/page.tsx` — Team tier: added leaderboard, seat management bullets. Free CTA links to signup then `/dashboard`. Pro subscribe uses full-page Clerk redirect (not modal). |
+| Products page — Ladder for Teams section | Public | Live (v0.5.4) | `src/app/products/page.tsx` — new card between AI Skill and Drawbackwards Consulting. Speaks to design leads and managers. |
+| Homepage — Ladder for Teams in product suite grid | Public | Live (v0.5.4) | `src/app/page.tsx` — Teams added to product grid. Hero primary CTA now links to `/pricing`. |
 | Top 100 ranked products (`/top-100`) | Public | In flight | `src/app/top-100/` page + `/api/top-100` route exist; full ranking flow TBD |
 | Public profile (`/[username]`) | All signed-in | Roadmap | No route yet |
 | Ladder Lift CTA on sub-3.0 scores | Free | Roadmap | No code yet |
