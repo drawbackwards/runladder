@@ -1,6 +1,3 @@
-import Link from "next/link";
-import { LadderLogo } from "./LadderLogo";
-
 export function AuthShell({
   children,
   footer,
@@ -26,9 +23,6 @@ export function AuthShell({
         }}
       />
       <div className="relative w-full max-w-[28rem] flex flex-col items-center my-auto overflow-x-hidden">
-        <Link href="/" aria-label="Ladder home" className="mb-10 mt-4">
-          <LadderLogo height={26} className="text-white" />
-        </Link>
         <div className="w-full">{children}</div>
         <div className="text-muted text-sm text-center mt-8">{footer}</div>
       </div>

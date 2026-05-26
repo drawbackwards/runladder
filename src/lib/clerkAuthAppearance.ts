@@ -39,7 +39,7 @@ export const authAppearance = {
     formFieldInputShowPasswordButton: "!text-muted hover:!text-foreground",
     formResendCodeLink: "!text-ladder-green hover:!text-[#5ab88b]",
     identityPreview:
-      "!bg-card !border !border-border !rounded-lg !text-foreground",
+      "!bg-transparent !border-0 !text-foreground",
     identityPreviewText: "!text-foreground !text-sm",
     identityPreviewEditButton: "!text-ladder-green hover:!text-[#5ab88b]",
     otpCodeFieldInput:

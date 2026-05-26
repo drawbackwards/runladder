@@ -53,6 +53,11 @@ export default function RootLayout({
 
   return (
     <ClerkProvider
+      signInUrl="/login"
+      signUpUrl="/sign-up"
+      signInFallbackRedirectUrl="/dashboard"
+      signUpFallbackRedirectUrl="/score"
+      afterSignOutUrl="/"
       appearance={{
         variables: {
           colorPrimary: "#6AC89B",
