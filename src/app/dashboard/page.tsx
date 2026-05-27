@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth, useUser, useOrganization, RedirectToSignIn } from "@clerk/nextjs";
+import { useAuth, useUser, RedirectToSignIn } from "@clerk/nextjs";
 import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
@@ -110,6 +110,8 @@ type DashboardData = {
   paid: boolean;
   /** Member of the internal Drawbackwards org — suppresses the comp strip. */
   internal?: boolean;
+  /** Team Lead with an empty team — show the "Set up your team" prompt. */
+  needsTeamSetup?: boolean;
   comp: CompMeta | null;
 };
 
@@ -413,34 +415,12 @@ export default function DashboardPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   // Make sure the user's org is the session's active org (invite-based
-  // provisioning doesn't auto-activate the way self-serve creation did), then
-  // read its membership + pending-invite state to decide team-setup status.
+  // provisioning doesn't auto-activate the way self-serve creation did) so the
+  // team card and team page render. The "Set up your team" decision itself is
+  // computed server-side (`needsTeamSetup` from /api/dashboard) and gated on
+  // the dashboard fetch below, so it never flashes on the staged resolution of
+  // client org hooks.
   useEnsureActiveOrg();
-  const { organization, membership, memberships, invitations } = useOrganization({
-    memberships: { infinite: true },
-    invitations: { status: ["pending"], infinite: true },
-  });
-
-  // The Team Lead's first-run prompt shows only while their team is empty:
-  // they're the org admin, no designer has been invited (no pending invites)
-  // and none has joined (no org:member). It disappears once they invite their
-  // first member. The hidden provisioning service account and the Lead are
-  // both org:admin, so neither counts as an invited designer.
-  //
-  // Gate on the org AND its roster/invite lists being fully loaded. Without
-  // this, there's a flash on refresh: the org activates a tick before its
-  // memberships/invitations resolve, so `hasInvitedMember` is briefly false
-  // and the banner shows for an instant on teams that are actually set up.
-  const teamStateLoaded =
-    !!organization &&
-    memberships?.isLoading === false &&
-    invitations?.isLoading === false;
-  const isOrgManager = membership?.role === "org:admin";
-  const hasInvitedMember =
-    (invitations?.data?.length ?? 0) > 0 ||
-    !!memberships?.data?.some((m) => m.role === "org:member");
-  const needsTeamSetup =
-    teamStateLoaded && isOrgManager && !hasInvitedMember;
 
   useEffect(() => {
     if (!isSignedIn) return;
@@ -498,11 +478,17 @@ export default function DashboardPage() {
   const tier = data?.tier ?? "free";
   const comp = data?.comp ?? null;
   const internal = data?.internal ?? false;
+  const needsTeamSetup = data?.needsTeamSetup ?? false;
   const firstName = user?.firstName || null;
 
   return (
     <div className="pt-20 font-mono">
-      <UpgradeStrip usage={usage} paid={paid} tier={tier} comp={comp} internal={internal} />
+      {/* Both the plan strip and the team-setup banner are gated on the
+          dashboard fetch (`data`) so they never flash a wrong default
+          (e.g. the free strip for an internal/team user) on first paint. */}
+      {data && (
+        <UpgradeStrip usage={usage} paid={paid} tier={tier} comp={comp} internal={internal} />
+      )}
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="mb-8">
           <h1 className="text-xl text-foreground font-sans">
@@ -510,7 +496,7 @@ export default function DashboardPage() {
           </h1>
         </div>
 
-        {needsTeamSetup && <TeamSetupBanner />}
+        {data && needsTeamSetup && <TeamSetupBanner />}
 
         {(tier === "team" || tier === "pulse") && <RequestReviewCTA />}
 
@@ -634,8 +620,9 @@ export default function DashboardPage() {
           <aside className="space-y-4">
             <UsageMeter />
             {/* While the empty-team setup banner is showing, don't also show
-                the team card — they'd be redundant for a Lead with no team. */}
-            {!needsTeamSetup && <TeamCard />}
+                the team card — they'd be redundant for a Lead with no team.
+                Gated on `data` so it doesn't flash before team state is known. */}
+            {data && !needsTeamSetup && <TeamCard />}
             <FigmaPluginCard />
             <SkillTokenCard />
           </aside>
