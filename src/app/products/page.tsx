@@ -75,6 +75,26 @@ const SURFACES = [
     available: true,
   },
   {
+    name: "Ladder for Teams",
+    id: "teams",
+    badge: "Team",
+    tagline: "Know where every designer on your team stands. Across every surface.",
+    description:
+      "Ladder for Teams gives design leads and managers a single dashboard across every designer: who's scoring, what they're scoring, and how those scores are moving. Scores flow in from the web, the Figma plugin, and the Claude Skill, all pooled into one view. Not anecdotal. Not vibes. A number, per person, per week.",
+    features: [
+      "Manager dashboard with per-designer performance tracking across web, Figma, and Claude",
+      "Team leaderboard unified across all Ladder surfaces",
+      "Design rhythm and activity heatmap per designer",
+      "Design Reviews: score every iteration, track score lift across the sprint",
+      "Team Take: peer designers score alongside Ladder on every frame",
+      "Seat management: invite, archive, and remove team members",
+      "25,000 pooled scores per month across web, Figma, and Claude",
+    ],
+    cta: "See Team pricing",
+    href: "/pricing",
+    available: true,
+  },
+  {
     name: "Drawbackwards Consulting",
     badge: "Expert Services",
     tagline: "The team behind Ladder, embedded with yours.",
@@ -163,6 +183,7 @@ export default function ProductsPage() {
           {SURFACES.map((surface) => (
             <div
               key={surface.name}
+              id={surface.id}
               className="border border-border rounded-xl bg-card p-8 md:p-10"
             >
               <div className="flex items-start justify-between gap-4 mb-6">

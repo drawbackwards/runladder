@@ -68,6 +68,12 @@ const PRODUCTS = [
     cta: "Get the Skill",
   },
   {
+    name: "Ladder for Teams",
+    desc: "A single dashboard across every designer on your team. See who's scoring, what they're scoring, and how scores are moving — across web, Figma, and Claude. Built for design leads and managers who need visibility, not gut feel.",
+    href: "/products#teams",
+    cta: "See Team features",
+  },
+  {
     name: "Drawbackwards Consulting",
     desc: "The team behind Ladder embeds with yours, sprint by sprint. Ideation workshops, design thinking studios, UI/UX execution, team mentoring, skill evaluation, and custom Pulse deployments. 20 years of doing the work, not just scoring it.",
     href: "https://drawbackwards.com",
@@ -98,7 +104,8 @@ export default function Home() {
           <p className="text-lg text-body max-w-2xl mx-auto mb-12 leading-relaxed">
             Ladder is the framework the team at Drawbackwards built over two
             decades of designing products for the Fortune 50. Now it&apos;s an
-            AI-powered scoring engine anyone can use.
+            AI-powered scoring engine, for individual designers and the leads
+            who manage them.
           </p>
           <div className="flex items-center justify-center gap-6">
             <Link
