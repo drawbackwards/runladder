@@ -9,20 +9,25 @@ import { UserMenu } from "./UserMenu";
 export function Nav() {
   const { isSignedIn, isLoaded } = useAuth();
   const pathname = usePathname();
-  // Hide marketing nav inside product surfaces (dashboard, score, hq).
+  // Hide marketing nav inside product surfaces (dashboard, score, hq, admin).
   // Keeps the user focused on the task and out of the marketing site
   // once they are working in Ladder.
   const inProduct =
     pathname?.startsWith("/dashboard") ||
     pathname?.startsWith("/score") ||
     pathname?.startsWith("/hq") ||
+    pathname?.startsWith("/admin") ||
     false;
+
+  // Signed-in users go to their dashboard from the logo; signed-out (and
+  // still-loading) visitors go to the marketing home.
+  const logoHref = isSignedIn ? "/dashboard" : "/";
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
       <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-        <Link href="/" className="flex items-center">
-          <LadderLogo height={22} className="text-white" />
+        <Link href={logoHref} className="flex items-center">
+          <LadderLogo height={18} className="text-white" />
         </Link>
 
         {!inProduct && (

@@ -12,7 +12,7 @@
  *      even before the flag has been set.
  */
 
-export type OrgStatus = "active" | "suspended";
+export type OrgStatus = "pending" | "active" | "suspended";
 
 export type TeamLeadMeta = {
   firstName?: string;
@@ -54,7 +54,12 @@ export function isInternalOrg(org: OrgLike): boolean {
   return (org.name ?? "").trim().toLowerCase() === INTERNAL_ORG_NAME;
 }
 
-/** Lifecycle status, defaulting to "active" when unset. */
+/**
+ * Lifecycle status. A freshly provisioned org is "pending" until its Team
+ * Lead accepts the invite and signs in (flipped to "active" by the Clerk
+ * membership webhook). Defaults to "active" for anything unset/unknown.
+ */
 export function orgStatus(org: OrgLike): OrgStatus {
-  return orgMeta(org).status === "suspended" ? "suspended" : "active";
+  const s = orgMeta(org).status;
+  return s === "suspended" || s === "pending" ? s : "active";
 }

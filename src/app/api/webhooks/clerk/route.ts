@@ -80,6 +80,35 @@ export async function POST(req: NextRequest) {
       tier: "team",
       reason: orgName ? `Member of ${orgName}` : "Team member",
     });
+
+    // Flip a freshly provisioned org from "pending" to "active" once its
+    // designated Team Lead accepts the invite and joins. Other joins (the
+    // creating admin, regular members) don't change status.
+    const orgId = event.data.organization?.id;
+    if (orgId) {
+      try {
+        const client = await clerkClient();
+        const org = await client.organizations.getOrganization({
+          organizationId: orgId,
+        });
+        const meta = (org.publicMetadata ?? {}) as {
+          status?: string;
+          teamLead?: { email?: string };
+        };
+        if (meta.status === "pending" && meta.teamLead?.email) {
+          const user = await client.users.getUser(userId);
+          const email = user.primaryEmailAddress?.emailAddress?.toLowerCase();
+          if (email && email === meta.teamLead.email.toLowerCase()) {
+            await client.organizations.updateOrganization(orgId, {
+              publicMetadata: { ...meta, status: "active" },
+            });
+          }
+        }
+      } catch (e) {
+        console.error("[clerk webhook] pending→active flip failed", e);
+      }
+    }
+
     return NextResponse.json({ ok: true, action: "granted" });
   }
 

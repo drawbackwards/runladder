@@ -31,6 +31,7 @@ type TeamMember = {
   firstName: string | null;
   lastName: string | null;
   imageUrl: string | null;
+  hasImage: boolean;
   role: string;
   joinedAt: number;
   stats: MemberStats | null;
@@ -47,6 +48,7 @@ type ArchivedMember = {
   firstName: string | null;
   lastName: string | null;
   imageUrl: string | null;
+  hasImage: boolean;
   stats: MemberStats | null;
   recentScans: number;
   activity: DailyActivity[];
@@ -440,6 +442,7 @@ function MemberRow({
     <div className="px-4 py-4 flex items-center gap-5">
       <Avatar
         imageUrl={member.imageUrl}
+        hasImage={member.hasImage}
         name={[member.firstName, member.lastName]
           .filter(Boolean)
           .join(" ")}
@@ -599,6 +602,7 @@ function ArchivedMemberRow({
       <div className="px-4 py-4 flex items-center gap-5">
         <Avatar
           imageUrl={member.imageUrl}
+          hasImage={member.hasImage}
           name={name}
           email={member.email}
           size={36}

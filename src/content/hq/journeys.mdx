@@ -42,8 +42,8 @@ The Stripe checkout is self-serve at the Pro price on `/pricing` ($1,000/mo toda
 
 Provisioning moved in-app. After a Drawbackwards Teams engagement closes, a platform admin (an `ADMIN_EMAILS` member) provisions the client from **Account menu → Manage Clients** (`/admin/clients`), instead of doing it by hand in the Clerk dashboard:
 
-1. Admin enters the org name plus the Team Lead's first name, last name, and email.
-2. We create a Clerk Organization (the acting admin is `createdBy` and stays as a co-admin for now) and send the Team Lead an `org:admin` invitation.
+1. On **Manage Clients**, the admin clicks **Add Client** and enters the org name plus the Team Lead's first name, last name, and email.
+2. We create a Clerk Organization (the acting admin is `createdBy` and stays as a co-admin for now) and send the Team Lead an `org:admin` invitation. The org shows as **Pending** until the Team Lead accepts and signs in, at which point the Clerk membership webhook flips it to **Active**.
 3. Self-serve org creation is disabled — clients can no longer spin up their own orgs.
 4. Lifecycle: admins can **suspend/reactivate** an org when a contract pauses/ends (suspended orgs see a "team access paused" notice; members keep their tier for now) and **delete** test orgs (type-the-name to confirm). The internal **Drawbackwards** org is protected from both.
 

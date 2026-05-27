@@ -157,6 +157,8 @@ type MemberSummary = {
   firstName: string | null;
   lastName: string | null;
   imageUrl: string | null;
+  /** True only when the member uploaded a real photo (Clerk `hasImage`). */
+  hasImage: boolean;
   role: string;
   joinedAt: number;
   stats: UserStats | null;
@@ -186,6 +188,7 @@ type ArchivedSummary = {
   firstName: string | null;
   lastName: string | null;
   imageUrl: string | null;
+  hasImage: boolean;
   stats: UserStats | null;
   recentScans: number;
   activity: DailyActivity[];
@@ -268,6 +271,7 @@ export async function GET() {
         firstName: m.publicUserData?.firstName ?? null,
         lastName: m.publicUserData?.lastName ?? null,
         imageUrl: m.publicUserData?.imageUrl ?? null,
+        hasImage: m.publicUserData?.hasImage ?? false,
         role: m.role,
         joinedAt: m.createdAt,
       };
@@ -344,6 +348,7 @@ export async function GET() {
           firstName: null,
           lastName: null,
           imageUrl: null,
+          hasImage: false,
           stats: null,
           recentScans: 0,
           activity: [],
@@ -356,6 +361,7 @@ export async function GET() {
           base.firstName = user.firstName ?? null;
           base.lastName = user.lastName ?? null;
           base.imageUrl = user.imageUrl ?? null;
+          base.hasImage = user.hasImage ?? false;
         } catch {
           // user account may have been deleted entirely; we still keep their
           // history under the userId, so let the row render with the unknown name.

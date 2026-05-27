@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 
@@ -8,7 +8,7 @@ type TeamClient = {
   id: string;
   name: string;
   membersCount: number;
-  status: "active" | "suspended";
+  status: "pending" | "active" | "suspended";
   internal: boolean;
   teamLead: { firstName?: string; lastName?: string; email?: string } | null;
   createdAt: number;
@@ -33,118 +33,6 @@ function fmtDate(ms: number | null | undefined) {
   });
 }
 
-function ProvisionForm({ onDone }: { onDone: () => void }) {
-  const [orgName, setOrgName] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-  const [ok, setOk] = useState<string | null>(null);
-
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    if (busy) return;
-    setBusy(true);
-    setErr(null);
-    setOk(null);
-    try {
-      const res = await fetch("/api/admin/clients", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orgName: orgName.trim(),
-          leadFirstName: firstName.trim(),
-          leadLastName: lastName.trim(),
-          leadEmail: email.trim(),
-        }),
-      });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(j.error || `Provision failed (${res.status})`);
-      setOk(`Created “${orgName.trim()}” and invited ${email.trim()} as Team Lead.`);
-      setOrgName("");
-      setFirstName("");
-      setLastName("");
-      setEmail("");
-      onDone();
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : "Provision failed");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <form onSubmit={submit} className="border border-[#333] bg-[#1e1e1e] p-4 mb-3">
-      <div className="text-[10px] uppercase tracking-widest text-muted mb-3">
-        Provision a Team client
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-[10px] uppercase tracking-widest text-muted mb-1">
-            Organization name
-          </label>
-          <input
-            value={orgName}
-            onChange={(e) => setOrgName(e.target.value)}
-            placeholder="Acme Inc."
-            className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
-          />
-        </div>
-        <div>
-          <label className="block text-[10px] uppercase tracking-widest text-muted mb-1">
-            Team Lead email
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="lead@acme.com"
-            className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
-          />
-        </div>
-        <div>
-          <label className="block text-[10px] uppercase tracking-widest text-muted mb-1">
-            Team Lead first name
-          </label>
-          <input
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            placeholder="Jane"
-            className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
-          />
-        </div>
-        <div>
-          <label className="block text-[10px] uppercase tracking-widest text-muted mb-1">
-            Team Lead last name
-          </label>
-          <input
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            placeholder="Doe"
-            className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
-          />
-        </div>
-      </div>
-      {err && (
-        <p className="mt-3 text-xs text-ladder-red font-sans">{err}</p>
-      )}
-      {ok && (
-        <p className="mt-3 text-xs text-ladder-green font-sans">{ok}</p>
-      )}
-      <div className="mt-3">
-        <button
-          type="submit"
-          disabled={busy}
-          className="text-xs font-semibold bg-ladder-green text-background px-4 py-1.5 rounded-sm hover:bg-ladder-green/90 transition-colors disabled:opacity-40"
-        >
-          {busy ? "Provisioning…" : "Create org + invite Lead"}
-        </button>
-      </div>
-    </form>
-  );
-}
-
 export default function ManageClientsPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const [authorized, setAuthorized] = useState<boolean | null>(null);
@@ -153,6 +41,10 @@ export default function ManageClientsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyOrg, setBusyOrg] = useState<string | null>(null);
+  // Branded delete-confirmation modal state.
+  const [deleteTarget, setDeleteTarget] = useState<TeamClient | null>(null);
+  const [confirmText, setConfirmText] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   async function refresh() {
     setLoading(true);
@@ -201,26 +93,36 @@ export default function ManageClientsPage() {
     }
   }
 
-  async function deleteOrg(orgId: string, name: string) {
-    const typed = window.prompt(
-      `This permanently deletes “${name}” and removes all members. Type the org name to confirm:`,
-    );
-    if (typed === null) return;
-    setBusyOrg(orgId);
-    setError(null);
+  function openDelete(client: TeamClient) {
+    setDeleteTarget(client);
+    setConfirmText("");
+    setDeleteError(null);
+  }
+
+  function closeDelete() {
+    setDeleteTarget(null);
+    setConfirmText("");
+    setDeleteError(null);
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setBusyOrg(deleteTarget.id);
+    setDeleteError(null);
     try {
-      const res = await fetch(`/api/admin/clients/${orgId}`, {
+      const res = await fetch(`/api/admin/clients/${deleteTarget.id}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ confirmName: typed }),
+        body: JSON.stringify({ confirmName: confirmText }),
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
         throw new Error(j.error || `Delete failed (${res.status})`);
       }
+      closeDelete();
       await refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Delete failed");
+      setDeleteError(e instanceof Error ? e.message : "Delete failed");
     } finally {
       setBusyOrg(null);
     }
@@ -253,12 +155,6 @@ export default function ManageClientsPage() {
             </p>
           </div>
           <div className="flex items-center gap-4">
-            <Link
-              href="/admin"
-              className="text-xs font-semibold border border-ladder-green text-ladder-green px-4 py-1.5 rounded-sm hover:bg-ladder-green/10 transition-colors"
-            >
-              Admin
-            </Link>
             <button
               onClick={refresh}
               disabled={loading}
@@ -266,6 +162,12 @@ export default function ManageClientsPage() {
             >
               {loading ? "Loading…" : "Refresh"}
             </button>
+            <Link
+              href="/admin/clients/new"
+              className="text-xs font-semibold bg-ladder-green text-background px-4 py-1.5 rounded-sm hover:bg-ladder-green/90 transition-colors"
+            >
+              Add Client
+            </Link>
           </div>
         </div>
 
@@ -284,18 +186,16 @@ export default function ManageClientsPage() {
             <span className="text-[10px] text-muted">{teamClients.length} total</span>
           </div>
 
-          <ProvisionForm onDone={refresh} />
-
           <div className="border border-[#333] bg-[#1e1e1e]">
-            <table className="w-full text-xs">
+            <table className="w-full text-xs table-fixed">
               <thead>
                 <tr className="border-b border-[#2a2a2a] text-muted uppercase tracking-widest text-[9px]">
-                  <th className="text-left p-3">Org</th>
+                  <th className="text-left p-3 w-1/4">Org</th>
                   <th className="text-left p-3">Team Lead</th>
-                  <th className="text-right p-3">Members</th>
+                  <th className="text-left p-3">Members</th>
                   <th className="text-left p-3">Status</th>
-                  <th className="text-left p-3">Created</th>
-                  <th className="text-right p-3">Actions</th>
+                  <th className="text-left p-3">Joined</th>
+                  <th className="text-left p-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -324,19 +224,21 @@ export default function ManageClientsPage() {
                             </span>
                           )}
                         </td>
-                        <td className="p-3 text-muted">{leadLabel}</td>
-                        <td className="p-3 text-right tabular-nums text-muted">
+                        <td className="p-3 text-muted truncate">{leadLabel}</td>
+                        <td className="p-3 text-left tabular-nums text-muted">
                           {c.membersCount}
                         </td>
                         <td className="p-3">
                           {c.status === "suspended" ? (
                             <span className="text-ladder-orange">Suspended</span>
+                          ) : c.status === "pending" ? (
+                            <span className="text-ladder-yellow">Pending</span>
                           ) : (
                             <span className="text-ladder-green">Active</span>
                           )}
                         </td>
                         <td className="p-3 text-muted">{fmtDate(c.createdAt)}</td>
-                        <td className="p-3 text-right whitespace-nowrap">
+                        <td className="p-3 text-left whitespace-nowrap">
                           {c.internal ? (
                             <span className="text-[10px] text-muted">Protected</span>
                           ) : (
@@ -356,7 +258,7 @@ export default function ManageClientsPage() {
                                 {c.status === "suspended" ? "Reactivate" : "Suspend"}
                               </button>
                               <button
-                                onClick={() => deleteOrg(c.id, c.name)}
+                                onClick={() => openDelete(c)}
                                 disabled={busyOrg === c.id}
                                 className="text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors disabled:opacity-40"
                               >
@@ -384,13 +286,13 @@ export default function ManageClientsPage() {
           </div>
 
           <div className="border border-[#333] bg-[#1e1e1e]">
-            <table className="w-full text-xs">
+            <table className="w-full text-xs table-fixed">
               <thead>
                 <tr className="border-b border-[#2a2a2a] text-muted uppercase tracking-widest text-[9px]">
-                  <th className="text-left p-3">Email</th>
+                  <th className="text-left p-3 w-1/4">Email</th>
                   <th className="text-left p-3">Name</th>
-                  <th className="text-left p-3">Source</th>
-                  <th className="text-left p-3">Since</th>
+                  <th className="text-left p-3">Payment</th>
+                  <th className="text-left p-3">Joined</th>
                 </tr>
               </thead>
               <tbody>
@@ -420,6 +322,63 @@ export default function ManageClientsPage() {
           </div>
         </section>
       </div>
+
+      {/* Branded delete-confirmation modal (placeholder until a shared
+          Dialog component exists). Type-the-name to confirm; destructive
+          action gets a red button. */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-6"
+          onClick={closeDelete}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="w-full max-w-md border border-[#2a2a2a] bg-[#161616] p-5 shadow-2xl shadow-black/50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-sans font-semibold text-foreground mb-2">
+              Delete Organization
+            </h2>
+            <p className="text-xs text-muted font-sans mb-4 leading-relaxed">
+              This permanently deletes{" "}
+              <span className="text-foreground">{deleteTarget.name}</span> and
+              removes all members. This cannot be undone. Type the org name to
+              confirm.
+            </p>
+            <input
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder={deleteTarget.name}
+              autoFocus
+              className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
+            />
+            {deleteError && (
+              <p className="mt-3 text-xs text-ladder-red font-sans">
+                {deleteError}
+              </p>
+            )}
+            <div className="mt-5 flex items-center justify-end gap-4">
+              <button
+                onClick={closeDelete}
+                className="text-xs font-semibold text-muted hover:text-foreground transition-colors px-4 py-1.5"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={
+                  busyOrg === deleteTarget.id ||
+                  confirmText.trim() !== deleteTarget.name
+                }
+                className="text-xs font-semibold bg-ladder-red text-white px-4 py-1.5 rounded-sm hover:bg-ladder-red/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {busyOrg === deleteTarget.id ? "Deleting…" : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

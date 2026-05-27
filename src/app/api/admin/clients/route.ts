@@ -133,7 +133,9 @@ export async function POST(req: NextRequest) {
     name: orgName,
     createdBy: userId!,
     publicMetadata: {
-      status: "active",
+      // Pending until the Team Lead accepts the invite and signs in; the
+      // Clerk membership webhook flips this to "active" on their join.
+      status: "pending",
       teamLead: {
         firstName: leadFirstName,
         lastName: leadLastName,
