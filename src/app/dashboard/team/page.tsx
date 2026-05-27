@@ -16,6 +16,7 @@ import {
 import { Avatar } from "@/components/Avatar";
 import { ActiveReviewsCard } from "@/components/reviews/ActiveReviewsCard";
 import { ReviewRequestsPanel } from "@/components/reviews/ReviewRequestsPanel";
+import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
 
 type MemberStats = {
   totalScans: number;
@@ -676,6 +677,10 @@ export default function TeamPage() {
   const { isLoaded: orgListLoaded, userMemberships } = useOrganizationList({
     userMemberships: { infinite: true },
   });
+
+  // Activate the user's org if none is active (invite-based provisioning
+  // doesn't auto-activate the way self-serve creation did — see the hook).
+  useEnsureActiveOrg();
   const {
     organization,
     membership,

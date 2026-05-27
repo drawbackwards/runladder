@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import { getAdminEmail } from "@/lib/admin";
-import { isInternalOrg, orgMeta, orgStatus } from "@/lib/orgs";
+import {
+  isInternalOrg,
+  orgMeta,
+  orgStatus,
+  provisioningUserId,
+} from "@/lib/orgs";
 import type { Tier } from "@/lib/plans";
 
 /**
@@ -9,10 +14,10 @@ import type { Tier } from "@/lib/plans";
  *
  *   GET  /api/admin/clients   — list Team orgs + Pro users (read-only)
  *   POST /api/admin/clients   — provision a Team client: create a Clerk org
- *                               and invite the designated Team Lead as
- *                               org:admin. The acting admin is the org
- *                               creator and stays as a co-admin (per the
- *                               #190 decision; revisit later).
+ *                               owned by the hidden provisioning service
+ *                               account (createdBy) and invite the designated
+ *                               Team Lead as org:admin. Real admins never join
+ *                               the client org.
  *
  * Gated by getAdminEmail() — same pattern as /api/admin/comps.
  */
@@ -92,8 +97,20 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const adminEmail = await getAdminEmail();
   if (!adminEmail) return unauthorized();
-  // getAdminEmail() guarantees a signed-in user, so userId is non-null.
-  const { userId } = await auth();
+  // Client orgs are owned by the provisioning service account, never the
+  // acting admin — so individual Drawbackwards admins don't become members
+  // of (or get trapped in) client orgs. The account is hidden from client
+  // views (see isProvisioningUser).
+  const provisioner = provisioningUserId();
+  if (!provisioner) {
+    return NextResponse.json(
+      {
+        error:
+          "Provisioning is not configured (PROVISIONING_USER_ID missing). See scripts/create-provisioning-user.mjs.",
+      },
+      { status: 500 },
+    );
+  }
 
   const body = await req.json().catch(() => ({}));
   const orgName = typeof body.orgName === "string" ? body.orgName.trim() : "";
@@ -127,11 +144,12 @@ export async function POST(req: NextRequest) {
 
   const client = await clerkClient();
 
-  // 1) Create the org. The acting admin is createdBy (Clerk requires an
-  //    existing user as the first org:admin) and stays as a co-admin.
+  // 1) Create the org owned by the hidden service account (createdBy).
+  //    Clerk requires an existing user as the first org:admin; using the
+  //    service account keeps real admins out of the client org.
   const org = await client.organizations.createOrganization({
     name: orgName,
-    createdBy: userId!,
+    createdBy: provisioner,
     publicMetadata: {
       // Pending until the Team Lead accepts the invite and signs in; the
       // Clerk membership webhook flips this to "active" on their join.
@@ -146,11 +164,12 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // 2) Invite the Team Lead as a second org:admin. On accept, the existing
+  // 2) Invite the Team Lead as org:admin (inviter is the service account, a
+  //    member of the org). On accept, the existing
   //    organizationMembership.created webhook grants them tier:team comp.
   const invitation = await client.organizations.createOrganizationInvitation({
     organizationId: org.id,
-    inviterUserId: userId!,
+    inviterUserId: provisioner,
     emailAddress: leadEmail,
     role: "org:admin",
   });

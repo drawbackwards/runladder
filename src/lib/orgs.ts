@@ -63,3 +63,24 @@ export function orgStatus(org: OrgLike): OrgStatus {
   const s = orgMeta(org).status;
   return s === "suspended" || s === "pending" ? s : "active";
 }
+
+/**
+ * The Clerk user id of the provisioning service account. Client orgs are
+ * created with this user as `createdBy` so individual Drawbackwards admins
+ * never become members of (or get trapped in) a client org. The account
+ * never logs in; it only owns orgs. Set via the PROVISIONING_USER_ID env
+ * var (see scripts/create-provisioning-user.mjs).
+ */
+export function provisioningUserId(): string | null {
+  return process.env.PROVISIONING_USER_ID || null;
+}
+
+/**
+ * True if `userId` is the provisioning service account. Used to hide it from
+ * client-facing views (team roster, member counts) so the client never sees
+ * the Drawbackwards owner inside their org.
+ */
+export function isProvisioningUser(userId: string | null | undefined): boolean {
+  const pid = provisioningUserId();
+  return !!pid && !!userId && userId === pid;
+}

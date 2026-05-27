@@ -1,8 +1,8 @@
 ---
 title: User Journeys
-updatedAt: 2026-05-26
+updatedAt: 2026-05-27
 updatedBy: Sara
-lastPr: 200
+lastPr: 223
 ---
 
 ## How to read this page
@@ -43,7 +43,7 @@ The Stripe checkout is self-serve at the Pro price on `/pricing` ($1,000/mo toda
 Provisioning moved in-app. After a Drawbackwards Teams engagement closes, a platform admin (an `ADMIN_EMAILS` member) provisions the client from **Account menu → Manage Clients** (`/admin/clients`), instead of doing it by hand in the Clerk dashboard:
 
 1. On **Manage Clients**, the admin clicks **Add Client** and enters the org name plus the Team Lead's first name, last name, and email.
-2. We create a Clerk Organization (the acting admin is `createdBy` and stays as a co-admin for now) and send the Team Lead an `org:admin` invitation. The org shows as **Pending** until the Team Lead accepts and signs in, at which point the Clerk membership webhook flips it to **Active**.
+2. We create a Clerk Organization owned by a hidden **provisioning service account** (`createdBy = PROVISIONING_USER_ID`), not the acting admin — so individual Drawbackwards admins never become members of (or get trapped in) a client org. The service account never logs in and is filtered out of the client's roster and member counts (`isProvisioningUser`). We then send the Team Lead an `org:admin` invitation (inviter is the service account). The org shows as **Pending** until the Team Lead accepts and signs in, at which point the Clerk membership webhook flips it to **Active**.
 3. Self-serve org creation is disabled — clients can no longer spin up their own orgs.
 4. Lifecycle: admins can **suspend/reactivate** an org when a contract pauses/ends (suspended orgs see a "team access paused" notice; members keep their tier for now) and **delete** test orgs (type-the-name to confirm). The internal **Drawbackwards** org is protected from both.
 
@@ -51,13 +51,17 @@ Provisioning moved in-app. After a Drawbackwards Teams engagement closes, a plat
 
 After provisioning, the Team Lead (manager) gets the `org:admin` invite. From there:
 
-1. Land on `/dashboard/team` with an empty roster.
+1. Land on `/dashboard/team` with an empty roster. The page **activates their org** (`setActive`) on first visit if no org is the session's active one — before #190, self-serve `CreateOrganization` set the org active automatically; the invite-based flow does not, so without this the page hung on "Loading your team…".
 2. Invite designers by email. Clerk Organization handles the invite.
 3. Accepted invitees auto-get a `tier: team` complimentary subscription via `/api/webhooks/clerk` (shipped in v0.3.0).
 4. Manager sees the team pool meter (25,000 monthly default, shipped v0.4.18), member roster with letter grades A-F, and the Reviews workflow.
 5. Reviews flow: designer requests review, manager accepts or declines, designer scores iterations in `/dashboard/reviews/[slug]`, manager and peers add Team Takes and pin annotations.
 
 See [Feature Inventory → Web app](/hq/features#web-app-runladdercom) for shipped Reviews features.
+
+**First-run setup banner:** on `/dashboard`, a Team Lead sees the green "Set up your team" prompt only while their team is still empty — they're the org admin and no designer has been invited yet (no pending invites, no `org:member`). It disappears once they invite their first member, and the team card takes over. The hidden provisioning service account and the Lead are both `org:admin`, so neither counts as an invited designer. This decision (`needsTeamSetup`) is computed server-side in `/api/dashboard` and the banner — like the plan strip — is gated on that fetch, so neither flashes a wrong default before the client knows the answer.
+
+**Internal members:** members of the internal **Drawbackwards** org don't see the "Complimentary Team" plan strip on `/dashboard` — we built the product, so the comp framing doesn't apply to us. `/api/dashboard` flags the membership (`internal`, via `isInternalOrg`) and the dashboard suppresses the strip. Other team clients still see it.
 
 **Onboarding access note (v0.5.4, PR #198):** signed-in users, including invitees returning from Clerk's hosted portal with an active session, bypass the site password gate (`SITE_PASSWORD`), so the invite flow isn't blocked by the wall. Cold visitors still see it. See [Decisions → Site password gate bypasses signed-in users](/hq/decisions).
 

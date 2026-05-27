@@ -6,6 +6,7 @@ import { RUNG_NAMES, type RungName } from "@/lib/ladder";
 import { listArchivedMembers } from "@/lib/team-archives";
 import { getMonthlyScans } from "@/lib/usage";
 import { TEAM_MONTHLY_POOL } from "@/lib/plans";
+import { isProvisioningUser } from "@/lib/orgs";
 
 /**
  * Team dashboard data — manager view.
@@ -261,8 +262,15 @@ export async function GET() {
   let totalScores = 0;
   let totalScoreSum = 0;
 
+  // Hide the provisioning service account (the Drawbackwards owner) from the
+  // client's roster and counts — it owns the org but must be invisible to the
+  // client (#190 / service-account provisioning).
+  const visibleMemberships = memberships.data.filter(
+    (m) => !isProvisioningUser(m.publicUserData?.userId),
+  );
+
   const members: MemberSummary[] = await Promise.all(
-    memberships.data.map(async (m): Promise<MemberSummary> => {
+    visibleMemberships.map(async (m): Promise<MemberSummary> => {
       const memberUserId = m.publicUserData?.userId ?? null;
       const base = {
         membershipId: m.id,
