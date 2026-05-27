@@ -1,8 +1,8 @@
 ---
 title: Feature Inventory
-updatedAt: 2026-05-19
+updatedAt: 2026-05-26
 updatedBy: Sara
-lastPr: 179
+lastPr: 207
 ---
 
 ## How to read this page
@@ -30,7 +30,7 @@ When you ship a feature, add the row here in the same PR. Template:
 | Public scoring tool (`/score`) | All signed-in | Live | `src/app/score/` |
 | Personal dashboard (`/dashboard`) | All signed-in | Live | `src/app/dashboard/` |
 | Framework page (`/framework`) | Public | Live | `src/app/framework/` |
-| Sign-up required for scoring | All | Live (v0.4.14) | [#172](https://github.com/drawbackwards/runladder/pull/172), `src/app/api/score/route.ts` |
+| One free anonymous score, sign-up prompted after (web only) | Public | Live (#187) | `src/lib/anon-score.ts`, `src/app/api/score/route.ts`, `src/app/api/score/claim/route.ts` |
 | Reviews on dashboard | Pro+ | Live (v0.4.15) | [#173](https://github.com/drawbackwards/runladder/pull/173) |
 | Active Reviews on team dashboard | Team Members + Leaders | Live (v0.4.16) | [#174](https://github.com/drawbackwards/runladder/pull/174) |
 | Reviews: request flow, pins, scoring integration | Pro+ | Live (v0.4.17) | [#175](https://github.com/drawbackwards/runladder/pull/175) |

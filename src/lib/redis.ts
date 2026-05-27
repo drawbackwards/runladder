@@ -14,11 +14,29 @@ export const redis = new Redis({
                                        usage meter and the team-pool aggregation in
                                        /dashboard/team. Increments alongside the lifetime
                                        counter inside persistScoreEntry.
-  - rate:anon:{ip}                     Integer counter with 24h TTL for anonymous rate limiting
+  - rate:anon:{ip}                     Integer counter with 24h TTL — per-IP anonymous cost backstop
+  - anon:{anonId}:used                 Integer counter with 7d TTL — per-browser anonymous score cap
+  - pending-score:{anonId}             JSON ScoreEntryInput with 7d TTL — anon result awaiting
+                                       claim-on-signup (attached to the new account, then deleted)
 */
 
 export function lifetimeScansKey(userId: string): string {
   return `user:${userId}:lifetime_scans_used`;
+}
+
+/** Per-browser anonymous score counter (keyed on the ladder_anon_id cookie). */
+export function anonUsedKey(anonId: string): string {
+  return `anon:${anonId}:used`;
+}
+
+/** Per-IP anonymous daily rate counter (cost backstop). */
+export function anonIpRateKey(ip: string): string {
+  return `rate:anon:${ip}`;
+}
+
+/** Anonymous score stashed for claim-on-signup, keyed on the ladder_anon_id cookie. */
+export function pendingScoreKey(anonId: string): string {
+  return `pending-score:${anonId}`;
 }
 
 /**

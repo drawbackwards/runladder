@@ -8,10 +8,18 @@ export type Tier = "free" | "pro" | "team" | "pulse";
 /** Free-tier lifetime score quota. Shared across all surfaces (web, Skill, Figma, MCP, API). */
 export const FREE_LIFETIME_LIMIT = 5;
 
-// ANON_LIMIT removed in v0.4.14 — anonymous scoring was retired so
-// the web aligns with every other Ladder surface (Skill, Plugin, MCP,
-// API) which all gate at the door. Marketing CTAs now route through
-// /sign-up first.
+/**
+ * Anonymous web scoring (re-enabled for the web surface in #187; see
+ * /hq Decisions). A signed-out visitor gets ONE free score, then the
+ * sign-up wall. Guarded two ways:
+ *   - ANON_LIMIT: per-browser cap, keyed on the `ladder_anon_id` cookie.
+ *   - ANON_IP_DAILY_CAP: higher per-IP/day ceiling (cost backstop against
+ *     cookie-clearing). Scoring hits the paid Anthropic engine, so this
+ *     bounds abuse — the cost concern that retired anon scoring in v0.4.14.
+ * Other surfaces (Skill, Plugin, MCP, API) still gate at the door.
+ */
+export const ANON_LIMIT = 1;
+export const ANON_IP_DAILY_CAP = 10;
 
 /**
  * Soft monthly caps shown to paid users on /pricing and the dashboard

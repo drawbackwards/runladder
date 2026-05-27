@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth, useOrganization } from "@clerk/nextjs";
+import { useAuth, useOrganization, SignUpButton } from "@clerk/nextjs";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
 import { ScoreBar } from "@/components/ScoreBar";
 import type { RungName, RungScores } from "@/lib/ladder";
@@ -249,6 +249,41 @@ function timeAgo(ts: number): string {
   return `${days}d ago`;
 }
 
+/**
+ * Conversion prompt shown to anonymous visitors — after their free score
+ * ("save this one") or when they hit the one-score limit. Sign-up opens in a
+ * modal so the page stays mounted and the claim effect can attach the score.
+ */
+function AnonSignupPrompt({
+  headline,
+  sub,
+}: {
+  headline: string;
+  sub: string;
+}) {
+  return (
+    <div className="border border-ladder-green/40 bg-ladder-green/[0.06] p-5 text-center">
+      <p className="text-sm font-sans font-semibold text-foreground mb-1">
+        {headline}
+      </p>
+      <p className="text-xs text-muted font-sans mb-4">{sub}</p>
+      <div className="flex items-center justify-center gap-4">
+        <SignUpButton mode="modal" forceRedirectUrl="/score">
+          <button className="bg-ladder-green text-background font-semibold px-6 py-2.5 rounded-full hover:bg-ladder-green/90 transition-colors text-sm">
+            Sign up free
+          </button>
+        </SignUpButton>
+        <Link
+          href="/login"
+          className="text-xs text-ladder-green hover:text-ladder-green/80 transition-colors"
+        >
+          Sign in
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function ScorePage() {
   const router = useRouter();
   const { isSignedIn, isLoaded } = useAuth();
@@ -288,12 +323,34 @@ export default function ScorePage() {
   const [redirectingScoreId, setRedirectingScoreId] = useState<string | null>(
     null,
   );
+  // Anonymous visitor has used their one free score (#187) — show the
+  // sign-up prompt instead of an error.
+  const [needSignup, setNeedSignup] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  // Guards the one-shot claim of a pending anonymous score after sign-up.
+  const claimedRef = useRef(false);
 
   // Load past scores on mount
   useEffect(() => {
     setPastScores(loadPastScores());
   }, []);
+
+  // Claim-on-signup: once a visitor is signed in, attach any score they ran
+  // while anonymous (stashed server-side under the ladder_anon_id cookie) to
+  // their account and route to its dashboard detail. Safe no-op otherwise, so
+  // it covers both the modal flow (state preserved) and a full redirect.
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || claimedRef.current) return;
+    claimedRef.current = true;
+    fetch("/api/score/claim", { method: "POST" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.claimed && d.scoreId) {
+          router.push(`/dashboard/scores/${d.scoreId}`);
+        }
+      })
+      .catch(() => {});
+  }, [isLoaded, isSignedIn, router]);
 
   const scanMessages = [
     "Initializing Ladder engine",
@@ -427,9 +484,9 @@ export default function ScorePage() {
           );
         }
         if (data.signup) {
-          throw new Error(
-            "Sign up for free to get 5 Ladder scores. Log in at runladder.com/login",
-          );
+          // Anonymous free score already used — prompt sign-up, don't error.
+          setNeedSignup(true);
+          return;
         }
         throw new Error(data.error || "Scoring failed");
       }
@@ -563,42 +620,9 @@ export default function ScorePage() {
     );
   }
 
-  // Signed-out gate. As of v0.4.14 web scoring requires a Clerk
-  // account — matches every other Ladder surface (Skill, Plugin,
-  // MCP, API). Anonymous "try one score" was removed because it was
-  // an inconsistent backdoor on a professional product and the
-  // friction it saved didn't pay back in conversion. Free tier
-  // remains 5 scores lifetime, but you have to sign up to start.
-  if (isLoaded && !isSignedIn) {
-    return (
-      <div className="pt-32 font-mono">
-        <div className="max-w-md mx-auto px-6 py-20 text-center">
-          <p className="font-mono text-[10px] text-ladder-green uppercase tracking-widest mb-6">
-            Ladder score
-          </p>
-          <h1 className="text-3xl font-bold text-foreground mb-4 font-sans">
-            Get your first Ladder score
-          </h1>
-          <p className="text-sm text-body font-sans leading-relaxed mb-8">
-            Free accounts get 5 scores. No credit card. Your scores
-            stay private to you across the web, Skill, and Figma.
-          </p>
-          <Link
-            href="/sign-up"
-            className="inline-block bg-ladder-green text-background font-semibold px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
-          >
-            Sign up free
-          </Link>
-          <p className="text-[11px] text-muted font-sans mt-6">
-            Already have an account?{" "}
-            <Link href="/login" className="text-ladder-green hover:text-ladder-green/80 transition-colors">
-              Sign in
-            </Link>
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Anonymous visitors can score one screen, then get the sign-up prompt
+  // (#187). The post-score and limit-reached prompts below handle conversion;
+  // no hard gate here anymore.
 
   return (
     <div className="analysis-grid pt-20 font-mono">
@@ -606,6 +630,16 @@ export default function ScorePage() {
         <SessionTypeModal onPick={pickSessionType} />
       )}
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-12">
+
+        {/* Anonymous visitor used their one free score. */}
+        {needSignup && isLoaded && !isSignedIn && !result && (
+          <div className="max-w-md mx-auto mb-10">
+            <AnonSignupPrompt
+              headline="That's your free score"
+              sub="Sign up free to keep scoring — 5 scores included, no credit card."
+            />
+          </div>
+        )}
 
         {isLoaded && isSignedIn && onTeam && sessionType && !result && !loading && !capturing && (
           <div className="flex justify-end mb-4">
@@ -625,6 +659,16 @@ export default function ScorePage() {
                 New analysis
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Post-score conversion: anon visitor just got a result. */}
+        {result && isLoaded && !isSignedIn && (
+          <div className="max-w-2xl mx-auto mb-10">
+            <AnonSignupPrompt
+              headline="Save this score"
+              sub="Sign up free to save it to your dashboard and get 5 more scores."
+            />
           </div>
         )}
 

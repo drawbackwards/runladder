@@ -2,7 +2,7 @@
 title: User Journeys
 updatedAt: 2026-05-26
 updatedBy: Sara
-lastPr: 198
+lastPr: 207
 ---
 
 ## How to read this page
@@ -21,9 +21,9 @@ The web app is the canonical surface. Everything else routes to it eventually fo
 
 Key beats:
 
-- Anonymous visitors can read marketing pages but cannot score. Sign-up gate sits on the scoring CTA (shipped in v0.4.14, enforced by `auth()` check in `src/app/api/score/route.ts` line 38-46).
-- Sign-up is Clerk email-code or Google OAuth. No password.
-- Free tier is 5 lifetime scores. Hard-blocked past the cap (no overage). Constant lives in `src/lib/plans.ts` as `FREE_LIFETIME_LIMIT`.
+- Anonymous visitors can score **one** screen, see the result, then get the sign-up prompt (#187, reversing the v0.4.14 hard gate — web surface only). Guarded by a per-browser cap (`ANON_LIMIT`, `ladder_anon_id` cookie) plus a per-IP daily backstop (`rate:anon:{ip}`); the result is stashed (`pending-score:{anonId}`) and claimed onto the account at sign-up via `/api/score/claim`. Skill/Plugin/MCP/API still gate at the door.
+- Sign-up is Clerk email-code or Google OAuth. No password. The post-score prompt opens sign-up in a modal so the score survives and is claimed.
+- Free tier is 5 lifetime scores. Hard-blocked past the cap (no overage). Constant lives in `src/lib/plans.ts` as `FREE_LIFETIME_LIMIT`. The claimed anonymous score is the user's first counted score.
 - Score result branches on score value: sub-3.0 shows the Ladder Lift CTA (currently roadmap, see [Features](/hq/features)), 3.0-plus shows the Pro upgrade prompt with a11y and UX copywriting locked.
 
 ### Free to Pro upgrade (Live)
