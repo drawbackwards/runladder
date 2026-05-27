@@ -227,42 +227,30 @@ export default async function TeardownPage({ params }: Props) {
         )}
 
         {/* Score CTA */}
-        <div className="border border-border bg-card/30 p-8 mb-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-bold text-foreground">
-                Score your own product
-              </p>
-              <p className="text-xs text-body mt-1">
-                Same framework. Same six rungs. Upload a screenshot and see where you land.
-              </p>
-            </div>
-            <Link
-              href="/score"
-              className="whitespace-nowrap text-sm font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors"
-            >
-              Try the scorer &rarr;
-            </Link>
-          </div>
-        </div>
-
-        {/* Framework CTA */}
         <div className="border border-ladder-green/20 bg-ladder-green/5 p-8 mb-4 text-center">
           <p className="font-mono text-[10px] text-ladder-green uppercase tracking-widest mb-3">
-            The framework
+            Ladder Score
           </p>
           <p className="text-lg font-bold text-foreground mb-2">
-            Understand every rung in this teardown
+            Score your own product
           </p>
           <p className="text-sm text-body max-w-md mx-auto mb-6">
-            Hierarchy, spacing, copy, accessibility, navigation, visual. Read what each one means and how it is scored.
+            The same framework behind every teardown. Upload a screenshot and get a Ladder score in seconds.
           </p>
-          <Link
-            href="/framework"
-            className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
-          >
-            Read the framework
-          </Link>
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            <Link
+              href="/score"
+              className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
+            >
+              Score a screen free
+            </Link>
+            <Link
+              href="/framework"
+              className="inline-block font-semibold text-sm text-ladder-green hover:text-ladder-green/80 transition-colors"
+            >
+              Read the framework &rarr;
+            </Link>
+          </div>
         </div>
 
         {/* Back */}

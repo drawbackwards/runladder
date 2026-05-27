@@ -28,9 +28,9 @@ export const TEARDOWN_POSTS: TeardownPost[] = [
     score: "TBD",
     scoreColor: "#6AC89B",
     scoreTbd: true,
-    title: "Figma: A Ladder Score on the Canvas Every Designer Lives In",
+    title: "Figma: The Golden Standard for Designers",
     subtitle:
-      "Every designer who uses Ladder lives in Figma. We ran it through the framework. The interface is better than the experience.",
+      "Figma is one of the most used design tools on the market, so we ran it through the framework.",
     date: "2026-05-27",
     readTime: "8 min read",
     featured: true,
@@ -50,7 +50,7 @@ So we ran Figma through the framework.
 
 We applied the full Ladder screen scoring analysis to Figma's core product surface: the file editor. The canvas, the toolbar, the side panels, the properties inspector, the layers panel, and the key flows: publishing, sharing, importing, and component publishing.
 
-We did not score FigJam. We did not score Dev Mode. We scored the surface most designers spend most of their time in — the main canvas editing experience.
+We did not score FigJam. We did not score Dev Mode. We scored the surface most designers spend most of their time in: the main canvas editing experience.
 
 ## The score
 
