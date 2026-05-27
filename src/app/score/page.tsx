@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth, useOrganization } from "@clerk/nextjs";
+import { useAuth, useOrganization, SignUpButton } from "@clerk/nextjs";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
 import { ScoreBar } from "@/components/ScoreBar";
 import type { RungName, RungScores } from "@/lib/ladder";
@@ -249,6 +249,54 @@ function timeAgo(ts: number): string {
   return `${days}d ago`;
 }
 
+/**
+ * Conversion prompt shown to anonymous visitors — after their free score
+ * ("save this one") or when they hit the one-score limit. Sign-up opens in a
+ * modal so the page stays mounted and the claim effect can attach the score.
+ */
+function AnonSignupPrompt({
+  headline,
+  sub,
+  align = "center",
+}: {
+  headline: string;
+  sub: string;
+  align?: "center" | "left";
+}) {
+  const left = align === "left";
+  return (
+    <div
+      className={`border border-ladder-green/40 bg-ladder-green/[0.06] p-8 ${
+        left ? "" : "text-center"
+      }`}
+    >
+      <p className="text-lg font-sans font-semibold text-foreground mb-1">
+        {headline}
+      </p>
+      <p className="text-sm text-muted font-sans mb-4">{sub}</p>
+      <div
+        className={`flex items-center gap-4 ${
+          left ? "justify-start" : "justify-center"
+        }`}
+      >
+        <SignUpButton mode="modal" forceRedirectUrl="/score">
+          {/* Tool aesthetic: square corners, all-caps, mono (inherited).
+              Matches the "Upgrade to Pro" button. */}
+          <button className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest">
+            Sign up free
+          </button>
+        </SignUpButton>
+        <Link
+          href="/login"
+          className="text-xs font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors uppercase tracking-widest"
+        >
+          Sign in
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function ScorePage() {
   const router = useRouter();
   const { isSignedIn, isLoaded } = useAuth();
@@ -288,12 +336,34 @@ export default function ScorePage() {
   const [redirectingScoreId, setRedirectingScoreId] = useState<string | null>(
     null,
   );
+  // Anonymous visitor has used their one free score (#187) — show the
+  // sign-up prompt instead of an error.
+  const [needSignup, setNeedSignup] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  // Guards the one-shot claim of a pending anonymous score after sign-up.
+  const claimedRef = useRef(false);
 
   // Load past scores on mount
   useEffect(() => {
     setPastScores(loadPastScores());
   }, []);
+
+  // Claim-on-signup: once a visitor is signed in, attach any score they ran
+  // while anonymous (stashed server-side under the ladder_anon_id cookie) to
+  // their account and route to its dashboard detail. Safe no-op otherwise, so
+  // it covers both the modal flow (state preserved) and a full redirect.
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || claimedRef.current) return;
+    claimedRef.current = true;
+    fetch("/api/score/claim", { method: "POST" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.claimed && d.scoreId) {
+          router.push(`/dashboard/scores/${d.scoreId}`);
+        }
+      })
+      .catch(() => {});
+  }, [isLoaded, isSignedIn, router]);
 
   const scanMessages = [
     "Initializing Ladder engine",
@@ -427,9 +497,9 @@ export default function ScorePage() {
           );
         }
         if (data.signup) {
-          throw new Error(
-            "Sign up for free to get 5 Ladder scores. Log in at runladder.com/login",
-          );
+          // Anonymous free score already used — prompt sign-up, don't error.
+          setNeedSignup(true);
+          return;
         }
         throw new Error(data.error || "Scoring failed");
       }
@@ -563,42 +633,9 @@ export default function ScorePage() {
     );
   }
 
-  // Signed-out gate. As of v0.4.14 web scoring requires a Clerk
-  // account — matches every other Ladder surface (Skill, Plugin,
-  // MCP, API). Anonymous "try one score" was removed because it was
-  // an inconsistent backdoor on a professional product and the
-  // friction it saved didn't pay back in conversion. Free tier
-  // remains 5 scores lifetime, but you have to sign up to start.
-  if (isLoaded && !isSignedIn) {
-    return (
-      <div className="pt-32 font-mono">
-        <div className="max-w-md mx-auto px-6 py-20 text-center">
-          <p className="font-mono text-[10px] text-ladder-green uppercase tracking-widest mb-6">
-            Ladder score
-          </p>
-          <h1 className="text-3xl font-bold text-foreground mb-4 font-sans">
-            Get your first Ladder score
-          </h1>
-          <p className="text-sm text-body font-sans leading-relaxed mb-8">
-            Free accounts get 5 scores. No credit card. Your scores
-            stay private to you across the web, Skill, and Figma.
-          </p>
-          <Link
-            href="/sign-up"
-            className="inline-block bg-ladder-green text-background font-semibold px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
-          >
-            Sign up free
-          </Link>
-          <p className="text-[11px] text-muted font-sans mt-6">
-            Already have an account?{" "}
-            <Link href="/login" className="text-ladder-green hover:text-ladder-green/80 transition-colors">
-              Sign in
-            </Link>
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Anonymous visitors can score one screen, then get the sign-up prompt
+  // (#187). The post-score and limit-reached prompts below handle conversion;
+  // no hard gate here anymore.
 
   return (
     <div className="analysis-grid pt-20 font-mono">
@@ -606,6 +643,17 @@ export default function ScorePage() {
         <SessionTypeModal onPick={pickSessionType} />
       )}
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-12">
+
+        {/* Anonymous visitor used their one free score. Box matches the
+            screenshot-preview width below it. */}
+        {needSignup && isLoaded && !isSignedIn && !result && (
+          <div className="max-w-2xl mx-auto mb-10">
+            <AnonSignupPrompt
+              headline="Sign up to keep scoring"
+              sub="5 free scores included, no credit card required."
+            />
+          </div>
+        )}
 
         {isLoaded && isSignedIn && onTeam && sessionType && !result && !loading && !capturing && (
           <div className="flex justify-end mb-4">
@@ -617,14 +665,32 @@ export default function ScorePage() {
         {result && (
           <div className="flex items-center justify-between mb-10 border-b border-[#333] pb-4">
             <ShareButtons score={result.score} label={result.label} summary={result.summary} />
-            <div className="flex items-center gap-4">
-              <button
-                onClick={reset}
-                className="text-[11px] uppercase tracking-widest text-ladder-green border border-ladder-green/30 px-4 py-2 hover:bg-ladder-green/10 transition-colors"
-              >
-                New analysis
-              </button>
-            </div>
+            {/* "New analysis" is only valid for signed-in users — an anonymous
+                visitor has spent their one free score, so showing it would be a
+                dead end. Their only forward actions are Sign Up / Sign In in the
+                post-score prompt above. */}
+            {isSignedIn && (
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={reset}
+                  className="text-[11px] uppercase tracking-widest text-ladder-green border border-ladder-green/30 px-4 py-2 hover:bg-ladder-green/10 transition-colors"
+                >
+                  New analysis
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Post-score conversion: anon visitor just got a result. Spans the
+            full width of the result columns below. */}
+        {result && isLoaded && !isSignedIn && (
+          <div className="mb-10">
+            <AnonSignupPrompt
+              headline="Sign up to start scoring"
+              sub="Sign up for free to save this score to your dashboard and get 4 more scores."
+              align="left"
+            />
           </div>
         )}
 
@@ -638,7 +704,7 @@ export default function ScorePage() {
                 <span className="text-ladder-green">earned its score.</span>
               </h1>
               <p className="text-sm text-body mt-4 max-w-md mx-auto leading-relaxed">
-                Drop a screen. Get the number. See exactly what to fix, and what level your experience is really at.
+                Drop a screen. Get the score. See exactly what to fix, and what level your experience is really at.
               </p>
             </div>
 
@@ -825,24 +891,42 @@ export default function ScorePage() {
         {/* ── Screenshot preview (upload) ── */}
         {showUploadUI && image && urlScreenshots.length === 0 && (
           <div className="max-w-2xl mx-auto space-y-6">
-            <div className="relative border border-[#333] bg-[#1e1e1e] p-1">
+            <div className="relative border border-[#333] bg-[#1e1e1e] p-8">
               <ScannerCorners />
               <img src={image} alt="Screenshot to score" className="w-full max-h-[420px] object-contain" />
             </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-[11px] text-muted tracking-wide truncate max-w-xs">{fileName}</span>
-                <button onClick={reset} className="text-[11px] text-muted hover:text-body uppercase tracking-widest transition-colors">
-                  Remove
+            {needSignup ? (
+              /* Free score already used — no re-score or remove; just a way
+                 back to the previous screen. */
+              <div className="flex items-center">
+                <button
+                  onClick={() => {
+                    // Go back in history, or fall back to the homepage when
+                    // /score was opened directly (no prior history entry).
+                    if (window.history.length > 1) router.back();
+                    else router.push("/");
+                  }}
+                  className="text-xs font-semibold uppercase tracking-widest text-foreground border border-[#333] px-8 py-3 hover:border-muted transition-colors"
+                >
+                  Go Back
                 </button>
               </div>
-              <button
-                onClick={() => scoreImage()}
-                className="bg-ladder-green text-[#1a1a1a] font-bold text-xs uppercase tracking-widest px-8 py-3 hover:bg-ladder-green/90 transition-colors"
-              >
-                Score this screen
-              </button>
-            </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] text-muted tracking-wide truncate max-w-xs">{fileName}</span>
+                  <button onClick={reset} className="text-[11px] text-muted hover:text-body uppercase tracking-widest transition-colors">
+                    Remove
+                  </button>
+                </div>
+                <button
+                  onClick={() => scoreImage()}
+                  className="bg-ladder-green text-[#1a1a1a] font-bold text-xs uppercase tracking-widest px-8 py-3 hover:bg-ladder-green/90 transition-colors"
+                >
+                  Score this screen
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -926,7 +1010,7 @@ export default function ScorePage() {
             <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-8">
               {/* Left: screenshot + URL thumbnails if applicable */}
               <div className="space-y-3">
-                <div className="relative border border-[#333] bg-[#1e1e1e] p-1">
+                <div className="relative border border-[#333] bg-[#1e1e1e] p-8">
                   <ScannerCorners />
                   <img src={image!} alt="Analyzed screenshot" className="w-full max-h-[420px] object-contain" />
                 </div>

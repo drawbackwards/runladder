@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
 updatedAt: 2026-05-26
-updatedBy: Chester
-lastPr: 208
+updatedBy: Sara
+lastPr: 207
 ---
 
 ## How to use this page
@@ -211,13 +211,15 @@ How to apply: if you see 1 → 5 anywhere, file an issue. No exceptions.
 
 ---
 
-## Sign-up is required to score
+## One free anonymous score on web; sign-up prompted after the result (revised #187)
 
-**No anonymous scoring on any surface.** Removed in v0.4.14.
+**A signed-out visitor can score ONE screen on the web, see the result, then gets the sign-up prompt.** This reverses the v0.4.14 "no anonymous scoring on any surface" decision — for the **web surface only**. Skill, Plugin, MCP, and API still gate at the door.
 
-Why: anonymous scoring inflated query costs, made attribution impossible, and gave us no usable signal for the funnel. Forcing sign-up converts intent to data we can act on.
+Why the reversal: the hard gate blocked the top-of-funnel demo. Ward needs to send a prospect straight to the scoring tool and let them feel the product before committing. One free score does that while keeping the conversion lever.
 
-How to apply: scoring CTAs always route through sign-up. The free-tier ceiling (5 lifetime) is the natural conversion lever.
+Guarding the original cost concern: anonymous scoring is bounded by a per-browser cap (`ANON_LIMIT`, keyed on the `ladder_anon_id` cookie) plus a higher per-IP daily backstop (`rate:anon:{ip}`). Usage is only counted after a successful score. The scored result is stashed (`pending-score:{anonId}`) and **claimed onto the account on sign-up**, so attribution is preserved — the anon score becomes the user's first counted lifetime score.
+
+How to apply: the `/score` page lets anonymous visitors score once; the post-score CTA and the limit-reached prompt drive sign-up. The free-tier ceiling (5 lifetime) still applies once they have an account.
 
 ---
 

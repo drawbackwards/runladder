@@ -14,9 +14,19 @@ import {
 } from "@/lib/plans";
 import { getMonthlyScans } from "@/lib/usage";
 import { getUserTier } from "@/lib/tier";
-import { persistScoreEntry } from "@/lib/scores";
+import { persistScoreEntry, type ScoreEntryInput } from "@/lib/scores";
+import {
+  ANON_COOKIE,
+  readAnonId,
+  mintAnonId,
+  clientIp,
+  assertAnonAllowed,
+  recordAnonScore,
+} from "@/lib/anon-score";
 
 export const maxDuration = 60;
+
+const ANON_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 /**
  * Streaming variant of POST /api/score.
@@ -42,41 +52,57 @@ export async function POST(req: NextRequest) {
     return errorResponse("Automated requests are not allowed.", 403);
   }
 
-  /* ── Auth required ── Mirror /api/score: web scoring requires a
-   * Clerk account. Anonymous IP path removed in v0.4.14. */
+  /* ── Auth / anonymous gate ── Mirror /api/score: signed-in users score
+   * per their tier; signed-out visitors get ONE free score (#187),
+   * cookie-capped with a per-IP daily backstop. */
   const { userId } = await auth();
-  if (!userId) {
-    return errorResponse(
-      `Sign up for free to get ${FREE_LIFETIME_LIMIT} Ladder scores.`,
-      401,
-      { signup: true },
-    );
-  }
 
-  /* ── Rate limiting (matches /api/score) ── */
-  const tier = await getUserTier(userId);
-  if (!isPaidTier(tier)) {
-    const usedKey = lifetimeScansKey(userId);
-    const used = (await redis.get<number>(usedKey)) ?? 0;
-    if (used >= FREE_LIFETIME_LIMIT) {
+  let anonId: string | null = null;
+  let anonIsNew = false;
+  let anonIp = "";
+  if (!userId) {
+    anonIp = clientIp(req);
+    anonId = readAnonId(req);
+    if (!anonId) {
+      anonId = mintAnonId();
+      anonIsNew = true;
+    }
+    const gate = await assertAnonAllowed(anonId, anonIp);
+    if (!gate.allowed) {
       return errorResponse(
-        `You've used all ${FREE_LIFETIME_LIMIT} free Ladder scores. Upgrade to Pro for ${PRO_MONTHLY_LIMIT.toLocaleString()} scores per month.`,
-        429,
-        { upgrade: true },
+        `Sign up for free to get ${FREE_LIFETIME_LIMIT} Ladder scores.`,
+        401,
+        { signup: true },
       );
     }
-  } else {
-    // Paid-tier hard ceiling at 2x the soft cap. Mirrors /api/score so
-    // SSE and JSON paths give identical enforcement.
-    const hardCap = monthlyHardCapForTier(tier);
-    if (hardCap !== null) {
-      const monthly = await getMonthlyScans(userId);
-      if (monthly >= hardCap) {
+  }
+
+  /* ── Rate limiting (signed-in tiers; matches /api/score) ── */
+  if (userId) {
+    const tier = await getUserTier(userId);
+    if (!isPaidTier(tier)) {
+      const usedKey = lifetimeScansKey(userId);
+      const used = (await redis.get<number>(usedKey)) ?? 0;
+      if (used >= FREE_LIFETIME_LIMIT) {
         return errorResponse(
-          `Monthly scoring paused — you're at ${monthly.toLocaleString()} scores, past 2x your tier's cap. Email hello@drawbackwards.com to lift the ceiling.`,
+          `You've used all ${FREE_LIFETIME_LIMIT} free Ladder scores. Upgrade to Pro for ${PRO_MONTHLY_LIMIT.toLocaleString()} scores per month.`,
           429,
-          { hardCapped: true, contact: "hello@drawbackwards.com" },
+          { upgrade: true },
         );
+      }
+    } else {
+      // Paid-tier hard ceiling at 2x the soft cap. Mirrors /api/score so
+      // SSE and JSON paths give identical enforcement.
+      const hardCap = monthlyHardCapForTier(tier);
+      if (hardCap !== null) {
+        const monthly = await getMonthlyScans(userId);
+        if (monthly >= hardCap) {
+          return errorResponse(
+            `Monthly scoring paused — you're at ${monthly.toLocaleString()} scores, past 2x your tier's cap. Email hello@drawbackwards.com to lift the ceiling.`,
+            429,
+            { hardCapped: true, contact: "hello@drawbackwards.com" },
+          );
+        }
       }
     }
   }
@@ -119,8 +145,8 @@ export async function POST(req: NextRequest) {
           if (ev.kind === "complete") {
             const result = ev.value;
             // Persist + count usage now that we have the full result.
-            // userId is guaranteed by the auth gate above — anonymous
-            // scoring was removed in v0.4.14.
+            // Signed-in → save to the user's history; anonymous → stash
+            // for claim-on-signup and bump the anon counters (#187).
             let persistedScoreId: string | null = null;
             try {
               const thumbnail = await makeThumbnail(
@@ -130,7 +156,7 @@ export async function POST(req: NextRequest) {
               const scoreId = `${Date.now()}-${Math.random()
                 .toString(36)
                 .slice(2, 8)}`;
-              await persistScoreEntry(userId, {
+              const entry: ScoreEntryInput = {
                 id: scoreId,
                 score: result.score,
                 label: result.label,
@@ -141,10 +167,16 @@ export async function POST(req: NextRequest) {
                 rungs: result.rungs,
                 source: source || "upload",
                 thumbnail,
-                isPublic: !!isPublic,
+                // Anonymous scores are always private.
+                isPublic: userId ? !!isPublic : false,
                 timestamp: Date.now(),
                 sessionType,
-              });
+              };
+              if (userId) {
+                await persistScoreEntry(userId, entry);
+              } else if (anonId) {
+                await recordAnonScore(anonId, anonIp, entry);
+              }
               persistedScoreId = scoreId;
             } catch (e) {
               console.error(
@@ -158,7 +190,9 @@ export async function POST(req: NextRequest) {
               value: {
                 ...result,
                 screenName: result.screenName || source || "Screen",
-                scoreId: persistedScoreId,
+                // Only signed-in scores have a dashboard detail page; anon
+                // scores are claimed by cookie after sign-up, so no id here.
+                scoreId: userId ? persistedScoreId : null,
               },
             });
             controller.close();
@@ -182,14 +216,20 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/event-stream; charset=utf-8",
-      "Cache-Control": "no-cache, no-transform",
-      Connection: "keep-alive",
-      "X-Accel-Buffering": "no",
-    },
-  });
+  const headers: Record<string, string> = {
+    "Content-Type": "text/event-stream; charset=utf-8",
+    "Cache-Control": "no-cache, no-transform",
+    Connection: "keep-alive",
+    "X-Accel-Buffering": "no",
+  };
+  // Set the anon-id cookie on a newly-minted anonymous visitor so the next
+  // request is recognized (drives the per-browser cap + claim-on-signup).
+  if (anonId && anonIsNew) {
+    headers["Set-Cookie"] =
+      `${ANON_COOKIE}=${anonId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${ANON_COOKIE_MAX_AGE}`;
+  }
+
+  return new Response(stream, { headers });
 }
 
 function errorResponse(
