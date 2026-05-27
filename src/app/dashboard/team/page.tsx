@@ -159,7 +159,7 @@ function InviteForm({
       </div>
       {err && <p className="mt-2 text-xs text-ladder-red font-sans">{err}</p>}
       <p className="mt-2 text-[10px] text-muted font-sans">
-        They&apos;ll get an email from Clerk with a sign-in link. On accept, they&apos;re comped to team tier automatically.
+        They&apos;ll get an email with a sign-in link. On accept, they&apos;re comped to team tier automatically.
       </p>
     </form>
   );
