@@ -392,9 +392,9 @@ export default function ScoreDetailPage() {
               href="https://drawbackwards.com/contact?subject=Moderated%20usability%20interviews"
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-5 py-2.5 rounded-full hover:bg-ladder-green/90 transition-colors"
+              className="shrink-0 inline-block text-xs font-semibold uppercase tracking-widest bg-ladder-green text-background px-6 py-3 hover:bg-ladder-green/90 transition-colors"
             >
-              Talk to Drawbackwards <span aria-hidden>→</span>
+              Talk to Drawbackwards
             </a>
           </div>
         </div>
@@ -461,9 +461,9 @@ export default function ScoreDetailPage() {
             </Link>
             <Link
               href="/score"
-              className="text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-5 py-2.5 rounded-full hover:bg-ladder-green/90 transition-colors"
+              className="text-xs font-semibold uppercase tracking-widest bg-ladder-green text-background px-6 py-3 hover:bg-ladder-green/90 transition-colors"
             >
-              Score another screen →
+              Score another screen
             </Link>
           </div>
         </div>
