@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth, useUser, RedirectToSignIn } from "@clerk/nextjs";
+import { useAuth, useUser, useOrganization, RedirectToSignIn } from "@clerk/nextjs";
+import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
 import { SkillTokenCard } from "@/components/SkillTokenCard";
@@ -107,6 +108,8 @@ type DashboardData = {
   usage: UsageInfo;
   tier: "free" | "pro" | "team" | "pulse";
   paid: boolean;
+  /** Member of the internal Drawbackwards org — suppresses the comp strip. */
+  internal?: boolean;
   comp: CompMeta | null;
 };
 
@@ -128,13 +131,19 @@ function UpgradeStrip({
   paid,
   tier,
   comp,
+  internal,
 }: {
   usage: UsageInfo;
   paid: boolean;
   tier: "free" | "pro" | "team" | "pulse";
   comp: CompMeta | null;
+  internal?: boolean;
 }) {
   const tierLabel = tier === "pro" ? "Pro" : tier === "team" ? "Team" : tier === "pulse" ? "Pulse" : "Free";
+
+  // Internal Drawbackwards members don't see any plan/comp strip — we built
+  // Ladder; the "Complimentary Team" framing doesn't apply to us.
+  if (internal) return null;
 
   if (paid && comp) {
     const expiry =
@@ -403,6 +412,27 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
 
+  // Make sure the user's org is the session's active org (invite-based
+  // provisioning doesn't auto-activate the way self-serve creation did), then
+  // read its membership + pending-invite state to decide team-setup status.
+  useEnsureActiveOrg();
+  const { organization, membership, memberships, invitations } = useOrganization({
+    memberships: { infinite: true },
+    invitations: { status: ["pending"], infinite: true },
+  });
+
+  // The Team Lead's first-run prompt shows only while their team is empty:
+  // they're the org admin, no designer has been invited (no pending invites)
+  // and none has joined (no org:member). It disappears once they invite their
+  // first member. The hidden provisioning service account and the Lead are
+  // both org:admin, so neither counts as an invited designer.
+  const isOrgManager = membership?.role === "org:admin";
+  const hasInvitedMember =
+    (invitations?.data?.length ?? 0) > 0 ||
+    !!memberships?.data?.some((m) => m.role === "org:member");
+  const needsTeamSetup =
+    !!organization && isOrgManager && !hasInvitedMember;
+
   useEffect(() => {
     if (!isSignedIn) return;
 
@@ -458,11 +488,12 @@ export default function DashboardPage() {
   const paid = data?.paid ?? false;
   const tier = data?.tier ?? "free";
   const comp = data?.comp ?? null;
+  const internal = data?.internal ?? false;
   const firstName = user?.firstName || null;
 
   return (
     <div className="pt-20 font-mono">
-      <UpgradeStrip usage={usage} paid={paid} tier={tier} comp={comp} />
+      <UpgradeStrip usage={usage} paid={paid} tier={tier} comp={comp} internal={internal} />
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="mb-8">
           <h1 className="text-xl text-foreground font-sans">
@@ -470,7 +501,7 @@ export default function DashboardPage() {
           </h1>
         </div>
 
-        <TeamSetupBanner tier={tier} />
+        {needsTeamSetup && <TeamSetupBanner />}
 
         {(tier === "team" || tier === "pulse") && <RequestReviewCTA />}
 
@@ -593,7 +624,9 @@ export default function DashboardPage() {
 
           <aside className="space-y-4">
             <UsageMeter />
-            <TeamCard />
+            {/* While the empty-team setup banner is showing, don't also show
+                the team card — they'd be redundant for a Lead with no team. */}
+            {!needsTeamSetup && <TeamCard />}
             <FigmaPluginCard />
             <SkillTokenCard />
           </aside>
