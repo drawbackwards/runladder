@@ -78,9 +78,9 @@ const SURFACES = [
     name: "Ladder for Teams",
     id: "teams",
     badge: "Team",
-    tagline: "Know where every designer on your team stands, on web, in Figma, and inside Claude.",
+    tagline: "Know where every designer on your team stands. Across every surface.",
     description:
-      "Design quality is invisible at scale until it isn't. Ladder for Teams gives design leads and managers a single dashboard across every designer: who's scoring, what they're scoring, and how those scores are moving. Scores flow in from the web, the Figma plugin, and the Claude Skill, all pooled into one view. Not anecdotal. Not vibes. A number, per person, per week.",
+      "Ladder for Teams gives design leads and managers a single dashboard across every designer: who's scoring, what they're scoring, and how those scores are moving. Scores flow in from the web, the Figma plugin, and the Claude Skill, all pooled into one view. Not anecdotal. Not vibes. A number, per person, per week.",
     features: [
       "Manager dashboard with per-designer performance tracking across web, Figma, and Claude",
       "Team leaderboard unified across all Ladder surfaces",

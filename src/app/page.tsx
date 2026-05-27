@@ -104,7 +104,8 @@ export default function Home() {
           <p className="text-lg text-body max-w-2xl mx-auto mb-12 leading-relaxed">
             Ladder is the framework the team at Drawbackwards built over two
             decades of designing products for the Fortune 50. Now it&apos;s an
-            AI-powered scoring engine anyone can use.
+            AI-powered scoring engine, for individual designers and the leads
+            who manage them.
           </p>
           <div className="flex items-center justify-center gap-6">
             <Link

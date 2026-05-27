@@ -85,8 +85,8 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
       "Team leaderboard",
       "Seat management: invite, archive, and remove team members",
       "Design rhythm + activity heatmap per designer",
-      "Design Reviews. Bucket every iteration of a frame, drop pinned crit on the canvas, watch the score lift across the sprint.",
-      "Team Take. Peer designers submit a separate score with rationale on every frame, shown alongside the Ladder score.",
+      "Design Reviews: iteration-by-iteration scoring with pinned crit and score lift tracking across the sprint",
+      "Team Take: peer designers submit a score and rationale on every frame, shown alongside the Ladder score",
       "Custom volume + SSO available, talk to us",
       "Access to customer sentiment and Ladder Pulse scoring data + insights, if subscribed (coming soon)",
       "Audit toolkit with redline annotations on every score (coming soon)",
@@ -381,7 +381,7 @@ export default async function PricingPage() {
             {[
               {
                 q: "Do I need to sign up to score a screen?",
-                a: "Yes. Create a free account with just your email — no password, no credit card. You get 5 free scores to get started across any Ladder surface.",
+                a: "Your first score on the web is free with no account. After that, sign up with just your email — no password, no credit card — and get 5 scores to use across any Ladder surface.",
               },
               {
                 q: "Does one subscription cover all surfaces?",
