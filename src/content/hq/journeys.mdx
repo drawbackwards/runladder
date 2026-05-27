@@ -2,7 +2,7 @@
 title: User Journeys
 updatedAt: 2026-05-27
 updatedBy: Sara
-lastPr: 219
+lastPr: 223
 ---
 
 ## How to read this page
@@ -59,7 +59,7 @@ After provisioning, the Team Lead (manager) gets the `org:admin` invite. From th
 
 See [Feature Inventory → Web app](/hq/features#web-app-runladdercom) for shipped Reviews features.
 
-**First-run setup banner:** on `/dashboard`, a Team Lead sees the green "Set up your team" prompt only while their team is still empty — they're the org admin and no designer has been invited yet (no pending invites, no `org:member`). It disappears once they invite their first member, and the team card takes over. The hidden provisioning service account and the Lead are both `org:admin`, so neither counts as an invited designer.
+**First-run setup banner:** on `/dashboard`, a Team Lead sees the green "Set up your team" prompt only while their team is still empty — they're the org admin and no designer has been invited yet (no pending invites, no `org:member`). It disappears once they invite their first member, and the team card takes over. The hidden provisioning service account and the Lead are both `org:admin`, so neither counts as an invited designer. This decision (`needsTeamSetup`) is computed server-side in `/api/dashboard` and the banner — like the plan strip — is gated on that fetch, so neither flashes a wrong default before the client knows the answer.
 
 **Internal members:** members of the internal **Drawbackwards** org don't see the "Complimentary Team" plan strip on `/dashboard` — we built the product, so the comp framing doesn't apply to us. `/api/dashboard` flags the membership (`internal`, via `isInternalOrg`) and the dashboard suppresses the strip. Other team clients still see it.
 
