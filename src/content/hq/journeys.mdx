@@ -59,6 +59,8 @@ After provisioning, the Team Lead (manager) gets the `org:admin` invite. From th
 
 See [Feature Inventory → Web app](/hq/features#web-app-runladdercom) for shipped Reviews features.
 
+**First-run setup banner:** on `/dashboard`, a Team Lead sees the green "Set up your team" prompt only while their team is still empty — they're the org admin and no designer has been invited yet (no pending invites, no `org:member`). It disappears once they invite their first member, and the team card takes over. The hidden provisioning service account and the Lead are both `org:admin`, so neither counts as an invited designer.
+
 **Internal members:** members of the internal **Drawbackwards** org don't see the "Complimentary Team" plan strip on `/dashboard` — we built the product, so the comp framing doesn't apply to us. `/api/dashboard` flags the membership (`internal`, via `isInternalOrg`) and the dashboard suppresses the strip. Other team clients still see it.
 
 **Onboarding access note (v0.5.4, PR #198):** signed-in users, including invitees returning from Clerk's hosted portal with an active session, bypass the site password gate (`SITE_PASSWORD`), so the invite flow isn't blocked by the wall. Cold visitors still see it. See [Decisions → Site password gate bypasses signed-in users](/hq/decisions).

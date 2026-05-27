@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import {
   useAuth,
   useOrganization,
@@ -16,6 +16,7 @@ import {
 import { Avatar } from "@/components/Avatar";
 import { ActiveReviewsCard } from "@/components/reviews/ActiveReviewsCard";
 import { ReviewRequestsPanel } from "@/components/reviews/ReviewRequestsPanel";
+import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
 
 type MemberStats = {
   totalScans: number;
@@ -673,13 +674,13 @@ function ArchivedMemberRow({
 
 export default function TeamPage() {
   const { isSignedIn, isLoaded } = useAuth();
-  const {
-    isLoaded: orgListLoaded,
-    userMemberships,
-    setActive,
-  } = useOrganizationList({
+  const { isLoaded: orgListLoaded, userMemberships } = useOrganizationList({
     userMemberships: { infinite: true },
   });
+
+  // Activate the user's org if none is active (invite-based provisioning
+  // doesn't auto-activate the way self-serve creation did — see the hook).
+  useEnsureActiveOrg();
   const {
     organization,
     membership,
@@ -717,26 +718,6 @@ export default function TeamPage() {
       refreshTeamData();
     }
   }, [organization?.id, refreshTeamData]);
-
-  // Activate the user's org when they're a member of one but no org is the
-  // session's *active* org. Before #190, a Team Lead got their org via
-  // self-serve `CreateOrganization`, which auto-sets it active. #190 switched
-  // to admin provisioning via invitation, and accepting an invite makes you a
-  // member without setting the org active — so `useOrganization()` returned
-  // null and this page hung on "Loading your team…". Restoring the activation
-  // lets an invited Lead land in their team and invite designers.
-  const activatingRef = useRef(false);
-  useEffect(() => {
-    if (!orgListLoaded || !setActive) return;
-    if (organization) return;
-    const first = userMemberships?.data?.[0];
-    if (!first || activatingRef.current) return;
-    activatingRef.current = true;
-    setActive({ organization: first.organization.id }).catch(() => {
-      // Activation is best-effort; if it fails, allow a retry on next render.
-      activatingRef.current = false;
-    });
-  }, [orgListLoaded, setActive, organization, userMemberships?.data]);
 
   if (!isLoaded) return null;
   if (!isSignedIn) return <RedirectToSignIn />;
