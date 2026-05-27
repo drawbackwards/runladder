@@ -20,7 +20,24 @@ export function UserMenu() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Resolve platform-admin status once the user is known. ADMIN_EMAILS lives
+  // server-side, so we ask /api/admin/status rather than expose the allowlist.
+  useEffect(() => {
+    if (!isLoaded || !user) return;
+    let active = true;
+    fetch("/api/admin/status")
+      .then((r) => (r.ok ? r.json() : { admin: false }))
+      .then((d) => {
+        if (active) setIsAdmin(d.admin === true);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [isLoaded, user]);
 
   useEffect(() => {
     if (!open) return;
@@ -223,6 +240,43 @@ export function UserMenu() {
                 )}
               </span>
               <span className="text-ladder-green text-base group-hover:translate-x-0.5 transition-transform flex-shrink-0">
+                →
+              </span>
+            </Link>
+          )}
+
+          {isAdmin && (
+            <Link
+              href="/admin/clients"
+              onClick={() => setOpen(false)}
+              role="menuitem"
+              className="flex items-center justify-between px-4 py-3 hover:bg-[#1f1f1f] border-b border-[#2a2a2a] transition-colors group"
+            >
+              <span className="flex items-center gap-2.5">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  aria-hidden
+                  className="text-muted group-hover:text-foreground"
+                >
+                  <rect x="2" y="2.5" width="12" height="3" />
+                  <rect x="2" y="7" width="12" height="3" />
+                  <rect x="2" y="11.5" width="12" height="3" />
+                </svg>
+                <span className="text-sm text-foreground font-sans font-medium">
+                  Manage Clients
+                </span>
+                {(pathname?.startsWith("/admin/clients") ?? false) && (
+                  <span className="text-[9px] text-ladder-green/70 font-mono uppercase tracking-widest">
+                    Current
+                  </span>
+                )}
+              </span>
+              <span className="text-muted text-base group-hover:translate-x-0.5 transition-transform">
                 →
               </span>
             </Link>

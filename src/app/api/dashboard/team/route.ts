@@ -220,6 +220,19 @@ export async function GET() {
   const isManager = orgRole === "org:admin";
 
   const client = await clerkClient();
+
+  // Suspended orgs (contract paused/ended) are blocked at the API too, so a
+  // suspended team can't read data by hitting this endpoint directly. Status
+  // is managed by admins via /admin/clients (#190).
+  const org = await client.organizations.getOrganization({
+    organizationId: orgId,
+  });
+  if (
+    (org.publicMetadata as { status?: string } | null)?.status === "suspended"
+  ) {
+    return NextResponse.json({ error: "Team suspended" }, { status: 403 });
+  }
+
   const memberships = await client.organizations.getOrganizationMembershipList({
     organizationId: orgId,
     limit: 100,

@@ -2,7 +2,7 @@
 title: User Journeys
 updatedAt: 2026-05-26
 updatedBy: Sara
-lastPr: 207
+lastPr: 199
 ---
 
 ## How to read this page
@@ -38,9 +38,18 @@ Triggers for the upgrade conversation:
 
 The Stripe checkout is self-serve at the Pro price on `/pricing` ($1,000/mo today, via `POST /api/stripe/checkout`). On success the user lands on `/dashboard?welcome=pro` and Pro features unlock immediately.
 
+### Team provisioning (Live, admin-side — v0.5.5, PR #199)
+
+Provisioning moved in-app. After a Drawbackwards Teams engagement closes, a platform admin (an `ADMIN_EMAILS` member) provisions the client from **Account menu → Manage Clients** (`/admin/clients`), instead of doing it by hand in the Clerk dashboard:
+
+1. Admin enters the org name plus the Team Lead's first name, last name, and email.
+2. We create a Clerk Organization (the acting admin is `createdBy` and stays as a co-admin for now) and send the Team Lead an `org:admin` invitation.
+3. Self-serve org creation is disabled — clients can no longer spin up their own orgs.
+4. Lifecycle: admins can **suspend/reactivate** an org when a contract pauses/ends (suspended orgs see a "team access paused" notice; members keep their tier for now) and **delete** test orgs (type-the-name to confirm). The internal **Drawbackwards** org is protected from both.
+
 ### Team manager flow (Live, post-engagement)
 
-After a Drawbackwards Teams engagement closes, the manager gets an admin invite. From there:
+After provisioning, the Team Lead (manager) gets the `org:admin` invite. From there:
 
 1. Land on `/dashboard/team` with an empty roster.
 2. Invite designers by email. Clerk Organization handles the invite.
