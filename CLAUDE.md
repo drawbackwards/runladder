@@ -180,7 +180,7 @@ Documentation-only PRs to non-platform repos (engineering-standards, drawbackwar
 - **Chester** can build on web, plugin, and Skill with Ward's prior approval.
 - **Sean** does a one-hour weekly engineering audit and on-demand reviews.
 
-Ward's approval is the merge gate for every non-trivial Chester or Michael PR. See `/hq/decisions` for the full rationale.
+Any Drawbackwards engineer can review, approve, and merge PRs once CI (the `next build` check) passes. Reviews are encouraged — especially on sensitive surfaces (API, MCP, Pulse, admin) — but they are not a hard gate, and no PR is blocked waiting on one specific person. See `/hq/decisions` for the full rationale.
 
 ## Related Repos
 

@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
 updatedAt: 2026-05-26
-updatedBy: Sara
-lastPr: 198
+updatedBy: Chester
+lastPr: 208
 ---
 
 ## How to use this page
@@ -233,13 +233,13 @@ How to apply: free-tier surfaces show a11y and UX copywriting as locked tabs wit
 
 ## Engineering model (current state)
 
-**Ward leads engineering with Claude (Sara) as AI pair. Michael can build any surface (web, plugin, Skill, API, MCP, Pulse, admin). Chester can build on web, plugin, and Skill. All non-trivial PRs need Ward's prior approval. Sean does a one-hour weekly engineering audit and on-demand reviews.**
+**Ward leads engineering with Claude (Sara) as AI pair. Michael can build any surface (web, plugin, Skill, API, MCP, Pulse, admin). Chester can build on web, plugin, and Skill. Any Drawbackwards engineer can review, approve, and merge PRs once CI passes — no Ward-only merge gate. Sean does a one-hour weekly engineering audit and on-demand reviews.**
 
-Updated 2026-05-19 to give Michael full-surface scope (was previously web/plugin/Skill only). Chester stays scoped to web/plugin/Skill, the surfaces where his design and interaction lens applies directly.
+Updated 2026-05-19 to give Michael full-surface scope (was previously web/plugin/Skill only). Chester stays scoped to web/plugin/Skill, the surfaces where his design and interaction lens applies directly. Updated again to remove the Ward-only merge gate (see below).
 
-Why: Ladder is small enough that the founder + AI pair model ships faster than hiring would. Michael is the PM, drives day-to-day coordination, and has cross-surface context, so restricting him to three surfaces created bottlenecks. The Ward-approval gate stays in place on every non-trivial PR to keep blast radius controlled on sensitive surfaces (API, MCP, Pulse, admin).
+Why: Ladder is small enough that the founder + AI pair model ships faster than hiring would. Michael is the PM, drives day-to-day coordination, and has cross-surface context, so restricting him to three surfaces created bottlenecks. The earlier "every non-trivial PR needs Ward's prior approval" rule was an over-restriction that wasn't intended — it made Ward a single point of failure and blocked the team whenever he was unavailable. Merging is now open to any Drawbackwards engineer with CI green; reviews are encouraged on sensitive surfaces (API, MCP, Pulse, admin) but are not a hard gate.
 
-How to apply: default to Ward + Sara on engineering. For any surface, Ward can hand off to Michael after approving scope. For web/plugin/Skill, Chester is also an option. Sean's review is engineering audit, not a PR gate. Ward's approval is the gate that lets a Michael or Chester PR merge. Hiring trigger is tracked on the [Roadmap](/hq/roadmap).
+How to apply: default to Ward + Sara on engineering. For any surface, Ward can hand off to Michael after aligning on scope. For web/plugin/Skill, Chester is also an option. Sean's review is engineering audit, not a PR gate. Any DB engineer may approve and merge once the `next build` check passes. Hiring trigger is tracked on the [Roadmap](/hq/roadmap).
 
 ---
 
