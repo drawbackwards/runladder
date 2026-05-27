@@ -46,7 +46,7 @@ const PRODUCTS = [
   {
     name: "runladder.com",
     desc: "You shipped a screen. Is it actually good? Get a trusted quality score in seconds. No installs, no signup, no second-guessing.",
-    href: "/sign-up",
+    href: "https://runladder.com/login#/?redirect_url=https%3A%2F%2Frunladder.com%2Fdashboard",
     cta: "Get your first Ladder score",
   },
   {
@@ -108,7 +108,7 @@ export default function Home() {
           </p>
           <div className="flex items-center justify-center gap-6">
             <Link
-              href="/sign-up"
+              href="https://runladder.com/login#/?redirect_url=https%3A%2F%2Frunladder.com%2Fdashboard"
               className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-base"
             >
               Get your first Ladder score
@@ -440,7 +440,7 @@ export default function Home() {
             Upload a screenshot. Get your score in seconds. No signup required.
           </p>
           <Link
-            href="/sign-up"
+            href="https://runladder.com/login#/?redirect_url=https%3A%2F%2Frunladder.com%2Fdashboard"
             className="inline-block bg-ladder-green text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-lg"
           >
             Get your first Ladder score
