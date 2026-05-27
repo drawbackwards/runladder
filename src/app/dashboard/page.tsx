@@ -426,12 +426,21 @@ export default function DashboardPage() {
   // and none has joined (no org:member). It disappears once they invite their
   // first member. The hidden provisioning service account and the Lead are
   // both org:admin, so neither counts as an invited designer.
+  //
+  // Gate on the org AND its roster/invite lists being fully loaded. Without
+  // this, there's a flash on refresh: the org activates a tick before its
+  // memberships/invitations resolve, so `hasInvitedMember` is briefly false
+  // and the banner shows for an instant on teams that are actually set up.
+  const teamStateLoaded =
+    !!organization &&
+    memberships?.isLoading === false &&
+    invitations?.isLoading === false;
   const isOrgManager = membership?.role === "org:admin";
   const hasInvitedMember =
     (invitations?.data?.length ?? 0) > 0 ||
     !!memberships?.data?.some((m) => m.role === "org:member");
   const needsTeamSetup =
-    !!organization && isOrgManager && !hasInvitedMember;
+    teamStateLoaded && isOrgManager && !hasInvitedMember;
 
   useEffect(() => {
     if (!isSignedIn) return;
