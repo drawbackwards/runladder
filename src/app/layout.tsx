@@ -84,7 +84,7 @@ export default function RootLayout({
         },
         signUp: {
           start: {
-            title: "Start scoring",
+            title: "Sign up",
             subtitle:
               "Create a free account to score any screen against the Ladder framework. We'll email you a sign-in code, no password to remember.",
           },

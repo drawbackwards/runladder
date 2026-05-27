@@ -298,11 +298,28 @@ h1, h2, h3, h4, h5, h6 {
   background: #5ab88b !important;
 }
 
-/* Hide the trailing arrow icon Clerk adds to its primary submit buttons. */
+/* Force the primary button label dark. The label is a span Clerk tags with
+   a cl-internal-* class, which the broad `[class*="cl-internal"]{color:#ccc}`
+   rule below would otherwise win on source order — so these need compound
+   selectors (0,1,1) to outrank it (0,1,0). */
+.cl-formButtonPrimary,
+.cl-formButtonPrimary span,
+.cl-formButtonPrimary p {
+  color: #111 !important;
+}
+
+/* Drop the trailing arrow icon Clerk adds to its primary submit buttons. */
 .cl-formButtonPrimary .cl-buttonArrowIcon {
   display: none !important;
 }
 
+/* Hide Clerk's footer branding — "Secured by Clerk" and the dev-mode banner
+   (diagonal-stripe background) at the bottom of the sign-in/up modals. The
+   visible elements are .cl-footerItem (not always under a .cl-footer). */
+.cl-footer,
+.cl-footerItem {
+  display: none !important;
+}
 .cl-formButtonReset,
 .cl-formButtonSecondary {
   color: #6AC89B !important;

@@ -257,17 +257,28 @@ function timeAgo(ts: number): string {
 function AnonSignupPrompt({
   headline,
   sub,
+  align = "center",
 }: {
   headline: string;
   sub: string;
+  align?: "center" | "left";
 }) {
+  const left = align === "left";
   return (
-    <div className="border border-ladder-green/40 bg-ladder-green/[0.06] p-5 text-center">
-      <p className="text-sm font-sans font-semibold text-foreground mb-1">
+    <div
+      className={`border border-ladder-green/40 bg-ladder-green/[0.06] p-5 ${
+        left ? "" : "text-center"
+      }`}
+    >
+      <p className="text-lg font-sans font-semibold text-foreground mb-1">
         {headline}
       </p>
-      <p className="text-xs text-muted font-sans mb-4">{sub}</p>
-      <div className="flex items-center justify-center gap-4">
+      <p className="text-sm text-muted font-sans mb-4">{sub}</p>
+      <div
+        className={`flex items-center gap-4 ${
+          left ? "justify-start" : "justify-center"
+        }`}
+      >
         <SignUpButton mode="modal" forceRedirectUrl="/score">
           <button className="bg-ladder-green text-background font-semibold px-6 py-2.5 rounded-full hover:bg-ladder-green/90 transition-colors text-sm">
             Sign up free
@@ -651,23 +662,31 @@ export default function ScorePage() {
         {result && (
           <div className="flex items-center justify-between mb-10 border-b border-[#333] pb-4">
             <ShareButtons score={result.score} label={result.label} summary={result.summary} />
-            <div className="flex items-center gap-4">
-              <button
-                onClick={reset}
-                className="text-[11px] uppercase tracking-widest text-ladder-green border border-ladder-green/30 px-4 py-2 hover:bg-ladder-green/10 transition-colors"
-              >
-                New analysis
-              </button>
-            </div>
+            {/* "New analysis" is only valid for signed-in users — an anonymous
+                visitor has spent their one free score, so showing it would be a
+                dead end. Their only forward actions are Sign Up / Sign In in the
+                post-score prompt above. */}
+            {isSignedIn && (
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={reset}
+                  className="text-[11px] uppercase tracking-widest text-ladder-green border border-ladder-green/30 px-4 py-2 hover:bg-ladder-green/10 transition-colors"
+                >
+                  New analysis
+                </button>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Post-score conversion: anon visitor just got a result. */}
+        {/* Post-score conversion: anon visitor just got a result. Spans the
+            full width of the result columns below. */}
         {result && isLoaded && !isSignedIn && (
-          <div className="max-w-2xl mx-auto mb-10">
+          <div className="mb-10">
             <AnonSignupPrompt
-              headline="Save this score"
-              sub="Sign up free to save it to your dashboard and get 5 more scores."
+              headline="Sign up to start scoring"
+              sub="Sign up free to save this score to your dashboard and get 5 more scores."
+              align="left"
             />
           </div>
         )}
