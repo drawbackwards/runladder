@@ -318,7 +318,7 @@ export function UserMenu() {
             ) : (
               <MenuRow
                 icon={ICON.billing}
-                label="Subscription"
+                label="Upgrade to Pro"
                 href="/pricing"
                 onClick={() => setOpen(false)}
                 meta={
@@ -330,7 +330,7 @@ export function UserMenu() {
             )}
             <MenuRow
               icon={ICON.settings}
-              label="Account"
+              label="Settings"
               onClick={() => {
                 setOpen(false);
                 openUserProfile();
