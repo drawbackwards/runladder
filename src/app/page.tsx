@@ -68,6 +68,12 @@ const PRODUCTS = [
     cta: "Get the Skill",
   },
   {
+    name: "Ladder for Teams",
+    desc: "A single dashboard across every designer on your team. See who's scoring, what they're scoring, and how scores are moving — across web, Figma, and Claude. Built for design leads and managers who need visibility, not gut feel.",
+    href: "/products#teams",
+    cta: "See Team features",
+  },
+  {
     name: "Drawbackwards Consulting",
     desc: "The team behind Ladder embeds with yours, sprint by sprint. Ideation workshops, design thinking studios, UI/UX execution, team mentoring, skill evaluation, and custom Pulse deployments. 20 years of doing the work, not just scoring it.",
     href: "https://drawbackwards.com",
