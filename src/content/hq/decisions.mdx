@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-05-26
+updatedAt: 2026-05-27
 updatedBy: Sara
-lastPr: 200
+lastPr: 217
 ---
 
 ## How to use this page
@@ -187,7 +187,7 @@ How to apply: any "team plan signup" copy on runladder.com routes to a contact f
 
 Decisions baked in:
 
-- **Creator stays a co-admin.** Clerk requires an existing user as the org creator (first `org:admin`), so the acting admin is `createdBy` and remains in the client org for now. Auto-removing them after the Lead accepts is deferred.
+- **A hidden provisioning service account owns client orgs (revised v0.5.6).** Clerk requires an existing user as the org creator (first `org:admin`). Originally that was the acting admin, which trapped them in every client org they provisioned. We now create orgs as a dedicated service account (`PROVISIONING_USER_ID`, created via `scripts/create-provisioning-user.mjs`); it never logs in, owns all client orgs, and sends the Team Lead invite. It's filtered out of the client's roster and member counts (`isProvisioningUser`), so the client never sees a Drawbackwards owner inside their org. Clerk instances are isolated, so production needs its own service account once #181 is resolved.
 - **Drawbackwards is an internal Team org.** We dogfood Team like any client, but the Drawbackwards org is flagged internal (`publicMetadata.internal`, with a "Drawbackwards" name fallback) and can never be suspended or deleted via the tooling. The "mark internal" toggle sets the flag without Clerk dashboard access.
 - **Suspend = block dashboard only (for now).** Suspending an org (contract paused/ended) blocks `/dashboard/team` and the team API but leaves member tier intact. **Revoking Team comp on suspend is deferred pending Ward's input.**
 - **Delete is type-to-confirm**, available to any platform admin, for QA cleanup. Internal org is exempt.
