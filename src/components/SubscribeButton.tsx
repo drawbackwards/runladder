@@ -51,9 +51,9 @@ export function SubscribeButton({ plan, className, children }: Props) {
   if (!isSignedIn) {
     return (
       <SignInButton
-        mode="redirect"
-        forceRedirectUrl="/api/stripe/checkout?plan=pro"
-        signUpForceRedirectUrl="/api/stripe/checkout?plan=pro"
+        mode="modal"
+        forceRedirectUrl="/pricing"
+        signUpForceRedirectUrl="/pricing"
       >
         <button type="button" className={className}>
           {children}

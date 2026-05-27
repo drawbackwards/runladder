@@ -46,7 +46,7 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
       "Scores are public",
     ],
     cta: "Start free",
-    href: "/sign-up",
+    href: "/score",
     solidCta: true,
   },
   {
