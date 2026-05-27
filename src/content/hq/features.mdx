@@ -2,7 +2,7 @@
 title: Feature Inventory
 updatedAt: 2026-05-26
 updatedBy: Sara
-lastPr: 207
+lastPr: 200
 ---
 
 ## How to read this page
@@ -132,6 +132,11 @@ Gated by `ADMIN_EMAILS` env var. Defaults: Ward, Michael, Jordan.
 | Plugin backend proxy (`pluginFetch`) | Admin | Live | `src/lib/admin.ts` |
 | Super-admin protection on `SUPER_ADMIN_EMAILS` | Super Admin | Live | `src/lib/admin.ts`, hardcoded, passphrase-gated |
 | Webhook handler for Clerk org join | Auto | Live (v0.3.0) | `src/app/api/webhooks/clerk/route.ts` |
+| Manage Clients page (Team orgs + Pro list) | Admin | Live (v0.5.5) | `src/app/admin/clients/page.tsx`, [#200](https://github.com/drawbackwards/runladder/pull/200) |
+| Provision Team org + invite Team Lead as `org:admin` | Admin | Live (v0.5.5) | `src/app/api/admin/clients/route.ts` |
+| Org lifecycle: suspend / reactivate / delete (type-to-confirm) | Admin | Live (v0.5.5) | `src/app/api/admin/clients/[orgId]/route.ts` |
+| Internal-org protection (Drawbackwards never suspended/deleted) | Admin | Live (v0.5.5) | `src/lib/orgs.ts` `isInternalOrg` |
+| Admin-only "Manage Clients" nav in Account menu | Admin | Live (v0.5.5) | `src/components/UserMenu.tsx`, `src/app/api/admin/status/route.ts` |
 
 ## Ladder HQ (`/hq`)
 
@@ -169,3 +174,4 @@ Built on top of Pro. Sold as a Drawbackwards engagement (MSA + SOW), not self-se
 - Reviews + interactive pins + Team Take aggregate scoring
 - 25,000-query monthly pool
 - Manager-controlled seat invites via Clerk Organizations
+- Admin-provisioned orgs (self-serve org creation disabled in v0.5.5); suspend on contract end

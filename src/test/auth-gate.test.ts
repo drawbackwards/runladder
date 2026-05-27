@@ -87,6 +87,8 @@ vi.mock("@/lib/redis", () => ({
  */
 const PROTECTED_ROUTES = [
   // /api/admin/*
+  "src/app/api/admin/clients/[orgId]/route.ts",
+  "src/app/api/admin/clients/route.ts",
   "src/app/api/admin/comps/route.ts",
   "src/app/api/admin/debug-log/route.ts",
   "src/app/api/admin/evaluations/[id]/analyze/route.ts",
@@ -103,6 +105,17 @@ const PROTECTED_ROUTES = [
   "src/app/api/dashboard/team/members/[userId]/route.ts",
   "src/app/api/dashboard/team/route.ts",
 ];
+
+/**
+ * Routes under /api/admin that are intentionally PUBLIC (no auth gate) and
+ * therefore exempt from the protected-route coverage check below. Keep this
+ * list tiny and obvious.
+ *
+ * - status: returns `{ admin: false }` (200) to anonymous callers so the
+ *   client UI can decide whether to show admin nav without exposing the
+ *   ADMIN_EMAILS allowlist. It leaks nothing.
+ */
+const PUBLIC_ADMIN_ROUTES = ["src/app/api/admin/status/route.ts"];
 
 // ─── Helper: exercise every HTTP method on a route handler ───────────────────
 const HTTP_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"] as const;
@@ -157,6 +170,10 @@ async function expectAllMethodsRejectAnon(importPath: string): Promise<void> {
 describe("auth gate: /api/admin/*", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("clients", () =>
+    expectAllMethodsRejectAnon("@/app/api/admin/clients/route"));
+  it("clients/[orgId]", () =>
+    expectAllMethodsRejectAnon("@/app/api/admin/clients/[orgId]/route"));
   it("comps", () => expectAllMethodsRejectAnon("@/app/api/admin/comps/route"));
   it("debug-log", () =>
     expectAllMethodsRejectAnon("@/app/api/admin/debug-log/route"));
@@ -237,6 +254,9 @@ describe("meta: protected-route coverage", () => {
       ...findRouteFilesUnder(teamRoot),
     ]
       .map((p) => p.slice(projectRoot.length + 1)) // make relative
+      // Intentionally-public routes (e.g. /api/admin/status) aren't gated and
+      // are exempt from the protected-route coverage check.
+      .filter((p) => !PUBLIC_ADMIN_ROUTES.includes(p))
       .sort();
 
     const inManifest = [...PROTECTED_ROUTES].sort();

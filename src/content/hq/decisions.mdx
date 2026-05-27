@@ -2,7 +2,7 @@
 title: Decisions Log
 updatedAt: 2026-05-26
 updatedBy: Sara
-lastPr: 207
+lastPr: 200
 ---
 
 ## How to use this page
@@ -178,6 +178,21 @@ How to apply: don't offer ad-hoc discounts on Pro. Don't offer self-serve Team. 
 Why: Teams buyers are companies with design quality problems, not seat-buyers. The deal includes humans (workshop, audit, onboarding) that don't fit a SaaS contract. Selling Teams as SaaS undervalues the engagement and starves the agency.
 
 How to apply: any "team plan signup" copy on runladder.com routes to a contact form, not Stripe checkout. Sales runs through Ward + Michael.
+
+---
+
+## Team org provisioning is admin-driven and in-app (v0.5.5, PR #200)
+
+**A Drawbackwards platform admin provisions each Team org from `/admin/clients`; clients can no longer self-serve.** The admin enters the org name and the Team Lead's name + email; we create the Clerk org and invite the Lead as `org:admin`. Self-serve `CreateOrganization` on `/dashboard/team` is removed.
+
+Decisions baked in:
+
+- **Creator stays a co-admin.** Clerk requires an existing user as the org creator (first `org:admin`), so the acting admin is `createdBy` and remains in the client org for now. Auto-removing them after the Lead accepts is deferred.
+- **Drawbackwards is an internal Team org.** We dogfood Team like any client, but the Drawbackwards org is flagged internal (`publicMetadata.internal`, with a "Drawbackwards" name fallback) and can never be suspended or deleted via the tooling. The "mark internal" toggle sets the flag without Clerk dashboard access.
+- **Suspend = block dashboard only (for now).** Suspending an org (contract paused/ended) blocks `/dashboard/team` and the team API but leaves member tier intact. **Revoking Team comp on suspend is deferred pending Ward's input.**
+- **Delete is type-to-confirm**, available to any platform admin, for QA cleanup. Internal org is exempt.
+
+Why: provisioning was a manual Clerk-dashboard step only Ward could do. Moving it in-app lets any platform admin onboard a client and unblocks selling Team without dashboard access.
 
 ---
 

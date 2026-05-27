@@ -5,7 +5,6 @@ import {
   useAuth,
   useOrganization,
   useOrganizationList,
-  CreateOrganization,
   RedirectToSignIn,
 } from "@clerk/nextjs";
 import Link from "next/link";
@@ -32,6 +31,7 @@ type TeamMember = {
   firstName: string | null;
   lastName: string | null;
   imageUrl: string | null;
+  hasImage: boolean;
   role: string;
   joinedAt: number;
   stats: MemberStats | null;
@@ -48,6 +48,7 @@ type ArchivedMember = {
   firstName: string | null;
   lastName: string | null;
   imageUrl: string | null;
+  hasImage: boolean;
   stats: MemberStats | null;
   recentScans: number;
   activity: DailyActivity[];
@@ -166,23 +167,33 @@ function InviteForm({
 }
 
 function NoOrgPanel() {
+  // Self-serve org creation was removed in #190 — Team orgs are now
+  // provisioned by Drawbackwards (an admin creates the org and invites the
+  // Team Lead). A user with no org should reach out, not spin one up.
   return (
     <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-8">
       <h2 className="text-base font-sans text-foreground mb-2">
-        Start your team
+        No team yet
       </h2>
-      <p className="text-sm text-muted font-sans mb-6">
-        Create a team to invite your designers and see how they&apos;re scoring.
+      <p className="text-sm text-muted font-sans">
+        Ladder Team is set up by Drawbackwards as part of your engagement. If
+        you expected access here, contact your Drawbackwards account manager and
+        they&apos;ll get you added.
       </p>
-      <CreateOrganization
-        afterCreateOrganizationUrl="/dashboard/team"
-        appearance={{
-          elements: {
-            rootBox: "w-full",
-            card: "bg-transparent shadow-none border-0 p-0",
-          },
-        }}
-      />
+    </div>
+  );
+}
+
+function SuspendedPanel() {
+  return (
+    <div className="border border-ladder-orange/40 bg-ladder-orange/5 p-8">
+      <h2 className="text-base font-sans text-foreground mb-2">
+        Team access paused
+      </h2>
+      <p className="text-sm text-muted font-sans">
+        This team&apos;s Ladder access is currently paused. Please contact your
+        Drawbackwards account manager to reactivate.
+      </p>
     </div>
   );
 }
@@ -431,6 +442,7 @@ function MemberRow({
     <div className="px-4 py-4 flex items-center gap-5">
       <Avatar
         imageUrl={member.imageUrl}
+        hasImage={member.hasImage}
         name={[member.firstName, member.lastName]
           .filter(Boolean)
           .join(" ")}
@@ -590,6 +602,7 @@ function ArchivedMemberRow({
       <div className="px-4 py-4 flex items-center gap-5">
         <Avatar
           imageUrl={member.imageUrl}
+          hasImage={member.hasImage}
           name={name}
           email={member.email}
           size={36}
@@ -728,6 +741,27 @@ export default function TeamPage() {
       <div className="pt-20 font-mono">
         <div className="max-w-2xl mx-auto px-6 py-10">
           <p className="text-sm text-muted font-sans">Loading your team…</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Suspended orgs (contract paused/ended) show a notice instead of the
+  // dashboard. Lifecycle status is set by admins via /admin/clients (#190).
+  // Members keep their tier for now — comp-revocation on suspend is deferred.
+  if (
+    (organization.publicMetadata as { status?: string } | undefined)?.status ===
+    "suspended"
+  ) {
+    return (
+      <div className="pt-20 font-mono">
+        <div className="max-w-2xl mx-auto px-6 py-10">
+          <div className="mb-8">
+            <h1 className="text-xl text-foreground font-sans">
+              {organization.name}
+            </h1>
+          </div>
+          <SuspendedPanel />
         </div>
       </div>
     );
