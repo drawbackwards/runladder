@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-05-19
+updatedAt: 2026-05-26
 updatedBy: Sara
-lastPr: 180
+lastPr: 198
 ---
 
 ## How to use this page
@@ -10,6 +10,16 @@ lastPr: 180
 The why behind big choices. Read this before you push back on a feature, a price, or a roadmap call. Most decisions look arbitrary until you know the constraint that drove them. New entries go at the top with a date and one-line rule.
 
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
+
+---
+
+## Site password gate bypasses signed-in users (2026-05-26)
+
+**The runladder.com password wall (`SITE_PASSWORD`) is bypassed for any signed-in user, including invitees returning from Clerk's hosted portal with an active session. Cold visitors still hit the wall.**
+
+Why: the gate (`PasswordGate.tsx`) wraps the whole app and blocked the Team onboarding flow. An invited customer would accept a Clerk invite, return to runladder.com, and hit the password wall before reaching `/dashboard`. Bypassing signed-in users keeps the gate effective against casual visitors while letting real customers onboard. The decision is reversible and low-risk: the entire gate is dead code once `SITE_PASSWORD` is removed from Vercel, since the layout never renders it when the env var is unset.
+
+How to apply: do not treat the password gate as a security boundary. It is a client-side speed bump, and `/api/*` routes are not behind it. Real access control is Clerk auth plus the admin/team allowlists. Remove the gate (`PasswordGate.tsx`, `/api/auth-gate`, the layout conditional) once marketing edits land and `SITE_PASSWORD` is dropped. Shipped in PR #198.
 
 ---
 

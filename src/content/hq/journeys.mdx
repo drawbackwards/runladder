@@ -1,8 +1,8 @@
 ---
 title: User Journeys
-updatedAt: 2026-05-19
+updatedAt: 2026-05-26
 updatedBy: Sara
-lastPr: 179
+lastPr: 198
 ---
 
 ## How to read this page
@@ -49,6 +49,10 @@ After a Drawbackwards Teams engagement closes, the manager gets an admin invite.
 5. Reviews flow: designer requests review, manager accepts or declines, designer scores iterations in `/dashboard/reviews/[slug]`, manager and peers add Team Takes and pin annotations.
 
 See [Feature Inventory → Web app](/hq/features#web-app-runladdercom) for shipped Reviews features.
+
+**Onboarding access note (v0.5.4, PR #198):** signed-in users, including invitees returning from Clerk's hosted portal with an active session, bypass the site password gate (`SITE_PASSWORD`), so the invite flow isn't blocked by the wall. Cold visitors still see it. See [Decisions → Site password gate bypasses signed-in users](/hq/decisions).
+
+**Known issue (In flight, blocked on Clerk dashboard):** accepting an org invitation on Clerk's hosted portal currently dead-ends on Clerk's generic "Welcome" page instead of redirecting to runladder.com. The redirect is governed by the Clerk dashboard Home URL, which is unset because production still runs on a development Clerk instance (`pk_test_` across all Vercel environments). The fix needs Clerk dashboard access plus a production Clerk instance with DNS verification. Tracked in [#181](https://github.com/drawbackwards/runladder/issues/181). The in-app redirect config (`ClerkProvider` fallback URLs) shipped in PR #198 covers the embedded login/signup pages.
 
 ## Figma plugin: Live (in marketplace re-review per memory)
 

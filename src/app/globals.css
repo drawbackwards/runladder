@@ -269,6 +269,13 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 0 !important;
 }
 
+/* Keep the sign-in form transparent so the page background shows through
+   behind the OTP digits and resend link (see the .cl-form exclusion on the
+   internal-bg catch-all rule below). */
+.cl-form {
+  background: transparent !important;
+}
+
 .cl-formFieldInput:focus,
 .cl-phoneNumberInput:focus {
   border-color: #6AC89B !important;
@@ -289,6 +296,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .cl-formButtonPrimary:hover {
   background: #5ab88b !important;
+}
+
+/* Hide the trailing arrow icon Clerk adds to its primary submit buttons. */
+.cl-formButtonPrimary .cl-buttonArrowIcon {
+  display: none !important;
 }
 
 .cl-formButtonReset,
@@ -421,8 +433,13 @@ h1, h2, h3, h4, h5, h6 {
   color: #ccc !important;
 }
 
-[class*="cl-internal"][class*="bg"],
-[class*="cl-internal"][style*="background"] {
+/* NOTE: [class*="bg"] matches the substring "bg" anywhere in a class name,
+   including Clerk's random hashed classes (e.g. cl-internal-2l8bgd). That
+   accidentally forced a dark background onto the sign-in form. Exclude
+   .cl-form so the OTP screen's form stays transparent. The broad selector
+   is a smell worth replacing later with Clerk's actual bg class names. */
+[class*="cl-internal"][class*="bg"]:not(.cl-form),
+[class*="cl-internal"][style*="background"]:not(.cl-form) {
   background: #111 !important;
 }
 
