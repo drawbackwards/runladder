@@ -4,6 +4,7 @@ import { redis, lifetimeScansKey } from "@/lib/redis";
 import { FREE_LIFETIME_LIMIT, isPaidTier } from "@/lib/plans";
 import { getUserSubscription, grantComp } from "@/lib/tier";
 import { getUserStats } from "@/lib/scores";
+import { isInternalOrg } from "@/lib/orgs";
 
 export async function GET() {
   const { userId } = await auth();
@@ -12,17 +13,26 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Self-healing fallback: if the user belongs to any Clerk organization
-  // but doesn't yet have a team-tier comp (the webhook missed, the user
-  // pre-dates the webhook, or the secret is unconfigured), grant the comp
-  // here so the dashboard banner doesn't lie to them. Idempotent.
+  // Read the user's org memberships once: used both for the self-healing
+  // comp fallback below and to decide whether this is an internal
+  // Drawbackwards member (who shouldn't see the "Complimentary Team" strip —
+  // we built the product; the comp framing doesn't apply to us).
+  let internal = false;
   try {
     const client = await clerkClient();
+    const memberships = await client.users.getOrganizationMembershipList({
+      userId,
+    });
+    internal = memberships.data.some((m) =>
+      m.organization ? isInternalOrg(m.organization) : false,
+    );
+
+    // Self-healing fallback: if the user belongs to any Clerk organization
+    // but doesn't yet have a team-tier comp (the webhook missed, the user
+    // pre-dates the webhook, or the secret is unconfigured), grant the comp
+    // here so the dashboard banner doesn't lie to them. Idempotent.
     const sub = await getUserSubscription(userId);
     if (sub.tier === "free" || (sub.tier !== "team" && !sub.comp)) {
-      const memberships = await client.users.getOrganizationMembershipList({
-        userId,
-      });
       const firstOrg = memberships.data[0];
       if (firstOrg) {
         await grantComp(userId, {
@@ -68,6 +78,7 @@ export async function GET() {
     stats,
     tier: sub.tier,
     paid: isPaidTier(sub.tier),
+    internal,
     comp: sub.comp
       ? {
           reason: sub.comp.reason,
