@@ -107,6 +107,8 @@ type DashboardData = {
   usage: UsageInfo;
   tier: "free" | "pro" | "team" | "pulse";
   paid: boolean;
+  /** Member of the internal Drawbackwards org — suppresses the comp strip. */
+  internal?: boolean;
   comp: CompMeta | null;
 };
 
@@ -128,13 +130,19 @@ function UpgradeStrip({
   paid,
   tier,
   comp,
+  internal,
 }: {
   usage: UsageInfo;
   paid: boolean;
   tier: "free" | "pro" | "team" | "pulse";
   comp: CompMeta | null;
+  internal?: boolean;
 }) {
   const tierLabel = tier === "pro" ? "Pro" : tier === "team" ? "Team" : tier === "pulse" ? "Pulse" : "Free";
+
+  // Internal Drawbackwards members don't see any plan/comp strip — we built
+  // Ladder; the "Complimentary Team" framing doesn't apply to us.
+  if (internal) return null;
 
   if (paid && comp) {
     const expiry =
@@ -458,11 +466,12 @@ export default function DashboardPage() {
   const paid = data?.paid ?? false;
   const tier = data?.tier ?? "free";
   const comp = data?.comp ?? null;
+  const internal = data?.internal ?? false;
   const firstName = user?.firstName || null;
 
   return (
     <div className="pt-20 font-mono">
-      <UpgradeStrip usage={usage} paid={paid} tier={tier} comp={comp} />
+      <UpgradeStrip usage={usage} paid={paid} tier={tier} comp={comp} internal={internal} />
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="mb-8">
           <h1 className="text-xl text-foreground font-sans">
