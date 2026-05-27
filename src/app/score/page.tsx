@@ -266,7 +266,7 @@ function AnonSignupPrompt({
   const left = align === "left";
   return (
     <div
-      className={`border border-ladder-green/40 bg-ladder-green/[0.06] p-5 ${
+      className={`border border-ladder-green/40 bg-ladder-green/[0.06] p-8 ${
         left ? "" : "text-center"
       }`}
     >
@@ -280,13 +280,15 @@ function AnonSignupPrompt({
         }`}
       >
         <SignUpButton mode="modal" forceRedirectUrl="/score">
-          <button className="bg-ladder-green text-background font-semibold px-6 py-2.5 rounded-full hover:bg-ladder-green/90 transition-colors text-sm">
+          {/* Tool aesthetic: square corners, all-caps, mono (inherited).
+              Matches the "Upgrade to Pro" button. */}
+          <button className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest">
             Sign up free
           </button>
         </SignUpButton>
         <Link
           href="/login"
-          className="text-xs text-ladder-green hover:text-ladder-green/80 transition-colors"
+          className="text-xs font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors uppercase tracking-widest"
         >
           Sign in
         </Link>
@@ -642,12 +644,13 @@ export default function ScorePage() {
       )}
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-12">
 
-        {/* Anonymous visitor used their one free score. */}
+        {/* Anonymous visitor used their one free score. Box matches the
+            screenshot-preview width below it. */}
         {needSignup && isLoaded && !isSignedIn && !result && (
-          <div className="max-w-md mx-auto mb-10">
+          <div className="max-w-2xl mx-auto mb-10">
             <AnonSignupPrompt
-              headline="That's your free score"
-              sub="Sign up free to keep scoring — 5 scores included, no credit card."
+              headline="Sign up to keep scoring"
+              sub="5 free scores included, no credit card required."
             />
           </div>
         )}
@@ -685,7 +688,7 @@ export default function ScorePage() {
           <div className="mb-10">
             <AnonSignupPrompt
               headline="Sign up to start scoring"
-              sub="Sign up free to save this score to your dashboard and get 5 more scores."
+              sub="Sign up for free to save this score to your dashboard and get 4 more scores."
               align="left"
             />
           </div>
@@ -701,7 +704,7 @@ export default function ScorePage() {
                 <span className="text-ladder-green">earned its score.</span>
               </h1>
               <p className="text-sm text-body mt-4 max-w-md mx-auto leading-relaxed">
-                Drop a screen. Get the number. See exactly what to fix, and what level your experience is really at.
+                Drop a screen. Get the score. See exactly what to fix, and what level your experience is really at.
               </p>
             </div>
 
@@ -888,24 +891,42 @@ export default function ScorePage() {
         {/* ── Screenshot preview (upload) ── */}
         {showUploadUI && image && urlScreenshots.length === 0 && (
           <div className="max-w-2xl mx-auto space-y-6">
-            <div className="relative border border-[#333] bg-[#1e1e1e] p-1">
+            <div className="relative border border-[#333] bg-[#1e1e1e] p-8">
               <ScannerCorners />
               <img src={image} alt="Screenshot to score" className="w-full max-h-[420px] object-contain" />
             </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-[11px] text-muted tracking-wide truncate max-w-xs">{fileName}</span>
-                <button onClick={reset} className="text-[11px] text-muted hover:text-body uppercase tracking-widest transition-colors">
-                  Remove
+            {needSignup ? (
+              /* Free score already used — no re-score or remove; just a way
+                 back to the previous screen. */
+              <div className="flex items-center">
+                <button
+                  onClick={() => {
+                    // Go back in history, or fall back to the homepage when
+                    // /score was opened directly (no prior history entry).
+                    if (window.history.length > 1) router.back();
+                    else router.push("/");
+                  }}
+                  className="text-xs font-semibold uppercase tracking-widest text-foreground border border-[#333] px-8 py-3 hover:border-muted transition-colors"
+                >
+                  Go Back
                 </button>
               </div>
-              <button
-                onClick={() => scoreImage()}
-                className="bg-ladder-green text-[#1a1a1a] font-bold text-xs uppercase tracking-widest px-8 py-3 hover:bg-ladder-green/90 transition-colors"
-              >
-                Score this screen
-              </button>
-            </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] text-muted tracking-wide truncate max-w-xs">{fileName}</span>
+                  <button onClick={reset} className="text-[11px] text-muted hover:text-body uppercase tracking-widest transition-colors">
+                    Remove
+                  </button>
+                </div>
+                <button
+                  onClick={() => scoreImage()}
+                  className="bg-ladder-green text-[#1a1a1a] font-bold text-xs uppercase tracking-widest px-8 py-3 hover:bg-ladder-green/90 transition-colors"
+                >
+                  Score this screen
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -989,7 +1010,7 @@ export default function ScorePage() {
             <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-8">
               {/* Left: screenshot + URL thumbnails if applicable */}
               <div className="space-y-3">
-                <div className="relative border border-[#333] bg-[#1e1e1e] p-1">
+                <div className="relative border border-[#333] bg-[#1e1e1e] p-8">
                   <ScannerCorners />
                   <img src={image!} alt="Analyzed screenshot" className="w-full max-h-[420px] object-contain" />
                 </div>
