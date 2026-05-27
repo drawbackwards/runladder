@@ -182,6 +182,15 @@ export function UserMenu() {
   const paid = isPaidTier(tier);
   const tierLabel = TIER_LABEL[tier];
 
+  // Only real Stripe-paying Pro users get the "Subscription" row (it opens the
+  // Stripe customer portal). Comped users — including all Team/Pulse members,
+  // who are comped via the Drawbackwards engagement — have no Stripe customer,
+  // so the portal would fail to load (#204). Comp lives in publicMetadata;
+  // Stripe IDs are server-only (privateMetadata), so this is the reliable
+  // client-side signal. Team/Pulse/comped-Pro see no billing row (#201, #204).
+  const comped = user.publicMetadata?.comp === true;
+  const isStripePro = tier === "pro" && !comped;
+
   const fullName = user.fullName || user.firstName || "Account";
   const email = user.primaryEmailAddress?.emailAddress ?? "";
   const initial = (
@@ -300,7 +309,19 @@ export function UserMenu() {
                 onClick={() => setOpen(false)}
               />
             )}
-            {paid ? (
+            {tier === "free" ? (
+              <MenuRow
+                icon={ICON.billing}
+                label="Upgrade to Pro"
+                href="/pricing"
+                onClick={() => setOpen(false)}
+                meta={
+                  <span className="text-ladder-green text-[10px] uppercase tracking-widest font-semibold">
+                    $1,000/mo
+                  </span>
+                }
+              />
+            ) : isStripePro ? (
               <MenuRow
                 icon={ICON.billing}
                 label="Subscription"
@@ -315,19 +336,7 @@ export function UserMenu() {
                   </span>
                 }
               />
-            ) : (
-              <MenuRow
-                icon={ICON.billing}
-                label="Upgrade to Pro"
-                href="/pricing"
-                onClick={() => setOpen(false)}
-                meta={
-                  <span className="text-ladder-green text-[10px] uppercase tracking-widest font-semibold">
-                    $1,000/mo
-                  </span>
-                }
-              />
-            )}
+            ) : null}
             <MenuRow
               icon={ICON.settings}
               label="Settings"
