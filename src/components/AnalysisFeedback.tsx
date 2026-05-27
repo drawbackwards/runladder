@@ -107,7 +107,7 @@ export function AnalysisFeedback({ scoreId }: { scoreId: string }) {
         <button
           onClick={() => persist("up", note)}
           disabled={busy}
-          className={`text-xs font-semibold border px-4 py-2 rounded-sm transition-colors disabled:opacity-40 ${
+          className={`text-xs font-semibold uppercase tracking-widest border px-4 py-2 transition-colors disabled:opacity-40 ${
             rating === "up"
               ? "border-ladder-green text-ladder-green bg-ladder-green/10"
               : "border-[#333] text-muted hover:text-foreground hover:border-muted"
@@ -118,7 +118,7 @@ export function AnalysisFeedback({ scoreId }: { scoreId: string }) {
         <button
           onClick={() => persist("down", note)}
           disabled={busy}
-          className={`text-xs font-semibold border px-4 py-2 rounded-sm transition-colors disabled:opacity-40 ${
+          className={`text-xs font-semibold uppercase tracking-widest border px-4 py-2 transition-colors disabled:opacity-40 ${
             rating === "down"
               ? "border-ladder-red text-ladder-red bg-ladder-red/10"
               : "border-[#333] text-muted hover:text-foreground hover:border-muted"
