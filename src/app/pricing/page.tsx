@@ -46,7 +46,7 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
       "Scores are public",
     ],
     cta: "Start free",
-    href: "https://runladder.com/login#/create?redirect_url=https%3A%2F%2Frunladder.com%2Fdashboard",
+    href: "/sign-up",
     solidCta: true,
   },
   {
