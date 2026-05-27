@@ -343,10 +343,53 @@ export default function ScorePage() {
   // Guards the one-shot claim of a pending anonymous score after sign-up.
   const claimedRef = useRef(false);
 
-  // Load past scores on mount
+  // Recent-scores list source:
+  //  - Signed-in users: the account's backend-persisted scores (/api/dashboard),
+  //    so ids resolve at /dashboard/scores/[id] and we never surface another
+  //    account's — or a prior anonymous session's — localStorage entries.
+  //    localStorage is per-browser, not per-account, so trusting it here leaked
+  //    foreign scores and produced dead links.
+  //  - Signed-out users: the section is hidden entirely (see render gate), so
+  //    leave the list empty rather than show stale localStorage.
   useEffect(() => {
-    setPastScores(loadPastScores());
-  }, []);
+    if (!isLoaded) return;
+    if (!isSignedIn) {
+      setPastScores([]);
+      return;
+    }
+    let active = true;
+    fetch("/api/dashboard")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!active || !Array.isArray(d?.scores)) return;
+        setPastScores(
+          d.scores.map(
+            (s: {
+              id: string;
+              score: number;
+              label?: string;
+              summary?: string;
+              thumbnail?: string;
+              source?: string;
+              screenName?: string;
+              timestamp: number;
+            }): PastScore => ({
+              id: s.id,
+              score: s.score,
+              label: s.label ?? "",
+              summary: s.summary ?? "",
+              thumbnail: s.thumbnail ?? "",
+              source: s.source ?? s.screenName ?? "Untitled",
+              timestamp: s.timestamp,
+            }),
+          ),
+        );
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [isLoaded, isSignedIn]);
 
   // Claim-on-signup: once a visitor is signed in, attach any score they ran
   // while anonymous (stashed server-side under the ladder_anon_id cookie) to
@@ -549,7 +592,11 @@ export default function ScorePage() {
         throw new Error("Scoring ended without a result. Please try again.");
       }
 
-      // Save to local past scores (used by anon users for in-session history).
+      // Persist to localStorage for the anonymous in-session history only.
+      // The signed-in "recent scores" list is sourced from the account backend
+      // (see the mount effect), so we don't refresh the display from
+      // localStorage here — signed-in users are routed to the score detail
+      // below, and the anon recent-scores section is hidden.
       const entry: PastScore = {
         id: final.scoreId || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         score: final.score,
@@ -560,7 +607,6 @@ export default function ScorePage() {
         timestamp: Date.now(),
       };
       savePastScore(entry);
-      setPastScores(loadPastScores());
 
       // Signed-in users go to the full score detail in their dashboard.
       if (final.scoreId) {
