@@ -175,7 +175,7 @@ function ProfileCard() {
         <p className="text-sm text-foreground font-sans">
           {user.primaryEmailAddress?.emailAddress ?? "—"}
         </p>
-        <p className="text-[10px] text-muted font-sans mt-1">
+        <p className="text-xs text-muted font-sans mt-1">
           This is your sign-in email. We send your sign-in code here.
         </p>
       </div>
@@ -203,14 +203,28 @@ function GoogleCard() {
 
   if (!user) return null;
 
-  const google = user.externalAccounts.find((a) =>
-    (a.provider ?? "").includes("google"),
+  // Only a *verified* Google link counts as connected. createExternalAccount
+  // adds the record in an unverified state before the OAuth round-trip, so a
+  // cancelled attempt would otherwise show as "Connected".
+  const isGoogle = (a: { provider?: string }) =>
+    (a.provider ?? "").includes("google");
+  const google = user.externalAccounts.find(
+    (a) => isGoogle(a) && a.verification?.status === "verified",
   );
 
   async function connect() {
     setBusy(true);
     setError(null);
     try {
+      // Clear any stale unverified Google link left by a cancelled attempt so
+      // re-connecting doesn't collide.
+      const stale = user!.externalAccounts.find(
+        (a) => isGoogle(a) && a.verification?.status !== "verified",
+      );
+      if (stale) {
+        await stale.destroy();
+        await user!.reload();
+      }
       const ext = await user!.createExternalAccount({
         strategy: "oauth_google",
         redirectUrl: `${window.location.origin}/settings`,
@@ -253,7 +267,7 @@ function GoogleCard() {
               <span className="text-muted"> · {google.emailAddress}</span>
             ) : null}
           </p>
-          <p className="text-[10px] text-muted font-sans mt-1">
+          <p className="text-xs text-muted font-sans mt-1">
             You can sign in with Google. Disconnecting still leaves email
             sign-in, so you won&apos;t be locked out.
           </p>
@@ -269,7 +283,7 @@ function GoogleCard() {
       ) : (
         <>
           <p className="mt-4 text-sm text-foreground font-sans">Not connected</p>
-          <p className="text-[10px] text-muted font-sans mt-1">
+          <p className="text-xs text-muted font-sans mt-1">
             Connect Google to sign in with one click instead of an email code.
           </p>
           {error && (
@@ -318,7 +332,7 @@ function DangerCard() {
 
   return (
     <>
-      <div className="border border-ladder-red/30 bg-ladder-red/5 p-6">
+      <div className={CARD}>
         <span className="text-[9px] text-ladder-red uppercase tracking-widest font-semibold">
           Delete account
         </span>
