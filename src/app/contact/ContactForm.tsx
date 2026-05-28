@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 const INTERESTS = [
-  "Ladder for Teams beta",
+  "Ladder for Teams (beta)",
   "Organization plan for my team",
   "Enterprise deployment",
   "Ladder Pulse deployment",
@@ -22,7 +22,7 @@ function interestFromQuery(value: string | null): string | null {
   if (!value) return null;
   const v = value.toLowerCase();
   if (v === "teams-beta" || v === "ladder-for-teams-beta") {
-    return "Ladder for Teams beta";
+    return "Ladder for Teams (beta)";
   }
   if (v === "team" || v === "organization") {
     return "Organization plan for my team";
