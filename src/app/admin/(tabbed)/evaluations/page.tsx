@@ -60,7 +60,7 @@ export default function EvaluationsPage() {
       <div className="mb-6 flex items-baseline justify-end">
         <Link
           href="/admin/evaluations/new"
-          className="text-xs font-semibold bg-ladder-green text-background px-4 py-1.5 rounded-sm hover:bg-ladder-green/90 transition-colors"
+          className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green/90 transition-colors"
         >
           New evaluation
         </Link>

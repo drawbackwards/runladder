@@ -48,22 +48,29 @@ export default function AddClientPage() {
     }
   }
 
-  // Auth + access gating live in the admin layout (#231).
+  // Auth + access gating live in the parent /admin layout (#231).
+  // Sub-pages render their own chrome (back link, heading) since they're
+  // outside the (tabbed) route group.
 
   return (
-    <>
-      <div className="mb-6">
-        <h2 className="text-base text-foreground font-sans font-semibold">
-          Add Client
-        </h2>
-        <p className="text-xs text-muted font-sans mt-1">
-          Create a Team org and invite the Team Lead.
-        </p>
-      </div>
+    <div className="pt-20 font-mono">
+      <div className="max-w-3xl mx-auto px-6 py-10">
+        <Link
+          href="/admin/clients"
+          className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors inline-block mb-4"
+        >
+          ← Clients
+        </Link>
+        <div className="mb-6">
+          <h1 className="text-xl text-foreground font-sans">Add Client</h1>
+          <p className="text-xs text-muted font-sans mt-1">
+            Create a Team org and invite the Team Lead.
+          </p>
+        </div>
 
         <form
           onSubmit={submit}
-          className="border border-[#333] bg-[#1e1e1e] p-4"
+          className="border border-[#333] bg-[#1e1e1e] p-6"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
@@ -123,12 +130,13 @@ export default function AddClientPage() {
             <button
               type="submit"
               disabled={busy}
-              className="text-xs font-semibold bg-ladder-green text-background px-4 py-1.5 rounded-sm hover:bg-ladder-green/90 transition-colors disabled:opacity-40"
+              className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {busy ? "Provisioning…" : "Create org + invite Lead"}
             </button>
           </div>
         </form>
-    </>
+      </div>
+    </div>
   );
 }

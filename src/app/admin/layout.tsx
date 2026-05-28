@@ -1,32 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
-import { TabButton } from "@/components/Tabs";
 
 /**
- * Shared shell for every /admin/* route (#231). Owns the page header, the
- * platform-admin gate (via `/api/admin/status`), and the tab bar that replaces
- * the old top-of-page button nav. Sub-pages render only their section content;
- * the wrapper, auth panel, and tabs all live here.
+ * Top-level /admin auth gate. Applies to every admin route (tabbed pages in
+ * `(tabbed)/...` AND drill-in sub-pages like `/admin/clients/new` or
+ * `/admin/evaluations/new` that live outside the route group). The tab bar
+ * and "Admin" header live in `(tabbed)/layout.tsx`, so sub-pages get a clean
+ * full-page surface they can compose with their own back link + heading.
  */
-
-const TABS = [
-  { label: "Clients", href: "/admin/clients" },
-  { label: "Evaluations", href: "/admin/evaluations" },
-  { label: "Feedback", href: "/admin/feedback" },
-  { label: "Comps", href: "/admin/comps" },
-  { label: "Beta Codes", href: "/admin/beta-codes" },
-] as const;
-
-export default function AdminLayout({
+export default function AdminAuthGate({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const { isLoaded, isSignedIn } = useAuth();
-  const pathname = usePathname() ?? "";
   const [authorized, setAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -64,26 +53,9 @@ export default function AdminLayout({
     );
   }
 
-  // While auth is still resolving, render the shell with no content so the
-  // page doesn't flash either state.
-  return (
-    <div className="pt-20 font-mono">
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="mb-6">
-          <h1 className="text-xl text-foreground font-sans">Admin</h1>
-        </div>
-        <div className="border-b border-[#2a2a2a] flex items-center gap-2 mb-8 overflow-x-auto">
-          {TABS.map((t) => (
-            <TabButton
-              key={t.href}
-              label={t.label}
-              href={t.href}
-              active={pathname.startsWith(t.href)}
-            />
-          ))}
-        </div>
-        {authorized === null ? null : children}
-      </div>
-    </div>
-  );
+  // Hold rendering while we resolve admin status so neither a non-admin nor
+  // an unauthorized flash appears.
+  if (authorized === null) return null;
+
+  return <>{children}</>;
 }
