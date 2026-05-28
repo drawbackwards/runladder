@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -13,9 +12,7 @@ import Link from "next/link";
  * /api/admin/status so non-admins never see the form.
  */
 export default function AddClientPage() {
-  const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
-  const [authorized, setAuthorized] = useState<boolean | null>(null);
 
   const [orgName, setOrgName] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -24,21 +21,7 @@ export default function AddClientPage() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!isSignedIn) return;
-    let active = true;
-    fetch("/api/admin/status")
-      .then((r) => (r.ok ? r.json() : { admin: false }))
-      .then((d) => {
-        if (active) setAuthorized(d.admin === true);
-      })
-      .catch(() => {
-        if (active) setAuthorized(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [isSignedIn]);
+  // Auth + access gating live in the admin layout (#231).
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -65,35 +48,29 @@ export default function AddClientPage() {
     }
   }
 
-  if (!isLoaded) return null;
-  if (!isSignedIn) return <RedirectToSignIn />;
-
-  if (authorized === false) {
-    return (
-      <div className="pt-20 max-w-2xl mx-auto px-6 py-20">
-        <h1 className="text-xl font-bold font-sans mb-3">Admin access required</h1>
-        <p className="text-sm text-muted font-sans">
-          Your Clerk account is signed in but not on the admin allowlist. If this
-          is a mistake, check <code className="text-foreground">ADMIN_EMAILS</code>{" "}
-          in runladder&apos;s Vercel env vars.
-        </p>
-      </div>
-    );
-  }
+  // Auth + access gating live in the parent /admin layout (#231).
+  // Sub-pages render their own chrome (back link, heading) since they're
+  // outside the (tabbed) route group.
 
   return (
     <div className="pt-20 font-mono">
       <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="mb-8">
-          <h1 className="text-xl text-foreground font-sans">Add Client</h1>
+        <Link
+          href="/admin/clients"
+          className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors inline-block mb-4"
+        >
+          ← Clients
+        </Link>
+        <div className="mb-6">
+          <h1 className="text-xl text-foreground font-sans">Add Team Client</h1>
           <p className="text-xs text-muted font-sans mt-1">
-            Create a Team org and invite the Team Lead
+            Create a Team org and invite the Team Lead.
           </p>
         </div>
 
         <form
           onSubmit={submit}
-          className="border border-[#333] bg-[#1e1e1e] p-4"
+          className="border border-[#333] bg-[#1e1e1e] p-6"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
@@ -153,7 +130,7 @@ export default function AddClientPage() {
             <button
               type="submit"
               disabled={busy}
-              className="text-xs font-semibold bg-ladder-green text-background px-4 py-1.5 rounded-sm hover:bg-ladder-green/90 transition-colors disabled:opacity-40"
+              className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {busy ? "Provisioning…" : "Create org + invite Lead"}
             </button>
