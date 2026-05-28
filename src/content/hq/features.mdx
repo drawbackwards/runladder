@@ -1,8 +1,8 @@
 ---
 title: Feature Inventory
-updatedAt: 2026-05-26
+updatedAt: 2026-05-27
 updatedBy: Sara
-lastPr: 200
+lastPr: 225
 ---
 
 ## How to read this page
@@ -44,7 +44,7 @@ When you ship a feature, add the row here in the same PR. Template:
 | Public profile (`/[username]`) | All signed-in | Roadmap | No route yet |
 | Ladder Lift CTA on sub-3.0 scores | Free | Roadmap | No code yet |
 | Teardowns (`/teardowns`) | Public | Roadmap | No route yet |
-| `/dashboard/settings` (account, billing, API keys) | All signed-in | Roadmap | No route yet |
+| Account settings (`/settings`): profile, Google connect/disconnect, delete account | All signed-in | Live (PR #225) | `src/app/settings/page.tsx` (#203). Replaces Clerk's `openUserProfile()` modal. Billing + API-key sections still roadmap. |
 
 ## Figma plugin: `drawbackwards/ai-design-assistant` + runladder backend
 
@@ -112,7 +112,7 @@ The dedicated public surface at `api.runladder.com` does not exist (domain doesn
 | `api.runladder.com` domain registered + configured | Roadmap | DNS returns NXDOMAIN today |
 | Public `POST /v1/score` with Bearer auth | Roadmap | No code yet |
 | Public `GET /v1/framework` | Roadmap | Internal `/api/framework` exists; public version pending |
-| API key issuance UI (`/dashboard/settings`) | Roadmap | No route yet |
+| API key issuance UI (`/settings`) | Roadmap | Account settings live at `/settings`; key-issuance section pending |
 | Rate-limit response (429 + `Retry-After`) | Roadmap | Today returns 401/403 with tier-specific messages |
 | MCP server with `ladder.score`, `ladder.framework`, `ladder.account` tools | Roadmap | No code yet |
 | OpenAPI spec | Roadmap | No spec written |

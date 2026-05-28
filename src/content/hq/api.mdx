@@ -1,8 +1,8 @@
 ---
 title: API Protocols
-updatedAt: 2026-05-19
+updatedAt: 2026-05-27
 updatedBy: Sara
-lastPr: 179
+lastPr: 225
 ---
 
 ## Two surfaces, one to come
@@ -67,7 +67,7 @@ Detailed request/response shape lives in the route file. When the public API shi
 | Public API key | **Roadmap** | Bearer `ldr_live_...` | UI doesn't exist yet (issuance is roadmap) |
 | MCP | **Roadmap** | Bearer in MCP config | n/a |
 
-There is **no `/dashboard/settings` route today**. Plugin and Skill tokens are issued via API calls from in-product flows. The settings UI that issues these tokens is roadmap.
+The account settings page lives at **`/settings`** (#203: profile, Google connection, account deletion). It does **not** yet issue API keys or Plugin/Skill tokens — those are still issued via API calls from in-product flows, and the key-issuance section of `/settings` is roadmap.
 
 ## Versioning
 
@@ -118,4 +118,4 @@ Until that ships, anything you read in this page about "v1/score" paths, MCP too
 
 ## Key rotation (target state)
 
-Once API key issuance UI ships, keys rotate from `/dashboard/settings`. Old tokens valid for 24 hours after rotation. Today, Plugin and Skill tokens rotate by re-issuing via the API. Admin allowlists rotate via `ADMIN_EMAILS` env vars; `SUPER_ADMIN_EMAILS` rotates only via PR + deploy + Ward's passphrase.
+Once API key issuance UI ships, keys rotate from `/settings`. Old tokens valid for 24 hours after rotation. Today, Plugin and Skill tokens rotate by re-issuing via the API. Admin allowlists rotate via `ADMIN_EMAILS` env vars; `SUPER_ADMIN_EMAILS` rotates only via PR + deploy + Ward's passphrase.

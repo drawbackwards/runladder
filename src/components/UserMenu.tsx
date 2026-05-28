@@ -136,7 +136,7 @@ function MenuRow({
 
 export function UserMenu() {
   const { user, isLoaded } = useUser();
-  const { signOut, openUserProfile } = useClerk();
+  const { signOut } = useClerk();
   const { organization } = useOrganization();
   const [open, setOpen] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -340,10 +340,8 @@ export function UserMenu() {
             <MenuRow
               icon={ICON.settings}
               label="Settings"
-              onClick={() => {
-                setOpen(false);
-                openUserProfile();
-              }}
+              href="/settings"
+              onClick={() => setOpen(false)}
             />
           </div>
 
