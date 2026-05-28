@@ -137,7 +137,11 @@ function ProfileCard() {
           )}
         </span>
         <label className="cursor-pointer text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors">
-          {uploading ? "Uploading…" : "Change photo"}
+          {uploading
+            ? "Uploading…"
+            : user.hasImage
+              ? "Change photo"
+              : "Upload photo"}
           <input
             type="file"
             accept="image/png,image/jpeg,image/webp"
