@@ -146,9 +146,9 @@ export function AnalysisFeedback({ scoreId }: { scoreId: string }) {
             <button
               onClick={() => persist(rating, note)}
               disabled={busy || note === (existing?.note ?? "")}
-              className="text-xs font-semibold bg-ladder-green text-background px-3 py-1.5 rounded-sm hover:bg-ladder-green/90 transition-colors disabled:opacity-40"
+              className="text-[10px] font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-3 py-1.5 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {busy ? "Saving…" : submitted ? "Update note" : "Save note"}
+              {busy ? "Submitting…" : "Submit feedback"}
             </button>
             <span className="text-[10px] text-muted font-sans">
               Optional. Your note goes to the team that tunes the scoring engine.
