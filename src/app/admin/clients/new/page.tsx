@@ -62,7 +62,7 @@ export default function AddClientPage() {
           ← Clients
         </Link>
         <div className="mb-6">
-          <h1 className="text-xl text-foreground font-sans">Add Client</h1>
+          <h1 className="text-xl text-foreground font-sans">Add Team Client</h1>
           <p className="text-xs text-muted font-sans mt-1">
             Create a Team org and invite the Team Lead.
           </p>

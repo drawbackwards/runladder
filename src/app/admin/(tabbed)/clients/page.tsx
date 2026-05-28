@@ -146,7 +146,7 @@ export default function ManageClientsPage() {
             href="/admin/clients/new"
             className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green/90 transition-colors"
           >
-            Add Client
+            Add Team Client
           </Link>
         </div>
       </div>
