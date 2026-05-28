@@ -155,7 +155,7 @@ flowchart LR
 flowchart LR
   SignUp["Sign up on runladder.com"]
   Upgrade["Upgrade to Pro or Teams"]
-  Settings["/dashboard/settings"]
+  Settings["/settings"]
   Key["Generate API key"]
   Call["POST /v1/score"]
   Response["Score + X-Ladder-API-Version header"]
