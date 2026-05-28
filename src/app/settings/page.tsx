@@ -122,7 +122,7 @@ function ProfileCard() {
       <span className={LABEL}>Profile</span>
 
       <div className="mt-4 flex items-center gap-4">
-        <span className="relative block w-14 h-14 rounded-full overflow-hidden bg-[#111] flex-shrink-0">
+        <span className="relative block w-28 h-28 rounded-full overflow-hidden bg-[#111] flex-shrink-0">
           {user.hasImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -131,7 +131,7 @@ function ProfileCard() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="absolute inset-0 flex items-center justify-center bg-ladder-green text-[#1a1a1a] text-lg font-semibold uppercase">
+            <span className="absolute inset-0 flex items-center justify-center bg-ladder-green text-[#1a1a1a] text-3xl font-semibold uppercase">
               {initial}
             </span>
           )}
