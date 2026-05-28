@@ -10,6 +10,7 @@ import {
   type DailyActivity,
 } from "@/components/ActivityHeatmap";
 import { Avatar } from "@/components/Avatar";
+import { TabButton } from "@/components/Tabs";
 
 type ScoreEntry = {
   id: string;
@@ -108,39 +109,6 @@ function StatPill({
         {value}
       </p>
     </div>
-  );
-}
-
-function TabButton({
-  label,
-  count,
-  active,
-  onClick,
-}: {
-  label: string;
-  count: number;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`text-[11px] uppercase tracking-widest px-4 py-3 border-b-2 transition-colors ${
-        active
-          ? "text-foreground border-ladder-green"
-          : "text-muted border-transparent hover:text-foreground"
-      }`}
-    >
-      {label}{" "}
-      <span
-        className={`ml-1 font-mono ${
-          active ? "text-ladder-green" : "text-[#3a3a3a]"
-        }`}
-      >
-        {count}
-      </span>
-    </button>
   );
 }
 

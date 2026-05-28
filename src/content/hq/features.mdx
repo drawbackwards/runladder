@@ -136,7 +136,8 @@ Gated by `ADMIN_EMAILS` env var. Defaults: Ward, Michael, Jordan.
 | Provision Team org + invite Team Lead as `org:admin` | Admin | Live (v0.5.5) | `src/app/api/admin/clients/route.ts` |
 | Org lifecycle: suspend / reactivate / delete (type-to-confirm) | Admin | Live (v0.5.5) | `src/app/api/admin/clients/[orgId]/route.ts` |
 | Internal-org protection (Drawbackwards never suspended/deleted) | Admin | Live (v0.5.5) | `src/lib/orgs.ts` `isInternalOrg` |
-| Admin-only "Manage Clients" nav in Account menu | Admin | Live (v0.5.5) | `src/components/UserMenu.tsx`, `src/app/api/admin/status/route.ts` |
+| Admin-only "Admin" entry in Account menu (single row; lands on Clients tab) | Admin | Live | `src/components/UserMenu.tsx`, `src/app/api/admin/status/route.ts` |
+| Unified Admin shell with tabs (Clients / Evaluations / Feedback / Comps / Beta Codes) | Admin | Live (#231) | `src/app/admin/layout.tsx`, `src/components/Tabs.tsx` |
 
 ## Ladder HQ (`/hq`)
 

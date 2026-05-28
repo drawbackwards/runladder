@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import type { Evaluation } from "@/lib/evaluation";
 
@@ -26,7 +26,7 @@ const MODE_LABEL: Record<string, string> = {
 };
 
 export default function EvaluationsPage() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn } = useAuth();
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,29 +53,18 @@ export default function EvaluationsPage() {
     if (isSignedIn) load();
   }, [isSignedIn]);
 
-  if (!isLoaded) return null;
-  if (!isSignedIn) return <RedirectToSignIn />;
+  // Auth + access gating live in the admin layout (#231).
 
   return (
-    <div className="pt-20 font-mono">
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        {/* Nav */}
-        <div className="mb-8 flex items-baseline justify-between">
-          <div>
-            <div className="text-[10px] uppercase tracking-widest text-muted mb-1 font-sans">
-              <Link href="/admin" className="hover:text-foreground transition-colors">Admin</Link>
-              <span className="mx-1.5">/</span>
-              <span className="text-foreground">Evaluations</span>
-            </div>
-            <h1 className="text-xl text-foreground font-sans">Evaluations</h1>
-          </div>
-          <Link
-            href="/admin/evaluations/new"
-            className="text-xs font-semibold bg-ladder-green text-background px-4 py-1.5 rounded-sm hover:bg-ladder-green/90 transition-colors"
-          >
-            New evaluation
-          </Link>
-        </div>
+    <>
+      <div className="mb-6 flex items-baseline justify-end">
+        <Link
+          href="/admin/evaluations/new"
+          className="text-xs font-semibold bg-ladder-green text-background px-4 py-1.5 rounded-sm hover:bg-ladder-green/90 transition-colors"
+        >
+          New evaluation
+        </Link>
+      </div>
 
         {error && (
           <div className="mb-6 border border-red-500/40 bg-red-500/5 text-red-400 text-xs font-sans p-3">
@@ -158,7 +147,6 @@ export default function EvaluationsPage() {
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
+    </>
   );
 }
