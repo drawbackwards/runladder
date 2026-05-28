@@ -91,7 +91,7 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
       "Access to customer sentiment and Ladder Pulse scoring data + insights, if subscribed (coming soon)",
       "Audit toolkit with redline annotations on every score (coming soon)",
     ],
-    cta: "Apply to be a beta tester",
+    cta: "Talk to us about Teams",
     href: "/contact?interest=teams-beta",
     solidCta: false,
   },
