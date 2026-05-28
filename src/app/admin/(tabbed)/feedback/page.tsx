@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
-import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
 import { getScoreColor } from "@/lib/ladder";
 
 type FeedbackEntry = {
@@ -38,10 +37,9 @@ function fmtTime(ts: number): string {
 }
 
 export default function AdminFeedbackPage() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn } = useAuth();
   const [entries, setEntries] = useState<FeedbackEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [authorized, setAuthorized] = useState<boolean | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
@@ -51,7 +49,7 @@ export default function AdminFeedbackPage() {
       try {
         const res = await fetch("/api/admin/feedback?limit=200");
         if (res.status === 403) {
-          if (!cancelled) setAuthorized(false);
+          // Should not happen: layout gates access before this page mounts.
           return;
         }
         if (!res.ok) {
@@ -59,7 +57,6 @@ export default function AdminFeedbackPage() {
         }
         const json = await res.json();
         if (!cancelled) {
-          setAuthorized(true);
           setEntries(json.feedback ?? []);
         }
       } catch (e) {
@@ -74,41 +71,19 @@ export default function AdminFeedbackPage() {
     };
   }, [isSignedIn]);
 
-  if (!isLoaded) return null;
-  if (!isSignedIn) return <RedirectToSignIn />;
-
-  if (authorized === false) {
-    return (
-      <div className="pt-20 max-w-2xl mx-auto px-6 py-20">
-        <h1 className="text-xl font-bold font-sans mb-3">Admin access required</h1>
-        <p className="text-sm text-muted font-sans">
-          Your Clerk account is signed in but not on the admin allowlist.
-        </p>
-      </div>
-    );
-  }
+  // Auth + access gating live in the admin layout (#231).
 
   const helpful = entries.filter((e) => e.rating === "up").length;
   const offBase = entries.filter((e) => e.rating === "down").length;
   const noted = entries.filter((e) => e.note.trim().length > 0).length;
 
   return (
-    <div className="pt-20 font-mono">
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="mb-8 flex items-baseline justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-xl text-foreground font-sans">Analysis feedback</h1>
-            <p className="text-xs text-muted font-sans mt-1">
-              Score-by-score feedback from authenticated users.
-            </p>
-          </div>
-          <Link
-            href="/admin"
-            className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
-          >
-            ← Admin
-          </Link>
-        </div>
+    <>
+      <div className="mb-6">
+        <p className="text-xs text-muted font-sans">
+          Score-by-score feedback from authenticated users.
+        </p>
+      </div>
 
         {err && (
           <div className="mb-6 border border-ladder-red/40 bg-ladder-red/5 text-ladder-red text-xs font-sans p-3">
@@ -226,7 +201,6 @@ export default function AdminFeedbackPage() {
             </ul>
           )}
         </div>
-      </div>
-    </div>
+    </>
   );
 }

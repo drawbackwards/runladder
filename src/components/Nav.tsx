@@ -15,6 +15,7 @@ export function Nav() {
   const inProduct =
     pathname?.startsWith("/dashboard") ||
     pathname?.startsWith("/score") ||
+    pathname?.startsWith("/settings") ||
     pathname?.startsWith("/hq") ||
     pathname?.startsWith("/admin") ||
     false;

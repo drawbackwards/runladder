@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
-import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
 
 type CompRow = {
   status: "active" | "pending";
@@ -40,8 +39,7 @@ function fmtRelative(ms: number | undefined): string {
 }
 
 export default function CompsAdminPage() {
-  const { isSignedIn, isLoaded } = useAuth();
-  const [authorized, setAuthorized] = useState<boolean | null>(null);
+  const { isSignedIn } = useAuth();
   const [comps, setComps] = useState<CompRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
@@ -62,10 +60,9 @@ export default function CompsAdminPage() {
     try {
       const res = await fetch("/api/admin/comps");
       if (res.status === 403) {
-        setAuthorized(false);
+        // Should not happen: layout gates access before this page mounts.
         return;
       }
-      setAuthorized(true);
       if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
       const json = (await res.json()) as { comps: CompRow[] };
       setComps(json.comps || []);
@@ -143,51 +140,27 @@ export default function CompsAdminPage() {
     }
   }
 
-  if (!isLoaded) return null;
-  if (!isSignedIn) return <RedirectToSignIn />;
-
-  if (authorized === false) {
-    return (
-      <div className="pt-20 max-w-2xl mx-auto px-6 py-20">
-        <h1 className="text-xl font-bold font-sans mb-3">Admin access required</h1>
-        <p className="text-sm text-muted font-sans">
-          Your Clerk account is signed in but not on the admin allowlist.
-        </p>
-      </div>
-    );
-  }
+  // Auth + access gating live in the admin layout (#231).
 
   const formValid = email.trim() && reason.trim();
   const pendingCount = comps.filter((c) => c.status === "pending").length;
   const activeCount = comps.filter((c) => c.status === "active").length;
 
   return (
-    <div className="pt-20 font-mono">
-      <div className="max-w-5xl mx-auto px-6 py-10">
-        <div className="mb-8 flex items-baseline justify-between">
-          <div>
-            <h1 className="text-xl text-foreground font-sans">Complimentary access</h1>
-            <p className="text-xs text-muted font-sans mt-1">
-              Grant Pro, Team, or Pulse without a Stripe charge — partners,
-              friends, customers in flight.
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/admin"
-              className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
-            >
-              ← Admin
-            </Link>
-            <button
-              onClick={refresh}
-              disabled={loading}
-              className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
-            >
-              {loading ? "Loading…" : "Refresh"}
-            </button>
-          </div>
-        </div>
+    <>
+      <div className="mb-6 flex items-baseline justify-between">
+        <p className="text-xs text-muted font-sans">
+          Grant Pro, Team, or Pulse without a Stripe charge — partners,
+          friends, customers in flight.
+        </p>
+        <button
+          onClick={refresh}
+          disabled={loading}
+          className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+        >
+          {loading ? "Loading…" : "Refresh"}
+        </button>
+      </div>
 
         {err && (
           <div className="mb-6 border border-ladder-red/40 bg-ladder-red/5 text-ladder-red text-xs font-sans p-3">
@@ -394,7 +367,6 @@ export default function CompsAdminPage() {
             </table>
           </div>
         </section>
-      </div>
-    </div>
+    </>
   );
 }

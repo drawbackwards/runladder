@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 
 type TeamClient = {
@@ -34,8 +34,7 @@ function fmtDate(ms: number | null | undefined) {
 }
 
 export default function ManageClientsPage() {
-  const { isSignedIn, isLoaded } = useAuth();
-  const [authorized, setAuthorized] = useState<boolean | null>(null);
+  const { isSignedIn } = useAuth();
   const [teamClients, setTeamClients] = useState<TeamClient[]>([]);
   const [proClients, setProClients] = useState<ProClient[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,10 +51,9 @@ export default function ManageClientsPage() {
     try {
       const res = await fetch("/api/admin/clients");
       if (res.status === 403) {
-        setAuthorized(false);
+        // Should not happen: layout gates access before this page mounts.
         return;
       }
-      setAuthorized(true);
       if (!res.ok) throw new Error(`Clients fetch ${res.status}`);
       const j = await res.json();
       setTeamClients(j.teamClients || []);
@@ -128,48 +126,30 @@ export default function ManageClientsPage() {
     }
   }
 
-  if (!isLoaded) return null;
-  if (!isSignedIn) return <RedirectToSignIn />;
-
-  if (authorized === false) {
-    return (
-      <div className="pt-20 max-w-2xl mx-auto px-6 py-20">
-        <h1 className="text-xl font-bold font-sans mb-3">Admin access required</h1>
-        <p className="text-sm text-muted font-sans">
-          Your Clerk account is signed in but not on the admin allowlist. If this
-          is a mistake, check <code className="text-foreground">ADMIN_EMAILS</code>{" "}
-          in runladder&apos;s Vercel env vars.
-        </p>
-      </div>
-    );
-  }
+  // Auth + access gating live in the admin layout (#231).
 
   return (
-    <div className="pt-20 font-mono">
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="mb-8 flex items-baseline justify-between">
-          <div>
-            <h1 className="text-xl text-foreground font-sans">Manage Clients</h1>
-            <p className="text-xs text-muted font-sans mt-1">
-              Team orgs (provisioned) and Pro subscribers
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={refresh}
-              disabled={loading}
-              className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
-            >
-              {loading ? "Loading…" : "Refresh"}
-            </button>
-            <Link
-              href="/admin/clients/new"
-              className="text-xs font-semibold bg-ladder-green text-background px-4 py-1.5 rounded-sm hover:bg-ladder-green/90 transition-colors"
-            >
-              Add Client
-            </Link>
-          </div>
+    <>
+      <div className="mb-6 flex items-baseline justify-between">
+        <p className="text-xs text-muted font-sans">
+          Team orgs (provisioned) and Pro subscribers
+        </p>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={refresh}
+            disabled={loading}
+            className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+          >
+            {loading ? "Loading…" : "Refresh"}
+          </button>
+          <Link
+            href="/admin/clients/new"
+            className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green/90 transition-colors"
+          >
+            Add Team Client
+          </Link>
         </div>
+      </div>
 
         {error && (
           <div className="mb-6 border border-ladder-red/40 bg-ladder-red/5 text-ladder-red text-xs font-sans p-3">
@@ -321,7 +301,6 @@ export default function ManageClientsPage() {
             </table>
           </div>
         </section>
-      </div>
 
       {/* Branded delete-confirmation modal (placeholder until a shared
           Dialog component exists). Type-the-name to confirm; destructive
@@ -379,6 +358,6 @@ export default function ManageClientsPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

@@ -1,8 +1,8 @@
 ---
 title: Feature Inventory
-updatedAt: 2026-05-26
+updatedAt: 2026-05-28
 updatedBy: Sara
-lastPr: 200
+lastPr: 232
 ---
 
 ## How to read this page
@@ -44,7 +44,7 @@ When you ship a feature, add the row here in the same PR. Template:
 | Public profile (`/[username]`) | All signed-in | Roadmap | No route yet |
 | Ladder Lift CTA on sub-3.0 scores | Free | Roadmap | No code yet |
 | Teardowns (`/teardowns`) | Public | Roadmap | No route yet |
-| `/dashboard/settings` (account, billing, API keys) | All signed-in | Roadmap | No route yet |
+| Account settings (`/settings`): profile, Google connect/disconnect, delete account | All signed-in | Live (PR #229) | `src/app/settings/page.tsx` (#203). Replaces Clerk's `openUserProfile()` modal. Billing + API-key sections still roadmap. |
 
 ## Figma plugin: `drawbackwards/ai-design-assistant` + runladder backend
 
@@ -112,7 +112,7 @@ The dedicated public surface at `api.runladder.com` does not exist (domain doesn
 | `api.runladder.com` domain registered + configured | Roadmap | DNS returns NXDOMAIN today |
 | Public `POST /v1/score` with Bearer auth | Roadmap | No code yet |
 | Public `GET /v1/framework` | Roadmap | Internal `/api/framework` exists; public version pending |
-| API key issuance UI (`/dashboard/settings`) | Roadmap | No route yet |
+| API key issuance UI (`/settings`) | Roadmap | Account settings live at `/settings`; key-issuance section pending |
 | Rate-limit response (429 + `Retry-After`) | Roadmap | Today returns 401/403 with tier-specific messages |
 | MCP server with `ladder.score`, `ladder.framework`, `ladder.account` tools | Roadmap | No code yet |
 | OpenAPI spec | Roadmap | No spec written |
@@ -136,7 +136,8 @@ Gated by `ADMIN_EMAILS` env var. Defaults: Ward, Michael, Jordan.
 | Provision Team org + invite Team Lead as `org:admin` | Admin | Live (v0.5.5) | `src/app/api/admin/clients/route.ts` |
 | Org lifecycle: suspend / reactivate / delete (type-to-confirm) | Admin | Live (v0.5.5) | `src/app/api/admin/clients/[orgId]/route.ts` |
 | Internal-org protection (Drawbackwards never suspended/deleted) | Admin | Live (v0.5.5) | `src/lib/orgs.ts` `isInternalOrg` |
-| Admin-only "Manage Clients" nav in Account menu | Admin | Live (v0.5.5) | `src/components/UserMenu.tsx`, `src/app/api/admin/status/route.ts` |
+| Admin-only "Admin" entry in Account menu (single row; lands on Clients tab) | Admin | Live | `src/components/UserMenu.tsx`, `src/app/api/admin/status/route.ts` |
+| Unified Admin shell with tabs (Clients / Evaluations / Feedback / Comps / Beta Codes) | Admin | Live (#231) | `src/app/admin/layout.tsx`, `src/components/Tabs.tsx` |
 
 ## Ladder HQ (`/hq`)
 

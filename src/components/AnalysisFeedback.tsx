@@ -140,15 +140,21 @@ export function AnalysisFeedback({ scoreId }: { scoreId: string }) {
             }
             rows={2}
             maxLength={1000}
-            className="w-full bg-[#111] border border-[#333] text-sm text-foreground p-2 focus:outline-none focus:border-muted placeholder:text-[#555] resize-y font-sans"
+            className="w-full bg-[#111] border border-[#333] text-sm text-foreground p-2 focus:outline-none focus:border-ladder-green placeholder:text-[#555] resize-y font-sans"
           />
           <div className="flex items-center gap-3">
             <button
               onClick={() => persist(rating, note)}
               disabled={busy || note === (existing?.note ?? "")}
-              className="text-xs font-semibold bg-ladder-green text-background px-3 py-1.5 rounded-sm hover:bg-ladder-green/90 transition-colors disabled:opacity-40"
+              className="text-[10px] font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-3 py-1.5 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {busy ? "Saving…" : submitted ? "Update note" : "Save note"}
+              {busy
+                ? submitted
+                  ? "Saving…"
+                  : "Submitting…"
+                : submitted
+                  ? "Save Feedback"
+                  : "Submit Feedback"}
             </button>
             <span className="text-[10px] text-muted font-sans">
               Optional. Your note goes to the team that tunes the scoring engine.

@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -21,7 +20,6 @@ function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 export default function NewEvaluationPage() {
-  const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
 
   const [clientName, setClientName] = useState("");
@@ -83,21 +81,18 @@ export default function NewEvaluationPage() {
     }
   }
 
-  if (!isLoaded) return null;
-  if (!isSignedIn) return <RedirectToSignIn />;
+  // Auth + access gating live in the parent /admin layout.
 
   return (
     <div className="pt-20 font-mono">
-      <div className="max-w-3xl mx-auto px-6 py-10">
-        {/* Nav */}
-        <div className="mb-8">
-          <div className="text-[10px] uppercase tracking-widest text-muted mb-1 font-sans">
-            <Link href="/admin" className="hover:text-foreground transition-colors">Admin</Link>
-            <span className="mx-1.5">/</span>
-            <Link href="/admin/evaluations" className="hover:text-foreground transition-colors">Evaluations</Link>
-            <span className="mx-1.5">/</span>
-            <span className="text-foreground">New</span>
-          </div>
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        <Link
+          href="/admin/evaluations"
+          className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors inline-block mb-4"
+        >
+          ← Evaluations
+        </Link>
+        <div className="mb-6">
           <h1 className="text-xl text-foreground font-sans">New evaluation</h1>
         </div>
 
@@ -107,7 +102,10 @@ export default function NewEvaluationPage() {
           </div>
         )}
 
-        <form onSubmit={submit} className="space-y-6">
+        <form
+          onSubmit={submit}
+          className="border border-[#333] bg-[#1e1e1e] p-6 space-y-6"
+        >
           {/* Client + project + auditor */}
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -231,7 +229,7 @@ export default function NewEvaluationPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="text-sm font-semibold bg-ladder-green text-background px-6 py-2 rounded-sm hover:bg-ladder-green/90 transition-colors disabled:opacity-40"
+              className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {submitting ? "Creating…" : "Create evaluation"}
             </button>

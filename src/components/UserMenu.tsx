@@ -136,7 +136,7 @@ function MenuRow({
 
 export function UserMenu() {
   const { user, isLoaded } = useUser();
-  const { signOut, openUserProfile } = useClerk();
+  const { signOut } = useClerk();
   const { organization } = useOrganization();
   const [open, setOpen] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -340,22 +340,16 @@ export function UserMenu() {
             <MenuRow
               icon={ICON.settings}
               label="Settings"
-              onClick={() => {
-                setOpen(false);
-                openUserProfile();
-              }}
+              href="/settings"
+              onClick={() => setOpen(false)}
             />
           </div>
 
-          {/* Admin (platform admins only) */}
+          {/* Admin (platform admins only). One unified entry — the Admin page
+              now hosts Clients, Evaluations, Feedback, Comps, and Beta Codes
+              as tabs (#231). Lands on Clients by default. */}
           {isAdmin && (
             <div className="py-1.5 border-t border-[#2a2a2a]">
-              <MenuRow
-                icon={ICON.clients}
-                label="Clients"
-                href="/admin/clients"
-                onClick={() => setOpen(false)}
-              />
               <MenuRow
                 icon={ICON.admin}
                 label="Admin"
