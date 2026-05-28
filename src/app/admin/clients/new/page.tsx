@@ -54,7 +54,7 @@ export default function AddClientPage() {
 
   return (
     <div className="pt-20 font-mono">
-      <div className="max-w-3xl mx-auto px-6 py-10">
+      <div className="max-w-6xl mx-auto px-6 py-10">
         <Link
           href="/admin/clients"
           className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors inline-block mb-4"

@@ -338,7 +338,7 @@ export default function AdminPage() {
     <>
       <div className="mb-4 flex items-baseline justify-between">
         <p className="text-xs text-muted font-sans">
-          Plugin beta — invite codes and users
+          Figma plugin beta — invite codes and users
         </p>
         <button
           onClick={refresh}

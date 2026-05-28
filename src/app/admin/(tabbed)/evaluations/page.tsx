@@ -57,7 +57,10 @@ export default function EvaluationsPage() {
 
   return (
     <>
-      <div className="mb-6 flex items-baseline justify-end">
+      <div className="mb-6 flex items-baseline justify-between">
+        <p className="text-xs text-muted font-sans">
+          Multi-screen audits of client products (sample or full)
+        </p>
         <Link
           href="/admin/evaluations/new"
           className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green/90 transition-colors"
