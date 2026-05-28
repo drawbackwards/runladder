@@ -13,20 +13,15 @@ export default function ContactPage() {
     <div className="pt-32 pb-24 px-6">
       <div className="max-w-5xl mx-auto">
         {/* Hero */}
-        <div className="max-w-2xl mb-20">
+        <div className="mb-20">
           <p className="font-mono text-xs text-ladder-green uppercase tracking-widest mb-8">
             Start a conversation
           </p>
           <h1 className="text-[2.5rem] md:text-[3.5rem] font-bold tracking-tight leading-[1.08] mb-8">
-            The best teams don&apos;t guess
-            <br />
-            at quality. They measure it.
+            The best teams don&apos;t guess at quality. They measure it.
           </h1>
           <p className="text-lg text-body leading-relaxed">
-            You&apos;ve built the product. You&apos;ve shipped the features.
-            But how do you know it&apos;s actually good? Ladder gives your
-            entire team a shared definition of quality: one score, one
-            framework, one language from design to the boardroom.
+            Ladder gives your team a shared definition of quality. One score, one framework, applied to every screen you ship.
           </p>
         </div>
 
@@ -52,19 +47,19 @@ export default function ContactPage() {
                 {[
                   {
                     title: "Designers stop debating taste",
-                    body: "Every critique is anchored to the Ladder. No more subjective arguments, just measurable quality gaps and a clear path up.",
+                    body: "Every critique anchors to the framework. Measurable gaps replace subjective arguments.",
                   },
                   {
                     title: "PMs ship with confidence",
-                    body: "Before launch, you know exactly where you stand. A 2.4 ships differently than a 3.8. The score gives you the language to make that call.",
+                    body: "Before launch, you know exactly where you stand. A 2.4 ships differently than a 3.8.",
                   },
                   {
                     title: "Leaders see the whole picture",
-                    body: "Portfolio scores across every product, every team, every quarter. Track improvement over time. Prove the ROI of design investment.",
+                    body: "Portfolio scores across every product and team. Track improvement over time.",
                   },
                   {
                     title: "Teams level up together",
-                    body: "Leaderboards, coaching, and per-dimension scoring show exactly where to focus. Your weakest dimension becomes your biggest opportunity.",
+                    body: "Per-dimension scoring shows exactly where to focus. The weakest rung is where the score moves fastest.",
                   },
                 ].map((item) => (
                   <li key={item.title} className="border-l-2 border-ladder-green/30 pl-4">
@@ -79,17 +74,19 @@ export default function ContactPage() {
               </ul>
             </div>
 
+            {/* "Who we work with" hidden for now — keep for potential reuse
             <div className="border border-border rounded-xl p-6 bg-card">
               <p className="text-xs font-bold text-foreground uppercase tracking-wider mb-4">
                 Who we work with
               </p>
               <div className="space-y-3 text-sm text-body">
-                <p>Product and design teams at growth-stage startups and Fortune 500 companies.</p>
-                <p>CTOs who want a quality gate before every release.</p>
-                <p>Design leaders building a culture of measurement.</p>
-                <p>Operations teams who need to understand experience quality from the field.</p>
+                <p>Founders who shipped fast and now need to know where they stand.</p>
+                <p>Product and design teams with a quality debt problem.</p>
+                <p>Design leads who want a number, not a vibe check.</p>
+                <p>Directors of Design making the case for quality investment.</p>
               </div>
             </div>
+            */}
 
             <div className="border border-border rounded-xl p-6 bg-card">
               <p className="text-xs font-bold text-foreground uppercase tracking-wider mb-3">
