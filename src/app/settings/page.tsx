@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useUser, useClerk, RedirectToSignIn } from "@clerk/nextjs";
+import {
+  useUser,
+  useClerk,
+  useReverification,
+  RedirectToSignIn,
+} from "@clerk/nextjs";
 
 /**
  * Dedicated account settings page (#203), replacing Clerk's `openUserProfile()`
@@ -20,7 +25,11 @@ const CARD = "border border-[#333] bg-[#1e1e1e] p-6";
 const LABEL =
   "text-[9px] text-ladder-green uppercase tracking-widest font-semibold";
 const INPUT =
-  "w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-2 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans";
+  "w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-2 focus:outline-none focus:border-ladder-green placeholder:text-[#555] font-sans";
+
+/** True for a Google external account, whatever exact provider string Clerk uses. */
+const isGoogleAccount = (a: { provider?: string }) =>
+  (a.provider ?? "").includes("google");
 const BTN_PRIMARY =
   "text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
 const BTN_GHOST =
@@ -201,35 +210,50 @@ function GoogleCard() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Linking/unlinking an external account is a sensitive operation that Clerk
+  // gates behind step-up reverification. useReverification prompts the user to
+  // re-verify (an email code, since we're passwordless) and retries on success.
+  const doConnect = useReverification(async () => {
+    // Clear any stale unverified Google link left by a cancelled attempt so
+    // re-connecting doesn't collide.
+    const stale = user!.externalAccounts.find(
+      (a) => isGoogleAccount(a) && a.verification?.status !== "verified",
+    );
+    if (stale) {
+      await stale.destroy();
+      await user!.reload();
+    }
+    return user!.createExternalAccount({
+      strategy: "oauth_google",
+      redirectUrl: `${window.location.origin}/settings`,
+    });
+  });
+
+  const doDisconnect = useReverification(async () => {
+    const g = user!.externalAccounts.find(
+      (a) => isGoogleAccount(a) && a.verification?.status === "verified",
+    );
+    if (g) {
+      await g.destroy();
+      await user!.reload();
+    }
+  });
+
   if (!user) return null;
 
   // Only a *verified* Google link counts as connected. createExternalAccount
   // adds the record in an unverified state before the OAuth round-trip, so a
   // cancelled attempt would otherwise show as "Connected".
-  const isGoogle = (a: { provider?: string }) =>
-    (a.provider ?? "").includes("google");
   const google = user.externalAccounts.find(
-    (a) => isGoogle(a) && a.verification?.status === "verified",
+    (a) => isGoogleAccount(a) && a.verification?.status === "verified",
   );
 
   async function connect() {
     setBusy(true);
     setError(null);
     try {
-      // Clear any stale unverified Google link left by a cancelled attempt so
-      // re-connecting doesn't collide.
-      const stale = user!.externalAccounts.find(
-        (a) => isGoogle(a) && a.verification?.status !== "verified",
-      );
-      if (stale) {
-        await stale.destroy();
-        await user!.reload();
-      }
-      const ext = await user!.createExternalAccount({
-        strategy: "oauth_google",
-        redirectUrl: `${window.location.origin}/settings`,
-      });
-      const url = ext.verification?.externalVerificationRedirectURL;
+      const ext = await doConnect();
+      const url = ext?.verification?.externalVerificationRedirectURL;
       if (url) {
         window.location.href = url.toString();
       } else {
@@ -243,12 +267,10 @@ function GoogleCard() {
   }
 
   async function disconnect() {
-    if (!google) return;
     setBusy(true);
     setError(null);
     try {
-      await google.destroy();
-      await user!.reload();
+      await doDisconnect();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Couldn't disconnect Google.");
     } finally {
@@ -309,13 +331,18 @@ function DangerCard() {
   const [error, setError] = useState<string | null>(null);
   const PHRASE = "Delete my account";
 
+  // Account deletion is reverification-gated by Clerk, same as account linking.
+  const doDelete = useReverification(async () => {
+    await user!.delete();
+  });
+
   if (!user) return null;
 
   async function confirmDelete() {
     setBusy(true);
     setError(null);
     try {
-      await user!.delete();
+      await doDelete();
       await signOut({ redirectUrl: "/" });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Couldn't delete account.");
