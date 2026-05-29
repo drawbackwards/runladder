@@ -93,12 +93,30 @@ export async function POST(req: NextRequest) {
         });
         const meta = (org.publicMetadata ?? {}) as {
           status?: string;
-          teamLead?: { email?: string };
+          teamLead?: { email?: string; firstName?: string; lastName?: string };
         };
         if (meta.status === "pending" && meta.teamLead?.email) {
           const user = await client.users.getUser(userId);
           const email = user.primaryEmailAddress?.emailAddress?.toLowerCase();
           if (email && email === meta.teamLead.email.toLowerCase()) {
+            // Propagate the name captured at provisioning onto the new user's
+            // profile — Clerk org invitations don't carry it over, so without
+            // this the Team Lead lands nameless (greeting falls back, menu
+            // shows no name). Only set it if they haven't set one themselves.
+            if (
+              !user.firstName &&
+              !user.lastName &&
+              (meta.teamLead.firstName || meta.teamLead.lastName)
+            ) {
+              try {
+                await client.users.updateUser(userId, {
+                  firstName: meta.teamLead.firstName,
+                  lastName: meta.teamLead.lastName,
+                });
+              } catch (e) {
+                console.error("[clerk webhook] name propagation failed", e);
+              }
+            }
             await client.organizations.updateOrganization(orgId, {
               publicMetadata: { ...meta, status: "active" },
             });

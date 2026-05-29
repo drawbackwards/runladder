@@ -54,12 +54,22 @@ export async function GET() {
     limit: 200,
     includeMembersCount: true,
   });
+  const provisioner = provisioningUserId();
   const teamClients: TeamClient[] = orgList.data.map((org) => {
     const meta = orgMeta(org);
+    // Exclude the hidden provisioning service account from the count. It's a
+    // member of every org it provisioned (it's the `createdBy` owner), so
+    // Clerk's raw membersCount is always +1 for provisioned orgs (#262). The
+    // `createdBy === provisioner` guard keeps legacy/non-provisioned orgs exact.
+    const rawCount = org.membersCount ?? 0;
+    const membersCount =
+      provisioner && org.createdBy === provisioner
+        ? Math.max(0, rawCount - 1)
+        : rawCount;
     return {
       id: org.id,
       name: org.name,
-      membersCount: org.membersCount ?? 0,
+      membersCount,
       status: orgStatus(org),
       internal: isInternalOrg(org),
       teamLead: meta.teamLead ?? null,

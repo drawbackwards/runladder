@@ -462,7 +462,7 @@ function MemberRow({
           </p>
           {member.role === "org:admin" && !isSelf && (
             <span className="text-[9px] text-ladder-green uppercase tracking-widest">
-              Manager
+              Team Lead
             </span>
           )}
         </div>
@@ -887,7 +887,7 @@ export default function TeamPage() {
               {isAdmin && (
                 <>
                   {" · "}
-                  <span className="text-ladder-green">manager</span>
+                  <span className="text-ladder-green">Team Lead</span>
                 </>
               )}
             </p>
