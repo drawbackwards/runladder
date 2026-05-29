@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-05-27
+updatedAt: 2026-05-29
 updatedBy: Sara
-lastPr: 217
+lastPr: 265
 ---
 
 ## How to use this page
@@ -191,6 +191,7 @@ Decisions baked in:
 - **Drawbackwards is an internal Team org.** We dogfood Team like any client, but the Drawbackwards org is flagged internal (`publicMetadata.internal`, with a "Drawbackwards" name fallback) and can never be suspended or deleted via the tooling. The "mark internal" toggle sets the flag without Clerk dashboard access.
 - **Suspend = block dashboard only (for now).** Suspending an org (contract paused/ended) blocks `/dashboard/team` and the team API but leaves member tier intact. **Revoking Team comp on suspend is deferred pending Ward's input.**
 - **Delete is type-to-confirm**, available to any platform admin, for QA cleanup. Internal org is exempt.
+- **Org-membership comps are not "comps."** Joining any Team or internal org auto-grants `tier: team` through the comp mechanism, but that's an internal tier-grant detail, not a real comp. The admin Comps list (`/admin/comps`) shows **only manual grants** (partners, friends, customers in flight) — internal Drawbackwards members, the hidden provisioning service account, and client team members are filtered out (tagged `compSource: "org"`, with a legacy reason-pattern fallback for records granted before the tag existed). Keeps the list accurate so a teammate or paying client never appears as a "comp."
 
 Why: provisioning was a manual Clerk-dashboard step only Ward could do. Moving it in-app lets any platform admin onboard a client and unblocks selling Team without dashboard access.
 

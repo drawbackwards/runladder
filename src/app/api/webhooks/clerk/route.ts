@@ -79,6 +79,9 @@ export async function POST(req: NextRequest) {
     await grantComp(userId, {
       tier: "team",
       reason: orgName ? `Member of ${orgName}` : "Team member",
+      // Org-membership comp (the team-tier mechanism), not a real comp — kept
+      // out of the admin comps list, which is for manual partner/friend grants.
+      source: "org",
     });
 
     // Flip a freshly provisioned org from "pending" to "active" once its
