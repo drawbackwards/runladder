@@ -161,7 +161,7 @@ function UpgradeStrip({
         <div className="max-w-6xl mx-auto px-6 py-2.5 flex items-center justify-center gap-4 flex-wrap">
           <span className="text-[11px] text-muted font-sans">
             <span className="text-ladder-green font-semibold uppercase tracking-widest text-[10px]">
-              Complimentary {tierLabel}
+              {tierLabel}
             </span>
             {comp.reason && <> — {comp.reason}.</>}
             {expiry && (
@@ -492,7 +492,7 @@ export default function DashboardPage() {
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="mb-8">
           <h1 className="text-xl text-foreground font-sans">
-            {firstName ? `Hi, ${firstName}.` : "Welcome back."}
+            {firstName ? `Hi, ${firstName}.` : "Welcome."}
           </h1>
         </div>
 

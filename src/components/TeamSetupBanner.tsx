@@ -12,7 +12,7 @@ export function TeamSetupBanner() {
       <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 items-end">
         <div className="min-w-0">
           <p className="text-[10px] uppercase tracking-widest text-[#0a1a14]/70 font-semibold mb-3">
-            Team leader
+            Team Lead
           </p>
           {/* `!` important modifier: a global `h1–h6 { color: foreground }`
               rule in globals.css is unlayered, so it beats Tailwind's layered
