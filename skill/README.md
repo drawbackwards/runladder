@@ -28,8 +28,8 @@ Drop a screenshot into any Claude chat, ask for its Ladder score, and get back:
    **Claude Code (CLI):** Run this one-liner — the Skill installs to `~/.claude/skills/ladder-quality-score/`:
 
    ```bash
-   mkdir -p ~/.claude/skills && \
-     curl -fsSL https://runladder.com/downloads/ladder-skill-v1.0.3.zip -o /tmp/ladder-skill.zip && \
+   mkdir -p ~/.ladder ~/.claude/skills && \
+     curl -fsSL https://runladder.com/downloads/ladder-skill-v1.0.7.zip -o /tmp/ladder-skill.zip && \
      unzip -oq /tmp/ladder-skill.zip -d ~/.claude/skills/ && \
      rm /tmp/ladder-skill.zip
    ```

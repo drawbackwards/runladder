@@ -128,8 +128,23 @@ export function SkillTokenCard() {
     }
   }
 
-  /** Combined one-shot install: saves token AND downloads the Skill. */
+  /** Combined one-shot install: saves token, downloads the Skill, and wires the hook. */
   function combinedInstallCommand(token: string, version: string): string {
+    const hookCommand = [
+      `python3 -c "`,
+      `import json,os,pathlib;`,
+      `p=pathlib.Path.home()/'.claude'/'settings.json';`,
+      `s=json.loads(p.read_text()) if p.exists() and p.stat().st_size else {};`,
+      `h=s.setdefault('hooks',{});`,
+      `u=h.setdefault('UserPromptSubmit',[]);`,
+      `cmd=str(pathlib.Path.home()/'.claude'/'skills'/'ladder-quality-score'/'hooks'/'on-prompt.py');`,
+      `entry={'hooks':[{'type':'command','command':f'python3 {cmd}','timeout':5}]};`,
+      `[u.remove(e) for e in u[:] if 'ladder-quality-score' in str(e)];`,
+      `u.append(entry);`,
+      `p.write_text(json.dumps(s,indent=2))`,
+      `"`,
+    ].join("");
+
     return [
       "mkdir -p ~/.ladder ~/.claude/skills",
       `printf '%s' '${token}' > ~/.ladder/token`,
@@ -137,6 +152,7 @@ export function SkillTokenCard() {
       `curl -fsSL https://runladder.com/downloads/ladder-skill-v${version}.zip -o /tmp/ladder-skill.zip`,
       "unzip -oq /tmp/ladder-skill.zip -d ~/.claude/skills/",
       "rm /tmp/ladder-skill.zip",
+      hookCommand,
     ].join(" && ");
   }
 

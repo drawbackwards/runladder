@@ -2,6 +2,12 @@
 
 All notable changes to the Ladder Skill bundle (SKILL.md, README.md, scripts/) are listed here. The Skill tracks its own version independently of the runladder.com web app.
 
+## 1.0.7 — 2026-06-01
+
+- Added `hooks/on-prompt.py` — a `UserPromptSubmit` hook that fires on every Claude Code prompt and detects Ladder trigger phrases ("Run Ladder", "Ladder this", "Ladder score", etc.). When a trigger is matched, the hook prints an explicit instruction into Claude's context, ensuring the Ladder skill is invoked reliably instead of depending on autonomous skill discovery, which was causing Claude to ignore the skill entirely.
+- The dashboard install command and `README.md` now include a hook registration step that merges the `UserPromptSubmit` hook into `~/.claude/settings.json` without clobbering any existing hooks.
+- Fixed stale `v1.0.3` hardcoded URL in `README.md` — now references the current version.
+
 ## 1.0.6 — 2026-05-13
 
 - 429 error playbook in `SKILL.md` now distinguishes `upgrade: true` (free user used their 5 lifetime scores) from `hardCapped: true` (paid user past 2x their monthly cap). Claude now gives the right next step for each — upgrade page for free, email hello@drawbackwards.com for paid users who've hit the hard ceiling.
