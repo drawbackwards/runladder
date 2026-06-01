@@ -86,7 +86,7 @@ const SURFACES = [
       "Team leaderboard unified across all Ladder surfaces",
       "Design rhythm and activity heatmap per designer",
       "Design Reviews: score every iteration, track score lift across the sprint",
-      "Team Take: peer designers score alongside Ladder on every frame",
+      "Team Collaboration: designers can leave comments on how to improve a score on each other's designs and managers can see all commenting activity across the team",
       "Seat management: invite, archive, and remove team members",
       "25,000 pooled scores per month across web, Figma, and Claude",
     ],
