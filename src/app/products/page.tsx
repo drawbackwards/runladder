@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 const SURFACES = [
   {
     name: "runladder.com",
+    id: "web",
     badge: "Web",
     tagline: "Upload a screenshot. Get the truth.",
     description:
@@ -27,6 +28,7 @@ const SURFACES = [
   },
   {
     name: "Ladder Pulse",
+    id: "pulse",
     badge: "Feedback Intelligence",
     tagline: "Score the lived experience, not just the screen.",
     description:
@@ -44,6 +46,7 @@ const SURFACES = [
   },
   {
     name: "Ladder for Figma",
+    id: "figma",
     badge: "Figma Plugin",
     tagline: "Score frames without leaving the canvas.",
     description:
@@ -60,6 +63,7 @@ const SURFACES = [
   },
   {
     name: "Ladder for Claude",
+    id: "claude",
     badge: "AI Skill",
     tagline: "Quality check mid-conversation.",
     description:
@@ -142,30 +146,19 @@ export default function ProductsPage() {
               How it connects
             </p>
             <div className="space-y-3 font-mono text-sm text-body">
-              <div className="flex items-center gap-3">
-                <span className="w-2 h-2 rounded-full bg-ladder-green flex-shrink-0" />
-                <span>runladder.com</span>
-                <span className="flex-1 border-b border-dashed border-border" />
-                <span className="text-muted text-xs">web</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="w-2 h-2 rounded-full bg-ladder-green flex-shrink-0" />
-                <span>Ladder for Figma</span>
-                <span className="flex-1 border-b border-dashed border-border" />
-                <span className="text-muted text-xs">canvas</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="w-2 h-2 rounded-full bg-ladder-green flex-shrink-0" />
-                <span>Ladder for Claude</span>
-                <span className="flex-1 border-b border-dashed border-border" />
-                <span className="text-muted text-xs">AI</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="w-2 h-2 rounded-full bg-ladder-green flex-shrink-0" />
-                <span>Ladder Pulse</span>
-                <span className="flex-1 border-b border-dashed border-border" />
-                <span className="text-muted text-xs">feedback</span>
-              </div>
+              {[
+                { label: "runladder.com", tag: "web", id: "web" },
+                { label: "Ladder for Figma", tag: "canvas", id: "figma" },
+                { label: "Ladder for Claude", tag: "AI", id: "claude" },
+                { label: "Ladder Pulse", tag: "feedback", id: "pulse" },
+              ].map(({ label, tag, id }) => (
+                <a key={id} href={`#${id}`} className="flex items-center gap-3 hover:text-foreground transition-colors group">
+                  <span className="w-2 h-2 rounded-full bg-ladder-green flex-shrink-0" />
+                  <span>{label}</span>
+                  <span className="flex-1 border-b border-dashed border-border" />
+                  <span className="text-muted text-xs group-hover:text-foreground transition-colors">{tag}</span>
+                </a>
+              ))}
             </div>
             <div className="mt-8 pt-6 border-t border-border text-center">
               <p className="text-xs text-muted leading-relaxed">
@@ -180,20 +173,28 @@ export default function ProductsPage() {
       {/* Individual surfaces */}
       <section className="pb-24 px-6">
         <div className="max-w-4xl mx-auto space-y-6">
-          {SURFACES.map((surface) => (
+          {SURFACES.map((surface) => {
+            const isPulse = surface.name === "Ladder Pulse";
+            return (
             <div
               key={surface.name}
               id={surface.id}
-              className="border border-border rounded-xl bg-card p-8 md:p-10"
+              className={isPulse
+                ? "border border-ladder-purple bg-ladder-purple/5 rounded-xl p-8 md:p-10"
+                : "border border-border rounded-xl bg-card p-8 md:p-10"}
             >
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div>
-                  <span className="font-mono text-[10px] text-muted uppercase tracking-widest">
+                  <span className={`font-mono text-[10px] uppercase tracking-widest ${isPulse ? "text-ladder-purple" : "text-muted"}`}>
                     {surface.badge}
                   </span>
-                  <h2 className="text-xl font-bold text-foreground mt-1">
-                    {surface.name}
-                  </h2>
+                  {isPulse ? (
+                    <img src="/ladderpulse-logo.svg" alt="Ladder Pulse" width={160} className="mt-2" />
+                  ) : (
+                    <h2 className="text-xl font-bold text-foreground mt-1">
+                      {surface.name}
+                    </h2>
+                  )}
                 </div>
                 {!surface.available && (
                   <span className="font-mono text-[10px] text-[#555] uppercase tracking-widest border border-[#333] px-3 py-1 rounded-full">
@@ -216,7 +217,7 @@ export default function ProductsPage() {
                     key={feature}
                     className="flex items-start gap-3 text-sm text-body"
                   >
-                    <span className="text-ladder-green mt-0.5 flex-shrink-0">
+                    <span className={`${isPulse ? "text-ladder-purple" : "text-ladder-green"} mt-0.5 flex-shrink-0`}>
                       +
                     </span>
                     {feature}
@@ -227,13 +228,14 @@ export default function ProductsPage() {
               {surface.available && (
                 <Link
                   href={surface.href}
-                  className="inline-block text-sm font-semibold text-ladder-green hover:underline"
+                  className={`inline-block text-sm font-semibold hover:underline ${isPulse ? "text-ladder-purple" : "text-ladder-green"}`}
                 >
                   {surface.cta}
                 </Link>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

@@ -128,7 +128,7 @@ export default async function PricingPage() {
         </div>
 
         {/* Section header with extending line */}
-        <div className="hidden lg:flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-4 mb-4">
           <span className="font-mono text-xs uppercase tracking-widest text-ladder-green whitespace-nowrap">
             Ladder Screen Scoring
           </span>
@@ -288,7 +288,7 @@ export default async function PricingPage() {
         </div>
 
         {/* Pulse horizontal card */}
-        <div className="mt-8 hidden lg:flex items-center gap-4 mb-4">
+        <div className="mt-8 flex items-center gap-4 mb-4">
           <span className="font-mono text-xs uppercase tracking-widest text-ladder-purple whitespace-nowrap">
             Ladder Pulse Scoring
           </span>
@@ -305,7 +305,7 @@ export default async function PricingPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
             <div className="flex-1">
               <div className="mb-3">
-                <h2 className="text-lg font-bold text-foreground mb-1">Pulse</h2>
+                <img src="/ladderpulse-logo.svg" alt="Ladder Pulse" width={140} className="mb-4" />
                 <span className="text-[2rem] font-bold text-foreground leading-none">Custom</span>
                 {currentTier === "pulse" && (
                   <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-ladder-purple/40 bg-ladder-purple/5 text-[10px] font-mono uppercase tracking-widest text-ladder-purple">

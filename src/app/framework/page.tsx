@@ -235,6 +235,7 @@ export default function FrameworkPage() {
             <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
               The full picture
             </p>
+            <img src="/ladderpulse-logo.svg" alt="Ladder Pulse" width={240} className="mx-auto mb-8" />
             <h2 className="text-[2rem] md:text-[2.5rem] font-bold mb-6">
               Screen Score is the starting line.{" "}
               <span className="text-ladder-purple">Pulse changes the trajectory.</span>
