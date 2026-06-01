@@ -17,16 +17,16 @@ export const metadata: Metadata = {
 
 type TierKey = "free" | "pro" | "team";
 
+type FeatureItem = string | { text: string; badge?: string };
+
 type ScreenTier = {
   key: TierKey;
   name: string;
-  /** Optional brand pill shown next to the tier name. */
-  badge?: string;
   price: string;
   period: string;
   highlight: boolean;
   limit: string;
-  features: string[];
+  features: FeatureItem[];
   cta: string;
   href: string;
   solidCta: boolean;
@@ -41,7 +41,7 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
     highlight: false,
     limit: "5-score trial",
     features: [
-      "Overall Ladder score + coaching",
+      "Overall Ladder score + in-app recommendations",
       "Score on web, Claude Skill, or Figma",
       "Scores are public",
     ],
@@ -61,10 +61,10 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
       "All scores are private",
       "UX copy suggestions",
       "Accessibility audit",
-      "Per-dimension scoring (hierarchy, spacing, copy, a11y, navigation, visual)",
+      "Per-dimension scoring (hierarchy, spacing, copy, accessibility, navigation, visual)",
       "Full score history without trend line",
       "Fix suggestions with score uplift",
-      "Higher volume? Talk to us",
+      "Higher Score Volume",
     ],
     cta: "Subscribe",
     href: "/score",
@@ -73,7 +73,6 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
   {
     key: "team",
     name: "Team",
-    badge: "Beta",
     price: "Custom",
     period: "",
     highlight: false,
@@ -85,11 +84,11 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
       "Team leaderboard",
       "Seat management: invite, archive, and remove team members",
       "Design rhythm + activity heatmap per designer",
-      "Design Reviews: iteration-by-iteration scoring with pinned crit and score lift tracking across the sprint",
-      "Team Take: peer designers submit a score and rationale on every frame, shown alongside the Ladder score",
-      "Custom volume + SSO available, talk to us",
+      { text: "Design Reviews: iteration-by-iteration scoring with pinned crit and score lift tracking across the sprint", badge: "Beta" },
+      "Team Collaboration: designers can leave comments on how to improve the score on each other's designs and managers can see all commenting activity across their team",
       "Access to customer sentiment and Ladder Pulse scoring data + insights, if subscribed (coming soon)",
-      "Audit toolkit with redline annotations on every score (coming soon)",
+      "Custom volume available, talk to us",
+      "SSO available, talk to us",
     ],
     cta: "Talk to us about Teams",
     href: "/contact?interest=teams-beta",
@@ -128,23 +127,15 @@ export default async function PricingPage() {
           </p>
         </div>
 
-        {/* Section headers with extending lines */}
-        <div className="hidden lg:grid grid-cols-4 gap-6 mb-4">
-          <div className="col-span-3 flex items-center gap-4">
-            <span className="font-mono text-xs uppercase tracking-widest text-ladder-green whitespace-nowrap">
-              Ladder Screen Scoring
-            </span>
-            <div className="flex-1 h-px bg-ladder-green/30" />
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="font-mono text-xs uppercase tracking-widest text-ladder-purple whitespace-nowrap">
-              Ladder Pulse Scoring
-            </span>
-            <div className="flex-1 h-px bg-ladder-purple/30" />
-          </div>
+        {/* Section header with extending line */}
+        <div className="flex items-center gap-4 mb-4">
+          <span className="font-mono text-xs uppercase tracking-widest text-ladder-green whitespace-nowrap">
+            Ladder Screen Scoring
+          </span>
+          <div className="flex-1 h-px bg-ladder-green/30" />
         </div>
 
-        {/* Four-column grid: 3 Screen Score + 1 Pulse */}
+        {/* Four-column grid: Free, Pro, Team, Enterprise */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Screen Score tiers */}
           {SCREEN_SCORE_TIERS.map((tier) => {
@@ -163,16 +154,9 @@ export default async function PricingPage() {
             >
               {/* Name + current badge */}
               <div className="flex items-center justify-between gap-2 mb-4">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-bold text-foreground">
-                    {tier.name}
-                  </h2>
-                  {tier.badge && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full border border-ladder-green/40 bg-ladder-green/5 text-[10px] font-mono uppercase tracking-widest text-ladder-green">
-                      {tier.badge}
-                    </span>
-                  )}
-                </div>
+                <h2 className="text-lg font-bold text-foreground">
+                  {tier.name}
+                </h2>
                 {isCurrent && <CurrentPlanBadge comp={isComp} />}
               </div>
 
@@ -194,12 +178,23 @@ export default async function PricingPage() {
 
               {/* Features */}
               <ul className="space-y-3 mb-10 flex-1">
-                {tier.features.map((f) => (
-                  <li key={f} className="text-sm text-body flex items-start gap-2.5">
-                    <span className="text-ladder-green text-xs mt-1 flex-shrink-0">+</span>
-                    {f}
-                  </li>
-                ))}
+                {tier.features.map((f) => {
+                  const text = typeof f === "string" ? f : f.text;
+                  const badge = typeof f === "string" ? undefined : f.badge;
+                  return (
+                    <li key={text} className="text-sm text-body flex items-start gap-2.5">
+                      <span className="text-ladder-green text-xs mt-1 flex-shrink-0">+</span>
+                      <span>
+                        {text}
+                        {badge && (
+                          <span className="inline-flex items-center ml-1.5 px-2 py-0.5 border border-ladder-green/40 bg-ladder-green/5 text-[10px] font-mono uppercase tracking-widest text-ladder-green rounded-full">
+                            {badge}
+                          </span>
+                        )}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
 
               {isCurrent ? (
@@ -253,101 +248,115 @@ export default async function PricingPage() {
             </div>
           );})}
 
-          {/* Pulse column */}
-          <div
-            aria-current={currentTier === "pulse" ? "true" : undefined}
-            className={`rounded-2xl p-8 flex flex-col border-2 ${
-              currentTier === "pulse"
-                ? "border-ladder-purple bg-ladder-purple/[0.09]"
-                : "border-ladder-purple bg-ladder-purple/5"
-            }`}
-          >
-            {/* Mobile-only section label */}
-            <p className="font-mono text-xs uppercase tracking-widest text-ladder-purple mb-4 lg:hidden">
-              Ladder Pulse Scoring
-            </p>
-
-            {/* Name + current badge */}
-            <div className="flex items-center justify-between gap-2 mb-4">
-              <h2 className="text-lg font-bold text-foreground">Pulse</h2>
-              {currentTier === "pulse" && (
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-ladder-purple/40 bg-ladder-purple/5 text-[10px] font-mono uppercase tracking-widest text-ladder-purple">
-                  <span className="w-1.5 h-1.5 rounded-full bg-ladder-purple" />
-                  {isComp ? "Complimentary" : "Current plan"}
-                </span>
-              )}
+          {/* Enterprise card */}
+          <div className="rounded-2xl p-8 flex flex-col border-2 border-ladder-green/30 bg-card">
+            <div className="mb-4">
+              <h2 className="text-lg font-bold text-foreground">Enterprise</h2>
             </div>
-
-            {/* Price */}
             <div className="flex items-baseline gap-1.5 mb-1">
-              <span className="text-[2.5rem] font-bold text-foreground leading-none">
-                Custom
-              </span>
+              <span className="text-[2.5rem] font-bold text-foreground leading-none">Custom</span>
             </div>
             <div className="mb-6" />
-
-            <div className="mb-8" />
-
-            {/* Features */}
+            <div className="border border-border rounded-lg px-4 py-3 mb-8">
+              <p className="font-mono text-xs text-ladder-green whitespace-nowrap overflow-hidden text-ellipsis">Custom score volume</p>
+            </div>
             <ul className="space-y-3 mb-10 flex-1">
               {[
-                "Customer feedback, reviews, and support transcripts mapped to Ladder scores (coming soon)",
-                "Field reports and internal ops signals",
-                "Custom bespoke dashboards and interfaces",
-                "Tracking and alerting",
-                "Dedicated onboarding and support",
+                "Everything in Team",
+                "Organization-wide deployment",
+                "SSO",
+                "Custom Ladder calibration",
+                "Cross-team dashboards",
+                "Executive reporting",
+                "Dedicated support",
+                "Priced for your scale",
               ].map((f) => (
                 <li key={f} className="text-sm text-body flex items-start gap-2.5">
-                  <span className="text-ladder-purple text-xs mt-1 flex-shrink-0">+</span>
+                  <span className="text-ladder-green text-xs mt-1 flex-shrink-0">+</span>
                   {f}
                 </li>
               ))}
             </ul>
-
-            {currentTier === "pulse" ? (
-              <button
-                type="button"
-                disabled
-                aria-label={
-                  isComp
-                    ? "Pulse is your complimentary plan"
-                    : "Pulse is your current plan"
-                }
-                className="text-center text-sm font-semibold border border-border text-muted bg-card py-3 rounded-full cursor-not-allowed"
-                title={isComp ? sub?.comp?.reason || undefined : undefined}
-              >
-                {isComp ? "Complimentary access" : "Current plan"}
-              </button>
-            ) : (
-              <Link
-                href="/contact"
-                className="text-center text-sm font-semibold border border-ladder-purple/40 text-ladder-purple hover:bg-ladder-purple/10 py-3 rounded-full transition-colors"
-              >
-                Talk to us about Pulse
-              </Link>
-            )}
-          </div>
-        </div>
-
-        {/* Enterprise */}
-        <div className="mt-8 border border-border rounded-2xl p-10 bg-card">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
-            <div>
-              <h3 className="font-mono text-sm font-semibold text-foreground mb-3">
-                Enterprise
-              </h3>
-              <p className="text-sm text-body max-w-lg leading-relaxed">
-                Organization-wide deployment with SSO, custom Ladder
-                calibration, cross-team dashboards, executive reporting, and
-                dedicated support. Priced for your scale.
-              </p>
-            </div>
             <Link
               href="/contact"
-              className="shrink-0 text-center text-sm font-semibold border border-border text-foreground hover:bg-card-hover py-3 px-8 rounded-full transition-colors"
+              className="text-center text-sm font-semibold py-3 rounded-full transition-colors border border-border text-foreground hover:bg-card-hover"
             >
-              Talk to us
+              Talk to us about Enterprise
             </Link>
+          </div>
+
+        </div>
+
+        {/* Pulse horizontal card */}
+        <div className="mt-8 flex items-center gap-4 mb-4">
+          <span className="font-mono text-xs uppercase tracking-widest text-ladder-purple whitespace-nowrap">
+            Ladder Pulse Scoring
+          </span>
+          <div className="flex-1 h-px bg-ladder-purple/30" />
+        </div>
+        <div
+          aria-current={currentTier === "pulse" ? "true" : undefined}
+          className={`rounded-2xl p-10 border-2 ${
+            currentTier === "pulse"
+              ? "border-ladder-purple bg-ladder-purple/[0.09]"
+              : "border-ladder-purple bg-ladder-purple/5"
+          }`}
+        >
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+            <div className="flex-1">
+              <div className="mb-3">
+                <img src="/ladderpulse-logo.svg" alt="Ladder Pulse" width={140} className="mb-4" />
+                <span className="text-[2rem] font-bold text-foreground leading-none">Custom</span>
+                {currentTier === "pulse" && (
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-ladder-purple/40 bg-ladder-purple/5 text-[10px] font-mono uppercase tracking-widest text-ladder-purple">
+                    <span className="w-1.5 h-1.5 rounded-full bg-ladder-purple" />
+                    {isComp ? "Complimentary" : "Current plan"}
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-8">
+                {[
+                  [
+                    "Customer feedback, reviews, and support transcripts mapped to Ladder scores (coming soon)",
+                    "Custom bespoke dashboards and interfaces",
+                    "Dedicated onboarding and support",
+                  ],
+                  [
+                    "Field reports and internal ops signals",
+                    "Tracking and alerting",
+                  ],
+                ].map((col, i) => (
+                  <ul key={i} className="flex flex-col max-w-[360px]">
+                    {col.map((f) => (
+                      <li key={f} className="text-sm text-body flex items-start gap-2 pb-3">
+                        <span className="text-ladder-purple text-xs mt-1 flex-shrink-0">+</span>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                ))}
+              </div>
+            </div>
+            <div className="shrink-0">
+              {currentTier === "pulse" ? (
+                <button
+                  type="button"
+                  disabled
+                  aria-label={isComp ? "Pulse is your complimentary plan" : "Pulse is your current plan"}
+                  className="text-center text-sm font-semibold border border-border text-muted bg-card py-3 px-8 rounded-full cursor-not-allowed"
+                  title={isComp ? sub?.comp?.reason || undefined : undefined}
+                >
+                  {isComp ? "Complimentary access" : "Current plan"}
+                </button>
+              ) : (
+                <Link
+                  href="/contact"
+                  className="text-center text-sm font-semibold border border-ladder-purple/40 text-ladder-purple hover:bg-ladder-purple/10 py-3 px-8 rounded-full transition-colors"
+                >
+                  Talk to us about Pulse
+                </Link>
+              )}
+            </div>
           </div>
         </div>
 
@@ -358,7 +367,7 @@ export default async function PricingPage() {
               <h3 className="font-mono text-sm font-semibold text-foreground mb-3">
                 Drawbackwards
               </h3>
-              <p className="text-sm text-body max-w-lg leading-relaxed">
+              <p className="text-sm text-body max-w-[720px] leading-relaxed">
                 The team behind Ladder embeds with yours. Ideation workshops,
                 design thinking studios, sprint-by-sprint UI/UX execution, team
                 mentoring, skill evaluation, and custom Pulse deployments.
@@ -375,7 +384,8 @@ export default async function PricingPage() {
         </div>
 
         {/* FAQ */}
-        <div className="mt-24 border-t border-border pt-24 max-w-2xl mx-auto">
+        <div className="mt-24 border-t border-border" />
+        <div className="pt-24 max-w-2xl mx-auto">
           <h2 className="text-[2rem] font-bold mb-10 text-center">Questions</h2>
           <div className="space-y-8">
             {[

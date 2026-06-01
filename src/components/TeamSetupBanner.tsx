@@ -12,9 +12,15 @@ export function TeamSetupBanner() {
       <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 items-end">
         <div className="min-w-0">
           <p className="text-[10px] uppercase tracking-widest text-[#0a1a14]/70 font-semibold mb-3">
-            Team leader
+            Team Lead
           </p>
-          <h3 className="text-2xl text-[#1a1a1a] font-sans font-semibold mb-3 tracking-tight">
+          {/* `!` important modifier: a global `h1–h6 { color: foreground }`
+              rule in globals.css is unlayered, so it beats Tailwind's layered
+              text-color utility (Tailwind v4 cascade-layer precedence) and
+              forces this heading white on the green banner. The important
+              utility wins it back. Root fix (layer the global rule) tracked
+              in #259/#40. */}
+          <h3 className="text-2xl text-[#1a1a1a]! font-sans font-semibold mb-3 tracking-tight">
             Set up your team
           </h3>
           <p className="text-sm text-[#0a1a14]/80 font-sans leading-relaxed max-w-2xl">

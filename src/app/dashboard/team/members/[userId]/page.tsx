@@ -261,9 +261,9 @@ export default function TeamMemberDetailPage() {
   if (authorized === false) {
     return (
       <div className="pt-20 max-w-2xl mx-auto px-6 py-20 font-mono">
-        <h1 className="text-xl font-bold font-sans mb-3">Manager access required</h1>
+        <h1 className="text-xl font-bold font-sans mb-3">Team Lead access required</h1>
         <p className="text-sm text-muted font-sans">
-          Only team managers can see member detail. Head back to{" "}
+          Only Team Leads can see member detail. Head back to{" "}
           <Link href="/dashboard/team" className="text-ladder-green hover:underline">
             your team
           </Link>
@@ -343,7 +343,7 @@ export default function TeamMemberDetailPage() {
                 {member.role === "org:admin" && (
                   <>
                     <span className="text-[#444] mx-1.5">·</span>
-                    <span className="text-ladder-green">manager</span>
+                    <span className="text-ladder-green">Team Lead</span>
                   </>
                 )}
               </p>
