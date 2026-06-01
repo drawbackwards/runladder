@@ -435,9 +435,13 @@ function MemberRow({
   const avg = stats?.avgScore ?? null;
   const totalScans = stats?.totalScans ?? 0;
   const lastAt = stats?.lastScoreAt ?? null;
-  const drillHref = member.userId
-    ? `/dashboard/team/members/${member.userId}`
-    : null;
+  // Only Team Leads (org:admin) can open member detail. Gate the row link on
+  // the viewer's role so designers don't click through to a 403 (#263) — the
+  // row renders as plain, non-clickable content for them.
+  const drillHref =
+    isAdmin && member.userId
+      ? `/dashboard/team/members/${member.userId}`
+      : null;
 
   const Body = (
     <div className="px-4 py-4 flex items-center gap-5">
@@ -462,7 +466,7 @@ function MemberRow({
           </p>
           {member.role === "org:admin" && !isSelf && (
             <span className="text-[9px] text-ladder-green uppercase tracking-widest">
-              Manager
+              Team Lead
             </span>
           )}
         </div>
@@ -887,7 +891,7 @@ export default function TeamPage() {
               {isAdmin && (
                 <>
                   {" · "}
-                  <span className="text-ladder-green">manager</span>
+                  <span className="text-ladder-green">Team Lead</span>
                 </>
               )}
             </p>

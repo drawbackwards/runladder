@@ -7,6 +7,14 @@ export type CompInfo = {
   comp: true;
   /** Why this comp was granted (e.g. "Lumin partner", "Friend of DB"). */
   reason: string;
+  /**
+   * How the comp was granted. "org" = auto-granted by org membership (the
+   * team-tier mechanism — internal Drawbackwards + client members); "manual" =
+   * granted via the admin Grant Comp form (partners, friends, customers in
+   * flight). The admin comps list shows only "manual"; "org" comps are an
+   * internal tier-grant detail, not a real comp.
+   */
+  source?: "org" | "manual";
   /** Optional ISO ms timestamp. After this point the comp is treated as expired. */
   expiresAt?: number;
   /** ISO ms when the comp was granted. */
@@ -27,7 +35,11 @@ function readComp(meta: Record<string, unknown> | undefined): CompInfo | undefin
     typeof meta.compExpiresAt === "number" ? meta.compExpiresAt : undefined;
   const grantedAt =
     typeof meta.compGrantedAt === "number" ? meta.compGrantedAt : Date.now();
-  return { comp: true, reason, expiresAt, grantedAt };
+  const source =
+    meta.compSource === "org" || meta.compSource === "manual"
+      ? meta.compSource
+      : undefined;
+  return { comp: true, reason, source, expiresAt, grantedAt };
 }
 
 function isExpired(comp: CompInfo | undefined): boolean {
@@ -143,7 +155,17 @@ export async function setUserSubscription(
 /** Grant a complimentary tier to a user. Idempotent — overwrites prior comp. */
 export async function grantComp(
   userId: string,
-  args: { tier: Exclude<Tier, "free">; reason: string; expiresAt?: number }
+  args: {
+    tier: Exclude<Tier, "free">;
+    reason: string;
+    expiresAt?: number;
+    /**
+     * "org" = auto-granted via org membership; "manual" = admin Grant Comp
+     * form. Defaults to "manual" so the admin comps list (which hides "org"
+     * comps) keeps surfacing every form-granted comp.
+     */
+    source?: "org" | "manual";
+  }
 ): Promise<void> {
   const client = await clerkClient();
   const existing = await client.users.getUser(userId);
@@ -153,6 +175,7 @@ export async function grantComp(
       tier: args.tier,
       comp: true,
       compReason: args.reason,
+      compSource: args.source ?? "manual",
       compGrantedAt: Date.now(),
       ...(args.expiresAt ? { compExpiresAt: args.expiresAt } : { compExpiresAt: undefined }),
     },
@@ -171,6 +194,7 @@ export async function revokeComp(userId: string): Promise<void> {
   next.tier = "free";
   delete next.comp;
   delete next.compReason;
+  delete next.compSource;
   delete next.compGrantedAt;
   delete next.compExpiresAt;
   await client.users.updateUser(userId, { publicMetadata: next });

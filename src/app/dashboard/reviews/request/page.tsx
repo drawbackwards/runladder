@@ -40,7 +40,7 @@ export default function RequestReviewPage() {
               Request sent.
             </p>
             <p className="text-sm text-muted font-sans leading-relaxed max-w-md mx-auto mb-6">
-              Your manager will see it on their team dashboard. You&apos;ll
+              Your Team Lead will see it on their team dashboard. You&apos;ll
               get a notification when they pick it up.
             </p>
             <Link
@@ -70,8 +70,8 @@ export default function RequestReviewPage() {
             Request a review
           </h1>
           <p className="text-sm text-muted font-sans leading-relaxed">
-            Ask your team manager for human eyes on a screen. Ladder will
-            score it. Your manager and the assigned reviewers will drop
+            Ask your Team Lead for human eyes on a screen. Ladder will
+            score it. Your Team Lead and the assigned reviewers will drop
             notes and weigh in with a Team Take.
           </p>
         </div>
@@ -97,7 +97,7 @@ export default function RequestReviewPage() {
             </label>
             <p className="text-[11px] text-muted font-sans mb-2">
               Optional. Pick an existing Review to attach this screen to, or
-              leave blank and let the manager decide.
+              leave blank and let your Team Lead decide.
             </p>
             <div className="flex flex-wrap gap-2">
               <button
@@ -109,7 +109,7 @@ export default function RequestReviewPage() {
                     : "border-[#3a3a3a] text-body hover:border-[#555] hover:text-foreground"
                 }`}
               >
-                Manager decides
+                Team Lead decides
               </button>
               {MOCK_REVIEWS.filter((r) => r.status === "active").map((r) => (
                 <button
