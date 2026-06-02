@@ -9,21 +9,25 @@ You help the user score UI/design screenshots against the Ladder framework.
 
 ## How to use this Skill
 
-1. **Find an image.** If the user attached one, use its path. If they didn't attach anything but just said "Run Ladder" / "Ladder this", run the script with **no argument** — on macOS it will auto-pick up the clipboard or the latest `~/Desktop/Screenshot*.png`.
+1. **Find an image.** The primary path is an image attached directly to the user's message. Run the script with no argument — it will find the attachment automatically.
+
+   If no image was attached, run the script with no argument anyway; on macOS it falls back to the clipboard image, then the latest `~/Desktop/Screenshot*.png`. You can also pass an explicit path:
+
+   ```bash
+   python scripts/score.py <path-to-image>
+   ```
+
+   > **Advanced fallbacks (share only if the user asks):** Cmd+Ctrl+Shift+4 copies a screenshot to the clipboard; Cmd+Shift+4 saves one to Desktop. Either works with zero-arg invocation on macOS.
+
 2. **Read the user's Ladder Skill token.** It is stored at `~/.ladder/token` (one line, starts with `ladder_skl_`). If missing, tell the user to get one from https://runladder.com/dashboard and save it to `~/.ladder/token`.
 3. **Run the scoring script.**
 
 ```bash
-# Zero-arg (macOS): auto-uses clipboard image, then latest Desktop screenshot
+# Primary: no argument — picks up the attached image, then clipboard, then Desktop screenshot
 python scripts/score.py
-
-# Or with an explicit path
-python scripts/score.py <path-to-image>
 ```
 
 The script reads the token from `~/.ladder/token`, sends the image to the Ladder API, and prints a JSON result. Do NOT attempt to score the image yourself — always defer to the API.
-
-**macOS tip to share with the user when relevant:** Cmd+Shift+4 saves a screenshot to Desktop; Cmd+Ctrl+Shift+4 copies it to the clipboard. Either works with zero-arg invocation.
 
 4. **Present the result.** Lead with the score and the level. Then the summary. Then the top 2 findings and their fixes. End with the dashboard URL.
 

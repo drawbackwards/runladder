@@ -36,8 +36,10 @@ def main() -> None:
             "[Ladder hook] Ladder trigger detected. "
             "Invoke the ladder-quality-score skill now: "
             "run scripts/score.py from ~/.claude/skills/ladder-quality-score/ "
-            "using the image attached to this conversation or the latest "
-            "Desktop screenshot. Do not start a dev server or take any other action."
+            "using the image attached to this conversation. "
+            "If no image is attached, tell the user to attach a screenshot or "
+            "design export to their message. "
+            "Do not start a dev server or take any other action."
         )
 
     sys.exit(0)
