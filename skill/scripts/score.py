@@ -259,11 +259,7 @@ def resolve_image(arg: Optional[str]) -> Path:
         return shot
 
     sys.stderr.write(
-        "No image provided. Either:\n"
-        "  - Drop a screenshot into Claude and ask for a Ladder score, or\n"
-        "  - Cmd+Shift+4 saves a screenshot to Desktop, re-run, or\n"
-        "  - Cmd+Ctrl+Shift+4 copies a screenshot to clipboard, re-run, or\n"
-        "  - Pass a path: python scripts/score.py /path/to/image.png\n"
+        "No image found. Attach a screenshot or design export to your message and say \"Run Ladder\".\n"
     )
     sys.exit(2)
 
