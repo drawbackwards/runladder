@@ -23,7 +23,7 @@ export default function TeardownsPage() {
           <h1 className="text-3xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-6 text-foreground">
             The products you use every day.
             <br />
-            <span className="text-muted">Scored honestly.</span>
+            <span className="text-[#6AC89B]">Scored honestly.</span>
           </h1>
           <p className="text-base text-body max-w-xl leading-relaxed">
             We apply the full Ladder framework to real products. Not to expose
