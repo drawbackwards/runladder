@@ -118,6 +118,17 @@ export function SkillTokenCard() {
     }
   }
 
+  function combinedInstallCommand(token: string, ver: string): string {
+    return `mkdir -p ~/.ladder ~/.claude/skills && printf '%s' '${token}' > ~/.ladder/token && chmod 600 ~/.ladder/token && curl -fsSL https://runladder.com/downloads/ladder-skill-v${ver}.zip -o /tmp/ladder-skill.zip && unzip -oq /tmp/ladder-skill.zip -d ~/.claude/skills/ && rm /tmp/ladder-skill.zip`;
+  }
+
+  function copyInstall() {
+    if (!rawToken || !version) return;
+    navigator.clipboard.writeText(combinedInstallCommand(rawToken, version));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   function copyToken() {
     if (!rawToken) return;
     navigator.clipboard.writeText(rawToken);
@@ -170,50 +181,38 @@ export function SkillTokenCard() {
     return (
       <div className="border border-ladder-green/40 bg-ladder-green/[0.03] p-5">
         {header}
-        <p className="text-xs text-muted font-sans leading-relaxed mb-4">
-          Three steps to get started.
+        <p className="text-xs text-foreground font-sans font-semibold mb-1">
+          Using Claude Code?
         </p>
-        <ol className="space-y-3 mb-4">
-          <li className="text-[11px] text-muted font-sans leading-relaxed">
-            <span className="text-foreground font-semibold">1. Copy your token</span>
-            <div className="mt-1.5 flex items-center gap-2">
-              <code className="text-[10.5px] font-mono text-foreground bg-[#0e0e0e] border border-[#2a2a2a] px-2 py-1">
-                {rawToken}
-              </code>
-              <button
-                onClick={copyToken}
-                className="text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-3 py-1.5 font-semibold flex-shrink-0"
-              >
-                {copied ? "Copied" : "Copy"}
-              </button>
-            </div>
-          </li>
-          <li className="text-[11px] text-muted font-sans leading-relaxed">
-            <span className="text-foreground font-semibold">2. Create a Claude Project</span>
-            <p className="mt-1">In Claude, create a new Project and add this line to its instructions:</p>
-            <code className="block mt-1.5 text-[10.5px] font-mono text-foreground bg-[#0e0e0e] border border-[#2a2a2a] px-2 py-1.5">
-              My Ladder token is {rawToken}
-            </code>
-          </li>
-          <li className="text-[11px] text-muted font-sans leading-relaxed">
-            <span className="text-foreground font-semibold">3. Add the Skill to your Project</span>
-            <p className="mt-1">
-              Download the Skill file and upload it in your Project under{" "}
-              <span className="text-foreground">Knowledge → Add content</span>, or go to{" "}
-              <span className="text-foreground">Settings → Capabilities → Skills</span>.
-            </p>
-            <a
-              href="/api/skill/download"
-              className="inline-block mt-2 text-[10px] uppercase tracking-widest text-ladder-green border border-ladder-green/40 px-3 py-1.5 hover:bg-ladder-green/10 transition-colors font-semibold"
-            >
-              Download SKILL.md →
-            </a>
-          </li>
-        </ol>
-        <p className="text-[10px] text-muted font-sans">
-          Then attach a screenshot to any message in that Project and say{" "}
-          <span className="text-foreground">&ldquo;Run Ladder&rdquo;</span>.
+        <p className="text-xs text-muted font-sans leading-relaxed mb-3">
+          Paste this in Terminal once. It saves your token and installs the Skill in one go.
         </p>
+        <div className="bg-[#0e0e0e] border border-[#2a2a2a] px-3 py-2.5 mb-3">
+          <code className="text-[10.5px] font-mono text-foreground break-all">
+            {combinedInstallCommand(rawToken, version)}
+          </code>
+        </div>
+        <button
+          onClick={copyInstall}
+          className="text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold"
+        >
+          {copied ? "Copied" : "Copy Command"}
+        </button>
+        <p className="text-xs text-foreground font-sans font-semibold mt-4 mb-1">
+          Using Claude.ai Chat?
+        </p>
+        <p className="text-[11px] text-muted font-sans">
+          <a href="/api/skill/download" className="text-ladder-green hover:underline">
+            Download the SKILL.md
+          </a>{" "}
+          and add it to a Claude Project instead.
+        </p>
+        <a
+          href="/api/skill/download"
+          className="inline-block mt-2 text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold"
+        >
+          Download SKILL.md
+        </a>
       </div>
     );
   }
