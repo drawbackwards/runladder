@@ -2,6 +2,10 @@
 
 All notable changes to the Ladder Skill bundle (SKILL.md, README.md, scripts/) are listed here. The Skill tracks its own version independently of the runladder.com web app.
 
+## 1.0.8 — 2026-06-02
+
+- Rewrote skill as a pure SKILL.md with no local dependencies. Removed reliance on local Python scripts, token files, and ~/.claude/skills/. The skill now calls the Ladder API directly from within Claude using the token stored in the Claude Project instructions. Works in Claude.ai browser, desktop app, VS Code, and CLI — any surface that supports Claude Projects and Skills.
+
 ## 1.0.7 — 2026-06-01
 
 - Added `hooks/on-prompt.py` — a `UserPromptSubmit` hook that fires on every Claude Code prompt and detects Ladder trigger phrases ("Run Ladder", "Ladder this", "Ladder score", etc.). When a trigger is matched, the hook prints an explicit instruction into Claude's context, ensuring the Ladder skill is invoked reliably instead of depending on autonomous skill discovery, which was causing Claude to ignore the skill entirely.
