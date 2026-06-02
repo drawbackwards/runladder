@@ -17,11 +17,13 @@ You need two things to run a score:
 
 ## Steps
 
-**1. Read the token** from the project instructions.
+**1. Get the image.** The user has attached an image to their message. Use that image directly — do not search the Desktop, Downloads, clipboard, or any file system location. If no image is attached to this specific message, stop and say: "Please attach a screenshot or design export to your message and say Run Ladder."
 
-**2. Convert the attached image** to a base64 data URL.
+**2. Read the token** from the project instructions.
 
-**3. POST to the Ladder API:**
+**3. Convert the attached image** to a base64 data URL.
+
+**4. POST to the Ladder API:**
 
 - URL: `https://runladder.com/api/skill/score`
 - Method: POST
@@ -36,7 +38,7 @@ You need two things to run a score:
   }
 ```
 
-**4. Present the result:**
+**5. Present the result:**
 
 **{score} — {label}**
 {summary}
@@ -56,11 +58,11 @@ You need two things to run a score:
 
 Full result: {dashboardUrl}
 
-**5. Handle usage warnings:**
+**6. Handle usage warnings:**
 - If `usage.status` is `approaching` — add: "Heads up: you're approaching your monthly limit ({usage.monthlyUsed}/{usage.monthlyLimit} scores)."
 - If `usage.status` is `over` — add: "You're past your monthly cap. Email hello@drawbackwards.com to continue."
 
-**6. Handle errors:**
+**7. Handle errors:**
 - 401: "Your Ladder token is invalid or revoked. Get a new one at https://runladder.com/dashboard."
 - 429 with `upgrade: true`: "You've used all your free Ladder scores. Upgrade at https://runladder.com/pricing."
 - 429 with `hardCapped: true`: "Monthly scoring paused — you're past 2x your tier's cap. Email hello@drawbackwards.com."
