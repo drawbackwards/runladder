@@ -29,6 +29,23 @@ function unauthorized() {
 }
 
 /**
+ * Org-membership comps (auto-granted when a user joins any Team/internal org)
+ * are the team-tier mechanism, not real comps. They're excluded from the admin
+ * list, which is for manual grants only (partners, friends, customers in
+ * flight) — so internal Drawbackwards members, the provisioning service
+ * account, and client team members never appear here. New records carry
+ * `compSource`; legacy ones (granted before that field existed) are matched by
+ * the webhook's reason pattern ("Member of {org}" / "Team member").
+ */
+function isOrgComp(meta: Record<string, unknown> | undefined): boolean {
+  const source = meta?.compSource;
+  if (source === "org") return true;
+  if (source === "manual") return false;
+  const reason = typeof meta?.compReason === "string" ? meta.compReason : "";
+  return reason === "Team member" || reason.startsWith("Member of ");
+}
+
+/**
  * GET /api/admin/comps
  * Lists all comps:
  *  - Active: users with publicMetadata.comp === true
@@ -48,6 +65,8 @@ export async function GET() {
   for (const u of list.data) {
     const meta = u.publicMetadata as Record<string, unknown> | undefined;
     if (meta?.comp !== true) continue;
+    // Hide org-membership comps — this list is for manual grants only.
+    if (isOrgComp(meta)) continue;
     const tierRaw = meta.tier;
     const tier: Tier =
       tierRaw === "pro" || tierRaw === "team" || tierRaw === "pulse"
