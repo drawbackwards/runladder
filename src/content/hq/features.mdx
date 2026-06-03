@@ -1,8 +1,8 @@
 ---
 title: Feature Inventory
-updatedAt: 2026-05-29
+updatedAt: 2026-06-03
 updatedBy: Sara
-lastPr: 243
+lastPr: 273
 ---
 
 ## How to read this page
@@ -29,6 +29,8 @@ When you ship a feature, add the row here in the same PR. Template:
 | --- | --- | --- | --- |
 | Public scoring tool (`/score`) | All signed-in | Live | `src/app/score/` |
 | Personal dashboard (`/dashboard`) | All signed-in | Live | `src/app/dashboard/` |
+| Figma install/manage detail page (`/dashboard/figma`) | All signed-in | Live (#273) | `src/app/dashboard/figma/page.tsx`, `src/components/promos/FigmaPromoCard.tsx` |
+| Claude Skill install/manage detail page (`/dashboard/claude`) | All signed-in | Live (#273) | `src/app/dashboard/claude/page.tsx`, `src/components/skill/useSkillInstall.ts`, `src/components/promos/ClaudePromoCard.tsx` |
 | Framework page (`/framework`) | Public | Live | `src/app/framework/` |
 | One free anonymous score, sign-up prompted after (web only) | Public | Live (#187) | `src/lib/anon-score.ts`, `src/app/api/score/route.ts`, `src/app/api/score/claim/route.ts` |
 | Reviews on dashboard | Pro+ | Live (v0.4.15) | [#173](https://github.com/drawbackwards/runladder/pull/173) |
