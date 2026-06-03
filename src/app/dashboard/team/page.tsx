@@ -17,6 +17,8 @@ import { Avatar } from "@/components/Avatar";
 import { ActiveReviewsCard } from "@/components/reviews/ActiveReviewsCard";
 import { ReviewRequestsPanel } from "@/components/reviews/ReviewRequestsPanel";
 import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
+import { useViewAs } from "@/lib/dev/view-as";
+import { viewAsTeamData } from "@/lib/dev/dashboard-fixtures";
 
 type MemberStats = {
   totalScans: number;
@@ -78,7 +80,7 @@ type TeamPool = {
   limit: number;
 };
 
-type TeamData = {
+export type TeamData = {
   isManager: boolean;
   members: TeamMember[];
   archived: ArchivedMember[];
@@ -699,6 +701,12 @@ export default function TeamPage() {
   const [teamErr, setTeamErr] = useState<string | null>(null);
   const [teamLoading, setTeamLoading] = useState(false);
 
+  // Dev "view as" override (no-op in production builds). Team fixtures apply
+  // only on the Team plan; Free/Pro previews show the no-team state.
+  const viewAs = useViewAs();
+  const teamViewAs = viewAs?.plan === "team" ? viewAs : null;
+  const fxTeam = teamViewAs ? viewAsTeamData(teamViewAs) : null;
+
   const refreshTeamData = useCallback(async () => {
     setTeamLoading(true);
     setTeamErr(null);
@@ -726,10 +734,8 @@ export default function TeamPage() {
   if (!isLoaded) return null;
   if (!isSignedIn) return <RedirectToSignIn />;
 
-  const hasAnyOrg =
-    !!organization || (orgListLoaded && (userMemberships?.count ?? 0) > 0);
-
-  if (!hasAnyOrg) {
+  // Dev view-as: Free/Pro previews aren't on a team — show the no-team state.
+  if (viewAs && !teamViewAs) {
     return (
       <div className="pt-20 font-mono">
         <div className="max-w-2xl mx-auto px-6 py-10">
@@ -745,7 +751,26 @@ export default function TeamPage() {
     );
   }
 
-  if (!organization) {
+  const hasAnyOrg =
+    !!organization || (orgListLoaded && (userMemberships?.count ?? 0) > 0);
+
+  if (!teamViewAs && !hasAnyOrg) {
+    return (
+      <div className="pt-20 font-mono">
+        <div className="max-w-2xl mx-auto px-6 py-10">
+          <div className="mb-8">
+            <h1 className="text-xl text-foreground font-sans">Team</h1>
+            <p className="text-xs text-muted font-sans mt-1">
+              Invite your designers, see how they&apos;re scoring.
+            </p>
+          </div>
+          <NoOrgPanel />
+        </div>
+      </div>
+    );
+  }
+
+  if (!teamViewAs && !organization) {
     return (
       <div className="pt-20 font-mono">
         <div className="max-w-2xl mx-auto px-6 py-10">
@@ -759,15 +784,16 @@ export default function TeamPage() {
   // dashboard. Lifecycle status is set by admins via /admin/clients (#190).
   // Members keep their tier for now — comp-revocation on suspend is deferred.
   if (
-    (organization.publicMetadata as { status?: string } | undefined)?.status ===
-    "suspended"
+    !teamViewAs &&
+    (organization?.publicMetadata as { status?: string } | undefined)?.status ===
+      "suspended"
   ) {
     return (
       <div className="pt-20 font-mono">
         <div className="max-w-2xl mx-auto px-6 py-10">
           <div className="mb-8">
             <h1 className="text-xl text-foreground font-sans">
-              {organization.name}
+              {organization?.name}
             </h1>
           </div>
           <SuspendedPanel />
@@ -776,14 +802,23 @@ export default function TeamPage() {
     );
   }
 
-  const isAdmin = membership?.role === "org:admin";
-  const inviteList = invitations?.data ?? [];
-  const memberList = teamData?.members ?? [];
-  const archivedList = teamData?.archived ?? [];
-  const selfUserId = membership?.publicUserData?.userId;
-  const activityWindowDays = teamData?.activityWindowDays ?? 91;
+  const teamDataEff = fxTeam ? fxTeam.teamData : teamData;
+  const isAdmin = fxTeam
+    ? fxTeam.teamData.isManager
+    : membership?.role === "org:admin";
+  const orgName = fxTeam ? fxTeam.orgName : organization?.name ?? "Team";
+  const inviteList = fxTeam ? [] : invitations?.data ?? [];
+  const memberList = teamDataEff?.members ?? [];
+  const archivedList = teamDataEff?.archived ?? [];
+  const selfUserId = fxTeam
+    ? fxTeam.selfUserId
+    : membership?.publicUserData?.userId;
+  const activityWindowDays = teamDataEff?.activityWindowDays ?? 91;
+  const teamLoadingEff = fxTeam ? false : teamLoading;
+  const teamErrEff = fxTeam ? null : teamErr;
 
   async function handleInvite(email: string) {
+    if (teamViewAs) return; // fixtures — no real mutations in preview
     if (!organization) throw new Error("No active team");
     await organization.inviteMember({
       emailAddress: email,
@@ -821,6 +856,7 @@ export default function TeamPage() {
   }
 
   async function handleArchive(member: TeamMember) {
+    if (teamViewAs) return; // fixtures — no real mutations in preview
     if (!member.userId) return;
     const name =
       [member.firstName, member.lastName].filter(Boolean).join(" ") ||
@@ -853,6 +889,7 @@ export default function TeamPage() {
     displayName: string;
     fromArchived: boolean;
   }) {
+    if (teamViewAs) return; // fixtures — no real mutations in preview
     const verb = args.fromArchived ? "scrub" : "delete";
     if (
       !confirm(
@@ -882,7 +919,7 @@ export default function TeamPage() {
         <div className="mb-8 flex items-baseline justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-xl text-foreground font-sans">
-              {organization.name}
+              {orgName}
             </h1>
             <p className="text-xs text-muted font-sans mt-1">
               {memberList.length} member{memberList.length !== 1 ? "s" : ""}
@@ -904,18 +941,18 @@ export default function TeamPage() {
           </Link>
         </div>
 
-        {teamErr && (
+        {teamErrEff && (
           <div className="mb-6 border border-ladder-red/40 bg-ladder-red/5 text-ladder-red text-xs font-sans p-3">
-            {teamErr}
+            {teamErrEff}
           </div>
         )}
 
-        {isAdmin && teamData?.insights && (
-          <InsightsPanel insights={teamData.insights} />
+        {isAdmin && teamDataEff?.insights && (
+          <InsightsPanel insights={teamDataEff.insights} />
         )}
 
-        {isAdmin && teamData?.pool && (
-          <TeamPoolMeter pool={teamData.pool} members={memberList} />
+        {isAdmin && teamDataEff?.pool && (
+          <TeamPoolMeter pool={teamDataEff.pool} members={memberList} />
         )}
 
         {isAdmin && <ReviewRequestsPanel />}
@@ -936,14 +973,14 @@ export default function TeamPage() {
             <h2 className="text-[10px] text-muted uppercase tracking-widest">
               Members
             </h2>
-            {teamData && (
+            {teamDataEff && (
               <span className="text-[10px] text-muted">
                 Design-session activity, last {activityWindowDays} days
               </span>
             )}
           </div>
           <div className="border border-[#2a2a2a] bg-[#1a1a1a]">
-            {teamLoading && memberList.length === 0 ? (
+            {teamLoadingEff && memberList.length === 0 ? (
               <div className="p-8 text-center text-muted font-sans text-sm">
                 Loading members…
               </div>

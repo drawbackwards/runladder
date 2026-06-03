@@ -14,6 +14,11 @@ import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton"
 import { ActivityHeatmap, type DailyActivity } from "@/components/ActivityHeatmap";
 import { RequestReviewCTA } from "@/components/reviews/RequestReviewCTA";
 import { FREE_LIFETIME_LIMIT } from "@/lib/plans";
+import { useViewAs } from "@/lib/dev/view-as";
+import {
+  viewAsDashboardData,
+  viewAsUserMeta,
+} from "@/lib/dev/dashboard-fixtures";
 
 type ScoreEntry = {
   id: string;
@@ -102,7 +107,7 @@ type CompMeta = {
   expiresAt: number | null;
 };
 
-type DashboardData = {
+export type DashboardData = {
   scores: ScoreEntry[];
   stats: UserStats;
   usage: UsageInfo;
@@ -410,6 +415,7 @@ function DesignRhythmCard({ scores }: { scores: ScoreEntry[] }) {
 export default function DashboardPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
+  const viewAs = useViewAs();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -466,27 +472,33 @@ export default function DashboardPage() {
   if (!isLoaded) return null;
   if (!isSignedIn) return <RedirectToSignIn />;
 
-  const scores = data?.scores ?? [];
-  const stats = data?.stats ?? {
+  // Dev "view as" override (no-op in production builds): when set, render the
+  // selected role's fixtures instead of the fetched data.
+  const effectiveData = viewAs ? viewAsDashboardData(viewAs) : data;
+  const showLoading = viewAs ? false : loading;
+  const scores = effectiveData?.scores ?? [];
+  const stats = effectiveData?.stats ?? {
     totalScans: 0,
     avgScore: null,
     bestScore: null,
     lastScoreAt: null,
   };
-  const usage = data?.usage ?? { used: 0, limit: FREE_LIFETIME_LIMIT };
-  const paid = data?.paid ?? false;
-  const tier = data?.tier ?? "free";
-  const comp = data?.comp ?? null;
-  const internal = data?.internal ?? false;
-  const needsTeamSetup = data?.needsTeamSetup ?? false;
-  const firstName = user?.firstName || null;
+  const usage = effectiveData?.usage ?? { used: 0, limit: FREE_LIFETIME_LIMIT };
+  const paid = effectiveData?.paid ?? false;
+  const tier = effectiveData?.tier ?? "free";
+  const comp = effectiveData?.comp ?? null;
+  const internal = effectiveData?.internal ?? false;
+  const needsTeamSetup = effectiveData?.needsTeamSetup ?? false;
+  const firstName = viewAs
+    ? viewAsUserMeta(viewAs).firstName
+    : user?.firstName || null;
 
   return (
     <div className="pt-20 font-mono">
       {/* Both the plan strip and the team-setup banner are gated on the
           dashboard fetch (`data`) so they never flash a wrong default
           (e.g. the free strip for an internal/team user) on first paint. */}
-      {data && (
+      {effectiveData && (
         <UpgradeStrip usage={usage} paid={paid} tier={tier} comp={comp} internal={internal} />
       )}
       <div className="max-w-6xl mx-auto px-6 py-10">
@@ -496,7 +508,7 @@ export default function DashboardPage() {
           </h1>
         </div>
 
-        {data && needsTeamSetup && <TeamSetupBanner />}
+        {effectiveData && needsTeamSetup && <TeamSetupBanner />}
 
         {(tier === "team" || tier === "pulse") && <RequestReviewCTA />}
 
@@ -504,7 +516,7 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           <main>
-            {loading ? (
+            {showLoading ? (
               <div className="space-y-1.5">
                 {[...Array(3)].map((_, i) => (
                   <div
@@ -622,7 +634,7 @@ export default function DashboardPage() {
             {/* While the empty-team setup banner is showing, don't also show
                 the team card — they'd be redundant for a Lead with no team.
                 Gated on `data` so it doesn't flash before team state is known. */}
-            {data && !needsTeamSetup && <TeamCard />}
+            {effectiveData && !needsTeamSetup && <TeamCard />}
             <FigmaPluginCard />
             <SkillTokenCard />
           </aside>

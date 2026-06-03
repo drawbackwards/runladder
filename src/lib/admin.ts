@@ -23,6 +23,11 @@
  *   TEAM_EMAILS          — comma-separated team-hub allowlist
  */
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
+
+// Must match DEV_ADMIN_COOKIE in src/lib/dev/view-as.tsx (kept inline to avoid
+// importing a "use client" module into server code).
+const DEV_ADMIN_COOKIE = "ladder_dev_admin";
 
 const SUPER_ADMIN_EMAILS = [
   "ward@drawbackwards.com",
@@ -62,8 +67,18 @@ export async function getAdminEmail(): Promise<string | null> {
   const user = await client.users.getUser(userId);
   const email = user.primaryEmailAddress?.emailAddress?.toLowerCase();
   if (!email) return null;
-  if (!ADMIN_EMAILS.includes(email)) return null;
-  return email;
+  if (ADMIN_EMAILS.includes(email)) return email;
+
+  // Dev-only override: the "Admin" dev toggle (see src/lib/dev/view-as.tsx)
+  // sets a cookie so a Drawbackwards teammate who isn't in ADMIN_EMAILS can
+  // work on the Admin section locally. NODE_ENV-gated — this branch is dead in
+  // any production build (incl. Vercel preview), so it can never grant access
+  // on a live deployment.
+  if (process.env.NODE_ENV !== "production") {
+    const devAdmin = (await cookies()).get(DEV_ADMIN_COOKIE)?.value === "1";
+    if (devAdmin) return email;
+  }
+  return null;
 }
 
 /**
