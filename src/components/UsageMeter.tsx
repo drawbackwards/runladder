@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useViewAs } from "@/lib/dev/view-as";
+import { viewAsUsageData } from "@/lib/dev/dashboard-fixtures";
 
 /**
  * Score usage meter for /dashboard/settings (and anywhere else we
@@ -18,7 +20,7 @@ import Link from "next/link";
  * with a mailto. We surface, we don't block.
  */
 
-type UsageData = {
+export type UsageData = {
   tier: "free" | "pro" | "team" | "pulse";
   monthlyUsed: number;
   monthlyLimit: number | null;
@@ -30,24 +32,34 @@ type UsageData = {
 };
 
 export function UsageMeter() {
+  const viewAs = useViewAs();
   const [data, setData] = useState<UsageData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Dev "view as" override: render fixture usage for the previewed role.
+    if (viewAs) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setData(viewAsUsageData(viewAs));
+      setLoading(false);
+      return;
+    }
     fetch("/api/usage/me")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => setData(d))
       .catch(() => setData(null))
       .finally(() => setLoading(false));
-  }, []);
+  }, [viewAs]);
 
   if (loading) {
     return <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5 shimmer h-28" />;
   }
   if (!data) return null;
 
-  // Free tier: show lifetime, push upgrade
+  // Free tier: free-score count + a persistent upgrade CTA (moved here from
+  // the old top strip).
   if (data.tier === "free" && data.lifetimeLimit !== null) {
+    const remaining = Math.max(0, data.lifetimeLimit - data.lifetimeUsed);
     const pct = Math.min(100, (data.lifetimeUsed / data.lifetimeLimit) * 100);
     return (
       <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
@@ -56,7 +68,8 @@ export function UsageMeter() {
           <span className="text-[10px] text-muted uppercase tracking-widest">Free</span>
         </div>
         <p className="text-xs text-muted font-sans mb-4">
-          {data.lifetimeUsed} of {data.lifetimeLimit} lifetime scores
+          <span className="tabular-nums">{remaining}</span> of{" "}
+          {data.lifetimeLimit} free scores left
         </p>
         <div className="h-1.5 bg-[#0e0e0e]">
           <div
@@ -64,15 +77,12 @@ export function UsageMeter() {
             style={{ width: `${pct}%` }}
           />
         </div>
-        {data.lifetimeUsed >= data.lifetimeLimit && (
-          <p className="text-[11px] text-muted mt-3">
-            You&apos;ve used all your free scores.{" "}
-            <Link href="/pricing" className="text-ladder-green hover:underline">
-              Upgrade for more
-            </Link>
-            .
-          </p>
-        )}
+        <Link
+          href="/pricing"
+          className="inline-block mt-3 text-[10px] uppercase tracking-widest font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors"
+        >
+          Upgrade to Pro →
+        </Link>
       </div>
     );
   }
@@ -114,10 +124,8 @@ export function UsageMeter() {
       </div>
       <div className="flex items-baseline justify-between gap-3 mb-4">
         <p className="text-xs text-muted font-sans">
-          <span className="text-foreground font-semibold">
-            {used.toLocaleString()}
-          </span>{" "}
-          of {limit.toLocaleString()} scores this month
+          <span className="tabular-nums">{used.toLocaleString()}</span> of{" "}
+          {limit.toLocaleString()} scores this month
         </p>
         <span className="text-[10px] text-muted font-mono">
           Resets in {data.daysUntilReset}d

@@ -28,12 +28,19 @@ export function ActivityHeatmap({
   cellHeight = 8,
   cellGap = 2,
   emptyClassName = "bg-[#222]",
+  fill = false,
 }: {
   activity: DailyActivity[];
   cellWidth?: number;
   cellHeight?: number;
   cellGap?: number;
   emptyClassName?: string;
+  /**
+   * Stretch the grid to fill its container's width: week columns flex
+   * evenly and cells take the column width (ignoring `cellWidth`). The
+   * default fixed-width mode is unchanged for the compact "ticker" usages.
+   */
+  fill?: boolean;
 }) {
   if (activity.length === 0) {
     return (
@@ -59,9 +66,16 @@ export function ActivityHeatmap({
   }
 
   return (
-    <div className="flex" style={{ gap: `${cellGap}px` }}>
+    <div
+      className={fill ? "flex w-full" : "flex"}
+      style={{ gap: `${cellGap}px` }}
+    >
       {weeks.map((week, wi) => (
-        <div key={wi} className="flex flex-col" style={{ gap: `${cellGap}px` }}>
+        <div
+          key={wi}
+          className={fill ? "flex flex-col flex-1" : "flex flex-col"}
+          style={{ gap: `${cellGap}px` }}
+        >
           {week.map((cell, di) => {
             const intensity = intensityClass(cell?.count ?? 0);
             const titleText = cell
@@ -72,9 +86,9 @@ export function ActivityHeatmap({
             return (
               <div
                 key={di}
-                className={cell ? intensity : "opacity-0"}
+                className={`${cell ? intensity : "opacity-0"}${fill ? " w-full" : ""}`}
                 style={{
-                  width: `${cellWidth}px`,
+                  width: fill ? undefined : `${cellWidth}px`,
                   height: `${cellHeight}px`,
                 }}
                 title={titleText}

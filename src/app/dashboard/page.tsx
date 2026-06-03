@@ -5,8 +5,8 @@ import { useAuth, useUser, RedirectToSignIn } from "@clerk/nextjs";
 import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
-import { SkillTokenCard } from "@/components/SkillTokenCard";
-import { FigmaPluginCard } from "@/components/FigmaPluginCard";
+import { FigmaPromoCard } from "@/components/promos/FigmaPromoCard";
+import { ClaudePromoCard } from "@/components/promos/ClaudePromoCard";
 import { UsageMeter } from "@/components/UsageMeter";
 import { TeamCard } from "@/components/TeamCard";
 import { TeamSetupBanner } from "@/components/TeamSetupBanner";
@@ -195,43 +195,9 @@ function UpgradeStrip({
       </div>
     );
   }
-  const remaining = Math.max(0, usage.limit - usage.used);
-  const exhausted = remaining === 0;
-  return (
-    <div
-      className={`border-b ${
-        exhausted
-          ? "border-ladder-red/30 bg-ladder-red/5"
-          : "border-[#2a2a2a] bg-[#161616]"
-      }`}
-    >
-      <div className="max-w-6xl mx-auto px-6 py-2.5 flex items-center justify-center gap-4 flex-wrap">
-        <span className="text-[11px] text-muted font-sans">
-          {exhausted ? (
-            <>
-              <span className="text-ladder-red font-semibold">
-                0 free scores left.
-              </span>{" "}
-              Upgrade to keep scoring.
-            </>
-          ) : (
-            <>
-              <span className="text-foreground font-semibold tabular-nums">
-                {remaining}
-              </span>{" "}
-              of {usage.limit} free scores left
-            </>
-          )}
-        </span>
-        <Link
-          href="/pricing"
-          className="text-[10px] uppercase tracking-widest font-semibold text-ladder-green hover:text-ladder-green/80 transition-colors"
-        >
-          Upgrade to Pro →
-        </Link>
-      </div>
-    </div>
-  );
+  // Free tier: the score count + upgrade CTA now live in the sidebar "Usage"
+  // meter, so there's no top strip for free users.
+  return null;
 }
 
 function StatsSummaryCard({ stats }: { stats: UserStats }) {
@@ -388,26 +354,44 @@ function DesignRhythmCard({ scores }: { scores: ScoreEntry[] }) {
   if (totalInWindow === 0) return null;
 
   return (
-    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5 mb-6">
-      <div className="flex items-baseline justify-between mb-4 gap-3 flex-wrap">
-        <div>
-          <h2 className="text-[10px] text-muted uppercase tracking-widest mb-1">
-            Design rhythm
-          </h2>
-          <p className="text-xs text-muted font-sans">
-            {activeDays} active day{activeDays === 1 ? "" : "s"} ·{" "}
-            {totalInWindow} session{totalInWindow === 1 ? "" : "s"} in the last{" "}
-            {RHYTHM_WINDOW_DAYS} days
-          </p>
+    <div className="mb-6">
+      <div className="flex items-baseline justify-between mb-3 gap-3 flex-wrap">
+        <span className="text-[10px] text-muted uppercase tracking-widest">
+          Design rhythm
+        </span>
+        <span className="text-[10px] text-muted">
+          Design sessions, last {RHYTHM_WINDOW_DAYS} days
+        </span>
+      </div>
+      <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="grid grid-cols-[1fr_1fr_8fr] gap-4 items-center">
+          <div>
+            <p className="text-[9px] text-muted uppercase tracking-widest mb-2">
+              Active days
+            </p>
+            <p className="text-2xl font-bold tabular-nums text-foreground">
+              {activeDays}
+            </p>
+          </div>
+          <div>
+            <p className="text-[9px] text-muted uppercase tracking-widest mb-2">
+              Sessions
+            </p>
+            <p className="text-2xl font-bold tabular-nums text-foreground">
+              {totalInWindow}
+            </p>
+          </div>
+          <div className="min-w-0">
+            <ActivityHeatmap
+              activity={activity}
+              cellHeight={10}
+              cellGap={3}
+              emptyClassName="bg-[#222]"
+              fill
+            />
+          </div>
         </div>
       </div>
-      <ActivityHeatmap
-        activity={activity}
-        cellWidth={14}
-        cellHeight={6}
-        cellGap={2}
-        emptyClassName="bg-[#222]"
-      />
     </div>
   );
 }
@@ -504,7 +488,7 @@ export default function DashboardPage() {
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="mb-8">
           <h1 className="text-xl text-foreground font-sans">
-            {firstName ? `Hi, ${firstName}.` : "Welcome."}
+            {firstName ? `Hi, ${firstName}` : "Welcome"}
           </h1>
         </div>
 
@@ -634,9 +618,9 @@ export default function DashboardPage() {
             {/* While the empty-team setup banner is showing, don't also show
                 the team card — they'd be redundant for a Lead with no team.
                 Gated on `data` so it doesn't flash before team state is known. */}
-            {effectiveData && !needsTeamSetup && <TeamCard />}
-            <FigmaPluginCard />
-            <SkillTokenCard />
+            {effectiveData && tier === "team" && !needsTeamSetup && <TeamCard />}
+            <FigmaPromoCard />
+            <ClaudePromoCard />
           </aside>
         </div>
       </div>

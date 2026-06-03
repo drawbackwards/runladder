@@ -1,5 +1,6 @@
 import type { DashboardData } from "@/app/dashboard/page";
 import type { TeamData } from "@/app/dashboard/team/page";
+import type { UsageData } from "@/components/UsageMeter";
 import type { Tier } from "@/lib/plans";
 import type { ViewAsState } from "@/lib/dev/view-as";
 
@@ -43,6 +44,34 @@ const SAMPLE_SCORES = [
   score("fx-3", 4.1, "Delightful", "Empty state", 6, 0.6),
   score("fx-4", 3.0, "Comfortable", "Settings panel", 9),
 ];
+
+function labelFor(v: number): string {
+  if (v < 2) return "Functional";
+  if (v < 3) return "Usable";
+  if (v < 4) return "Comfortable";
+  if (v < 5) return "Delightful";
+  return "Meaningful";
+}
+
+// A semi-active user: ~40 design sessions across the last ~12 weeks, with a
+// handful of multi-session days, trending gently upward. Gives the design
+// rhythm heatmap a believable mix of light and darker green cells instead of
+// the four lonely squares the lean SAMPLE_SCORES produced. Used for the paid
+// tiers (Pro / Team); Free stays sparse since it caps at 5 lifetime scores.
+const SEMI_ACTIVE_DAYS = [
+  2, 4, 5, 5, 9, 11, 12, 12, 16, 18, 19, 19, 23, 25, 26, 30, 32, 33, 33, 37,
+  39, 44, 46, 47, 47, 51, 53, 58, 60, 61, 61, 65, 67, 72, 74, 74, 79, 81, 86,
+  88,
+];
+
+const SEMI_ACTIVE_SCORES = SEMI_ACTIVE_DAYS.map((d, i) => {
+  // Recent sessions trend a little higher; deterministic jitter from the index
+  // varies the spread without reaching for Math.random().
+  const base = 4.3 - (d / 91) * 1.4;
+  const jitter = ((i % 5) - 2) * 0.12;
+  const v = Math.max(1.9, Math.min(4.8, Math.round((base + jitter) * 10) / 10));
+  return score(`fx-r${i}`, v, labelFor(v), `Screen ${i + 1}`, d);
+});
 
 /** Account-menu + plan-strip overrides the dashboard derives from Clerk/data. */
 export type ViewAsUserMeta = {
@@ -123,8 +152,8 @@ export function viewAsDashboardData(s: ViewAsState): DashboardData {
   }
   if (s.plan === "pro") {
     return {
-      scores: SAMPLE_SCORES,
-      stats,
+      scores: SEMI_ACTIVE_SCORES,
+      stats: { ...stats, totalScans: SEMI_ACTIVE_SCORES.length, bestScore: 4.8 },
       usage: { used: 340, limit: 2000 },
       tier: "pro",
       paid: true,
@@ -136,8 +165,10 @@ export function viewAsDashboardData(s: ViewAsState): DashboardData {
   // Team plan — role drives empty vs populated.
   const isLeadEmpty = s.role === "lead-empty";
   return {
-    scores: isLeadEmpty ? [] : SAMPLE_SCORES,
-    stats: isLeadEmpty ? emptyStats : stats,
+    scores: isLeadEmpty ? [] : SEMI_ACTIVE_SCORES,
+    stats: isLeadEmpty
+      ? emptyStats
+      : { ...stats, totalScans: SEMI_ACTIVE_SCORES.length, bestScore: 4.8 },
     usage: { used: isLeadEmpty ? 0 : 1280, limit: 25000 },
     tier: "team",
     paid: true,
@@ -239,5 +270,42 @@ export function viewAsTeamData(s: ViewAsState): ViewAsTeam {
     },
     orgName,
     selfUserId: isManager ? "usr-lead" : "usr-d1",
+  };
+}
+
+/* ── Usage meter fixtures ────────────────────────────────────────────────── */
+
+/** Usage-meter data per previewed plan (the sidebar "Usage" box). */
+export function viewAsUsageData(s: ViewAsState): UsageData {
+  if (s.plan === "free") {
+    return {
+      tier: "free",
+      monthlyUsed: 0,
+      monthlyLimit: null,
+      monthlyHardCap: null,
+      lifetimeUsed: 2,
+      lifetimeLimit: 5,
+      daysUntilReset: 0,
+    };
+  }
+  if (s.plan === "pro") {
+    return {
+      tier: "pro",
+      monthlyUsed: 340,
+      monthlyLimit: 2000,
+      monthlyHardCap: 4000,
+      lifetimeUsed: 0,
+      lifetimeLimit: null,
+      daysUntilReset: 12,
+    };
+  }
+  return {
+    tier: "team",
+    monthlyUsed: 1280,
+    monthlyLimit: 25000,
+    monthlyHardCap: 50000,
+    lifetimeUsed: 0,
+    lifetimeLimit: null,
+    daysUntilReset: 18,
   };
 }
