@@ -1,8 +1,8 @@
 ---
 title: User Journeys
-updatedAt: 2026-05-29
+updatedAt: 2026-06-03
 updatedBy: Sara
-lastPr: 261
+lastPr: 273
 ---
 
 ## How to read this page
@@ -81,6 +81,7 @@ Key beats:
 - Token is server-issued, single-user, scoped to plugin requests. Verified via `POST /api/plugin/verify-token`.
 - Score requests hit `/api/plugin/analyze`. Same scoring engine as the web app. Persisted via `POST /api/plugin/persist-score`.
 - Free users hit the 5-lifetime cap inside the plugin same as on web.
+- The dashboard has a dedicated **`/dashboard/figma`** detail page (#273): hero, full-width pitch, and an install/manage panel. The sidebar `FigmaPromoCard` links here and shows live connection status (New vs Connected, version, update-available) from `/api/plugin/meta`.
 
 Open questions before relaunch (see [Decisions Log](/hq/decisions)):
 
@@ -101,6 +102,7 @@ Key beats:
 - Skill token issued via `POST /api/skill/token` (Clerk session required). Pasted into Claude.ai once.
 - Skill is a thin client. Pulls URL or image from conversation context, sends to `/api/skill/score`, renders the result inline.
 - Free users hit the 5-lifetime cap same as everywhere.
+- The dashboard has a dedicated **`/dashboard/claude`** detail page (#273) with two install paths: a one-line **Claude Code / VS Code** command (token + bundle in one paste) and a **Claude.ai** SKILL.md download. A shared `useSkillInstall` hook backs the status box and both install boxes. "Connected" means the Skill has actually run (`lastUsedAt`), not merely that a token exists; the connected box carries Reset / Disconnect plus an expandable Troubleshooting section (401 / 429). The sidebar `ClaudePromoCard` links here.
 - This is the surface that proves the agent-native positioning. An AI can ask for a Ladder score the same way a human can.
 
 ## Ladder Pulse: Live (runs in a separate codebase)

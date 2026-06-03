@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useUser, useClerk, useOrganization } from "@clerk/nextjs";
 import { isPaidTier, type Tier } from "@/lib/plans";
+import { useViewAs, useDevAdmin } from "@/lib/dev/view-as";
+import { viewAsUserMeta } from "@/lib/dev/dashboard-fixtures";
 
 const TIER_LABEL: Record<Tier, string> = {
   free: "Free",
@@ -141,6 +143,15 @@ export function UserMenu() {
   const [open, setOpen] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  // Dev "view as" override (no-op in production builds).
+  const viewAs = useViewAs();
+  const devAdmin = useDevAdmin();
+  const vMeta = viewAs ? viewAsUserMeta(viewAs) : null;
+  const orgName = vMeta ? vMeta.orgName : organization?.name ?? null;
+  const hasOrg = vMeta ? vMeta.hasOrg : !!organization;
+  // My Account: real admin OR the dev admin override. Dev Mode fixtures are
+  // never admins.
+  const showAdmin = vMeta ? vMeta.isAdmin : devAdmin || isAdmin;
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Resolve platform-admin status once the user is known. ADMIN_EMAILS lives
@@ -178,7 +189,7 @@ export function UserMenu() {
   if (!isLoaded || !user) return null;
 
   const tier: Tier =
-    (user.publicMetadata?.tier as Tier | undefined) ?? "free";
+    vMeta?.tier ?? (user.publicMetadata?.tier as Tier | undefined) ?? "free";
   const paid = isPaidTier(tier);
   const tierLabel = TIER_LABEL[tier];
 
@@ -188,10 +199,12 @@ export function UserMenu() {
   // so the portal would fail to load (#204). Comp lives in publicMetadata;
   // Stripe IDs are server-only (privateMetadata), so this is the reliable
   // client-side signal. Team/Pulse/comped-Pro see no billing row (#201, #204).
-  const comped = user.publicMetadata?.comp === true;
+  const comped = vMeta ? vMeta.comp !== null : user.publicMetadata?.comp === true;
   const isStripePro = tier === "pro" && !comped;
 
-  const fullName = user.fullName || user.firstName || "Account";
+  const fullName = vMeta
+    ? vMeta.firstName ?? "Account"
+    : user.fullName || user.firstName || "Account";
   const email = user.primaryEmailAddress?.emailAddress ?? "";
   const initial = (
     user.firstName?.[0] ||
@@ -275,7 +288,7 @@ export function UserMenu() {
         >
           <div className="px-4 py-3.5 border-b border-[#2a2a2a]">
             <p className="text-sm text-foreground font-sans font-semibold truncate">
-              {organization?.name ?? fullName}
+              {orgName ?? fullName}
             </p>
             {email && (
               <p className="text-[11px] text-muted font-sans truncate mt-0.5">
@@ -301,7 +314,7 @@ export function UserMenu() {
               href="/dashboard"
               onClick={() => setOpen(false)}
             />
-            {organization && (
+            {hasOrg && (
               <MenuRow
                 icon={ICON.team}
                 label="Team"
@@ -348,7 +361,7 @@ export function UserMenu() {
           {/* Admin (platform admins only). One unified entry — the Admin page
               now hosts Clients, Evaluations, Feedback, Comps, and Beta Codes
               as tabs (#231). Lands on Clients by default. */}
-          {isAdmin && (
+          {showAdmin && (
             <div className="py-1.5 border-t border-[#2a2a2a]">
               <MenuRow
                 icon={ICON.admin}

@@ -38,7 +38,6 @@ function relativeTime(ts: number): string {
 export function FigmaPluginCard() {
   const [meta, setMeta] = useState<PluginMeta | null>(null);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/plugin/meta")
@@ -65,7 +64,7 @@ export function FigmaPluginCard() {
     <div className="flex items-baseline justify-between gap-3 mb-1">
       <div className="flex items-baseline gap-2 min-w-0">
         <h3 className="text-sm text-foreground font-sans font-semibold">
-          Ladder for Figma
+          Figma plugin
         </h3>
         {version && (
           <span className="text-[10px] font-mono text-muted">v{version}</span>
@@ -146,42 +145,6 @@ export function FigmaPluginCard() {
       >
         Open in Figma Community →
       </a>
-
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="mt-4 flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
-        aria-expanded={open}
-      >
-        {open ? "Hide steps" : "How to install"}
-        <svg
-          className={`transition-transform ${open ? "rotate-180" : ""}`}
-          width="10"
-          height="10"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          aria-hidden
-        >
-          <path d="M6 9l6 6 6-6" />
-        </svg>
-      </button>
-
-      {open && (
-        <ol className="mt-3 space-y-2.5 text-[11px] text-muted font-sans leading-relaxed">
-          <li>
-            <span className="text-foreground">1.</span> Click the button above
-            to open the plugin page on Figma Community, then install.
-          </li>
-          <li>
-            <span className="text-foreground">2.</span> In any Figma file, run{" "}
-            <code className="text-foreground">Plugins → Ladder for Figma</code>{" "}
-            and sign in with the same email you use here. Scores sync to your
-            dashboard automatically.
-          </li>
-        </ol>
-      )}
     </div>
   );
 }

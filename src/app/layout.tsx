@@ -6,6 +6,8 @@ import "./globals.css";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { PasswordGate } from "@/components/PasswordGate";
+import { ViewAsProvider } from "@/lib/dev/view-as";
+import { ViewAsSwitcher } from "@/components/dev/ViewAsSwitcher";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -95,19 +97,23 @@ export default function RootLayout({
         <body
           className={`${inter.variable} ${ibmPlexMono.variable} font-sans antialiased`}
         >
-          {gateEnabled ? (
-            <PasswordGate>
-              <Nav />
-              <main className="min-h-screen">{children}</main>
-              <Footer />
-            </PasswordGate>
-          ) : (
-            <>
-              <Nav />
-              <main className="min-h-screen">{children}</main>
-              <Footer />
-            </>
-          )}
+          <ViewAsProvider>
+            {gateEnabled ? (
+              <PasswordGate>
+                <Nav />
+                <main className="min-h-screen">{children}</main>
+                <Footer />
+              </PasswordGate>
+            ) : (
+              <>
+                <Nav />
+                <main className="min-h-screen">{children}</main>
+                <Footer />
+              </>
+            )}
+            {/* Dev-only role switcher; renders nothing in production builds. */}
+            <ViewAsSwitcher />
+          </ViewAsProvider>
         </body>
       </html>
     </ClerkProvider>
