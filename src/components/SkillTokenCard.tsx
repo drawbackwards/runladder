@@ -26,16 +26,6 @@ function relativeTime(ts: number): string {
 
 const TROUBLESHOOTING: { title: string; body: React.ReactNode }[] = [
   {
-    title: "403 — workspace network allowlist",
-    body: (
-      <>
-        Your Claude workspace is blocking egress to{" "}
-        <code className="text-foreground">runladder.com</code>. Ask a workspace
-        admin to allow it. Claude Code sidesteps this — it runs locally.
-      </>
-    ),
-  },
-  {
     title: "401 — token invalid",
     body: "Token revoked or never saved. Rotate, then re-run install.",
   },
@@ -128,21 +118,20 @@ export function SkillTokenCard() {
     }
   }
 
-  /** Combined one-shot install: saves token AND downloads the Skill. */
-  function combinedInstallCommand(token: string, version: string): string {
-    return [
-      "mkdir -p ~/.ladder ~/.claude/skills",
-      `printf '%s' '${token}' > ~/.ladder/token`,
-      "chmod 600 ~/.ladder/token",
-      `curl -fsSL https://runladder.com/downloads/ladder-skill-v${version}.zip -o /tmp/ladder-skill.zip`,
-      "unzip -oq /tmp/ladder-skill.zip -d ~/.claude/skills/",
-      "rm /tmp/ladder-skill.zip",
-    ].join(" && ");
+  function combinedInstallCommand(token: string, ver: string): string {
+    return `mkdir -p ~/.ladder ~/.claude/skills && printf '%s' '${token}' > ~/.ladder/token && chmod 600 ~/.ladder/token && curl -fsSL https://runladder.com/downloads/ladder-skill-v${ver}.zip -o /tmp/ladder-skill.zip && unzip -oq /tmp/ladder-skill.zip -d ~/.claude/skills/ && rm /tmp/ladder-skill.zip`;
   }
 
   function copyInstall() {
-    if (!rawToken || !meta?.currentVersion) return;
-    navigator.clipboard.writeText(combinedInstallCommand(rawToken, meta.currentVersion));
+    if (!rawToken || !version) return;
+    navigator.clipboard.writeText(combinedInstallCommand(rawToken, version));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  function copyToken() {
+    if (!rawToken) return;
+    navigator.clipboard.writeText(rawToken);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -192,36 +181,38 @@ export function SkillTokenCard() {
     return (
       <div className="border border-ladder-green/40 bg-ladder-green/[0.03] p-5">
         {header}
-        <p className="text-xs text-muted font-sans leading-relaxed mb-4">
-          Paste this in Terminal once. It saves your token and installs the
-          Skill in one go.
+        <p className="text-xs text-foreground font-sans font-semibold mb-1">
+          Using Claude Code?
         </p>
-        <div className="bg-[#0e0e0e] border border-[#2a2a2a] p-3 mb-3">
-          <code className="block text-[10.5px] font-mono text-foreground break-all leading-relaxed">
+        <p className="text-xs text-muted font-sans leading-relaxed mb-3">
+          Paste this in Terminal once. It saves your token and installs the Skill in one go.
+        </p>
+        <div className="bg-[#0e0e0e] border border-[#2a2a2a] px-3 py-2.5 mb-3">
+          <code className="text-[10.5px] font-mono text-foreground break-all">
             {combinedInstallCommand(rawToken, version)}
           </code>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={copyInstall}
-            className="text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold"
-          >
-            {copied ? "Copied" : "Copy command"}
-          </button>
-          <span className="text-[10px] text-muted font-sans">
-            Then say &ldquo;Run Ladder&rdquo; on any Claude conversation.
-          </span>
-        </div>
-        <p className="text-[10px] text-muted font-sans mt-3">
-          Using Claude.ai chat?{" "}
-          <a
-            href={`/downloads/ladder-skill-v${version}.zip`}
-            className="text-ladder-green hover:underline"
-          >
-            Download the zip
-          </a>{" "}
-          and upload it in Settings → Capabilities → Skills.
+        <button
+          onClick={copyInstall}
+          className="text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold"
+        >
+          {copied ? "Copied" : "Copy Command"}
+        </button>
+        <p className="text-xs text-foreground font-sans font-semibold mt-4 mb-1">
+          Using Claude.ai Chat?
         </p>
+        <p className="text-[11px] text-muted font-sans">
+          <a href="/api/skill/download" className="text-ladder-green hover:underline">
+            Download the SKILL.md
+          </a>{" "}
+          and add it to a Claude Project instead.
+        </p>
+        <a
+          href="/api/skill/download"
+          className="inline-block mt-2 text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold"
+        >
+          Download SKILL.md
+        </a>
       </div>
     );
   }
@@ -242,7 +233,7 @@ export function SkillTokenCard() {
           {header}
           <p className="text-xs text-muted font-sans leading-relaxed mb-2">
             A Claude Skill that scores any UI screenshot against the Ladder
-            framework. Works in Claude Code and Claude.ai.
+            framework. Works in Claude.ai, Claude Code, and VS Code.
           </p>
           <p className="text-[11px] text-muted font-sans leading-relaxed mb-4">
             Couldn&apos;t prepare your install command. Try again?
@@ -263,7 +254,7 @@ export function SkillTokenCard() {
         {header}
         <p className="text-xs text-muted font-sans leading-relaxed mb-3">
           A Claude Skill that scores any UI screenshot against the Ladder
-          framework. Works in Claude Code and Claude.ai.
+          framework. Works in Claude.ai, Claude Code, and VS Code.
         </p>
         <div className="bg-[#0e0e0e] border border-[#2a2a2a] p-3 shimmer h-20" />
         <p className="text-[10px] text-muted font-sans mt-3">
@@ -279,7 +270,7 @@ export function SkillTokenCard() {
       {header}
       <p className="text-xs text-muted font-sans leading-relaxed mb-3">
         A Claude Skill that scores any UI screenshot against the Ladder
-        framework. Works in Claude Code and Claude.ai.
+        framework. Works in Claude.ai, Claude Code, and VS Code.
       </p>
       {meta.lastUsedAt ? (
         <p className="text-[11px] text-muted font-sans">
