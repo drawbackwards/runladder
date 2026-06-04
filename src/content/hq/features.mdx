@@ -78,6 +78,7 @@ Bundle source and `CURRENT_SKILL_VERSION` in `src/lib/skill-version.ts` (current
 | Surface tracking on skill scores (`lastUsedSurface`) | Skill token | Live (#279) | `src/lib/skill-auth.ts`, `src/app/api/skill/score/route.ts`, `src/app/api/skill/token/route.ts` |
 | SKILL.md standalone download (`/api/skill/download`) | All signed-in | Live (#278) | `src/app/api/skill/download/route.ts` |
 | Claude.ai install path via Claude Project | All signed-in | Live (#278) | `skill/SKILL.md`, `src/app/dashboard/claude/page.tsx` |
+| Copy Ladder token — generates fresh token if null, then copies to clipboard | All signed-in | Live (#279) | `src/components/skill/useSkillInstall.ts`, `src/app/dashboard/claude/page.tsx` |
 | Public plugin marketplace (`marketplace.json` in `drawbackwards/runladder`) | Public | Roadmap | See [Roadmap → Skill distribution](/hq/roadmap#skill-distribution-roadmap) |
 | Submission to `anthropics/skills` public marketplace | Public | Roadmap | See [Roadmap → Skill distribution](/hq/roadmap#skill-distribution-roadmap) |
 | Teams enterprise deployment (admin workspace deploy) | Teams | Roadmap | Shipped by Anthropic Dec 2025, we have not used it yet |
