@@ -142,6 +142,7 @@ export function UserMenu() {
   const { organization } = useOrganization();
   const [open, setOpen] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [portalMsg, setPortalMsg] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   // Dev "view as" override (no-op in production builds).
   const viewAs = useViewAs();
@@ -212,22 +213,49 @@ export function UserMenu() {
     email[0] ||
     "?"
   ).toUpperCase();
-  async function handleManageBilling() {
+  // Shared Stripe entry point. Pro uses the customer portal; Free upgrade uses
+  // checkout. Both behave the same: navigate to the returned URL, or surface a
+  // message instead of silently doing nothing. Real config is tracked in #213.
+  async function startBilling(endpoint: string) {
     setPortalLoading(true);
+    setPortalMsg(null);
     try {
-      const res = await fetch("/api/stripe/portal", { method: "POST" });
-      const data = (await res.json()) as { url?: string };
-      if (data.url) window.location.href = data.url;
+      const res = await fetch(endpoint, { method: "POST" });
+      const data = (await res.json().catch(() => ({}))) as { url?: string };
+      if (data.url) {
+        window.location.href = data.url;
+        return; // navigating away — keep the loading state until unload
+      }
+      setPortalMsg(
+        res.status === 404 ? "No active subscription" : "Billing not set up yet",
+      );
     } catch {
-      setPortalLoading(false);
+      setPortalMsg("Billing not set up yet");
     }
+    setPortalLoading(false);
   }
+
+  // Right-aligned meta shared by the Free "Upgrade to Pro" and Pro
+  // "Subscription" rows: the green price normally, "Opening…" while a billing
+  // request is in flight, an amber message if it couldn't open.
+  const billingMeta = portalLoading ? (
+    <span className="text-muted text-[10px]">Opening…</span>
+  ) : portalMsg ? (
+    <span className="text-amber-400 text-[10px]">{portalMsg}</span>
+  ) : (
+    <span className="text-ladder-green text-[10px] uppercase tracking-widest font-semibold">
+      $1,000/mo
+    </span>
+  );
 
   return (
     <div ref={wrapperRef} className="relative">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          setPortalMsg(null);
+          setOpen((o) => !o);
+        }}
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label="Account menu"
@@ -326,28 +354,17 @@ export function UserMenu() {
               <MenuRow
                 icon={ICON.billing}
                 label="Upgrade to Pro"
-                href="/pricing"
-                onClick={() => setOpen(false)}
-                meta={
-                  <span className="text-ladder-green text-[10px] uppercase tracking-widest font-semibold">
-                    $1,000/mo
-                  </span>
-                }
+                onClick={() => startBilling("/api/stripe/checkout")}
+                disabled={portalLoading}
+                meta={billingMeta}
               />
             ) : isStripePro ? (
               <MenuRow
                 icon={ICON.billing}
                 label="Subscription"
-                onClick={() => {
-                  setOpen(false);
-                  handleManageBilling();
-                }}
+                onClick={() => startBilling("/api/stripe/portal")}
                 disabled={portalLoading}
-                meta={
-                  <span className="text-muted text-[10px]">
-                    {portalLoading ? "Opening…" : "Stripe ↗"}
-                  </span>
-                }
+                meta={billingMeta}
               />
             ) : null}
             <MenuRow
@@ -356,21 +373,19 @@ export function UserMenu() {
               href="/settings"
               onClick={() => setOpen(false)}
             />
-          </div>
-
-          {/* Admin (platform admins only). One unified entry — the Admin page
-              now hosts Clients, Evaluations, Feedback, Comps, and Beta Codes
-              as tabs (#231). Lands on Clients by default. */}
-          {showAdmin && (
-            <div className="py-1.5 border-t border-[#2a2a2a]">
+            {/* Admin (platform admins only). Sits in the same group as the
+                personal rows so the spacing is uniform. One unified entry — the
+                Admin page hosts Clients, Evaluations, Feedback, Comps, and Beta
+                Codes as tabs (#231). Lands on Clients by default. */}
+            {showAdmin && (
               <MenuRow
                 icon={ICON.admin}
                 label="Admin"
                 href="/admin"
                 onClick={() => setOpen(false)}
               />
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Sign out */}
           <div className="py-1.5 border-t border-[#2a2a2a]">

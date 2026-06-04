@@ -43,7 +43,7 @@ export default function SettingsPage() {
 
   return (
     <div className="pt-20 font-mono">
-      <div className="max-w-2xl mx-auto px-6 py-10">
+      <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="mb-8">
           <h1 className="text-xl text-foreground font-sans">Settings</h1>
           <p className="text-xs text-muted font-sans mt-1">

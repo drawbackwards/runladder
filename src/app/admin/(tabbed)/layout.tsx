@@ -13,13 +13,13 @@ import { TabButton } from "@/components/Tabs";
  * render their own back-link + heading.
  */
 
-const TABS = [
+const TABS: { label: string; href: string; badge?: string }[] = [
   { label: "Clients", href: "/admin/clients" },
-  { label: "Evaluations", href: "/admin/evaluations" },
+  { label: "Evaluations", href: "/admin/evaluations", badge: "Beta" },
   { label: "Feedback", href: "/admin/feedback" },
   { label: "Comps", href: "/admin/comps" },
   { label: "Beta Codes", href: "/admin/beta-codes" },
-] as const;
+];
 
 export default function AdminTabbedLayout({
   children,
@@ -40,6 +40,7 @@ export default function AdminTabbedLayout({
               key={t.href}
               label={t.label}
               href={t.href}
+              badge={t.badge}
               active={pathname.startsWith(t.href)}
             />
           ))}

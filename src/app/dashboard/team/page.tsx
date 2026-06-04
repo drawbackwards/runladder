@@ -14,8 +14,15 @@ import {
   type DailyActivity,
 } from "@/components/ActivityHeatmap";
 import { Avatar } from "@/components/Avatar";
-import { ActiveReviewsCard } from "@/components/reviews/ActiveReviewsCard";
 import { ReviewRequestsPanel } from "@/components/reviews/ReviewRequestsPanel";
+import {
+  ReviewsIntro,
+  ReviewsStats,
+  ActiveReviewsList,
+} from "@/components/reviews/ReviewsOverview";
+import { TabButton } from "@/components/Tabs";
+import { SectionLabel } from "@/components/SectionLabel";
+import { Skeleton } from "@/components/Skeleton";
 import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
 import { useViewAs } from "@/lib/dev/view-as";
 import { viewAsTeamData } from "@/lib/dev/dashboard-fixtures";
@@ -78,6 +85,10 @@ type Insights = {
 type TeamPool = {
   used: number;
   limit: number;
+  /** Hard ceiling (soft × multiplier) — scoring stops past this. */
+  hardCap: number;
+  /** Days until the monthly pool resets, for the "Resets in Nd" copy. */
+  daysUntilReset: number;
 };
 
 export type TeamData = {
@@ -151,12 +162,12 @@ function InviteForm({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="teammate@example.com"
-          className="flex-1 min-w-[240px] bg-[#111] border border-[#2a2a2a] text-sm text-foreground px-3 py-2 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
+          className="flex-1 min-w-[240px] bg-[#111] border border-[#2a2a2a] text-sm text-foreground px-3 py-2 focus:outline-none focus:border-ladder-green placeholder:text-[#555] font-sans"
         />
         <button
           type="submit"
           disabled={busy || !email.trim()}
-          className="text-xs font-semibold bg-ladder-green text-background px-4 py-2 rounded-sm hover:bg-ladder-green/90 transition-colors disabled:opacity-40"
+          className="text-[11px] uppercase tracking-widest font-semibold text-[#1a1a1a] bg-ladder-green px-4 py-2 hover:bg-ladder-green/90 transition-colors disabled:opacity-40"
         >
           {busy ? "Sending…" : "Invite"}
         </button>
@@ -176,12 +187,13 @@ function NoOrgPanel() {
   return (
     <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-8">
       <h2 className="text-base font-sans text-foreground mb-2">
-        No team yet
+        Team isn&apos;t part of your plan
       </h2>
       <p className="text-sm text-muted font-sans">
-        Ladder Team is set up by Drawbackwards as part of your engagement. If
-        you expected access here, contact your Drawbackwards account manager and
-        they&apos;ll get you added.
+        Ladder Team is a separate tier, set up by Drawbackwards as part of an
+        engagement — it isn&apos;t included on the Free or Pro plans. If you
+        expected a team workspace here, contact your Drawbackwards account
+        manager and they&apos;ll get you added.
       </p>
     </div>
   );
@@ -244,9 +256,7 @@ function InsightsPanel({ insights }: { insights: Insights }) {
   return (
     <div className="mb-6">
       <div className="flex items-baseline justify-between mb-3">
-        <h2 className="text-[10px] text-muted uppercase tracking-widest">
-          Designer performance
-        </h2>
+        <SectionLabel>Team performance</SectionLabel>
         <span className="text-[10px] text-muted">
           Design sessions, last {windowDays} days
         </span>
@@ -293,123 +303,93 @@ function InsightsPanel({ insights }: { insights: Insights }) {
 }
 
 /**
- * Team pool meter. Shows monthly scoring volume against the soft
- * 25,000-score pool, plus a stacked segment-bar breaking down which
- * members are using the most of it. Visible to admins only because
- * it sits at the same scope as the rest of the manager dashboard.
- *
- * Segment math: each member's monthlyScans / poolLimit gives their
- * slice. We render the top contributors in tier colors so a manager
- * can scan "who's driving usage?" without clicking into rows. Total
- * width caps at 100% even if usage has gone over (the trailing copy
- * communicates the overage state separately).
+ * Team pool meter. Mirrors the dashboard Usage box — same data and bar style:
+ * monthly scoring volume against the soft pool cap, a bar normalized to the
+ * hard cap with a tick at the soft cap, and the "resets in N days" / hard-cap
+ * copy. The section label sits above the box, consistent with the rest of the
+ * page. Visible to the Team Lead only.
  */
-function TeamPoolMeter({
-  pool,
-  members,
-}: {
-  pool: TeamPool;
-  members: TeamMember[];
-}) {
-  const pct = Math.min(100, (pool.used / pool.limit) * 100);
-  const over = pool.used > pool.limit;
-  const warn = !over && pct >= 80;
-  const baseClass = over
-    ? "bg-red-400/30"
-    : warn
-      ? "bg-amber-400/30"
-      : "bg-ladder-green/30";
-  const activeClass = over
-    ? "bg-red-400"
-    : warn
-      ? "bg-amber-400"
-      : "bg-ladder-green";
+function TeamPoolMeter({ pool }: { pool: TeamPool }) {
+  const { used, limit, hardCap, daysUntilReset } = pool;
+  const pct = Math.min(100, (used / hardCap) * 100);
+  const softTickPct = (limit / hardCap) * 100;
+  const blocked = used >= hardCap;
+  const over = used > limit;
+  const warn = !over && used / limit >= 0.8;
 
-  // Top five contributors get their own segments; the rest fold into a
-  // single tail block. Keeps the bar readable at any team size.
-  const sortedActive = members
-    .filter((m) => m.monthlyScans > 0)
-    .sort((a, b) => b.monthlyScans - a.monthlyScans);
-  const top = sortedActive.slice(0, 5);
-  const tail = sortedActive.slice(5);
-  const tailSum = tail.reduce((s, m) => s + m.monthlyScans, 0);
-  const segments = [
-    ...top.map((m) => ({
-      key: m.userId ?? m.membershipId,
-      label:
-        m.firstName ?? m.email ?? "Member",
-      value: m.monthlyScans,
-    })),
-    ...(tailSum > 0
-      ? [{ key: "tail", label: `${tail.length} others`, value: tailSum }]
-      : []),
-  ];
-
-  const overOrWarn = over || warn;
-  const ceilingLink = (
-    <a
-      href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20higher%20volume%20inquiry"
-      className="text-ladder-green hover:underline"
-    >
-      Talk to us
-    </a>
-  );
+  // Bar color shifts at 80% of soft (amber) and >=100% of soft (red) — the
+  // same thresholds and palette as the dashboard Usage meter.
+  const barClass = blocked
+    ? "bg-red-500"
+    : over
+      ? "bg-red-400"
+      : warn
+        ? "bg-amber-400"
+        : "bg-ladder-green";
 
   return (
-    <section
-      className="mb-6 border border-[#2a2a2a] bg-[#1a1a1a] px-4 py-2.5 flex items-center gap-4 flex-wrap"
-      title={
-        over
-          ? "Team is over the pool ceiling — talk to us about a custom volume"
-          : warn
-            ? "Approaching the team pool ceiling"
-            : undefined
-      }
-    >
-      <span className="text-[10px] text-muted uppercase tracking-widest whitespace-nowrap">
-        Team pool
-      </span>
-      <div className="flex items-baseline gap-1.5 whitespace-nowrap font-mono">
-        <span
-          className="text-sm text-foreground font-semibold tabular-nums"
-          title="Scores used this month"
-        >
-          {pool.used.toLocaleString()}
-        </span>
-        <span className="text-[10px] text-muted">of</span>
-        <span
-          className="text-sm text-foreground font-semibold tabular-nums"
-          title="Monthly pool cap"
-        >
-          {pool.limit.toLocaleString()}
-        </span>
-        <span className="text-[10px] text-muted">scores · this month</span>
+    <section>
+      <SectionLabel className="mb-3">Team pool</SectionLabel>
+      <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="flex items-baseline justify-between gap-3 mb-4">
+          <p className="text-xs text-muted font-sans">
+            <span className="tabular-nums">{used.toLocaleString()}</span> of{" "}
+            {limit.toLocaleString()} scores this month
+          </p>
+          <span className="text-[10px] text-muted font-mono">
+            Resets in {daysUntilReset}d
+          </span>
+        </div>
+        <div className="relative h-1.5 bg-[#0e0e0e]">
+          <div
+            className={`h-full ${barClass} transition-all`}
+            style={{ width: `${pct}%` }}
+          />
+          <div
+            className="absolute top-[-2px] bottom-[-2px] w-px bg-[#555]"
+            style={{ left: `${softTickPct}%` }}
+            title={`Soft cap: ${limit.toLocaleString()}`}
+          />
+        </div>
+        <p className="text-[10px] text-muted mt-1 font-mono">
+          Hard cap at {hardCap.toLocaleString()}
+        </p>
+        {blocked ? (
+          <p className="text-[11px] text-red-400 mt-3">
+            Team pool is maxed for the month.{" "}
+            <a
+              href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20hard-cap%20reached"
+              className="underline"
+            >
+              Email us to lift the ceiling
+            </a>
+            .
+          </p>
+        ) : over ? (
+          <p className="text-[11px] text-muted mt-3">
+            Over your monthly pool. Still scoring through to{" "}
+            {hardCap.toLocaleString()} —{" "}
+            <a
+              href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20higher%20volume%20inquiry"
+              className="text-ladder-green hover:underline"
+            >
+              talk to us about higher volume
+            </a>
+            .
+          </p>
+        ) : warn ? (
+          <p className="text-[11px] text-muted mt-3">
+            Approaching your team pool cap.{" "}
+            <a
+              href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20higher%20volume%20inquiry"
+              className="text-ladder-green hover:underline"
+            >
+              Talk to us
+            </a>
+            .
+          </p>
+        ) : null}
       </div>
-      <div className={`relative flex-1 min-w-[120px] h-1.5 ${baseClass}`}>
-        {segments.map((seg, i) => {
-          const segPct = Math.min(100, (seg.value / pool.limit) * 100);
-          return (
-            <div
-              key={seg.key}
-              className={`absolute top-0 h-full ${activeClass} border-r border-[#1a1a1a] last:border-r-0`}
-              style={{
-                left: `${segments
-                  .slice(0, i)
-                  .reduce((sum, s) => sum + (s.value / pool.limit) * 100, 0)}%`,
-                width: `${segPct}%`,
-                opacity: 1 - i * 0.12,
-              }}
-              title={`${seg.label}: ${seg.value.toLocaleString()} scores`}
-            />
-          );
-        })}
-      </div>
-      {overOrWarn && (
-        <span className="text-[10px] text-muted">
-          {over ? "Over ceiling. " : "Near ceiling. "}
-          {ceilingLink}.
-        </span>
-      )}
     </section>
   );
 }
@@ -678,6 +658,82 @@ function ArchivedMemberRow({
   );
 }
 
+/**
+ * Structure-matching loading state for the members tab. Mirrors the real
+ * layout (Lead: stat row + pool/invite + members; designer: just members) so
+ * content fills into place when the team data arrives, with no reflow. The
+ * page header and tab bar stay rendered above this — only the data-shaped
+ * region is skeletoned.
+ */
+function TeamSkeleton({ isAdmin }: { isAdmin: boolean }) {
+  return (
+    <>
+      {isAdmin && (
+        <>
+          <section className="mb-6">
+            <SectionLabel className="mb-3">Team performance</SectionLabel>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="border border-[#2a2a2a] bg-[#1a1a1a] p-4"
+                >
+                  <Skeleton className="h-2 w-16 mb-3" />
+                  <Skeleton className="h-7 w-12" />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 items-start">
+            <section>
+              <SectionLabel className="mb-3">Team pool</SectionLabel>
+              <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+                <div className="flex items-baseline justify-between gap-3 mb-4">
+                  <Skeleton className="h-3 w-40" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+                <Skeleton className="h-1.5 w-full" />
+                <Skeleton className="h-2 w-24 mt-2" />
+              </div>
+            </section>
+            <section>
+              <SectionLabel className="mb-3">Invite a designer</SectionLabel>
+              <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+                <Skeleton className="h-9 w-full" />
+              </div>
+            </section>
+          </div>
+        </>
+      )}
+
+      <section className="mb-10">
+        <div className="flex items-baseline justify-between mb-3">
+          <SectionLabel>Members</SectionLabel>
+          <Skeleton className="h-3 w-44" />
+        </div>
+        <div className="border border-[#2a2a2a] bg-[#1a1a1a]">
+          <ul aria-hidden="true">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <li
+                key={i}
+                className="border-b border-[#222] last:border-0 p-4 flex items-center gap-4"
+              >
+                <div className="flex-1 min-w-0 space-y-2">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-56" />
+                </div>
+                <Skeleton className="h-8 w-10" />
+                <Skeleton className="h-8 w-10" />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    </>
+  );
+}
+
 export default function TeamPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const { isLoaded: orgListLoaded, userMemberships } = useOrganizationList({
@@ -700,6 +756,7 @@ export default function TeamPage() {
   const [teamData, setTeamData] = useState<TeamData | null>(null);
   const [teamErr, setTeamErr] = useState<string | null>(null);
   const [teamLoading, setTeamLoading] = useState(false);
+  const [teamTab, setTeamTab] = useState<"members" | "reviews">("members");
 
   // Dev "view as" override (no-op in production builds). Team fixtures apply
   // only on the Team plan; Free/Pro previews show the no-team state.
@@ -741,9 +798,6 @@ export default function TeamPage() {
         <div className="max-w-2xl mx-auto px-6 py-10">
           <div className="mb-8">
             <h1 className="text-xl text-foreground font-sans">Team</h1>
-            <p className="text-xs text-muted font-sans mt-1">
-              Invite your designers, see how they&apos;re scoring.
-            </p>
           </div>
           <NoOrgPanel />
         </div>
@@ -760,9 +814,6 @@ export default function TeamPage() {
         <div className="max-w-2xl mx-auto px-6 py-10">
           <div className="mb-8">
             <h1 className="text-xl text-foreground font-sans">Team</h1>
-            <p className="text-xs text-muted font-sans mt-1">
-              Invite your designers, see how they&apos;re scoring.
-            </p>
           </div>
           <NoOrgPanel />
         </div>
@@ -922,13 +973,13 @@ export default function TeamPage() {
               {orgName}
             </h1>
             <p className="text-xs text-muted font-sans mt-1">
-              {memberList.length} member{memberList.length !== 1 ? "s" : ""}
-              {inviteList.length > 0 &&
-                ` · ${inviteList.length} pending invite${inviteList.length !== 1 ? "s" : ""}`}
-              {isAdmin && (
+              {teamLoadingEff && memberList.length === 0 ? (
+                <Skeleton className="h-3 w-32 inline-block align-middle" />
+              ) : (
                 <>
-                  {" · "}
-                  <span className="text-ladder-green">Team Lead</span>
+                  {memberList.length} member{memberList.length !== 1 ? "s" : ""}
+                  {inviteList.length > 0 &&
+                    ` · ${inviteList.length} pending invite${inviteList.length !== 1 ? "s" : ""}`}
                 </>
               )}
             </p>
@@ -937,7 +988,7 @@ export default function TeamPage() {
             href="/dashboard"
             className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
           >
-            ← Personal dashboard
+            Personal dashboard
           </Link>
         </div>
 
@@ -947,32 +998,65 @@ export default function TeamPage() {
           </div>
         )}
 
+        <div className="border-b border-[#2a2a2a] flex items-center gap-2 mb-8 overflow-x-auto">
+          <TabButton
+            label="Team"
+            active={teamTab === "members"}
+            onClick={() => setTeamTab("members")}
+          />
+          <TabButton
+            label="Reviews"
+            badge="Beta"
+            active={teamTab === "reviews"}
+            onClick={() => setTeamTab("reviews")}
+          />
+        </div>
+
+        {/* Reviews tab. Team Lead sees the live panels; designers get a
+            coming-soon placeholder for now (empty state to be designed later). */}
+        {teamTab === "reviews" &&
+          (isAdmin ? (
+            <>
+              <ReviewsIntro />
+              <ReviewsStats />
+              <ReviewRequestsPanel />
+              <ActiveReviewsList showViewAll />
+            </>
+          ) : (
+            <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-10 text-center">
+              <p className="text-sm text-foreground font-sans mb-1">
+                Reviews are coming soon
+              </p>
+              <p className="text-xs text-muted font-sans max-w-sm mx-auto leading-relaxed">
+                Soon you&apos;ll be able to send a screen to your team for human
+                crit and track active reviews right here.
+              </p>
+            </div>
+          ))}
+
+        {/* Members tab — default view for everyone. */}
+        {teamTab === "members" &&
+          (teamLoadingEff && memberList.length === 0 ? (
+            <TeamSkeleton isAdmin={isAdmin} />
+          ) : (
+            <>
         {isAdmin && teamDataEff?.insights && (
           <InsightsPanel insights={teamDataEff.insights} />
         )}
 
-        {isAdmin && teamDataEff?.pool && (
-          <TeamPoolMeter pool={teamDataEff.pool} members={memberList} />
-        )}
-
-        {isAdmin && <ReviewRequestsPanel />}
-
-        {isAdmin && <ActiveReviewsCard />}
-
         {isAdmin && (
-          <section className="mb-10">
-            <h2 className="text-[10px] text-muted uppercase tracking-widest mb-3">
-              Invite a designer
-            </h2>
-            <InviteForm onInvite={handleInvite} />
-          </section>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 items-start">
+            {teamDataEff?.pool && <TeamPoolMeter pool={teamDataEff.pool} />}
+            <section>
+              <SectionLabel className="mb-3">Invite a designer</SectionLabel>
+              <InviteForm onInvite={handleInvite} />
+            </section>
+          </div>
         )}
 
         <section className="mb-10">
           <div className="flex items-baseline justify-between mb-3">
-            <h2 className="text-[10px] text-muted uppercase tracking-widest">
-              Members
-            </h2>
+            <SectionLabel>Members</SectionLabel>
             {teamDataEff && (
               <span className="text-[10px] text-muted">
                 Design-session activity, last {activityWindowDays} days
@@ -1018,9 +1102,7 @@ export default function TeamPage() {
 
         {inviteList.length > 0 && (
           <section className="mb-10">
-            <h2 className="text-[10px] text-muted uppercase tracking-widest mb-3">
-              Pending invitations
-            </h2>
+            <SectionLabel className="mb-3">Pending invitations</SectionLabel>
             <div className="border border-[#2a2a2a] bg-[#1a1a1a]">
               <ul>
                 {inviteList.map((inv) => (
@@ -1066,9 +1148,7 @@ export default function TeamPage() {
         {isAdmin && archivedList.length > 0 && (
           <section>
             <div className="flex items-baseline justify-between mb-3">
-              <h2 className="text-[10px] text-muted uppercase tracking-widest">
-                Archived members
-              </h2>
+              <SectionLabel>Archived members</SectionLabel>
               <span className="text-[10px] text-muted">
                 {archivedList.length} archived · still counted in team metrics
               </span>
@@ -1096,6 +1176,8 @@ export default function TeamPage() {
             </div>
           </section>
         )}
+            </>
+          ))}
       </div>
     </div>
   );

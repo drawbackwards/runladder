@@ -2,7 +2,7 @@
 title: User Journeys
 updatedAt: 2026-06-03
 updatedBy: Sara
-lastPr: 273
+lastPr: 275
 ---
 
 ## How to read this page
@@ -36,7 +36,7 @@ Triggers for the upgrade conversation:
 - User clicks a Pro-only tab (a11y audit, UX copywriting) on a score result.
 - User hits the Pricing page directly.
 
-The Stripe checkout is self-serve at the Pro price on `/pricing` ($1,000/mo today, via `POST /api/stripe/checkout`). On success the user lands on `/dashboard?welcome=pro` and Pro features unlock immediately.
+The Stripe checkout is self-serve at the Pro price on `/pricing` ($1,000/mo today, via `POST /api/stripe/checkout`). On success the user lands on `/dashboard?welcome=pro` and Pro features unlock immediately. Free users can also start the same checkout straight from the account menu's **Upgrade to Pro** row (#275); until Stripe is configured (#213) that row surfaces a "Billing not set up yet" message instead of navigating.
 
 ### Team provisioning (Live, admin-side — v0.5.5, PR #200)
 
@@ -54,14 +54,16 @@ After provisioning, the Team Lead gets the `org:admin` invite. On accept, the fi
 1. Land on `/dashboard/team` with an empty roster. The page **activates their org** (`setActive`) on first visit if no org is the session's active one — before #190, self-serve `CreateOrganization` set the org active automatically; the invite-based flow does not, so without this the page hung on "Loading your team…".
 2. Invite designers by email. Clerk Organization handles the invite.
 3. Accepted invitees auto-get a `tier: team` complimentary subscription via `/api/webhooks/clerk` (shipped in v0.3.0).
-4. The Team Lead sees the team pool meter (25,000 monthly default, shipped v0.4.18), member roster with letter grades A-F, and the Reviews workflow.
-5. Reviews flow: designer requests review, the Team Lead accepts or declines, designer scores iterations in `/dashboard/reviews/[slug]`, the Team Lead and peers add Team Takes and pin annotations.
+4. The team page is organized into two tabs (#274): **Team** (member roster with letter grades A–F, the Team Pool meter, and Invite) and **Reviews** (Beta). The Team Pool box mirrors the dashboard Usage meter — used/limit, monthly reset, hard cap, and a soft-cap tick. Designers see the same tabs; their Reviews tab shows a coming-soon placeholder. The page's top "Team" plan strip was removed (#274; comp-expiry surfacing tracked in #196).
+5. Reviews flow: the Reviews tab (Lead) shows the Review Requests inbox plus the reviews overview — the same content as the dedicated `/dashboard/reviews` route, via shared components (`ReviewsIntro` / `ReviewsStats` / `ActiveReviewsList`) so the two don't drift. A designer requests a review, the Team Lead accepts or declines, the designer scores iterations in `/dashboard/reviews/[slug]`, and the Team Lead and peers add Team Takes and pin annotations.
 
 See [Feature Inventory → Web app](/hq/features#web-app-runladdercom) for shipped Reviews features.
 
 **First-run setup banner:** on `/dashboard`, a Team Lead sees the green "Set up your team" prompt only while their team is still empty — they're the org admin and no designer has been invited yet (no pending invites, no `org:member`). It disappears once they invite their first member, and the team card takes over. The hidden provisioning service account and the Lead are both `org:admin`, so neither counts as an invited designer. This decision (`needsTeamSetup`) is computed server-side in `/api/dashboard` and the banner — like the plan strip — is gated on that fetch, so neither flashes a wrong default before the client knows the answer.
 
-**Internal members:** members of the internal **Drawbackwards** org don't see the team plan strip on `/dashboard` — we built the product, so the comp framing doesn't apply to us. (The strip no longer shows the word "Complimentary" to paying clients — it renders the tier label, e.g. "Team — Member of {org}." See #258.) `/api/dashboard` flags the membership (`internal`, via `isInternalOrg`) and the dashboard suppresses the strip. Other team clients still see it.
+**Pro members:** the personal dashboard shows no top plan strip for Pro — their tier badge and the **Subscription** link (Stripe customer portal) live in the account menu instead, so the dashboard stays clean. The account-menu row shows the Pro price (`$1,000/mo`, green) like the Free tier's upgrade nudge. Stripe portal configuration is tracked in [#213](https://github.com/drawbackwards/runladder/issues/213); until it's set up the Subscription row degrades gracefully (it resets instead of hanging on "Opening…").
+
+**Plan strips removed:** as of #274 the personal dashboard shows no top plan strip for Free, Pro, or Team — tier lives in the account menu (and, for teams, the sidebar Team card). The earlier internal-vs-client strip logic (`internal` via `isInternalOrg`, and the dropped "Complimentary" wording from #258) is now moot for the strip itself, though `internal` is still computed for other uses. Comp-expiry surfacing is tracked in #196.
 
 **Onboarding access note (v0.5.4, PR #198):** signed-in users, including invitees returning from Clerk's hosted portal with an active session, bypass the site password gate (`SITE_PASSWORD`), so the invite flow isn't blocked by the wall. Cold visitors still see it. See [Decisions → Site password gate bypasses signed-in users](/hq/decisions).
 

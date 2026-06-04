@@ -44,6 +44,14 @@ type ProClient = {
   since: number;
 };
 
+type FreeUser = {
+  id: string;
+  email: string;
+  name: string | null;
+  since: number;
+  lastActiveAt: number | null;
+};
+
 export async function GET() {
   if (!(await getAdminEmail())) return unauthorized();
 
@@ -83,25 +91,42 @@ export async function GET() {
   // grows large, back this with a Redis index of pro user ids.
   const userList = await client.users.getUserList({ limit: 500 });
   const proClients: ProClient[] = [];
+  const freeUsers: FreeUser[] = [];
   for (const u of userList.data) {
+    // The hidden provisioning service account isn't a real user — skip it.
+    if (provisioner && u.id === provisioner) continue;
     const meta = u.publicMetadata as Record<string, unknown> | undefined;
-    if ((meta?.tier as Tier | undefined) !== "pro") continue;
-    proClients.push({
+    const tier = meta?.tier as Tier | undefined;
+    if (tier === "pro") {
+      proClients.push({
+        id: u.id,
+        email: u.primaryEmailAddress?.emailAddress ?? "",
+        name: u.fullName || u.firstName || null,
+        comp: meta?.comp === true,
+        since:
+          typeof meta?.compGrantedAt === "number"
+            ? (meta.compGrantedAt as number)
+            : u.createdAt,
+      });
+      continue;
+    }
+    // Team / Pulse members are surfaced via their org above; only Free and
+    // tier-less individual accounts land in the Free users list.
+    if (tier === "team" || tier === "pulse") continue;
+    freeUsers.push({
       id: u.id,
       email: u.primaryEmailAddress?.emailAddress ?? "",
       name: u.fullName || u.firstName || null,
-      comp: meta?.comp === true,
-      since:
-        typeof meta?.compGrantedAt === "number"
-          ? (meta.compGrantedAt as number)
-          : u.createdAt,
+      since: u.createdAt,
+      lastActiveAt: u.lastSignInAt ?? null,
     });
   }
 
   teamClients.sort((a, b) => b.createdAt - a.createdAt);
   proClients.sort((a, b) => b.since - a.since);
+  freeUsers.sort((a, b) => b.since - a.since);
 
-  return NextResponse.json({ teamClients, proClients });
+  return NextResponse.json({ teamClients, proClients, freeUsers });
 }
 
 export async function POST(req: NextRequest) {
