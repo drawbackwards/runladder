@@ -2,7 +2,7 @@
 title: Decisions Log
 updatedAt: 2026-06-04
 updatedBy: Chester
-lastPr: VERSION_RECONCILE_PR
+lastPr: 277
 ---
 
 ## How to use this page
@@ -24,7 +24,7 @@ How to apply:
 - Treat `src/lib/app-version.ts` as the single source of truth for the web app version. Bump it on every user-visible PR.
 - In the same PR, mirror the new `CURRENT_APP_VERSION` into `package.json`'s `version`, and add a matching `CHANGELOG.md` entry. Use that same `X.Y.Z` as the version label in the Features inventory row.
 - Never read `package.json` `version` at runtime. If you need the app version in code, import `CURRENT_APP_VERSION`.
-- The full bump procedure is in [Architecture → Versioning](/hq/architecture). Reconciled in PR #VERSION_RECONCILE_PR.
+- The full bump procedure is in [Architecture → Versioning](/hq/architecture). Reconciled in [PR #277](https://github.com/drawbackwards/runladder/pull/277).
 
 Known follow-up (not resolved here): `features.mdx` and this log reference `v0.5.5` (#200) and `v0.5.6` for client-provisioning work, but those versions have no `CHANGELOG.md` entry and no constant bump — they were labeled ahead of the source of truth. Reconcile by either backfilling changelog entries or relabeling those rows to PR numbers; tracked separately so this PR stays scoped to the version system.
 
