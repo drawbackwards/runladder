@@ -73,6 +73,21 @@ const SEMI_ACTIVE_SCORES = SEMI_ACTIVE_DAYS.map((d, i) => {
   return score(`fx-r${i}`, v, labelFor(v), `Screen ${i + 1}`, d);
 });
 
+// A separate, sparser cadence for the Team preview, so the Team designer's
+// design-rhythm heatmap (active days / sessions) reads differently from Pro's
+// rather than showing identical numbers.
+const TEAM_ACTIVE_DAYS = [
+  2, 3, 7, 7, 10, 14, 17, 21, 22, 28, 33, 35, 35, 40, 44, 47, 52, 56, 56, 61,
+  65, 70, 74, 74, 79, 84, 88,
+];
+
+const TEAM_ACTIVE_SCORES = TEAM_ACTIVE_DAYS.map((d, i) => {
+  const base = 4.0 - (d / 91) * 1.2;
+  const jitter = ((i % 4) - 1.5) * 0.15;
+  const v = Math.max(1.8, Math.min(4.7, Math.round((base + jitter) * 10) / 10));
+  return score(`fx-t${i}`, v, labelFor(v), `Screen ${i + 1}`, d);
+});
+
 /** Account-menu + plan-strip overrides the dashboard derives from Clerk/data. */
 export type ViewAsUserMeta = {
   firstName: string | null;
@@ -113,7 +128,7 @@ export function viewAsUserMeta(s: ViewAsState): ViewAsUserMeta {
   // previewed fixture, so fixtures are never admins.
   const orgName = CLIENT_ORG;
   return {
-    firstName: s.role === "designer" ? "Jordan" : "Chester",
+    firstName: s.role === "designer" ? "Jordan" : "Morgan",
     tier: "team",
     comp: { reason: `Member of ${orgName}`, expiresAt: null },
     internal: false, // banner logic is role-driven; refined later
@@ -165,10 +180,10 @@ export function viewAsDashboardData(s: ViewAsState): DashboardData {
   // Team plan — role drives empty vs populated.
   const isLeadEmpty = s.role === "lead-empty";
   return {
-    scores: isLeadEmpty ? [] : SEMI_ACTIVE_SCORES,
+    scores: isLeadEmpty ? [] : TEAM_ACTIVE_SCORES,
     stats: isLeadEmpty
       ? emptyStats
-      : { ...stats, totalScans: SEMI_ACTIVE_SCORES.length, bestScore: 4.8 },
+      : { ...stats, totalScans: TEAM_ACTIVE_SCORES.length, bestScore: 4.7 },
     usage: { used: isLeadEmpty ? 0 : 1280, limit: 25000 },
     tier: "team",
     paid: true,
@@ -234,7 +249,7 @@ export type ViewAsTeam = {
 
 /** Team Dashboard fixtures keyed on the Team-plan role. */
 export function viewAsTeamData(s: ViewAsState): ViewAsTeam {
-  const lead = teamMember("lead", "Chester", "Schendel", "org:admin", 3.6, 40);
+  const lead = teamMember("lead", "Morgan", "Ellis", "org:admin", 3.6, 40);
   const orgName = "Acme Co.";
 
   if (s.role === "lead-empty") {
