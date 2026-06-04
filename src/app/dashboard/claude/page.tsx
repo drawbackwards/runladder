@@ -318,16 +318,12 @@ export default function ClaudeDetailPage() {
                     </li>
                     <li>
                       <span className="text-foreground">3.</span>{" "}
-                      {copiedToken ? (
-                        <span className="text-ladder-green">Copied!</span>
-                      ) : (
-                        <span
-                          onClick={copyToken}
-                          className="cursor-pointer text-ladder-green hover:underline"
-                        >
-                          Copy your Ladder token
-                        </span>
-                      )}{" "}
+                      <span
+                        onClick={copyToken}
+                        className="cursor-pointer text-ladder-green hover:underline"
+                      >
+                        {skill.tokenCopyLabel}
+                      </span>{" "}
                       and save it in the project&apos;s Instructions section.
                     </li>
                     <li>

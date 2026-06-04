@@ -102,12 +102,21 @@ export function useSkillInstall() {
     setTimeout(() => setCopied(false), 2000);
   }
 
-  function copyToken() {
-    if (!rawToken) return;
+  async function copyToken() {
+    if (!rawToken) {
+      await generate();
+      return;
+    }
     navigator.clipboard.writeText(`My Ladder token is ${rawToken}`);
     setCopiedToken(true);
     setTimeout(() => setCopiedToken(false), 2000);
   }
+
+  const tokenCopyLabel = copiedToken
+    ? "Copied!"
+    : rawToken
+      ? "Copy your Ladder token"
+      : "Generate and copy token";
 
   return {
     loading,
@@ -124,6 +133,7 @@ export function useSkillInstall() {
     copyCommand,
     copiedToken,
     copyToken,
+    tokenCopyLabel,
     downloadUrl: DOWNLOAD_URL,
     reset: generate,
     disconnect,
