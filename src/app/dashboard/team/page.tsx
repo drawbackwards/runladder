@@ -22,6 +22,7 @@ import {
 } from "@/components/reviews/ReviewsOverview";
 import { TabButton } from "@/components/Tabs";
 import { SectionLabel } from "@/components/SectionLabel";
+import { Skeleton } from "@/components/Skeleton";
 import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
 import { useViewAs } from "@/lib/dev/view-as";
 import { viewAsTeamData } from "@/lib/dev/dashboard-fixtures";
@@ -657,6 +658,82 @@ function ArchivedMemberRow({
   );
 }
 
+/**
+ * Structure-matching loading state for the members tab. Mirrors the real
+ * layout (Lead: stat row + pool/invite + members; designer: just members) so
+ * content fills into place when the team data arrives, with no reflow. The
+ * page header and tab bar stay rendered above this — only the data-shaped
+ * region is skeletoned.
+ */
+function TeamSkeleton({ isAdmin }: { isAdmin: boolean }) {
+  return (
+    <>
+      {isAdmin && (
+        <>
+          <section className="mb-6">
+            <SectionLabel className="mb-3">Team performance</SectionLabel>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="border border-[#2a2a2a] bg-[#1a1a1a] p-4"
+                >
+                  <Skeleton className="h-2 w-16 mb-3" />
+                  <Skeleton className="h-7 w-12" />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 items-start">
+            <section>
+              <SectionLabel className="mb-3">Team pool</SectionLabel>
+              <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+                <div className="flex items-baseline justify-between gap-3 mb-4">
+                  <Skeleton className="h-3 w-40" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+                <Skeleton className="h-1.5 w-full" />
+                <Skeleton className="h-2 w-24 mt-2" />
+              </div>
+            </section>
+            <section>
+              <SectionLabel className="mb-3">Invite a designer</SectionLabel>
+              <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+                <Skeleton className="h-9 w-full" />
+              </div>
+            </section>
+          </div>
+        </>
+      )}
+
+      <section className="mb-10">
+        <div className="flex items-baseline justify-between mb-3">
+          <SectionLabel>Members</SectionLabel>
+          <Skeleton className="h-3 w-44" />
+        </div>
+        <div className="border border-[#2a2a2a] bg-[#1a1a1a]">
+          <ul aria-hidden="true">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <li
+                key={i}
+                className="border-b border-[#222] last:border-0 p-4 flex items-center gap-4"
+              >
+                <div className="flex-1 min-w-0 space-y-2">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-56" />
+                </div>
+                <Skeleton className="h-8 w-10" />
+                <Skeleton className="h-8 w-10" />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    </>
+  );
+}
+
 export default function TeamPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const { isLoaded: orgListLoaded, userMemberships } = useOrganizationList({
@@ -896,9 +973,15 @@ export default function TeamPage() {
               {orgName}
             </h1>
             <p className="text-xs text-muted font-sans mt-1">
-              {memberList.length} member{memberList.length !== 1 ? "s" : ""}
-              {inviteList.length > 0 &&
-                ` · ${inviteList.length} pending invite${inviteList.length !== 1 ? "s" : ""}`}
+              {teamLoadingEff && memberList.length === 0 ? (
+                <Skeleton className="h-3 w-32 inline-block align-middle" />
+              ) : (
+                <>
+                  {memberList.length} member{memberList.length !== 1 ? "s" : ""}
+                  {inviteList.length > 0 &&
+                    ` · ${inviteList.length} pending invite${inviteList.length !== 1 ? "s" : ""}`}
+                </>
+              )}
             </p>
           </div>
           <Link
@@ -952,8 +1035,11 @@ export default function TeamPage() {
           ))}
 
         {/* Members tab — default view for everyone. */}
-        {teamTab === "members" && (
-          <>
+        {teamTab === "members" &&
+          (teamLoadingEff && memberList.length === 0 ? (
+            <TeamSkeleton isAdmin={isAdmin} />
+          ) : (
+            <>
         {isAdmin && teamDataEff?.insights && (
           <InsightsPanel insights={teamDataEff.insights} />
         )}
@@ -1090,8 +1176,8 @@ export default function TeamPage() {
             </div>
           </section>
         )}
-          </>
-        )}
+            </>
+          ))}
       </div>
     </div>
   );

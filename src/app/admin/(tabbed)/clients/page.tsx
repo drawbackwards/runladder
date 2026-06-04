@@ -3,6 +3,30 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
+import { Skeleton } from "@/components/Skeleton";
+
+/**
+ * Skeleton rows that mirror the real table: one shimmer bar per column, in the
+ * same `<td>`s the data lands in, sized to match a one-line row. The table head
+ * and section chrome stay rendered, so real rows replace these in place with no
+ * layout shift (only the row count differs).
+ */
+function TableSkeleton({ cols, rows = 4 }: { cols: number; rows?: number }) {
+  return (
+    <>
+      {Array.from({ length: rows }).map((_, r) => (
+        <tr key={r} className="border-b border-[#222] last:border-0">
+          {Array.from({ length: cols }).map((_, c) => (
+            <td key={c} className="p-3">
+              {/* First column a touch wider (email), rest narrower. */}
+              <Skeleton className={`h-3.5 ${c === 0 ? "w-4/5" : "w-1/2"}`} />
+            </td>
+          ))}
+        </tr>
+      ))}
+    </>
+  );
+}
 
 type TeamClient = {
   id: string;
@@ -22,6 +46,14 @@ type ProClient = {
   since: number;
 };
 
+type FreeUser = {
+  id: string;
+  email: string;
+  name: string | null;
+  since: number;
+  lastActiveAt: number | null;
+};
+
 function fmtDate(ms: number | null | undefined) {
   if (!ms) return "—";
   const d = new Date(ms);
@@ -37,6 +69,7 @@ export default function ManageClientsPage() {
   const { isSignedIn } = useAuth();
   const [teamClients, setTeamClients] = useState<TeamClient[]>([]);
   const [proClients, setProClients] = useState<ProClient[]>([]);
+  const [freeUsers, setFreeUsers] = useState<FreeUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyOrg, setBusyOrg] = useState<string | null>(null);
@@ -58,6 +91,7 @@ export default function ManageClientsPage() {
       const j = await res.json();
       setTeamClients(j.teamClients || []);
       setProClients(j.proClients || []);
+      setFreeUsers(j.freeUsers || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load");
     } finally {
@@ -132,7 +166,7 @@ export default function ManageClientsPage() {
     <>
       <div className="mb-6 flex items-baseline justify-between">
         <p className="text-xs text-muted font-sans">
-          Team orgs (provisioned) and Pro subscribers
+          Team orgs (provisioned), Pro subscribers, and Free users
         </p>
         <div className="flex items-center gap-4">
           <button
@@ -163,7 +197,13 @@ export default function ManageClientsPage() {
             <span className="text-[10px] text-muted uppercase tracking-widest">
               Team clients
             </span>
-            <span className="text-[10px] text-muted">{teamClients.length} total</span>
+            {loading ? (
+              <Skeleton className="h-3 w-12" />
+            ) : (
+              <span className="text-[10px] text-muted">
+                {teamClients.length} total
+              </span>
+            )}
           </div>
 
           <div className="border border-[#333] bg-[#1e1e1e]">
@@ -179,7 +219,9 @@ export default function ManageClientsPage() {
                 </tr>
               </thead>
               <tbody>
-                {teamClients.length === 0 ? (
+                {loading ? (
+                  <TableSkeleton cols={6} />
+                ) : teamClients.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="p-6 text-center text-muted font-sans">
                       No Team clients yet.
@@ -257,12 +299,18 @@ export default function ManageClientsPage() {
         </section>
 
         {/* ── Pro clients (read-only) ───────────────────────────── */}
-        <section>
+        <section className="mb-12">
           <div className="flex items-center justify-between mb-4">
             <span className="text-[10px] text-muted uppercase tracking-widest">
               Pro clients
             </span>
-            <span className="text-[10px] text-muted">{proClients.length} total</span>
+            {loading ? (
+              <Skeleton className="h-3 w-12" />
+            ) : (
+              <span className="text-[10px] text-muted">
+                {proClients.length} total
+              </span>
+            )}
           </div>
 
           <div className="border border-[#333] bg-[#1e1e1e]">
@@ -276,7 +324,9 @@ export default function ManageClientsPage() {
                 </tr>
               </thead>
               <tbody>
-                {proClients.length === 0 ? (
+                {loading ? (
+                  <TableSkeleton cols={4} />
+                ) : proClients.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="p-6 text-center text-muted font-sans">
                       No Pro clients yet.
@@ -294,6 +344,58 @@ export default function ManageClientsPage() {
                         {p.comp ? "Comp" : "Stripe"}
                       </td>
                       <td className="p-3 text-muted">{fmtDate(p.since)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* ── Free users (read-only) ────────────────────────────── */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] text-muted uppercase tracking-widest">
+              Free users
+            </span>
+            {loading ? (
+              <Skeleton className="h-3 w-12" />
+            ) : (
+              <span className="text-[10px] text-muted">
+                {freeUsers.length} total
+              </span>
+            )}
+          </div>
+
+          <div className="border border-[#333] bg-[#1e1e1e]">
+            <table className="w-full text-xs table-fixed">
+              <thead>
+                <tr className="border-b border-[#2a2a2a] text-muted uppercase tracking-widest text-[9px]">
+                  <th className="text-left p-3 w-1/4">Email</th>
+                  <th className="text-left p-3">Name</th>
+                  <th className="text-left p-3">Last active</th>
+                  <th className="text-left p-3">Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <TableSkeleton cols={4} />
+                ) : freeUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="p-6 text-center text-muted font-sans">
+                      No free users yet.
+                    </td>
+                  </tr>
+                ) : (
+                  freeUsers.map((u) => (
+                    <tr
+                      key={u.id}
+                      className="border-b border-[#222] last:border-0 hover:bg-[#222]"
+                    >
+                      <td className="p-3 text-foreground truncate">{u.email}</td>
+                      <td className="p-3 text-muted">{u.name || "—"}</td>
+                      <td className="p-3 text-muted">{fmtDate(u.lastActiveAt)}</td>
+                      <td className="p-3 text-muted">{fmtDate(u.since)}</td>
                     </tr>
                   ))
                 )}

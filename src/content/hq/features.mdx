@@ -1,8 +1,8 @@
 ---
 title: Feature Inventory
-updatedAt: 2026-06-03
+updatedAt: 2026-06-04
 updatedBy: Sara
-lastPr: 273
+lastPr: 276
 ---
 
 ## How to read this page
@@ -134,7 +134,7 @@ Gated by `ADMIN_EMAILS` env var. Defaults: Ward, Michael, Jordan.
 | Plugin backend proxy (`pluginFetch`) | Admin | Live | `src/lib/admin.ts` |
 | Super-admin protection on `SUPER_ADMIN_EMAILS` | Super Admin | Live | `src/lib/admin.ts`, hardcoded, passphrase-gated |
 | Webhook handler for Clerk org join | Auto | Live (v0.3.0) | `src/app/api/webhooks/clerk/route.ts` |
-| Manage Clients page (Team orgs + Pro list) | Admin | Live (v0.5.5) | `src/app/admin/clients/page.tsx`, [#200](https://github.com/drawbackwards/runladder/pull/200) |
+| Manage Clients page (Team orgs + Pro list + Free users list) | Admin | Live (v0.5.5) | `src/app/admin/clients/page.tsx`, [#200](https://github.com/drawbackwards/runladder/pull/200), Free users list [#276](https://github.com/drawbackwards/runladder/pull/276) |
 | Provision Team org + invite Team Lead as `org:admin` | Admin | Live (v0.5.5) | `src/app/api/admin/clients/route.ts` |
 | Org lifecycle: suspend / reactivate / delete (type-to-confirm) | Admin | Live (v0.5.5) | `src/app/api/admin/clients/[orgId]/route.ts` |
 | Internal-org protection (Drawbackwards never suspended/deleted) | Admin | Live (v0.5.5) | `src/lib/orgs.ts` `isInternalOrg` |
