@@ -153,17 +153,30 @@ h1, h2, h3, h4, h5, h6 {
 .animate-fade-up-delay-3 { animation-delay: 0.3s; opacity: 0; }
 .animate-fade-up-delay-4 { animation-delay: 0.4s; opacity: 0; }
 
-/* Shimmer loading for skeleton cards */
+/* Skeleton loading effect — single control point for every `.shimmer` / <Skeleton>.
+   CURRENT: subtle opacity pulse (matches Tailwind's `animate-pulse`).
+   To revert to the directional gradient sweep, restore the commented block below. */
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.shimmer {
+  background: #222;
+  animation: shimmer 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Previous gradient sweep (kept for easy comparison):
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
-
 .shimmer {
   background: linear-gradient(90deg, #222 25%, #2a2a2a 50%, #222 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }
+*/
 
 /* ── Clerk auth component overrides ── */
 /* Clerk uses inline styles that require !important to override. */

@@ -1,6 +1,7 @@
 import type { DashboardData } from "@/app/dashboard/page";
 import type { TeamData } from "@/app/dashboard/team/page";
 import type { UsageData } from "@/components/UsageMeter";
+import type { DailyActivity } from "@/components/ActivityHeatmap";
 import type { Tier } from "@/lib/plans";
 import type { ViewAsState } from "@/lib/dev/view-as";
 
@@ -128,7 +129,7 @@ export function viewAsUserMeta(s: ViewAsState): ViewAsUserMeta {
   // previewed fixture, so fixtures are never admins.
   const orgName = CLIENT_ORG;
   return {
-    firstName: s.role === "designer" ? "Jordan" : "Morgan",
+    firstName: s.role === "designer" ? "Priya" : "Morgan",
     tier: "team",
     comp: { reason: `Member of ${orgName}`, expiresAt: null },
     internal: false, // banner logic is role-driven; refined later
@@ -195,6 +196,34 @@ export function viewAsDashboardData(s: ViewAsState): DashboardData {
 
 /* ── Team Dashboard fixtures ─────────────────────────────────────────────── */
 
+// Deterministic per-member activity for the last 91 days, so the team member
+// rows render their design-rhythm heatmap in dev the way prod does (the real
+// API returns this; the fixtures previously left it empty, which hid the bar).
+function genActivity(seed: number): DailyActivity[] {
+  let s = (seed * 9301 + 49297) % 233280;
+  const rnd = () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+  const today = new Date();
+  const todayUTC = Date.UTC(
+    today.getUTCFullYear(),
+    today.getUTCMonth(),
+    today.getUTCDate(),
+  );
+  const out: DailyActivity[] = [];
+  for (let i = 90; i >= 0; i--) {
+    const active = rnd() < 0.4;
+    const count = active ? 1 + Math.floor(rnd() * 3) : 0;
+    out.push({
+      date: new Date(todayUTC - i * DAY).toISOString().slice(0, 10),
+      count,
+      avgScore: count > 0 ? Math.round((3 + rnd() * 1.5) * 10) / 10 : null,
+    });
+  }
+  return out;
+}
+
 function teamMember(
   id: string,
   first: string,
@@ -221,7 +250,7 @@ function teamMember(
     },
     recentScans: Math.max(1, Math.round(scans / 3)),
     monthlyScans: scans,
-    activity: [],
+    activity: genActivity(scans),
     evaluationsInWindow: 2,
   };
 }
@@ -268,7 +297,7 @@ export function viewAsTeamData(s: ViewAsState): ViewAsTeam {
   }
 
   const designers = [
-    teamMember("d1", "Jordan", "Lee", "org:member", 3.2, 28),
+    teamMember("d1", "Priya", "Nair", "org:member", 3.2, 28),
     teamMember("d2", "Sam", "Rivera", "org:member", 2.9, 19),
     teamMember("d3", "Avery", "Chen", "org:member", 3.8, 33),
   ];
