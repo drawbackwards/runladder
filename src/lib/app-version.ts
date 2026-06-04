@@ -8,10 +8,16 @@
  *
  * Co-located with skill-version.ts so all Ladder-surface version
  * constants live under src/lib and are easy to find + bump together.
+ *
+ * This constant is the SOURCE OF TRUTH for the web app product version.
+ * `package.json`'s `version` field is a build-metadata mirror of it (it is
+ * not read at runtime); keep the two in lockstep. See /hq/architecture →
+ * Versioning and the /hq/decisions versioning-convention entry.
  */
 
-// runladder.com (this web app). Visible in the footer.
-export const CURRENT_APP_VERSION = "0.5.3";
+// runladder.com (this web app). Visible in the footer. Mirror this value
+// into package.json's `version` field on every bump.
+export const CURRENT_APP_VERSION = "0.5.4";
 
 // Ladder API (plugin/analyze, framework, score, skill/score, etc.). Sent
 // back to every API caller via the X-Ladder-API-Version response header

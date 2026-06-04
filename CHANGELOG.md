@@ -16,6 +16,7 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 - **Login UI cleanup.** Removed the dark background behind the identity-preview email field and removed the redundant Ladder logo above the auth form (the nav already shows it).
 - **Onboarding env docs.** Added `.env.local.example` documenting every env var needed for local onboarding work.
 - `/hq` updated: Decisions Log (gate bypass) and User Journeys (Team manager flow access note + invite-redirect known issue). PR #198.
+- **Version-stamp correction (added in #VERSION_RECONCILE_PR).** #198 added this entry but left `CURRENT_APP_VERSION` at 0.5.3, so the footer trailed the changelog by one release. The constant is now `0.5.4`, and `package.json` (orphaned at `0.3.0` since the 0.4.x cutover, never read at runtime) is back in lockstep with it. The source-of-truth + mirror convention is codified in [Decisions Log](/hq/decisions#versioning-source-of-truth) and [Architecture → Versioning](/hq/architecture).
 
 ---
 

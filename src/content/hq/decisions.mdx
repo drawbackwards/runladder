@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-05-29
-updatedBy: Sara
-lastPr: 265
+updatedAt: 2026-06-04
+updatedBy: Chester
+lastPr: VERSION_RECONCILE_PR
 ---
 
 ## How to use this page
@@ -10,6 +10,23 @@ lastPr: 265
 The why behind big choices. Read this before you push back on a feature, a price, or a roadmap call. Most decisions look arbitrary until you know the constraint that drove them. New entries go at the top with a date and one-line rule.
 
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
+
+---
+
+## Versioning source of truth (2026-06-04)
+
+**The web app product version lives in `src/lib/app-version.ts` (`CURRENT_APP_VERSION`), NOT in `package.json`.** API, Skill, and plugin versions live in their own sibling constants under `src/lib`. `package.json`'s `version` field is build metadata only — nothing reads it at runtime — and is kept as a mirror of `CURRENT_APP_VERSION`.
+
+Why: `package.json` originally held the product version (0.1.0 → 0.3.0). At the 0.4.x cutover the source of truth moved into `src/lib/*-version.ts` so each surface (web, API, Skill, plugin) could version independently and surface its own number to users (footer, `X-Ladder-API-Version` header, Skill zip name). `package.json` was left behind at `0.3.0` and silently drifted ~14 releases out of date. Because nothing reads it, the drift was invisible until an audit. A second drift compounded it: PR #198 added a `CHANGELOG.md` entry for `app 0.5.4` but forgot to bump `CURRENT_APP_VERSION`, so the footer trailed the changelog by a release.
+
+How to apply:
+
+- Treat `src/lib/app-version.ts` as the single source of truth for the web app version. Bump it on every user-visible PR.
+- In the same PR, mirror the new `CURRENT_APP_VERSION` into `package.json`'s `version`, and add a matching `CHANGELOG.md` entry. Use that same `X.Y.Z` as the version label in the Features inventory row.
+- Never read `package.json` `version` at runtime. If you need the app version in code, import `CURRENT_APP_VERSION`.
+- The full bump procedure is in [Architecture → Versioning](/hq/architecture). Reconciled in PR #VERSION_RECONCILE_PR.
+
+Known follow-up (not resolved here): `features.mdx` and this log reference `v0.5.5` (#200) and `v0.5.6` for client-provisioning work, but those versions have no `CHANGELOG.md` entry and no constant bump — they were labeled ahead of the source of truth. Reconcile by either backfilling changelog entries or relabeling those rows to PR numbers; tracked separately so this PR stays scoped to the version system.
 
 ---
 
