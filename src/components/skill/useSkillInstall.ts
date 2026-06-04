@@ -114,6 +114,7 @@ export function useSkillInstall() {
     connected,
     version,
     lastUsedAt: meta?.lastUsedAt,
+    lastUsedSurface: meta?.lastUsedSurface,
     installedVersion: meta?.installedVersion,
     updateAvailable,
     rawToken,

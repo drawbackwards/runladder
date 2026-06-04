@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
       timestamp: Date.now(),
       sessionType,
     });
-    await touchSkillToken(userId, installedVersion);
+    await touchSkillToken(userId, installedVersion, source === "claude-ai" ? "claude-ai" : "claude-code");
 
     /* ── Usage block ──
      * The Skill user lives in a Claude conversation; they never see

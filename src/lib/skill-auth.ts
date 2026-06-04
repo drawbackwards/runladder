@@ -21,6 +21,7 @@ export type SkillTokenMeta = {
   createdAt: number;
   lastUsedAt?: number;
   installedVersion?: string; // last X-Ladder-Skill-Version seen from score.py
+  lastUsedSurface?: "claude-code" | "claude-ai";
 };
 
 export function hashToken(raw: string): string {
@@ -88,7 +89,8 @@ export async function userIdFromBearer(raw: string): Promise<string | null> {
 /** Update the lastUsedAt timestamp on a skill token (best-effort, fire and forget). */
 export async function touchSkillToken(
   userId: string,
-  installedVersion?: string
+  installedVersion?: string,
+  surface?: "claude-code" | "claude-ai"
 ): Promise<void> {
   const existing = await redis.get<SkillTokenMeta>(`user:${userId}:skill`);
   if (!existing) return;
@@ -96,5 +98,6 @@ export async function touchSkillToken(
     ...existing,
     lastUsedAt: Date.now(),
     ...(installedVersion ? { installedVersion } : {}),
+    ...(surface ? { lastUsedSurface: surface } : {}),
   });
 }

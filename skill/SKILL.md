@@ -37,9 +37,10 @@ You need two things to run a score:
 ```json
   {
     "image": "data:image/png;base64,{base64_image_data}",
-    "source": "claude-skill"
+    "source": "{claude-code | claude-ai}"
   }
 ```
+  Use `"claude-code"` if the token was read from `~/.ladder/token`, or `"claude-ai"` if it was read from the project instructions.
 
 **5. Present the result:**
 
