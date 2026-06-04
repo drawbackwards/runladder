@@ -245,7 +245,7 @@ export function viewAsTeamData(s: ViewAsState): ViewAsTeam {
         archived: [],
         insights: null,
         activityWindowDays: 91,
-        pool: { used: 0, limit: 25000 },
+        pool: { used: 0, limit: 25000, hardCap: 50000, daysUntilReset: 18 },
       },
       orgName,
       selfUserId: "usr-lead",
@@ -266,7 +266,7 @@ export function viewAsTeamData(s: ViewAsState): ViewAsTeam {
       // Insights are manager-only; a designer's API response omits them.
       insights: isManager ? TEAM_INSIGHTS : null,
       activityWindowDays: 91,
-      pool: { used: 1280, limit: 25000 },
+      pool: { used: 1280, limit: 25000, hardCap: 50000, daysUntilReset: 18 },
     },
     orgName,
     selfUserId: isManager ? "usr-lead" : "usr-d1",

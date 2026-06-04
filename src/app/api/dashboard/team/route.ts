@@ -4,8 +4,8 @@ import { redis } from "@/lib/redis";
 import { getUserStats, type UserStats } from "@/lib/scores";
 import { RUNG_NAMES, type RungName } from "@/lib/ladder";
 import { listArchivedMembers } from "@/lib/team-archives";
-import { getMonthlyScans } from "@/lib/usage";
-import { TEAM_MONTHLY_POOL } from "@/lib/plans";
+import { getMonthlyScans, daysUntilMonthEnd } from "@/lib/usage";
+import { TEAM_MONTHLY_POOL, monthlyHardCapForTier } from "@/lib/plans";
 import { isProvisioningUser } from "@/lib/orgs";
 
 /**
@@ -463,6 +463,8 @@ export async function GET() {
     pool: {
       used: poolUsed,
       limit: TEAM_MONTHLY_POOL,
+      hardCap: monthlyHardCapForTier("team") ?? TEAM_MONTHLY_POOL * 2,
+      daysUntilReset: daysUntilMonthEnd(),
     },
   });
 }

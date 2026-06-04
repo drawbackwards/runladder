@@ -10,6 +10,7 @@ import {
 } from "@/lib/reviews/mockData";
 import { getScoreColor } from "@/lib/ladder";
 import { MockScreen } from "@/components/reviews/MockScreen";
+import { SectionLabel } from "@/components/SectionLabel";
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - +new Date(iso);
@@ -49,22 +50,12 @@ export function ReviewRequestsPanel() {
   }
 
   return (
-    <section className="mb-6 border border-ladder-green/30 bg-ladder-green/[0.04] p-5">
-      <div className="flex items-baseline justify-between gap-3 mb-4">
-        <div>
-          <div className="flex items-baseline gap-2.5">
-            <h2 className="text-[10px] text-ladder-green uppercase tracking-widest font-mono font-semibold">
-              Review requests
-            </h2>
-            <span className="text-[10px] text-muted font-mono tabular-nums">
-              {requests.length} pending
-            </span>
-          </div>
-          <p className="text-xs text-muted font-sans mt-1">
-            Designers asking for your eyes. Accept to start (or extend) a
-            Review.
-          </p>
-        </div>
+    <section className="mb-10">
+      <div className="flex items-baseline justify-between gap-3 mb-3">
+        <SectionLabel>Review requests</SectionLabel>
+        <span className="text-[10px] text-muted font-mono tabular-nums">
+          {requests.length} pending
+        </span>
       </div>
 
       <div className="space-y-2">
@@ -76,7 +67,7 @@ export function ReviewRequestsPanel() {
           return (
             <div
               key={req.id}
-              className="border border-[#2a2a2a] bg-[#1a1a1a] p-3"
+              className="border border-ladder-green/30 bg-ladder-green/[0.04] p-3"
             >
               <div className="flex items-stretch gap-3">
                 <div className="w-20 flex-shrink-0">
