@@ -33,6 +33,7 @@ export function useSkillInstall() {
   const [working, setWorking] = useState(false);
   const [rawToken, setRawToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copiedToken, setCopiedToken] = useState(false);
 
   useEffect(() => {
     fetch("/api/skill/token")
@@ -100,6 +101,13 @@ export function useSkillInstall() {
     setTimeout(() => setCopied(false), 2000);
   }
 
+  function copyToken() {
+    if (!rawToken) return;
+    navigator.clipboard.writeText(`My Ladder token is ${rawToken}`);
+    setCopiedToken(true);
+    setTimeout(() => setCopiedToken(false), 2000);
+  }
+
   return {
     loading,
     working,
@@ -108,9 +116,12 @@ export function useSkillInstall() {
     lastUsedAt: meta?.lastUsedAt,
     installedVersion: meta?.installedVersion,
     updateAvailable,
+    rawToken,
     command,
     copied,
     copyCommand,
+    copiedToken,
+    copyToken,
     downloadUrl: DOWNLOAD_URL,
     reset: generate,
     disconnect,

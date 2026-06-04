@@ -44,6 +44,7 @@ function relativeTime(ts: number): string {
 export default function ClaudeDetailPage() {
   const { isLoaded, isSignedIn } = useAuth();
   const skill = useSkillInstall();
+  const { rawToken, copiedToken, copyToken } = skill;
   const [troubleshootOpen, setTroubleshootOpen] = useState(false);
 
   if (!isLoaded) return null;
@@ -66,34 +67,32 @@ export default function ClaudeDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           <main>
-            {/* Hero — placeholder until we drop in a real screenshot. */}
-            <div className="aspect-[16/9] border border-[#2a2a2a] bg-[#161616] flex items-center justify-center mb-6">
-              <span className="text-[10px] uppercase tracking-widest text-muted">
-                Skill screenshot
-              </span>
-            </div>
+            <img
+              src="/images/claude-code-ladder-img.png"
+              alt="Ladder skill running inside Claude Code"
+              className="w-full border border-[#2a2a2a] mb-6"
+            />
             <div className="space-y-4 text-sm text-muted font-sans leading-relaxed">
               <p>
                 Ladder for Claude is a Skill that scores any UI screenshot
-                against the Ladder framework, right inside Claude, whether you
-                work in Claude Code, Claude.ai, or VS Code. Install it once, then
-                screenshot a screen and say &ldquo;Run Ladder&rdquo; to get a
-                score and ranked findings without leaving your conversation.
+                against the Ladder framework, right inside your Claude
+                conversation. Install it once and say &ldquo;Run Ladder&rdquo;
+                to get a score, a ranked list of findings, and a clear path to
+                the next level without leaving Claude.
               </p>
               <p>
-                Drop in any screenshot, whether it&apos;s a Figma export, a
-                localhost grab, or a competitor&apos;s screen, and get a Ladder
-                Score from Functional to Meaningful, with findings ranked by
-                impact and a clear path to the next level.
+                Drop in a Figma export, a localhost grab, or a
+                competitor&apos;s screen and get back a Ladder Score from
+                Functional to Meaningful with specific fixes ranked by impact.
               </p>
               <p>
-                Because it runs inside Claude, you can go deeper in the same
-                conversation. Ask why a finding matters, request a copy rewrite
-                or an accessibility pass, then paste a revised screen to rescore
-                and track your progress.
+                Because it runs inside Claude, you can go deeper without
+                switching tools. Ask why a finding matters, request an
+                accessibility pass, or paste a revised screen to rescore and
+                track your progress over time.
               </p>
               <p>
-                There are two ways to install, depending on where you use Claude.
+                There are two ways to install depending on where you use Claude.
                 Pick the one that matches your setup.
               </p>
             </div>
@@ -217,21 +216,20 @@ export default function ClaudeDetailPage() {
             {/* Install path 1: Claude Code / VS Code */}
             <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
               <h3 className="text-sm text-foreground font-sans font-semibold mb-3">
-                Claude Code / VS Code
+                Claude Code
               </h3>
               <ol className="space-y-2 text-xs text-muted font-sans leading-relaxed mb-4">
                 <li>
-                  <span className={stepNum}>1.</span> Copy the install command
-                  below.
+                  <span className={stepNum}>1.</span> Click &ldquo;Get install
+                  command&rdquo; to copy it to your clipboard.
                 </li>
                 <li>
-                  <span className={stepNum}>2.</span> Paste it into your Terminal
-                  and run it — it saves your access and installs the skill in one
-                  step.
+                  <span className={stepNum}>2.</span> Open and paste it into your
+                  Terminal and run it. This will install and save your token.
                 </li>
                 <li>
-                  <span className={stepNum}>3.</span> Screenshot a UI in any
-                  Claude conversation and say &ldquo;Run Ladder.&rdquo;
+                  <span className={stepNum}>3.</span> Attach a screenshot of a UI
+                  in any Claude conversation and enter &ldquo;Run Ladder.&rdquo;
                 </li>
               </ol>
               <button
@@ -252,21 +250,49 @@ export default function ClaudeDetailPage() {
             {/* Install path 2: Claude.ai */}
             <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
               <h3 className="text-sm text-foreground font-sans font-semibold mb-3">
-                Claude.ai
+                Claude.ai (web chat)
               </h3>
               <ol className="space-y-2 text-xs text-muted font-sans leading-relaxed mb-4">
                 <li>
-                  <span className={stepNum}>1.</span> Download the SKILL.md file
-                  below.
+                  <span className="text-foreground">1.</span> Create a Project in
+                  Claude.ai (web).
                 </li>
                 <li>
-                  <span className={stepNum}>2.</span> Add it to a Claude Project.
+                  <span className="text-foreground">2.</span> Download the
+                  SKILL.md file and save it in the project&apos;s Files section.
                 </li>
                 <li>
-                  <span className={stepNum}>3.</span> Screenshot a UI and say
-                  &ldquo;Run Ladder.&rdquo;
+                  <span className="text-foreground">3.</span>{" "}
+                  {copiedToken ? (
+                    <span className="text-ladder-green">Copied!</span>
+                  ) : (
+                    <span
+                      onClick={copyToken}
+                      className="cursor-pointer text-ladder-green hover:underline"
+                    >
+                      Copy your Ladder token
+                    </span>
+                  )}{" "}
+                  and save it in the project&apos;s Instructions section.
+                </li>
+                <li>
+                  <span className="text-foreground">4.</span> In that project,
+                  attach a screenshot of any UI and enter &ldquo;Run Ladder.&rdquo;
                 </li>
               </ol>
+              {rawToken && (
+                <div className="mb-4 bg-[#0e0e0e] border border-[#2a2a2a] px-3 py-2 flex items-center justify-between gap-3">
+                  <code className="text-[10.5px] font-mono text-foreground truncate">
+                    My Ladder token is {rawToken}
+                  </code>
+                  <button
+                    onClick={copyToken}
+                    className="text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-3 py-1.5 font-semibold flex-shrink-0"
+                  >
+                    {copiedToken ? "Copied" : "Copy"}
+                  </button>
+                </div>
+              )}
               <a
                 href={skill.downloadUrl}
                 className="inline-block text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold"
