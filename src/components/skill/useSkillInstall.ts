@@ -9,6 +9,7 @@ type Meta = {
   lastUsedAt?: number;
   installedVersion?: string;
   currentVersion?: string;
+  lastUsedSurface?: "claude-code" | "claude-ai";
 };
 
 const DOWNLOAD_URL = "/api/skill/download";
@@ -114,6 +115,7 @@ export function useSkillInstall() {
     connected,
     version,
     lastUsedAt: meta?.lastUsedAt,
+    lastUsedSurface: meta?.lastUsedSurface,
     installedVersion: meta?.installedVersion,
     updateAvailable,
     rawToken,
