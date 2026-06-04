@@ -12,8 +12,8 @@ import { TeamCard } from "@/components/TeamCard";
 import { TeamSetupBanner } from "@/components/TeamSetupBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { ActivityHeatmap, type DailyActivity } from "@/components/ActivityHeatmap";
-import { RequestReviewCTA } from "@/components/reviews/RequestReviewCTA";
 import { FREE_LIFETIME_LIMIT } from "@/lib/plans";
+import { SectionLabel } from "@/components/SectionLabel";
 import { useViewAs } from "@/lib/dev/view-as";
 import {
   viewAsDashboardData,
@@ -151,6 +151,15 @@ function UpgradeStrip({
   // Internal Drawbackwards members don't see any plan/comp strip — we built
   // Ladder; the "Complimentary Team" framing doesn't apply to us.
   if (internal) return null;
+
+  // Pro users get no top strip — their tier badge and the Subscription link
+  // live in the account menu now, so the dashboard stays clean.
+  if (tier === "pro") return null;
+
+  // Team members also get no top strip (removed the green "Team — Member of …"
+  // banner). Tier shows in the account menu and the sidebar Team card; comp
+  // expiry surfacing is tracked separately in #196.
+  if (tier === "team") return null;
 
   if (paid && comp) {
     const expiry =
@@ -356,9 +365,7 @@ function DesignRhythmCard({ scores }: { scores: ScoreEntry[] }) {
   return (
     <div className="mb-6">
       <div className="flex items-baseline justify-between mb-3 gap-3 flex-wrap">
-        <span className="text-[10px] text-muted uppercase tracking-widest">
-          Design rhythm
-        </span>
+        <SectionLabel>Design rhythm</SectionLabel>
         <span className="text-[10px] text-muted">
           Design sessions, last {RHYTHM_WINDOW_DAYS} days
         </span>
@@ -494,7 +501,10 @@ export default function DashboardPage() {
 
         {effectiveData && needsTeamSetup && <TeamSetupBanner />}
 
-        {(tier === "team" || tier === "pulse") && <RequestReviewCTA />}
+        {/* Reviews is incomplete, so the designer-side "Ask your team for a
+            review" CTA is hidden for now. Restore by re-adding
+            <RequestReviewCTA /> here (gated on tier team/pulse) once Reviews
+            ships. */}
 
         <DesignRhythmCard scores={scores} />
 
@@ -515,9 +525,7 @@ export default function DashboardPage() {
               <>
                 <ScoreCTACard />
                 <div className="mt-6 mb-3 flex items-center justify-between">
-                  <span className="text-[10px] text-muted uppercase tracking-widest">
-                    Score history
-                  </span>
+                  <SectionLabel>Score history</SectionLabel>
                   <span className="text-[10px] text-muted">
                     {scores.length} score{scores.length !== 1 ? "s" : ""}
                   </span>

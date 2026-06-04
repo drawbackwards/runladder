@@ -12,12 +12,15 @@ export function TabButton({
   label,
   active,
   count,
+  badge,
   href,
   onClick,
 }: {
   label: string;
   active: boolean;
   count?: number;
+  /** Small text tag rendered after the label, e.g. "Beta". */
+  badge?: string;
   href?: string;
   onClick?: () => void;
 }) {
@@ -36,6 +39,11 @@ export function TabButton({
           }`}
         >
           {count}
+        </span>
+      )}
+      {badge && (
+        <span className="ml-1.5 text-[8px] uppercase tracking-widest text-ladder-green border border-ladder-green/40 bg-ladder-green/5 px-1 py-0.5 leading-none align-middle">
+          {badge}
         </span>
       )}
     </>
