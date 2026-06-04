@@ -59,21 +59,25 @@ Plugin source lives in `ai-design-assistant`. Backend endpoints (`/api/plugin/*`
 | Plugin token verification | Plugin token | Live | `src/app/api/plugin/verify-token/route.ts` |
 | Score persistence from plugin | Plugin token | Live | `src/app/api/plugin/persist-score/route.ts` |
 | Plugin metadata endpoint | Public | Live | `src/app/api/plugin/meta/route.ts` |
-| Plugin bundle (v1.0.6) | All | Live | `drawbackwards/ai-design-assistant`, version synced via `scripts/sync-skill-version.mjs` |
+| Plugin bundle (v1.0.8) | All | Live | `drawbackwards/ai-design-assistant`, version synced via `scripts/sync-skill-version.mjs` |
 | Free 5-lifetime cap inside plugin | Free | Live | Enforced server-side via shared `plans.ts` |
 | Marketplace listing demo flow | Public | Roadmap | Gates the relaunch (re-review restarted 2026-04-18 per memory) |
 | Batch scoring of a frame stack | Pro+ | Roadmap | Open question per Journeys |
 
 ## Claude Skill: runladder backend + bundle
 
-Bundle source and `CURRENT_SKILL_VERSION` in `src/lib/skill-version.ts` (currently `1.0.6`). Backend endpoints in `runladder` under `/api/skill/*`.
+Bundle source and `CURRENT_SKILL_VERSION` in `src/lib/skill-version.ts` (currently `1.0.8`). Backend endpoints in `runladder` under `/api/skill/*`.
 
 | Feature | Roles | Status | Evidence |
 | --- | --- | --- | --- |
-| Skill bundle v1.0.6 | All | Live | `src/lib/skill-version.ts`, `scripts/sync-skill-version.mjs` |
+| Skill bundle v1.0.8 | All | Live | `src/lib/skill-version.ts`, `scripts/sync-skill-version.mjs` |
 | Skill token issuance | All signed-in | Live | `src/app/api/skill/token/route.ts` |
 | Score from Claude conversation | Skill token | Live | `src/app/api/skill/score/route.ts` |
 | Manual install (Ward and team use it today) | All | Live | Installed via `~/.claude/skills` or workspace |
+| Four-state right rail (not connected / Claude Code / Claude.ai / both) | All signed-in | Live (#279) | `src/app/dashboard/claude/page.tsx`, `src/components/skill/useSkillInstall.ts` |
+| Surface tracking on skill scores (`lastUsedSurface`) | Skill token | Live (#279) | `src/lib/skill-auth.ts`, `src/app/api/skill/score/route.ts`, `src/app/api/skill/token/route.ts` |
+| SKILL.md standalone download (`/api/skill/download`) | All signed-in | Live (#278) | `src/app/api/skill/download/route.ts` |
+| Claude.ai install path via Claude Project | All signed-in | Live (#278) | `skill/SKILL.md`, `src/app/dashboard/claude/page.tsx` |
 | Public plugin marketplace (`marketplace.json` in `drawbackwards/runladder`) | Public | Roadmap | See [Roadmap → Skill distribution](/hq/roadmap#skill-distribution-roadmap) |
 | Submission to `anthropics/skills` public marketplace | Public | Roadmap | See [Roadmap → Skill distribution](/hq/roadmap#skill-distribution-roadmap) |
 | Teams enterprise deployment (admin workspace deploy) | Teams | Roadmap | Shipped by Anthropic Dec 2025, we have not used it yet |
