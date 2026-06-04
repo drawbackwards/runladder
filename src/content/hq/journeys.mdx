@@ -2,7 +2,7 @@
 title: User Journeys
 updatedAt: 2026-06-03
 updatedBy: Sara
-lastPr: 274
+lastPr: 275
 ---
 
 ## How to read this page
@@ -36,7 +36,7 @@ Triggers for the upgrade conversation:
 - User clicks a Pro-only tab (a11y audit, UX copywriting) on a score result.
 - User hits the Pricing page directly.
 
-The Stripe checkout is self-serve at the Pro price on `/pricing` ($1,000/mo today, via `POST /api/stripe/checkout`). On success the user lands on `/dashboard?welcome=pro` and Pro features unlock immediately.
+The Stripe checkout is self-serve at the Pro price on `/pricing` ($1,000/mo today, via `POST /api/stripe/checkout`). On success the user lands on `/dashboard?welcome=pro` and Pro features unlock immediately. Free users can also start the same checkout straight from the account menu's **Upgrade to Pro** row (#275); until Stripe is configured (#213) that row surfaces a "Billing not set up yet" message instead of navigating.
 
 ### Team provisioning (Live, admin-side — v0.5.5, PR #200)
 

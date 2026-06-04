@@ -213,19 +213,19 @@ export function UserMenu() {
     email[0] ||
     "?"
   ).toUpperCase();
-  async function handleManageBilling() {
+  // Shared Stripe entry point. Pro uses the customer portal; Free upgrade uses
+  // checkout. Both behave the same: navigate to the returned URL, or surface a
+  // message instead of silently doing nothing. Real config is tracked in #213.
+  async function startBilling(endpoint: string) {
     setPortalLoading(true);
     setPortalMsg(null);
     try {
-      const res = await fetch("/api/stripe/portal", { method: "POST" });
+      const res = await fetch(endpoint, { method: "POST" });
       const data = (await res.json().catch(() => ({}))) as { url?: string };
       if (data.url) {
         window.location.href = data.url;
         return; // navigating away — keep the loading state until unload
       }
-      // No URL: the Stripe portal isn't usable yet (not configured, or this
-      // account has no Stripe customer). Surface that instead of silently
-      // doing nothing. Real config is tracked in #213.
       setPortalMsg(
         res.status === 404 ? "No active subscription" : "Billing not set up yet",
       );
@@ -234,6 +234,19 @@ export function UserMenu() {
     }
     setPortalLoading(false);
   }
+
+  // Right-aligned meta shared by the Free "Upgrade to Pro" and Pro
+  // "Subscription" rows: the green price normally, "Opening…" while a billing
+  // request is in flight, an amber message if it couldn't open.
+  const billingMeta = portalLoading ? (
+    <span className="text-muted text-[10px]">Opening…</span>
+  ) : portalMsg ? (
+    <span className="text-amber-400 text-[10px]">{portalMsg}</span>
+  ) : (
+    <span className="text-ladder-green text-[10px] uppercase tracking-widest font-semibold">
+      $1,000/mo
+    </span>
+  );
 
   return (
     <div ref={wrapperRef} className="relative">
@@ -341,33 +354,17 @@ export function UserMenu() {
               <MenuRow
                 icon={ICON.billing}
                 label="Upgrade to Pro"
-                href="/pricing"
-                onClick={() => setOpen(false)}
-                meta={
-                  <span className="text-ladder-green text-[10px] uppercase tracking-widest font-semibold">
-                    $1,000/mo
-                  </span>
-                }
+                onClick={() => startBilling("/api/stripe/checkout")}
+                disabled={portalLoading}
+                meta={billingMeta}
               />
             ) : isStripePro ? (
               <MenuRow
                 icon={ICON.billing}
                 label="Subscription"
-                onClick={() => handleManageBilling()}
+                onClick={() => startBilling("/api/stripe/portal")}
                 disabled={portalLoading}
-                meta={
-                  portalLoading ? (
-                    <span className="text-muted text-[10px]">Opening…</span>
-                  ) : portalMsg ? (
-                    <span className="text-amber-400 text-[10px]">
-                      {portalMsg}
-                    </span>
-                  ) : (
-                    <span className="text-ladder-green text-[10px] uppercase tracking-widest font-semibold">
-                      $1,000/mo
-                    </span>
-                  )
-                }
+                meta={billingMeta}
               />
             ) : null}
             <MenuRow
