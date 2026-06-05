@@ -13,7 +13,7 @@ export function AuthShell({
     // mid-slide). We still want VERTICAL overflow scrollable so tall
     // forms (OTP grid, verification step, social buttons) don't clip
     // at the bottom on short viewports.
-    <div className="min-h-screen flex flex-col items-center px-6 pt-20 pb-16 relative overflow-x-hidden">
+    <div className="auth-shell min-h-screen flex flex-col items-center px-6 pt-20 pb-16 relative overflow-x-hidden">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10"
@@ -22,7 +22,10 @@ export function AuthShell({
             "radial-gradient(ellipse at 50% 0%, rgba(106, 200, 155, 0.06) 0%, transparent 55%)",
         }}
       />
-      <div className="relative w-full max-w-[28rem] flex flex-col items-center my-auto overflow-x-hidden">
+      {/* px-2 keeps a focused input's border/rounded corners from being clipped
+          by overflow-x-hidden (the form content is inset from the clip edge,
+          while the slide transition stays contained). Fixes #209. */}
+      <div className="relative w-full max-w-[28rem] flex flex-col items-center my-auto overflow-x-hidden px-2">
         <div className="w-full">{children}</div>
         <div className="text-muted text-sm text-center mt-8">{footer}</div>
       </div>

@@ -40,7 +40,7 @@ function score(
 }
 
 const SAMPLE_SCORES = [
-  score("fx-1", 3.4, "Comfortable", "Checkout step 2", 1, 0.3),
+  score("fx-1", 3.4, "Comfortable", "Checkout step 2 (Figma)", 1, 0.3),
   score("fx-2", 2.8, "Usable", "Onboarding welcome", 3, -0.2),
   score("fx-3", 4.1, "Delightful", "Empty state", 6, 0.6),
   score("fx-4", 3.0, "Comfortable", "Settings panel", 9),
@@ -71,7 +71,8 @@ const SEMI_ACTIVE_SCORES = SEMI_ACTIVE_DAYS.map((d, i) => {
   const base = 4.3 - (d / 91) * 1.4;
   const jitter = ((i % 5) - 2) * 0.12;
   const v = Math.max(1.9, Math.min(4.8, Math.round((base + jitter) * 10) / 10));
-  return score(`fx-r${i}`, v, labelFor(v), `Screen ${i + 1}`, d);
+  const name = i % 3 === 0 ? `Screen ${i + 1} (Figma)` : `Screen ${i + 1}`;
+  return score(`fx-r${i}`, v, labelFor(v), name, d);
 });
 
 // A separate, sparser cadence for the Team preview, so the Team designer's
@@ -86,7 +87,8 @@ const TEAM_ACTIVE_SCORES = TEAM_ACTIVE_DAYS.map((d, i) => {
   const base = 4.0 - (d / 91) * 1.2;
   const jitter = ((i % 4) - 1.5) * 0.15;
   const v = Math.max(1.8, Math.min(4.7, Math.round((base + jitter) * 10) / 10));
-  return score(`fx-t${i}`, v, labelFor(v), `Screen ${i + 1}`, d);
+  const name = i % 2 === 0 ? `Screen ${i + 1} (Figma)` : `Screen ${i + 1}`;
+  return score(`fx-t${i}`, v, labelFor(v), name, d);
 });
 
 /** Account-menu + plan-strip overrides the dashboard derives from Clerk/data. */
