@@ -250,6 +250,41 @@ function StatsSummaryCard({ stats }: { stats: UserStats }) {
   );
 }
 
+// Score names carry a surface suffix like "(Figma)" / "(Skill)" (see
+// scores.ts). Strip it from the title and show it as a small gray badge
+// instead of inline text.
+const SURFACE_SUFFIX_RE = /\s*\((figma|skill|web|claude|pulse)\)\s*$/i;
+function surfaceParts(label: string): { name: string; surface: string | null } {
+  const m = label.match(SURFACE_SUFFIX_RE);
+  if (!m) return { name: label, surface: null };
+  const s = m[1].toLowerCase();
+  return {
+    name: label.replace(SURFACE_SUFFIX_RE, "").trim(),
+    surface: s.charAt(0).toUpperCase() + s.slice(1),
+  };
+}
+
+const META_BADGE =
+  "text-[8px] text-[#888] uppercase tracking-widest border border-[#3a3a3a] px-1.5 py-0.5 flex-shrink-0";
+
+/** Score row title: cleaned name + optional surface badge (Figma/Skill/…) + Private badge. */
+function ScoreRowTitle({
+  label,
+  isPublic,
+}: {
+  label: string;
+  isPublic?: boolean;
+}) {
+  const { name, surface } = surfaceParts(label);
+  return (
+    <div className="flex items-center gap-2">
+      <p className="text-sm text-foreground font-sans truncate">{name}</p>
+      {surface && <span className={META_BADGE}>{surface}</span>}
+      {isPublic === false && <span className={META_BADGE}>Private</span>}
+    </div>
+  );
+}
+
 function UpliftBadge({ uplift }: { uplift: number }) {
   if (uplift === 0) {
     return (
@@ -570,16 +605,10 @@ export default function DashboardPage() {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm text-foreground font-sans truncate">
-                                {entry.screenName || entry.source}
-                              </p>
-                              {entry.isPublic === false && (
-                                <span className="text-[8px] text-[#888] uppercase tracking-widest border border-[#3a3a3a] px-1.5 py-0.5 flex-shrink-0">
-                                  Private
-                                </span>
-                              )}
-                            </div>
+                            <ScoreRowTitle
+                              label={entry.screenName || entry.source}
+                              isPublic={entry.isPublic}
+                            />
                             <p className="text-[10px] text-muted font-sans truncate mt-0.5">
                               <span style={{ color: getScoreColor(entry.score) }}>
                                 {entry.label}

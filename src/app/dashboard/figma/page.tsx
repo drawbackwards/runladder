@@ -28,12 +28,14 @@ export default function FigmaDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           <main>
-            {/* Hero — placeholder until we drop in a real plugin screenshot. */}
-            <div className="aspect-[16/9] border border-[#2a2a2a] bg-[#161616] flex items-center justify-center mb-6">
-              <span className="text-[10px] uppercase tracking-widest text-muted">
-                Plugin screenshot
-              </span>
-            </div>
+            {/* Hero screenshot of the plugin in action. Fills the column
+                width edge-to-edge; height scales proportionally. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/figma-plugin-hero.png"
+              alt="Ladder for Figma scoring a trading dashboard in the canvas"
+              className="block w-full h-auto mb-6 border border-[#2a2a2a]"
+            />
             <div className="space-y-4 text-sm text-muted font-sans leading-relaxed">
               <p>
                 Score frames inside Figma without leaving the canvas. Run it on

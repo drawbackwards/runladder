@@ -194,6 +194,19 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: none !important;
 }
 
+/* On the auth pages, Clerk's card/form wrappers clip with overflow:hidden,
+   which cut off the focused email input's left border + rounded corners (#209).
+   Our cards are flat (no radius, transparent), so they don't need to clip — and
+   AuthShell's own overflow-x-hidden still contains Clerk's step-slide. Scope to
+   .auth-shell so the UserProfile/modal cards elsewhere are unaffected. */
+.auth-shell .cl-rootBox,
+.auth-shell .cl-cardBox,
+.auth-shell .cl-card,
+.auth-shell .cl-main,
+.auth-shell .cl-form {
+  overflow: visible !important;
+}
+
 .cl-navbar {
   background: #0d0d0d !important;
   border-color: #2a2a2a !important;
