@@ -2,7 +2,7 @@
 title: Decisions Log
 updatedAt: 2026-06-05
 updatedBy: Sara
-lastPr: 285
+lastPr: 288
 ---
 
 ## How to use this page
@@ -185,6 +185,8 @@ Pro went from $250/mo to $1,000/mo in v0.4.8 ([PR #166](https://github.com/drawb
 Why: the Free to Pro gap was a leaky funnel when Free was generous. Lifetime cap forces the upgrade decision. Team stays contact-only because the buyer is a Director of Design, not a credit-card buyer, and the deal value supports a sales motion.
 
 How to apply: don't offer ad-hoc discounts on Pro. Don't offer self-serve Team. Internal price targets stay in memory per [/hq documents PUBLIC pricing only](#hq-documents-public-pricing-only).
+
+**Hard cap is not surfaced to customers (#227, 2026-06-05):** the 2x hard cap (e.g. 50K behind Team's 25K pool) is an internal grace backstop, not a number we show. Surfacing "Hard cap at 50,000" made the purchased pool look fake and killed the upgrade trigger ("why upgrade at 30K if 50K is allowed?"). The customer UI now shows only the pool they bought (soft cap); a quiet, no-numbers footnote discloses that a short grace period exists (shown from 50% usage), and a "pool limit reached — grace period — reach out to add capacity" message appears at 100%. Scoring still hard-stops server-side at 2x. Proactive outreach when a team nears its pool is tracked in #287 (emails) + #286 (admin Team Detail).
 
 ---
 
