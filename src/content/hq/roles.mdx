@@ -1,8 +1,8 @@
 ---
 title: Roles
-updatedAt: 2026-05-19
+updatedAt: 2026-06-05
 updatedBy: Sara
-lastPr: 179
+lastPr: 285
 ---
 
 ## End-user roles
@@ -14,8 +14,8 @@ These are the tiers a customer can hold. Drives every gated feature on every sur
 | **Anonymous** | - | Marketing pages only. No scoring. Sign-up required to score. |
 | **Free** | Sign-up | 5 lifetime scores. Base score only. No a11y or UX copywriting tabs. |
 | **Pro** | Stripe self-serve, $1,000/mo (public) | 2,000 scores/mo, all surfaces, a11y and UX copywriting unlocked, enhanced dashboard. Hard cap at 4,000 scores/mo (2x soft cap). |
-| **Team Member** | Invited by Team Leader | Shares the team pool (25,000 pooled scores/mo). All Pro features. Sees team leaderboard. |
-| **Team Leader** | Drawbackwards engagement (Beta) | Manages seats, invites Team Members, sees team dashboard, controls billing. Comes via MSA + SOW. Public price: Custom. |
+| **Team Member** | Invited by Team Lead | Shares the team pool (25,000 pooled scores/mo). All Pro features. Sees team leaderboard. |
+| **Team Lead** | Drawbackwards engagement (Beta) | Manages seats, invites Team Members, sees team dashboard, controls billing. Comes via MSA + SOW. Public price: Custom. |
 | **Pulse User** | Pulse engagement | All Team features + Pulse data ingest and customer-feedback dashboard (lives in `ladder-beta`). Public price: Custom. |
 
 See [Decisions Log -- Public pricing](/hq/decisions#public-pricing-free-5-lifetime-pro-1000mo-self-serve-team-and-pulse-custom) for the rationale.
@@ -32,7 +32,7 @@ These gate access to platform internals. Email-based allowlist defined in `src/l
 
 ## Capability matrix
 
-| Capability | Free | Pro | Team Member | Team Leader | Pulse | Admin | Super Admin |
+| Capability | Free | Pro | Team Member | Team Lead | Pulse | Admin | Super Admin |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Score a screen | 5 lifetime | 2K/mo (4K hard cap) | Pool | Pool | Pool | Yes | Yes |
 | A11y audit | - | Yes | Yes | Yes | Yes | Yes | Yes |

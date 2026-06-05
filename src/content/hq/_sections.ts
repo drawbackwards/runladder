@@ -33,7 +33,7 @@ export const HQ_SECTIONS: HqSection[] = [
   {
     slug: "roles",
     title: "Roles",
-    intent: "Free, Pro, Team Leader, Team Member, Admin, Super Admin. What each can do.",
+    intent: "Free, Pro, Team Lead, Team Member, Admin, Super Admin. What each can do.",
   },
   {
     slug: "features",
