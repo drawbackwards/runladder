@@ -33,7 +33,7 @@ export function RequestReviewCTA() {
             Ask your team for a review
           </p>
           <p className="text-[11px] text-muted font-sans mt-0.5">
-            Send a screen to your manager for human crit. They&apos;ll see it
+            Send a screen to your Team Lead for human crit. They&apos;ll see it
             on their team dashboard.
           </p>
         </div>

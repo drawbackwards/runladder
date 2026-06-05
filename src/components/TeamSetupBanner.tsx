@@ -25,8 +25,8 @@ export function TeamSetupBanner() {
           </h3>
           <p className="text-sm text-[#0a1a14]/80 font-sans leading-relaxed max-w-2xl">
             You&apos;re set up to lead a team on Ladder. Create your team to invite
-            your designers, see their scores and letter grades, and unlock manager
-            insights. Designers you invite get team-tier access automatically.
+            your designers, see their scores and letter grades, and unlock Team
+            Lead insights. Designers you invite get team-tier access automatically.
           </p>
         </div>
         <Link

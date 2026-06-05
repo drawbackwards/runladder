@@ -32,7 +32,7 @@ export async function POST(
   }
   if (orgRole !== "org:admin") {
     return NextResponse.json(
-      { error: "Manager access required" },
+      { error: "Team Lead access required" },
       { status: 403 },
     );
   }
