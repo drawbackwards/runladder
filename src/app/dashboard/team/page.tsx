@@ -303,29 +303,17 @@ function InsightsPanel({ insights }: { insights: Insights }) {
 }
 
 /**
- * Team pool meter. Mirrors the dashboard Usage box — same data and bar style:
- * monthly scoring volume against the soft pool cap, a bar normalized to the
- * hard cap with a tick at the soft cap, and the "resets in N days" / hard-cap
- * copy. The section label sits above the box, consistent with the rest of the
- * page. Visible to the Team Lead only.
+ * Team pool meter. Mirrors the dashboard Usage box: monthly scoring volume
+ * against the pool the customer bought (soft cap), plus the "resets in N days"
+ * copy. The 2x hard cap is a silent server-side grace backstop — never shown as
+ * a number (#227). Section label above the box. Visible to the Team Lead only.
  */
 function TeamPoolMeter({ pool }: { pool: TeamPool }) {
-  const { used, limit, hardCap, daysUntilReset } = pool;
-  const pct = Math.min(100, (used / hardCap) * 100);
-  const softTickPct = (limit / hardCap) * 100;
-  const blocked = used >= hardCap;
-  const over = used > limit;
-  const warn = !over && used / limit >= 0.8;
-
-  // Bar color shifts at 80% of soft (amber) and >=100% of soft (red) — the
-  // same thresholds and palette as the dashboard Usage meter.
-  const barClass = blocked
-    ? "bg-red-500"
-    : over
-      ? "bg-red-400"
-      : warn
-        ? "bg-amber-400"
-        : "bg-ladder-green";
+  const { used, limit, daysUntilReset } = pool;
+  const pct = Math.min(100, (used / limit) * 100);
+  const atCap = used >= limit;
+  const showGraceNote = used / limit >= 0.5;
+  const barClass = atCap ? "bg-amber-400" : "bg-ladder-green";
 
   return (
     <section>
@@ -340,53 +328,26 @@ function TeamPoolMeter({ pool }: { pool: TeamPool }) {
             Resets in {daysUntilReset}d
           </span>
         </div>
-        <div className="relative h-1.5 bg-[#0e0e0e]">
+        <div className="h-1.5 bg-[#0e0e0e]">
           <div
             className={`h-full ${barClass} transition-all`}
             style={{ width: `${pct}%` }}
           />
-          <div
-            className="absolute top-[-2px] bottom-[-2px] w-px bg-[#555]"
-            style={{ left: `${softTickPct}%` }}
-            title={`Soft cap: ${limit.toLocaleString()}`}
-          />
         </div>
-        <p className="text-[10px] text-muted mt-1 font-mono">
-          Hard cap at {hardCap.toLocaleString()}
-        </p>
-        {blocked ? (
-          <p className="text-[11px] text-red-400 mt-3">
-            Team pool is maxed for the month.{" "}
+        {atCap ? (
+          <p className="text-[11px] text-muted mt-3">
+            Pool limit reached — you&apos;re in a grace period.{" "}
             <a
-              href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20hard-cap%20reached"
-              className="underline"
+              href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20more%20capacity"
+              className="text-ladder-green hover:underline"
             >
-              Email us to lift the ceiling
+              Reach out to add capacity
             </a>
             .
           </p>
-        ) : over ? (
-          <p className="text-[11px] text-muted mt-3">
-            Over your monthly pool. Still scoring through to{" "}
-            {hardCap.toLocaleString()} —{" "}
-            <a
-              href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20higher%20volume%20inquiry"
-              className="text-ladder-green hover:underline"
-            >
-              talk to us about higher volume
-            </a>
-            .
-          </p>
-        ) : warn ? (
-          <p className="text-[11px] text-muted mt-3">
-            Approaching your team pool cap.{" "}
-            <a
-              href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20higher%20volume%20inquiry"
-              className="text-ladder-green hover:underline"
-            >
-              Talk to us
-            </a>
-            .
+        ) : showGraceNote ? (
+          <p className="text-[10px] text-muted mt-2 font-mono">
+            Includes a short grace period past your pool.
           </p>
         ) : null}
       </div>

@@ -109,29 +109,20 @@ export function UsageMeter() {
   // Pulse skips this meter (queries are tracked separately).
   if (data.tier === "pulse") return null;
 
-  // Pro / Team: monthly view
+  // Pro / Team: monthly view. We surface only the pool the customer bought
+  // (the soft cap). The 2x hard cap stays a silent server-side grace backstop
+  // and is never shown as a number — putting it on screen made the pool look
+  // fake and killed the upgrade trigger (#227).
   if (data.monthlyLimit === null) return null;
   const used = data.monthlyUsed;
   const limit = data.monthlyLimit;
-  const hardCap = data.monthlyHardCap ?? limit * 2;
-  // The bar's full width represents the hard cap (the wall), with a
-  // tick marker at the soft cap. That way the user can SEE the gap
-  // between "we should talk" (soft) and "we have to stop" (hard).
-  const pct = Math.min(100, (used / hardCap) * 100);
-  const softTickPct = (limit / hardCap) * 100; // typically 50% with 2x multiplier
-  const blocked = used >= hardCap;
-  const over = used > limit;
-  const warn = !over && used / limit >= 0.8;
+  const pct = Math.min(100, (used / limit) * 100);
+  const atCap = used >= limit;
+  // Disclose the grace period from the halfway mark — a quiet footnote, no
+  // numbers — so customers know going over won't hard-stop them mid-work.
+  const showGraceNote = used / limit >= 0.5;
   const tierLabel = data.tier === "pro" ? "Pro" : "Team pool";
-
-  // Bar color shifts at 80% of soft (amber) and ≥100% of soft (red).
-  const barClass = blocked
-    ? "bg-red-500"
-    : over
-      ? "bg-red-400"
-      : warn
-        ? "bg-amber-400"
-        : "bg-ladder-green";
+  const barClass = atCap ? "bg-amber-400" : "bg-ladder-green";
 
   return (
     <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
@@ -150,55 +141,26 @@ export function UsageMeter() {
           Resets in {data.daysUntilReset}d
         </span>
       </div>
-      {/* Bar normalized to the hard cap; the tick at softTickPct marks
-          the soft cap so the user can see where "talk to us" begins
-          and where "scoring stops" lives. */}
-      <div className="relative h-1.5 bg-[#0e0e0e]">
+      <div className="h-1.5 bg-[#0e0e0e]">
         <div
           className={`h-full ${barClass} transition-all`}
           style={{ width: `${pct}%` }}
         />
-        <div
-          className="absolute top-[-2px] bottom-[-2px] w-px bg-[#555]"
-          style={{ left: `${softTickPct}%` }}
-          title={`Soft cap: ${limit.toLocaleString()}`}
-        />
       </div>
-      <p className="text-[10px] text-muted mt-1 font-mono">
-        Hard cap at {hardCap.toLocaleString()}
-      </p>
-      {blocked ? (
-        <p className="text-[11px] text-red-400 mt-3">
-          Scoring paused — you&apos;re past 2x your monthly cap.{" "}
+      {atCap ? (
+        <p className="text-[11px] text-muted mt-3">
+          Pool limit reached — you&apos;re in a grace period.{" "}
           <a
-            href="mailto:hello@drawbackwards.com?subject=Ladder%20hard-cap%20reached"
-            className="underline"
+            href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20more%20capacity"
+            className="text-ladder-green hover:underline"
           >
-            Email us to lift the ceiling
+            Reach out to add capacity
           </a>
           .
         </p>
-      ) : over ? (
-        <p className="text-[11px] text-muted mt-3">
-          You&apos;ve passed your monthly cap. Still scoring through to {hardCap.toLocaleString()} —{" "}
-          <a
-            href="mailto:hello@drawbackwards.com?subject=Ladder%20higher%20volume%20inquiry"
-            className="text-ladder-green hover:underline"
-          >
-            talk to us about higher volume
-          </a>
-          .
-        </p>
-      ) : warn ? (
-        <p className="text-[11px] text-muted mt-3">
-          Approaching your monthly cap. If you regularly hit this,{" "}
-          <a
-            href="mailto:hello@drawbackwards.com?subject=Ladder%20higher%20volume%20inquiry"
-            className="text-ladder-green hover:underline"
-          >
-            we&apos;ll size you up
-          </a>
-          .
+      ) : showGraceNote ? (
+        <p className="text-[10px] text-muted mt-2 font-mono">
+          Includes a short grace period past your pool.
         </p>
       ) : null}
     </div>
