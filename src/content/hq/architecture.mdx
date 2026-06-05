@@ -1,8 +1,8 @@
 ---
 title: Architecture
-updatedAt: 2026-05-19
-updatedBy: Sara
-lastPr: 179
+updatedAt: 2026-06-04
+updatedBy: Chester
+lastPr: 277
 ---
 
 ## One scoring framework, three codebases (today)
@@ -53,10 +53,21 @@ This diagram shows the future-target architecture (one engine, thin clients). To
 
 ## Versioning
 
-Every surface ships its own version and shows it to users. See [API Protocols](/hq/api) for the contract.
+Every surface ships its own version and shows it to users. See [API Protocols](/hq/api) for the contract, and the [Decisions Log → versioning source of truth](/hq/decisions#versioning-source-of-truth) for the why.
 
-- `src/lib/app-version.ts`: runladder web app (`CURRENT_APP_VERSION`) and API (`CURRENT_API_VERSION`)
-- `src/lib/skill-version.ts`: Skill bundle (`CURRENT_SKILL_VERSION`)
-- Bump on every user-visible change. Always add a matching `CHANGELOG.md` entry.
+**Source of truth — the version constants under `src/lib`:**
+
+- `src/lib/app-version.ts`: runladder web app (`CURRENT_APP_VERSION`, rendered in the footer) and API (`CURRENT_API_VERSION`, sent on the `X-Ladder-API-Version` response header)
+- `src/lib/skill-version.ts`: Skill bundle (`CURRENT_SKILL_VERSION`, synced into the zip by `scripts/sync-skill-version.mjs`)
+- `src/lib/plugin-version.ts`: Figma plugin bundle
+
+These constants are what runtime code reads. **`package.json`'s `version` field is NOT the product version** — nothing reads it at runtime. It is a build-metadata mirror of `CURRENT_APP_VERSION`; the two must move together. It drifted to `0.3.0` once (orphaned at the 0.4.x cutover when the source of truth moved into `src/lib`) before being re-aligned.
+
+**Bump procedure, per user-visible PR:**
+
+1. Bump the relevant constant in `src/lib/*-version.ts` (app and/or api and/or skill — they bump independently).
+2. Mirror the new `CURRENT_APP_VERSION` into `package.json`'s `version`.
+3. Add a matching `CHANGELOG.md` entry (`## app X.Y.Z / api A.B.C (date)`).
+4. The same `X.Y.Z` is the version label you put in the Features inventory row and any Decisions/Journeys reference, so a reader can trace a feature → version → changelog → PR in one hop.
 
 `ladder-beta` and `ladder` versions live in their own repos and follow their own bump cadence. Their version stamps are not yet visible from `/hq`. Tracking is roadmap.
