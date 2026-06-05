@@ -14,6 +14,11 @@ export const authAppearance = {
     fontSize: "0.875rem",
   },
   elements: {
+    // Clerk renders the app logo (uploaded in the Clerk dashboard) above the
+    // header. It's a dark wordmark that's invisible on our dark card and
+    // duplicates the site-nav wordmark, so hide it.
+    logoBox: "!hidden",
+    logoImage: "!hidden",
     rootBox: "!w-full !max-w-none",
     cardBox: "!w-full !max-w-none !shadow-none !border-0",
     card: "!bg-transparent !border-0 !shadow-none !p-0 !w-full",
@@ -37,6 +42,9 @@ export const authAppearance = {
       "!bg-ladder-green hover:!bg-[#5ab88b] !text-black !font-semibold !rounded-full !normal-case !text-sm !py-3 !shadow-none !border-0 [&_*]:!text-black",
     formFieldAction: "!text-ladder-green hover:!text-[#5ab88b] !text-xs",
     formFieldInputShowPasswordButton: "!text-muted hover:!text-foreground",
+    // Hide Clerk's post-verify "Success" confirmation — it's obvious, sits too
+    // close to the inputs, and reads as clutter. Errors stay visible.
+    formFieldSuccessText: "!hidden",
     formResendCodeLink: "!text-ladder-green hover:!text-[#5ab88b]",
     identityPreview:
       "!bg-transparent !border-0 !text-foreground",

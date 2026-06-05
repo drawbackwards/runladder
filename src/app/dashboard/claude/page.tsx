@@ -44,6 +44,7 @@ function relativeTime(ts: number): string {
 export default function ClaudeDetailPage() {
   const { isLoaded, isSignedIn } = useAuth();
   const skill = useSkillInstall();
+  const { rawToken, copiedToken, copyToken, lastUsedSurface } = skill;
   const [troubleshootOpen, setTroubleshootOpen] = useState(false);
 
   if (!isLoaded) return null;
@@ -66,41 +67,39 @@ export default function ClaudeDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           <main>
-            {/* Hero — placeholder until we drop in a real screenshot. */}
-            <div className="aspect-[16/9] border border-[#2a2a2a] bg-[#161616] flex items-center justify-center mb-6">
-              <span className="text-[10px] uppercase tracking-widest text-muted">
-                Skill screenshot
-              </span>
-            </div>
+            <img
+              src="/images/claude-code-ladder-img.png"
+              alt="Ladder skill running inside Claude Code"
+              className="w-full border border-[#2a2a2a] mb-6"
+            />
             <div className="space-y-4 text-sm text-muted font-sans leading-relaxed">
               <p>
                 Ladder for Claude is a Skill that scores any UI screenshot
-                against the Ladder framework, right inside Claude, whether you
-                work in Claude Code, Claude.ai, or VS Code. Install it once, then
-                screenshot a screen and say &ldquo;Run Ladder&rdquo; to get a
-                score and ranked findings without leaving your conversation.
+                against the Ladder framework, right inside your Claude
+                conversation. Install it once and say &ldquo;Run Ladder&rdquo;
+                to get a score, a ranked list of findings, and a clear path to
+                the next level without leaving Claude.
               </p>
               <p>
-                Drop in any screenshot, whether it&apos;s a Figma export, a
-                localhost grab, or a competitor&apos;s screen, and get a Ladder
-                Score from Functional to Meaningful, with findings ranked by
-                impact and a clear path to the next level.
+                Drop in a Figma export, a localhost grab, or a
+                competitor&apos;s screen and get back a Ladder Score from
+                Functional to Meaningful with specific fixes ranked by impact.
               </p>
               <p>
-                Because it runs inside Claude, you can go deeper in the same
-                conversation. Ask why a finding matters, request a copy rewrite
-                or an accessibility pass, then paste a revised screen to rescore
-                and track your progress.
+                Because it runs inside Claude, you can go deeper without
+                switching tools. Ask why a finding matters, request an
+                accessibility pass, or paste a revised screen to rescore and
+                track your progress over time.
               </p>
               <p>
-                There are two ways to install, depending on where you use Claude.
+                There are two ways to install depending on where you use Claude.
                 Pick the one that matches your setup.
               </p>
             </div>
           </main>
 
           <aside className="space-y-4">
-            {/* Status box — connection state only, no instructions. */}
+            {/* Status box */}
             <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
               <div className="flex items-baseline justify-between gap-3 mb-1">
                 <div className="flex items-baseline gap-2 min-w-0">
@@ -128,12 +127,19 @@ export default function ClaudeDetailPage() {
 
               {skill.loading ? (
                 <div className="h-4 shimmer mt-2" />
-              ) : skill.connected ? (
+              ) : !skill.connected ? (
+                <p className="text-xs text-muted font-sans">
+                  Not connected yet — follow the steps below to install.
+                </p>
+              ) : (
                 <>
                   <p className="text-xs text-muted font-sans">
+                    {lastUsedSurface === "claude-ai"
+                      ? "Connected via Claude.ai."
+                      : "Connected via Claude Code."}
                     {skill.lastUsedAt
-                      ? `Last scored ${relativeTime(skill.lastUsedAt)}.`
-                      : "Connected."}
+                      ? ` Last scored ${relativeTime(skill.lastUsedAt)}.`
+                      : ""}
                   </p>
                   {skill.updateAvailable && (
                     <div className="mt-3 border border-ladder-green/30 bg-ladder-green/5 px-3 py-2.5">
@@ -164,6 +170,14 @@ export default function ClaudeDetailPage() {
                     >
                       Disconnect
                     </button>
+                  </div>
+
+                  <div className="mt-3 border border-[#2a2a2a] px-3 py-2.5">
+                    <p className="text-[11px] text-muted font-sans">
+                      {lastUsedSurface === "claude-ai"
+                        ? "Want to use Ladder in Claude Code too? Follow the Claude Code steps below."
+                        : "Want to use Ladder in Claude.ai too? Follow the Claude.ai steps below."}
+                    </p>
                   </div>
 
                   <div className="mt-4 border-t border-[#2a2a2a] pt-3">
@@ -207,72 +221,137 @@ export default function ClaudeDetailPage() {
                     )}
                   </div>
                 </>
-              ) : (
-                <p className="text-xs text-muted font-sans">
-                  Not connected yet — follow the steps below to install.
-                </p>
               )}
             </div>
 
-            {/* Install path 1: Claude Code / VS Code */}
+            {/* Install path 1: Claude Code */}
             <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
-              <h3 className="text-sm text-foreground font-sans font-semibold mb-3">
-                Claude Code / VS Code
-              </h3>
-              <ol className="space-y-2 text-xs text-muted font-sans leading-relaxed mb-4">
-                <li>
-                  <span className={stepNum}>1.</span> Copy the install command
-                  below.
-                </li>
-                <li>
-                  <span className={stepNum}>2.</span> Paste it into your Terminal
-                  and run it — it saves your access and installs the skill in one
-                  step.
-                </li>
-                <li>
-                  <span className={stepNum}>3.</span> Screenshot a UI in any
-                  Claude conversation and say &ldquo;Run Ladder.&rdquo;
-                </li>
-              </ol>
-              <button
-                onClick={skill.command ? skill.copyCommand : skill.reset}
-                disabled={skill.working}
-                className="text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold disabled:opacity-40"
-              >
-                {skill.working
-                  ? "Preparing…"
-                  : skill.command
-                    ? skill.copied
-                      ? "Copied"
-                      : "Copy install command"
-                    : "Get install command"}
-              </button>
+              <div className="flex items-baseline gap-2 mb-3">
+                <h3 className="text-sm text-foreground font-sans font-semibold">
+                  Claude Code
+                </h3>
+                {skill.connected && lastUsedSurface === "claude-code" && (
+                  <span className="text-[9px] uppercase tracking-widest font-semibold text-ladder-green">
+                    Connected
+                  </span>
+                )}
+              </div>
+              {skill.connected && lastUsedSurface === "claude-code" ? (
+                <>
+                  <p className="text-xs text-muted font-sans">
+                    Last scored {relativeTime(skill.lastUsedAt!)}.
+                  </p>
+                  <button
+                    onClick={async () => { await skill.reset(); skill.copyCommand(); }}
+                    className="mt-3 text-[10px] text-muted font-sans hover:text-foreground transition-colors"
+                  >
+                    Need to reinstall? Get install command
+                  </button>
+                </>
+              ) : (
+                <>
+                  <ol className="space-y-2 text-xs text-muted font-sans leading-relaxed mb-4">
+                    <li>
+                      <span className={stepNum}>1.</span> Click &ldquo;Get install
+                      command&rdquo; to copy it to your clipboard.
+                    </li>
+                    <li>
+                      <span className={stepNum}>2.</span> Open and paste it into your
+                      Terminal and run it. This will install and save your token.
+                    </li>
+                    <li>
+                      <span className={stepNum}>3.</span> Attach a screenshot of a UI
+                      in any Claude conversation and enter &ldquo;Run Ladder.&rdquo;
+                    </li>
+                  </ol>
+                  <button
+                    onClick={skill.command ? skill.copyCommand : skill.reset}
+                    disabled={skill.working}
+                    className="text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold disabled:opacity-40"
+                  >
+                    {skill.working
+                      ? "Preparing…"
+                      : skill.command
+                        ? skill.copied
+                          ? "Copied"
+                          : "Copy install command"
+                        : "Get install command"}
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Install path 2: Claude.ai */}
             <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
-              <h3 className="text-sm text-foreground font-sans font-semibold mb-3">
-                Claude.ai
-              </h3>
-              <ol className="space-y-2 text-xs text-muted font-sans leading-relaxed mb-4">
-                <li>
-                  <span className={stepNum}>1.</span> Download the SKILL.md file
-                  below.
-                </li>
-                <li>
-                  <span className={stepNum}>2.</span> Add it to a Claude Project.
-                </li>
-                <li>
-                  <span className={stepNum}>3.</span> Screenshot a UI and say
-                  &ldquo;Run Ladder.&rdquo;
-                </li>
-              </ol>
-              <a
-                href={skill.downloadUrl}
-                className="inline-block text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold"
-              >
-                Download SKILL.md File
-              </a>
+              <div className="flex items-baseline gap-2 mb-3">
+                <h3 className="text-sm text-foreground font-sans font-semibold">
+                  Claude.ai (web chat)
+                </h3>
+                {skill.connected && lastUsedSurface === "claude-ai" && (
+                  <span className="text-[9px] uppercase tracking-widest font-semibold text-ladder-green">
+                    Connected
+                  </span>
+                )}
+              </div>
+              {skill.connected && lastUsedSurface === "claude-ai" ? (
+                <>
+                  <p className="text-xs text-muted font-sans">
+                    Last scored {relativeTime(skill.lastUsedAt!)}.
+                  </p>
+                  <a
+                    href={skill.downloadUrl}
+                    className="mt-3 inline-block text-[10px] text-muted font-sans hover:text-foreground transition-colors"
+                  >
+                    Need to reinstall? Download SKILL.md
+                  </a>
+                </>
+              ) : (
+                <>
+                  <ol className="space-y-2 text-xs text-muted font-sans leading-relaxed mb-4">
+                    <li>
+                      <span className="text-foreground">1.</span> Create a Project in
+                      Claude.ai (web).
+                    </li>
+                    <li>
+                      <span className="text-foreground">2.</span> Download the
+                      SKILL.md file and save it in the project&apos;s Files section.
+                    </li>
+                    <li>
+                      <span className="text-foreground">3.</span>{" "}
+                      <span
+                        onClick={copyToken}
+                        className="cursor-pointer text-ladder-green hover:underline"
+                      >
+                        {skill.tokenCopyLabel}
+                      </span>{" "}
+                      and save it in the project&apos;s Instructions section.
+                    </li>
+                    <li>
+                      <span className="text-foreground">4.</span> In that project,
+                      attach a screenshot of any UI and enter &ldquo;Run Ladder.&rdquo;
+                    </li>
+                  </ol>
+                  {rawToken && (
+                    <div className="mb-4 bg-[#0e0e0e] border border-[#2a2a2a] px-3 py-2 flex items-center justify-between gap-3">
+                      <code className="text-[10.5px] font-mono text-foreground truncate">
+                        My Ladder token is {rawToken}
+                      </code>
+                      <button
+                        onClick={copyToken}
+                        className="text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-3 py-1.5 font-semibold flex-shrink-0"
+                      >
+                        {copiedToken ? "Copied" : "Copy"}
+                      </button>
+                    </div>
+                  )}
+                  <a
+                    href={skill.downloadUrl}
+                    className="inline-block text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold"
+                  >
+                    Download SKILL.md File
+                  </a>
+                </>
+              )}
             </div>
           </aside>
         </div>

@@ -9,6 +9,7 @@ type Meta = {
   lastUsedAt?: number;
   installedVersion?: string;
   currentVersion?: string;
+  lastUsedSurface?: "claude-code" | "claude-ai";
 };
 
 const DOWNLOAD_URL = "/api/skill/download";
@@ -33,6 +34,7 @@ export function useSkillInstall() {
   const [working, setWorking] = useState(false);
   const [rawToken, setRawToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copiedToken, setCopiedToken] = useState(false);
 
   useEffect(() => {
     fetch("/api/skill/token")
@@ -100,17 +102,38 @@ export function useSkillInstall() {
     setTimeout(() => setCopied(false), 2000);
   }
 
+  async function copyToken() {
+    if (!rawToken) {
+      await generate();
+      return;
+    }
+    navigator.clipboard.writeText(`My Ladder token is ${rawToken}`);
+    setCopiedToken(true);
+    setTimeout(() => setCopiedToken(false), 2000);
+  }
+
+  const tokenCopyLabel = copiedToken
+    ? "Copied!"
+    : rawToken
+      ? "Copy your Ladder token"
+      : "Generate and copy token";
+
   return {
     loading,
     working,
     connected,
     version,
     lastUsedAt: meta?.lastUsedAt,
+    lastUsedSurface: meta?.lastUsedSurface,
     installedVersion: meta?.installedVersion,
     updateAvailable,
+    rawToken,
     command,
     copied,
     copyCommand,
+    copiedToken,
+    copyToken,
+    tokenCopyLabel,
     downloadUrl: DOWNLOAD_URL,
     reset: generate,
     disconnect,

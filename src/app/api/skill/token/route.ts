@@ -20,6 +20,7 @@ export async function GET() {
     createdAt: meta?.createdAt,
     lastUsedAt: meta?.lastUsedAt,
     installedVersion: meta?.installedVersion,
+    lastUsedSurface: meta?.lastUsedSurface,
     currentVersion: CURRENT_SKILL_VERSION,
   });
 }
