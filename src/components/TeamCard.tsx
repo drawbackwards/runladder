@@ -5,6 +5,25 @@ import { useEffect, useState } from "react";
 import { useOrganization } from "@clerk/nextjs";
 import { useViewAs } from "@/lib/dev/view-as";
 import { viewAsTeamData } from "@/lib/dev/dashboard-fixtures";
+import { Skeleton } from "@/components/Skeleton";
+
+/**
+ * Loading placeholder for TeamCard — same box, eyebrow, and row layout so the
+ * card fills into place without shifting the sidebar. Shown while the dashboard
+ * data loads for team-tier users.
+ */
+export function TeamCardSkeleton() {
+  return (
+    <div className="border border-[#333] bg-[#1e1e1e] p-5">
+      <span className="block text-[9px] text-ladder-green uppercase tracking-widest font-semibold leading-none mb-3">
+        Team
+      </span>
+      <Skeleton className="h-4 w-32 mb-2" />
+      <Skeleton className="h-3 w-40 mb-5" />
+      <Skeleton className="h-8 w-28" />
+    </div>
+  );
+}
 
 /**
  * Dashboard sidebar entry point for the team view. Hidden when the user has no
