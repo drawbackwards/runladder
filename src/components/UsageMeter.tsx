@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useViewAs } from "@/lib/dev/view-as";
 import { viewAsUsageData } from "@/lib/dev/dashboard-fixtures";
+import { Skeleton } from "@/components/Skeleton";
 
 /**
  * Score usage meter for /dashboard/settings (and anywhere else we
@@ -52,7 +53,25 @@ export function UsageMeter() {
   }, [viewAs]);
 
   if (loading) {
-    return <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5 shimmer h-28" />;
+    // Mirror the loaded box (header + usage line + bar + footer line) so its
+    // height matches and the sidebar doesn't shift when data arrives. The
+    // "Usage" heading is the same across tiers, so keep it real.
+    return (
+      <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="flex items-baseline justify-between gap-3 mb-1">
+          <h3 className="text-sm text-foreground font-sans font-semibold">
+            Usage
+          </h3>
+          <Skeleton className="h-2.5 w-12" />
+        </div>
+        <div className="flex items-baseline justify-between gap-3 mb-4">
+          <Skeleton className="h-3 w-40" />
+          <Skeleton className="h-2.5 w-14" />
+        </div>
+        <Skeleton className="h-1.5 w-full" />
+        <Skeleton className="h-2.5 w-24 mt-2" />
+      </div>
+    );
   }
   if (!data) return null;
 

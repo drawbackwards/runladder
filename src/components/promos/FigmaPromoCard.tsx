@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Skeleton } from "@/components/Skeleton";
 
 type Meta = {
   hasUsed?: boolean;
@@ -29,7 +30,19 @@ export function FigmaPromoCard() {
   }, []);
 
   if (loading) {
-    return <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5 shimmer h-24" />;
+    // Mirror the loaded card's structure so its height matches and the card
+    // below isn't shoved when real content arrives.
+    return (
+      <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="flex items-baseline justify-between gap-3 mb-1">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-2.5 w-10" />
+        </div>
+        <Skeleton className="h-3 w-full mb-1.5" />
+        <Skeleton className="h-3 w-3/4 mb-3" />
+        <Skeleton className="h-2.5 w-20" />
+      </div>
+    );
   }
 
   const connected = !!meta?.hasUsed;

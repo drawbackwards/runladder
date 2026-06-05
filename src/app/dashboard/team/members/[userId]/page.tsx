@@ -11,6 +11,7 @@ import {
 } from "@/components/ActivityHeatmap";
 import { Avatar } from "@/components/Avatar";
 import { TabButton } from "@/components/Tabs";
+import { Skeleton } from "@/components/Skeleton";
 
 type ScoreEntry = {
   id: string;
@@ -274,10 +275,75 @@ export default function TeamMemberDetailPage() {
   }
 
   if (loading) {
+    // Structure-matching skeleton: header, tabs, stat pills, Activity box, and
+    // score rows mirror the loaded layout so content fills in without a jump.
     return (
       <div className="pt-20 font-mono">
         <div className="max-w-6xl mx-auto px-6 py-10">
-          <p className="text-sm text-muted font-sans">Loading member…</p>
+          <div className="mb-8">
+            <Link
+              href="/dashboard/team"
+              className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+            >
+              ← Team
+            </Link>
+            <div className="mt-4 flex items-center gap-5">
+              <Skeleton className="w-16 h-16 rounded-full flex-shrink-0" />
+              <div className="min-w-0 space-y-2">
+                <Skeleton className="h-5 w-44" />
+                <Skeleton className="h-3 w-56" />
+              </div>
+            </div>
+          </div>
+
+          <div className="border-b border-[#2a2a2a] flex items-end gap-4 mb-6 pb-3">
+            <Skeleton className="h-3 w-28" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="border border-[#2a2a2a] bg-[#1a1a1a] p-4"
+              >
+                <Skeleton className="h-2 w-16 mb-3" />
+                <Skeleton className="h-7 w-12" />
+              </div>
+            ))}
+          </div>
+
+          <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5 mb-8">
+            <div className="flex items-baseline justify-between mb-4">
+              <span className="text-[10px] text-muted uppercase tracking-widest">
+                Activity
+              </span>
+              <Skeleton className="h-3 w-20" />
+            </div>
+            <Skeleton className="h-16 w-full" />
+          </div>
+
+          <div className="mb-3 flex items-baseline justify-between">
+            <span className="text-[10px] text-muted uppercase tracking-widest">
+              Score history
+            </span>
+            <Skeleton className="h-3 w-12" />
+          </div>
+          <div className="space-y-1.5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="border border-[#2a2a2a] bg-[#1a1a1a] px-4 py-3 flex items-center gap-4"
+              >
+                <Skeleton className="w-12 h-12 flex-shrink-0" />
+                <Skeleton className="w-12 h-6 flex-shrink-0" />
+                <div className="flex-1 min-w-0 space-y-2">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-28" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -423,10 +489,10 @@ export default function TeamMemberDetailPage() {
           </div>
           <ActivityHeatmap
             activity={bucket.activity}
-            cellWidth={18}
-            cellHeight={7}
-            cellGap={2}
+            cellHeight={10}
+            cellGap={3}
             emptyClassName="bg-[#222]"
+            fill
           />
         </div>
 

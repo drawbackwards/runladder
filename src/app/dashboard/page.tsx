@@ -8,12 +8,13 @@ import { getScoreColor } from "@/lib/ladder";
 import { FigmaPromoCard } from "@/components/promos/FigmaPromoCard";
 import { ClaudePromoCard } from "@/components/promos/ClaudePromoCard";
 import { UsageMeter } from "@/components/UsageMeter";
-import { TeamCard } from "@/components/TeamCard";
+import { TeamCard, TeamCardSkeleton } from "@/components/TeamCard";
 import { TeamSetupBanner } from "@/components/TeamSetupBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { ActivityHeatmap, type DailyActivity } from "@/components/ActivityHeatmap";
 import { FREE_LIFETIME_LIMIT } from "@/lib/plans";
 import { SectionLabel } from "@/components/SectionLabel";
+import { Skeleton } from "@/components/Skeleton";
 import { useViewAs } from "@/lib/dev/view-as";
 import {
   viewAsDashboardData,
@@ -438,6 +439,43 @@ function DesignRhythmCard({ scores }: { scores: ScoreEntry[] }) {
   );
 }
 
+/**
+ * Loading placeholder for the Design rhythm card. Same eyebrow + box + 3-column
+ * layout (Active days / Sessions / chart) and the same chart height (7 rows ×
+ * 10px + 6 gaps × 3px = 88px) so the real card fills in without a jump.
+ */
+function DesignRhythmSkeleton() {
+  return (
+    <div className="mb-6">
+      <div className="flex items-baseline justify-between mb-3 gap-3 flex-wrap">
+        <SectionLabel>Design rhythm</SectionLabel>
+        <span className="text-[10px] text-muted">
+          Design sessions, last {RHYTHM_WINDOW_DAYS} days
+        </span>
+      </div>
+      <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+        <div className="grid grid-cols-[1fr_1fr_8fr] gap-4 items-center">
+          <div>
+            <p className="text-[9px] text-muted uppercase tracking-widest mb-2">
+              Active days
+            </p>
+            <Skeleton className="h-7 w-10" />
+          </div>
+          <div>
+            <p className="text-[9px] text-muted uppercase tracking-widest mb-2">
+              Sessions
+            </p>
+            <Skeleton className="h-7 w-10" />
+          </div>
+          <div className="min-w-0">
+            <Skeleton className="h-[88px] w-full" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
@@ -541,19 +579,40 @@ export default function DashboardPage() {
             <RequestReviewCTA /> here (gated on tier team/pulse) once Reviews
             ships. */}
 
-        <DesignRhythmCard scores={scores} />
+        {showLoading ? (
+          <DesignRhythmSkeleton />
+        ) : (
+          <DesignRhythmCard scores={scores} />
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           <main>
             {showLoading ? (
-              <div className="space-y-1.5">
-                {[...Array(3)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="border border-[#2a2a2a] bg-[#1a1a1a] shimmer h-16"
-                  />
-                ))}
-              </div>
+              // Mirror the loaded layout (CTA + Score history rows) so content
+              // fills into place without a jump. The score-a-screen CTA is a
+              // static link, so it renders for real.
+              <>
+                <ScoreCTACard />
+                <div className="mt-6 mb-3 flex items-center justify-between">
+                  <SectionLabel>Score history</SectionLabel>
+                  <Skeleton className="h-3 w-12" />
+                </div>
+                <div className="space-y-1.5">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="border border-[#2a2a2a] bg-[#1a1a1a] px-4 py-3 flex items-center gap-4"
+                    >
+                      <Skeleton className="w-12 h-12 flex-shrink-0" />
+                      <Skeleton className="w-10 h-6 flex-shrink-0" />
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <Skeleton className="h-4 w-40" />
+                        <Skeleton className="h-3 w-28" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             ) : scores.length === 0 ? (
               <EmptyHero />
             ) : (
@@ -655,7 +714,16 @@ export default function DashboardPage() {
             {/* While the empty-team setup banner is showing, don't also show
                 the team card — they'd be redundant for a Lead with no team.
                 Gated on `data` so it doesn't flash before team state is known. */}
-            {effectiveData && tier === "team" && !needsTeamSetup && <TeamCard />}
+            {/* While the dashboard data loads, reserve the Team card's space
+                for team-tier users (read from Clerk metadata, which is known
+                before the /api/dashboard fetch) so the promos below don't get
+                shoved when it appears. */}
+            {showLoading
+              ? (user?.publicMetadata as { tier?: string } | undefined)?.tier ===
+                  "team" && <TeamCardSkeleton />
+              : effectiveData &&
+                tier === "team" &&
+                !needsTeamSetup && <TeamCard />}
             <FigmaPromoCard />
             <ClaudePromoCard />
           </aside>
