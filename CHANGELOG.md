@@ -6,6 +6,19 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.8 / api 1.0.0 (2026-06-08)
+
+**Launch gating + Team Lead score visibility.**
+
+- **Free tier loses design rhythm + heatmap (#289).** The design-rhythm card and activity heatmap on the personal dashboard are now paid-only (pro/team/pulse). Gate respects the dev "view as" override.
+- **Surface tags on the designer detail page (#299).** Each score row now shows a surface tag (Figma / Claude / Web / Skill / Pulse), parsed from the score name. Extracted the parser into a shared `src/lib/surface.ts` (de-duplicated from the dashboard).
+- **Evaluations + Reviews hidden for launch (#302).** The Evaluations tab (member detail) and the Reviews tab (team dashboard) are hidden behind a single restorable flag, `SHOW_EVALUATIONS_AND_REVIEWS` in `src/lib/feature-flags.ts`.
+- **Team Lead can open a member's score detail (#300).** From the designer detail page, a Team Lead can click any of that member's scores and see the full score detail. The score-detail API (`/api/dashboard/scores/[id]`) accepts `?member=<userId>` and authorizes the cross-user read as `org:admin` + member-in-org (mirroring the member-detail endpoint); soft-deleted scores are included for audit. The detail page reframes the back link + badge for the Team Lead view.
+- **Dev "view as" now drives the scan-screen toggle.** Selecting Free/Pro/Team in the dev switcher exercises the private-scoring toggle states without juggling accounts (UI preview only; saves still use the real server-side tier).
+- `/hq` updated: GTM (Team Lead persona), API (member-scoped score detail), Features (4 rows), Roles (capability matrix).
+
+---
+
 ## app 0.5.7 / api 1.0.0 (2026-06-08)
 
 **Private scoring as a paid feature, scoring-engine versioning, and dashboard polish.**

@@ -6,6 +6,7 @@ import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
 import { privateScopeLabel, isTeamScope } from "@/lib/score-scope";
+import { surfaceParts } from "@/lib/surface";
 import { FigmaPromoCard } from "@/components/promos/FigmaPromoCard";
 import { ClaudePromoCard } from "@/components/promos/ClaudePromoCard";
 import { UsageMeter } from "@/components/UsageMeter";
@@ -250,20 +251,6 @@ function StatsSummaryCard({ stats }: { stats: UserStats }) {
       </div>
     </div>
   );
-}
-
-// Score names carry a surface suffix like "(Figma)" / "(Skill)" (see
-// scores.ts). Strip it from the title and show it as a small gray badge
-// instead of inline text.
-const SURFACE_SUFFIX_RE = /\s*\((figma|skill|web|claude|pulse)\)\s*$/i;
-function surfaceParts(label: string): { name: string; surface: string | null } {
-  const m = label.match(SURFACE_SUFFIX_RE);
-  if (!m) return { name: label, surface: null };
-  const s = m[1].toLowerCase();
-  return {
-    name: label.replace(SURFACE_SUFFIX_RE, "").trim(),
-    surface: s.charAt(0).toUpperCase() + s.slice(1),
-  };
 }
 
 const META_BADGE =
@@ -615,11 +602,14 @@ export default function DashboardPage() {
             <RequestReviewCTA /> here (gated on tier team/pulse) once Reviews
             ships. */}
 
-        {showLoading ? (
-          <DesignRhythmSkeleton />
-        ) : (
-          <DesignRhythmCard scores={scores} />
-        )}
+        {/* Design rhythm + activity heatmap are a paid feature — hidden for
+            free users (#289). Paid tiers (pro/team/pulse) keep both. */}
+        {paid &&
+          (showLoading ? (
+            <DesignRhythmSkeleton />
+          ) : (
+            <DesignRhythmCard scores={scores} />
+          ))}
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           <main>

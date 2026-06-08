@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, useUser, useOrganization, SignUpButton } from "@clerk/nextjs";
 import { canScorePrivately as tierCanScorePrivately, isTeamScope } from "@/lib/score-scope";
+import { useViewAs } from "@/lib/dev/view-as";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
 import { ScoreBar } from "@/components/ScoreBar";
 import type { RungName, RungScores } from "@/lib/ladder";
@@ -302,12 +303,17 @@ export default function ScorePage() {
   const router = useRouter();
   const { isSignedIn, isLoaded } = useAuth();
   const { user, isLoaded: userLoaded } = useUser();
+  const viewAs = useViewAs();
   // Tier drives private-scoring access + labeling (#290 / #301). Free can't
   // score privately; paid tiers default to private; team/pulse label it
-  // "Internal" rather than "Private".
-  const tier = (user?.publicMetadata as { tier?: string } | undefined)?.tier;
-  const canScorePrivately = tierCanScorePrivately(tier);
-  const internalScope = isTeamScope(tier);
+  // "Internal" rather than "Private". In dev "view as", the switcher's plan
+  // overrides the real Clerk tier so the toggle states can be exercised
+  // without juggling accounts (useViewAs returns null in production).
+  const realTier = (user?.publicMetadata as { tier?: string } | undefined)
+    ?.tier;
+  const effectiveTier = viewAs ? viewAs.plan : realTier;
+  const canScorePrivately = tierCanScorePrivately(effectiveTier);
+  const internalScope = isTeamScope(effectiveTier);
   // Active Clerk organization = the user is currently scoring in a team
   // context. Only team members ever see the design/evaluation session
   // prompt — for free/Pro users the bucketing has no surface to show up
@@ -350,17 +356,14 @@ export default function ScorePage() {
   const fileRef = useRef<HTMLInputElement>(null);
   // Guards the one-shot claim of a pending anonymous score after sign-up.
   const claimedRef = useRef(false);
-  // Guards the one-shot tier-based privacy default so it doesn't clobber a
-  // manual toggle on later re-renders (#290).
-  const privacyDefaultApplied = useRef(false);
-
-  // Paid tiers (pro/team/pulse) default to a private score; free users stay
-  // public and can't change it. Applied once, after the Clerk user (and thus
-  // tier) has loaded, so it doesn't override a manual toggle.
+  // Default the toggle to the tier-appropriate state once the tier is known:
+  // paid tiers (pro/team/pulse) default to private, free is forced public.
+  // Keyed on canScorePrivately so a dev "view as" plan switch re-applies the
+  // default; in production the tier is stable after load, so this runs once
+  // and never clobbers a later manual toggle.
   useEffect(() => {
-    if (!userLoaded || !user || privacyDefaultApplied.current) return;
-    privacyDefaultApplied.current = true;
-    if (canScorePrivately) setIsPublic(false);
+    if (!userLoaded || !user) return;
+    setIsPublic(!canScorePrivately);
   }, [userLoaded, user, canScorePrivately]);
 
   // Recent-scores list source:

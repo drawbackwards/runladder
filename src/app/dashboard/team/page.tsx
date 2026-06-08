@@ -21,6 +21,7 @@ import {
   ActiveReviewsList,
 } from "@/components/reviews/ReviewsOverview";
 import { TabButton } from "@/components/Tabs";
+import { SHOW_EVALUATIONS_AND_REVIEWS } from "@/lib/feature-flags";
 import { SectionLabel } from "@/components/SectionLabel";
 import { Skeleton } from "@/components/Skeleton";
 import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
@@ -974,12 +975,15 @@ export default function TeamPage() {
             active={teamTab === "members"}
             onClick={() => setTeamTab("members")}
           />
-          <TabButton
-            label="Reviews"
-            badge="Beta"
-            active={teamTab === "reviews"}
-            onClick={() => setTeamTab("reviews")}
-          />
+          {/* Reviews hidden for launch (#302). */}
+          {SHOW_EVALUATIONS_AND_REVIEWS && (
+            <TabButton
+              label="Reviews"
+              badge="Beta"
+              active={teamTab === "reviews"}
+              onClick={() => setTeamTab("reviews")}
+            />
+          )}
         </div>
 
         {/* Reviews tab. Team Lead sees the live panels; designers get a
