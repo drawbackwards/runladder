@@ -144,7 +144,7 @@ export default function ScoreDetailPage() {
   if (loading) {
     return (
       <div className="pt-20 font-mono">
-        <div className="max-w-5xl mx-auto px-6 py-12">
+        <div className="max-w-6xl mx-auto px-6 py-12">
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="border border-[#333] bg-[#1e1e1e] p-5 shimmer h-20" />
@@ -158,7 +158,7 @@ export default function ScoreDetailPage() {
   if (error || !data) {
     return (
       <div className="pt-20 font-mono">
-        <div className="max-w-5xl mx-auto px-6 py-12 text-center">
+        <div className="max-w-6xl mx-auto px-6 py-12 text-center">
           <p className="text-sm text-muted font-sans mb-4">Score not found</p>
           <Link href="/dashboard" className="text-xs text-ladder-green uppercase tracking-widest hover:underline">
             Back to dashboard
@@ -173,7 +173,7 @@ export default function ScoreDetailPage() {
 
   return (
     <div className="pt-20 font-mono">
-      <div className="max-w-5xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-6 py-12">
 
         {/* Back + meta */}
         <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
@@ -200,11 +200,14 @@ export default function ScoreDetailPage() {
 
         {/* Score hero */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-8 mb-10">
-          {/* Left: thumbnail */}
-          <div>
+          {/* Left: thumbnail. self-start so the box hugs the image instead of
+              stretching to the score panel's height and leaving dead space. */}
+          <div className="self-start">
             {data.thumbnail ? (
-              <div className="border border-[#333] bg-[#1e1e1e] p-1">
-                <img src={data.thumbnail} alt="" className="w-full max-h-[420px] object-contain" />
+              <div className="border border-[#333] bg-[#1e1e1e] p-1 flex justify-center">
+                {/* max-w-full (not w-full) so a thumbnail never upscales past
+                    its native resolution and goes soft; centered if narrower. */}
+                <img src={data.thumbnail} alt="" className="max-w-full h-auto max-h-[640px] object-contain" />
               </div>
             ) : (
               <div className="border border-[#333] bg-[#1e1e1e] p-12 flex items-center justify-center">
@@ -417,7 +420,7 @@ export default function ScoreDetailPage() {
               rel="noopener noreferrer"
               className="shrink-0 inline-block text-xs font-semibold uppercase tracking-widest bg-ladder-green text-background px-6 py-3 hover:bg-ladder-green/90 transition-colors"
             >
-              Talk to Drawbackwards
+              Get Moderated Testing
             </a>
           </div>
         </div>

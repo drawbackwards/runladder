@@ -6,6 +6,20 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.10 / api 1.0.0 (2026-06-08)
+
+**Admin archive-not-delete, client usage, and score-detail/admin polish.**
+
+- **Admin Clients archive, never delete (#295).** Removed the hard-Delete path entirely (button, confirm modal, DELETE call). Suspend → **Archive**, Reactivate → **Restore**, status shows **Archived**. Same reversible soft state; client data is never destroyed. (Pro/Free user lists have no removal actions, so "only archive" already holds.)
+- **Pooled usage on the admin Clients list (#297).** New Usage column showing each org's monthly scans vs the team pool (orange at/over pool).
+- **Score-detail polish.** Page widened to match Dashboard/Team (`max-w-6xl`); the screenshot is enlarged and no longer upscaled-blurry; `makeThumbnail` bumped to 1400px/q82 so new screenshots stay crisp. Methodology CTA reworded to **"Get Moderated Testing"** (#292).
+- **Surface tag on every score (#299 follow-up).** Scores with no surface suffix now tag as **"Web"** instead of going untagged.
+- **Admin tab "Evaluations" → "Heuristic Evaluations"** for clarity.
+- **Claude page hero image** updated (`/claude-skill-hero.png`, alongside the Figma hero); old `images/claude-code-ladder-img.png` removed.
+- `/hq` updated: Features (archive + usage rows), Decisions (client-data-archived-never-deleted).
+
+---
+
 ## app 0.5.9 / api 1.0.0 (2026-06-08)
 
 **Fully hide the Evaluations concept for launch (#302, follow-up).**

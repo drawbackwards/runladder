@@ -2,7 +2,7 @@
 title: Decisions Log
 updatedAt: 2026-06-08
 updatedBy: Sara
-lastPr: 322
+lastPr: 326
 ---
 
 ## How to use this page
@@ -12,6 +12,10 @@ The why behind big choices. Read this before you push back on a feature, a price
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
 
 ---
+
+## Client data is archived, never deleted (2026-06-08)
+
+**Rule:** Admins cannot hard-delete a client org (or user). The destructive Delete path was removed from `/admin/clients`; the only removal action is **Archive** (the existing suspend mechanism — cuts access, keeps all data, reversible via Restore). We never destroy client data, so a paused or departed client can always be brought back. Shipped in [#295](https://github.com/drawbackwards/runladder/issues/295). (The `DELETE /api/admin/clients/[orgId]` endpoint still exists but is no longer reachable from the UI; remove in a later cleanup.)
 
 ## Private scoring is a paid feature; paid scores default to private (2026-06-08)
 
