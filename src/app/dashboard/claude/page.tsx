@@ -68,8 +68,8 @@ export default function ClaudeDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           <main>
             <img
-              src="/images/claude-code-ladder-img.png"
-              alt="Ladder skill running inside Claude Code"
+              src="/claude-skill-hero.png"
+              alt="Ladder skill running inside Claude"
               className="w-full border border-[#2a2a2a] mb-6"
             />
             <div className="space-y-4 text-sm text-muted font-sans leading-relaxed">

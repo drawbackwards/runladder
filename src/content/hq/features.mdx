@@ -2,7 +2,7 @@
 title: Feature Inventory
 updatedAt: 2026-06-08
 updatedBy: Sara
-lastPr: 325
+lastPr: 326
 ---
 
 ## How to read this page
@@ -146,7 +146,8 @@ Gated by `ADMIN_EMAILS` env var. Defaults: Ward, Michael, Jordan.
 | Webhook handler for Clerk org join | Auto | Live (v0.3.0) | `src/app/api/webhooks/clerk/route.ts` |
 | Manage Clients page (Team orgs + Pro list + Free users list) | Admin | Live (v0.5.5) | `src/app/admin/clients/page.tsx`, [#200](https://github.com/drawbackwards/runladder/pull/200), Free users list [#276](https://github.com/drawbackwards/runladder/pull/276) |
 | Provision Team org + invite Team Lead as `org:admin` | Admin | Live (v0.5.5) | `src/app/api/admin/clients/route.ts` |
-| Org lifecycle: suspend / reactivate / delete (type-to-confirm) | Admin | Live (v0.5.5) | `src/app/api/admin/clients/[orgId]/route.ts` |
+| Org lifecycle: archive / restore (no hard delete — client data is never destroyed) | Admin | Live (#295) | `src/app/admin/(tabbed)/clients/page.tsx`. Underlying state is still the `suspended` flag (`/api/admin/clients/[orgId]` PATCH); the destructive DELETE path was removed. |
+| Pooled monthly usage column on the admin Clients list | Admin | Live (#297) | `src/app/api/admin/clients/route.ts` (`getTeamMonthlyTotal`), `src/app/admin/(tabbed)/clients/page.tsx` |
 | Internal-org protection (Drawbackwards never suspended/deleted) | Admin | Live (v0.5.5) | `src/lib/orgs.ts` `isInternalOrg` |
 | Admin-only "Admin" entry in Account menu (single row; lands on Clients tab) | Admin | Live | `src/components/UserMenu.tsx`, `src/app/api/admin/status/route.ts` |
 | Unified Admin shell with tabs (Clients / Evaluations / Feedback / Comps / Beta Codes) | Admin | Live (#231) | `src/app/admin/layout.tsx`, `src/components/Tabs.tsx` |
