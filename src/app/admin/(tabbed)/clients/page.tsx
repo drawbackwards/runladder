@@ -36,6 +36,7 @@ type TeamClient = {
   internal: boolean;
   teamLead: { firstName?: string; lastName?: string; email?: string } | null;
   createdAt: number;
+  usage: { used: number; pool: number };
 };
 
 type ProClient = {
@@ -73,10 +74,6 @@ export default function ManageClientsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyOrg, setBusyOrg] = useState<string | null>(null);
-  // Branded delete-confirmation modal state.
-  const [deleteTarget, setDeleteTarget] = useState<TeamClient | null>(null);
-  const [confirmText, setConfirmText] = useState("");
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   async function refresh() {
     setLoading(true);
@@ -125,40 +122,8 @@ export default function ManageClientsPage() {
     }
   }
 
-  function openDelete(client: TeamClient) {
-    setDeleteTarget(client);
-    setConfirmText("");
-    setDeleteError(null);
-  }
-
-  function closeDelete() {
-    setDeleteTarget(null);
-    setConfirmText("");
-    setDeleteError(null);
-  }
-
-  async function confirmDelete() {
-    if (!deleteTarget) return;
-    setBusyOrg(deleteTarget.id);
-    setDeleteError(null);
-    try {
-      const res = await fetch(`/api/admin/clients/${deleteTarget.id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ confirmName: confirmText }),
-      });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        throw new Error(j.error || `Delete failed (${res.status})`);
-      }
-      closeDelete();
-      await refresh();
-    } catch (e) {
-      setDeleteError(e instanceof Error ? e.message : "Delete failed");
-    } finally {
-      setBusyOrg(null);
-    }
-  }
+  // Clients are never hard-deleted (#295) — Archive (the suspend mechanism)
+  // turns off access while preserving all data. No delete path exists.
 
   // Auth + access gating live in the admin layout (#231).
 
@@ -213,6 +178,7 @@ export default function ManageClientsPage() {
                   <th className="text-left p-3 w-1/4">Org</th>
                   <th className="text-left p-3">Team Lead</th>
                   <th className="text-left p-3">Members</th>
+                  <th className="text-left p-3">Usage</th>
                   <th className="text-left p-3">Status</th>
                   <th className="text-left p-3">Joined</th>
                   <th className="text-left p-3">Actions</th>
@@ -223,7 +189,7 @@ export default function ManageClientsPage() {
                   <TableSkeleton cols={6} />
                 ) : teamClients.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center text-muted font-sans">
+                    <td colSpan={7} className="p-6 text-center text-muted font-sans">
                       No Team clients yet.
                     </td>
                   </tr>
@@ -250,9 +216,24 @@ export default function ManageClientsPage() {
                         <td className="p-3 text-left tabular-nums text-muted">
                           {c.membersCount}
                         </td>
+                        <td className="p-3 text-left tabular-nums whitespace-nowrap">
+                          <span
+                            className={
+                              c.usage.used >= c.usage.pool
+                                ? "text-ladder-orange"
+                                : "text-muted"
+                            }
+                          >
+                            {c.usage.used.toLocaleString()}
+                          </span>
+                          <span className="text-[#444]">
+                            {" "}
+                            / {c.usage.pool.toLocaleString()}
+                          </span>
+                        </td>
                         <td className="p-3">
                           {c.status === "suspended" ? (
-                            <span className="text-ladder-orange">Suspended</span>
+                            <span className="text-ladder-orange">Archived</span>
                           ) : c.status === "pending" ? (
                             <span className="text-ladder-yellow">Pending</span>
                           ) : (
@@ -264,29 +245,20 @@ export default function ManageClientsPage() {
                           {c.internal ? (
                             <span className="text-[10px] text-muted">Protected</span>
                           ) : (
-                            <>
-                              <button
-                                onClick={() =>
-                                  patch(
-                                    c.id,
-                                    c.status === "suspended"
-                                      ? "reactivate"
-                                      : "suspend",
-                                  )
-                                }
-                                disabled={busyOrg === c.id}
-                                className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors mr-3 disabled:opacity-40"
-                              >
-                                {c.status === "suspended" ? "Reactivate" : "Suspend"}
-                              </button>
-                              <button
-                                onClick={() => openDelete(c)}
-                                disabled={busyOrg === c.id}
-                                className="text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors disabled:opacity-40"
-                              >
-                                Delete
-                              </button>
-                            </>
+                            <button
+                              onClick={() =>
+                                patch(
+                                  c.id,
+                                  c.status === "suspended"
+                                    ? "reactivate"
+                                    : "suspend",
+                                )
+                              }
+                              disabled={busyOrg === c.id}
+                              className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors disabled:opacity-40"
+                            >
+                              {c.status === "suspended" ? "Restore" : "Archive"}
+                            </button>
                           )}
                         </td>
                       </tr>
@@ -404,62 +376,6 @@ export default function ManageClientsPage() {
           </div>
         </section>
 
-      {/* Branded delete-confirmation modal (placeholder until a shared
-          Dialog component exists). Type-the-name to confirm; destructive
-          action gets a red button. */}
-      {deleteTarget && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-6"
-          onClick={closeDelete}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            className="w-full max-w-md border border-[#2a2a2a] bg-[#161616] p-5 shadow-2xl shadow-black/50"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-sans font-semibold text-foreground mb-2">
-              Delete Organization
-            </h2>
-            <p className="text-xs text-muted font-sans mb-4 leading-relaxed">
-              This permanently deletes{" "}
-              <span className="text-foreground">{deleteTarget.name}</span> and
-              removes all members. This cannot be undone. Type the org name to
-              confirm.
-            </p>
-            <input
-              value={confirmText}
-              onChange={(e) => setConfirmText(e.target.value)}
-              placeholder={deleteTarget.name}
-              autoFocus
-              className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
-            />
-            {deleteError && (
-              <p className="mt-3 text-xs text-ladder-red font-sans">
-                {deleteError}
-              </p>
-            )}
-            <div className="mt-5 flex items-center justify-end gap-4">
-              <button
-                onClick={closeDelete}
-                className="text-xs font-semibold text-muted hover:text-foreground transition-colors px-4 py-1.5"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                disabled={
-                  busyOrg === deleteTarget.id ||
-                  confirmText.trim() !== deleteTarget.name
-                }
-                className="text-xs font-semibold bg-ladder-red text-white px-4 py-1.5 rounded-sm hover:bg-ladder-red/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {busyOrg === deleteTarget.id ? "Deleting…" : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

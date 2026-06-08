@@ -7,7 +7,8 @@ import {
   orgStatus,
   provisioningUserId,
 } from "@/lib/orgs";
-import type { Tier } from "@/lib/plans";
+import { TEAM_MONTHLY_POOL, type Tier } from "@/lib/plans";
+import { getTeamMonthlyTotal } from "@/lib/usage";
 
 /**
  * Admin client management (#190).
@@ -34,6 +35,8 @@ type TeamClient = {
   internal: boolean;
   teamLead: { firstName?: string; lastName?: string; email?: string } | null;
   createdAt: number;
+  /** Pooled monthly scans across the org's members vs the team pool (#297). */
+  usage: { used: number; pool: number };
 };
 
 type ProClient = {
@@ -63,27 +66,49 @@ export async function GET() {
     includeMembersCount: true,
   });
   const provisioner = provisioningUserId();
-  const teamClients: TeamClient[] = orgList.data.map((org) => {
-    const meta = orgMeta(org);
-    // Exclude the hidden provisioning service account from the count. It's a
-    // member of every org it provisioned (it's the `createdBy` owner), so
-    // Clerk's raw membersCount is always +1 for provisioned orgs (#262). The
-    // `createdBy === provisioner` guard keeps legacy/non-provisioned orgs exact.
-    const rawCount = org.membersCount ?? 0;
-    const membersCount =
-      provisioner && org.createdBy === provisioner
-        ? Math.max(0, rawCount - 1)
-        : rawCount;
-    return {
-      id: org.id,
-      name: org.name,
-      membersCount,
-      status: orgStatus(org),
-      internal: isInternalOrg(org),
-      teamLead: meta.teamLead ?? null,
-      createdAt: org.createdAt,
-    };
-  });
+  const teamClients: TeamClient[] = await Promise.all(
+    orgList.data.map(async (org) => {
+      const meta = orgMeta(org);
+      // Exclude the hidden provisioning service account from the count. It's a
+      // member of every org it provisioned (it's the `createdBy` owner), so
+      // Clerk's raw membersCount is always +1 for provisioned orgs (#262). The
+      // `createdBy === provisioner` guard keeps legacy/non-provisioned orgs exact.
+      const rawCount = org.membersCount ?? 0;
+      const membersCount =
+        provisioner && org.createdBy === provisioner
+          ? Math.max(0, rawCount - 1)
+          : rawCount;
+
+      // Pooled monthly usage for the row (#297): sum this org's members'
+      // scans this month vs the team pool. Best-effort — a failed membership
+      // fetch just shows 0 used rather than breaking the whole list.
+      let used = 0;
+      try {
+        const memberships =
+          await client.organizations.getOrganizationMembershipList({
+            organizationId: org.id,
+            limit: 100,
+          });
+        const memberIds = memberships.data
+          .map((m) => m.publicUserData?.userId)
+          .filter((id): id is string => !!id && id !== provisioner);
+        used = await getTeamMonthlyTotal(memberIds);
+      } catch {
+        used = 0;
+      }
+
+      return {
+        id: org.id,
+        name: org.name,
+        membersCount,
+        status: orgStatus(org),
+        internal: isInternalOrg(org),
+        teamLead: meta.teamLead ?? null,
+        createdAt: org.createdAt,
+        usage: { used, pool: TEAM_MONTHLY_POOL },
+      };
+    }),
+  );
 
   // Pro clients = individual users with publicMetadata.tier === "pro".
   // NOTE: Clerk's getUserList can't filter by metadata server-side, so we

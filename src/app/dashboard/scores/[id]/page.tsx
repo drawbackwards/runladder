@@ -204,8 +204,10 @@ export default function ScoreDetailPage() {
               stretching to the score panel's height and leaving dead space. */}
           <div className="self-start">
             {data.thumbnail ? (
-              <div className="border border-[#333] bg-[#1e1e1e] p-1">
-                <img src={data.thumbnail} alt="" className="w-full h-auto max-h-[640px] object-contain" />
+              <div className="border border-[#333] bg-[#1e1e1e] p-1 flex justify-center">
+                {/* max-w-full (not w-full) so a thumbnail never upscales past
+                    its native resolution and goes soft; centered if narrower. */}
+                <img src={data.thumbnail} alt="" className="max-w-full h-auto max-h-[640px] object-contain" />
               </div>
             ) : (
               <div className="border border-[#333] bg-[#1e1e1e] p-12 flex items-center justify-center">
@@ -418,7 +420,7 @@ export default function ScoreDetailPage() {
               rel="noopener noreferrer"
               className="shrink-0 inline-block text-xs font-semibold uppercase tracking-widest bg-ladder-green text-background px-6 py-3 hover:bg-ladder-green/90 transition-colors"
             >
-              Talk to Drawbackwards
+              Get Moderated Testing
             </a>
           </div>
         </div>
