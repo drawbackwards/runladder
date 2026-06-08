@@ -6,6 +6,16 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.9 / api 1.0.0 (2026-06-08)
+
+**Fully hide the Evaluations concept for launch (#302, follow-up).**
+
+- The score screen no longer shows the "What kind of session is this?" prompt or the top-right session-type pill — every score is logged as a design session. This completes #302: the design-vs-evaluation "Evaluations" concept (prompt + pill on the score screen, member-detail Evaluations tab, team Reviews tab) is gone from the customer-facing app for launch, all behind the single `SHOW_EVALUATIONS_AND_REVIEWS` flag.
+- The internal admin tool at `/admin/evaluations` (client evaluation reports) is a separate feature and is intentionally left intact.
+- `/hq` updated: Features (#302 row expanded to cover the score-screen pieces).
+
+---
+
 ## app 0.5.8 / api 1.0.0 (2026-06-08)
 
 **Launch gating + Team Lead score visibility.**

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth, useUser, useOrganization, SignUpButton } from "@clerk/nextjs";
 import { canScorePrivately as tierCanScorePrivately, isTeamScope } from "@/lib/score-scope";
 import { useViewAs } from "@/lib/dev/view-as";
+import { SHOW_EVALUATIONS_AND_REVIEWS } from "@/lib/feature-flags";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
 import { ScoreBar } from "@/components/ScoreBar";
 import type { RungName, RungScores } from "@/lib/ladder";
@@ -670,7 +671,11 @@ export default function ScorePage() {
   // Free, Pro, and Pulse users scoring outside a team context don't
   // need to declare intent. The pill that lets you change session
   // type is gated on the same condition below.
+  // Evaluations (the design-vs-evaluation session concept) are hidden for
+  // launch (#302) — the prompt + pill never render, so every score is logged
+  // as a design session. Restore via SHOW_EVALUATIONS_AND_REVIEWS.
   const showSessionTypePrompt =
+    SHOW_EVALUATIONS_AND_REVIEWS &&
     isLoaded &&
     isSignedIn &&
     onTeam &&
@@ -724,7 +729,7 @@ export default function ScorePage() {
           </div>
         )}
 
-        {isLoaded && isSignedIn && onTeam && sessionType && !result && !loading && !capturing && (
+        {SHOW_EVALUATIONS_AND_REVIEWS && isLoaded && isSignedIn && onTeam && sessionType && !result && !loading && !capturing && (
           <div className="flex justify-end mb-4">
             <SessionTypePill type={sessionType} onChange={clearSessionType} />
           </div>
