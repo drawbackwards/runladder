@@ -196,8 +196,12 @@ export default function ManageClientsPage() {
                 ) : (
                   teamClients.map((c) => {
                     const lead = c.teamLead;
+                    // Team Lead column shows the name; falls back to email only
+                    // when no first/last name is set.
                     const leadLabel = lead
-                      ? `${[lead.firstName, lead.lastName].filter(Boolean).join(" ")}${lead.email ? ` · ${lead.email}` : ""}`
+                      ? [lead.firstName, lead.lastName].filter(Boolean).join(" ") ||
+                        lead.email ||
+                        "—"
                       : "—";
                     return (
                       <tr
