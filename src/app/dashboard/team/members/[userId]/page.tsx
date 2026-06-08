@@ -179,8 +179,10 @@ function ScoreRow({ entry }: { entry: ScoreEntry }) {
               </span>
             )}
             {entry.isPublic === false && (
+              // This is the designer-detail page inside a team, so a non-public
+              // score is "Internal" (visible to the team), never "Private" (#301).
               <span className="text-[8px] text-[#888] uppercase tracking-widest border border-[#3a3a3a] px-1.5 py-0.5 flex-shrink-0">
-                Private
+                Internal
               </span>
             )}
           </div>

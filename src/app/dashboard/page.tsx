@@ -5,6 +5,7 @@ import { useAuth, useUser, RedirectToSignIn } from "@clerk/nextjs";
 import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
+import { privateScopeLabel, isTeamScope } from "@/lib/score-scope";
 import { FigmaPromoCard } from "@/components/promos/FigmaPromoCard";
 import { ClaudePromoCard } from "@/components/promos/ClaudePromoCard";
 import { UsageMeter } from "@/components/UsageMeter";
@@ -268,20 +269,24 @@ function surfaceParts(label: string): { name: string; surface: string | null } {
 const META_BADGE =
   "text-[8px] text-[#888] uppercase tracking-widest border border-[#3a3a3a] px-1.5 py-0.5 flex-shrink-0";
 
-/** Score row title: cleaned name + optional surface badge (Figma/Skill/…) + Private badge. */
+/** Score row title: cleaned name + optional surface badge (Figma/Skill/…) + scope badge. */
 function ScoreRowTitle({
   label,
   isPublic,
+  isTeam,
 }: {
   label: string;
   isPublic?: boolean;
+  isTeam: boolean;
 }) {
   const { name, surface } = surfaceParts(label);
   return (
     <div className="flex items-center gap-2">
       <p className="text-sm text-foreground font-sans truncate">{name}</p>
       {surface && <span className={META_BADGE}>{surface}</span>}
-      {isPublic === false && <span className={META_BADGE}>Private</span>}
+      {isPublic === false && (
+        <span className={META_BADGE}>{privateScopeLabel(isTeam)}</span>
+      )}
     </div>
   );
 }
@@ -698,6 +703,7 @@ export default function DashboardPage() {
                             <ScoreRowTitle
                               label={entry.screenName || entry.source}
                               isPublic={entry.isPublic}
+                              isTeam={isTeamScope(tier)}
                             />
                             <p className="text-[10px] text-muted font-sans truncate mt-0.5">
                               <span style={{ color: getScoreColor(entry.score) }}>

@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { useAuth, useUser, RedirectToSignIn } from "@clerk/nextjs";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
+import { privateScopeLabel, isTeamScope } from "@/lib/score-scope";
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
 import { ScoreBar } from "@/components/ScoreBar";
@@ -79,6 +80,12 @@ type RecentScore = {
 
 export default function ScoreDetailPage() {
   const { isSignedIn, isLoaded } = useAuth();
+  const { user } = useUser();
+  // Team-context accounts (team / pulse) label a non-public score "Internal"
+  // rather than "Private" — it's still visible to the team (#301).
+  const isTeam = isTeamScope(
+    (user?.publicMetadata as { tier?: string } | undefined)?.tier,
+  );
   const params = useParams();
   const [data, setData] = useState<ScoreDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -169,7 +176,7 @@ export default function ScoreDetailPage() {
                 ? "text-ladder-green border-ladder-green/30"
                 : "text-muted border-[#333]"
             }`}>
-              {data.isPublic ? "Public" : "Private"}
+              {data.isPublic ? "Public" : privateScopeLabel(isTeam)}
             </span>
             <span className="text-[10px] text-[#444]">{timeAgo(data.timestamp)}</span>
           </div>
