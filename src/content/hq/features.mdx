@@ -1,8 +1,8 @@
 ---
 title: Feature Inventory
-updatedAt: 2026-06-05
+updatedAt: 2026-06-08
 updatedBy: Sara
-lastPr: 285
+lastPr: 322
 ---
 
 ## How to read this page
@@ -28,6 +28,7 @@ When you ship a feature, add the row here in the same PR. Template:
 | Feature | Roles | Status | Evidence |
 | --- | --- | --- | --- |
 | Public scoring tool (`/score`) | All signed-in | Live | `src/app/score/` |
+| Private / Internal scoring (paid feature; toggle defaults on for paid, free locked to public, off-warning, tier-aware "Private"/"Internal" label) | Pro / Team / Pulse (free = public only) | Live (v0.5.7, [#290](https://github.com/drawbackwards/runladder/issues/290) / [#301](https://github.com/drawbackwards/runladder/issues/301)) | `src/app/score/page.tsx`, `src/lib/score-scope.ts`, `src/app/api/score/route.ts`, `src/app/api/score/stream/route.ts` |
 | Personal dashboard (`/dashboard`) | All signed-in | Live | `src/app/dashboard/` |
 | Figma install/manage detail page (`/dashboard/figma`) | All signed-in | Live (#273) | `src/app/dashboard/figma/page.tsx`, `src/components/promos/FigmaPromoCard.tsx` |
 | Claude Skill install/manage detail page (`/dashboard/claude`) | All signed-in | Live (#273) | `src/app/dashboard/claude/page.tsx`, `src/components/skill/useSkillInstall.ts`, `src/components/promos/ClaudePromoCard.tsx` |

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LadderLogo } from "./LadderLogo";
-import { CURRENT_APP_VERSION } from "@/lib/app-version";
+import { CURRENT_APP_VERSION, CURRENT_ENGINE_VERSION } from "@/lib/app-version";
 
 export function Footer() {
   return (
@@ -57,7 +57,9 @@ export function Footer() {
               Made with love by <a href="https://drawbackwards.com" className="text-body hover:text-foreground transition-colors">Drawbackwards</a> since 2003
             </span>
             <span className="text-[10px] text-muted tabular-nums ml-auto">
-              v{CURRENT_APP_VERSION}
+              Scoring Engine v{CURRENT_ENGINE_VERSION}
+              <span className="text-[#444] mx-1.5">·</span>
+              App v{CURRENT_APP_VERSION}
             </span>
           </div>
           {/* Single muted copyright line — the canonical licensing

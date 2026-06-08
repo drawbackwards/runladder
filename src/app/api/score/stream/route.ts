@@ -14,6 +14,7 @@ import {
 } from "@/lib/plans";
 import { getMonthlyScans } from "@/lib/usage";
 import { getUserTier } from "@/lib/tier";
+import { canScorePrivately as tierCanScorePrivately } from "@/lib/score-scope";
 import { persistScoreEntry, type ScoreEntryInput } from "@/lib/scores";
 import {
   ANON_COOKIE,
@@ -78,8 +79,8 @@ export async function POST(req: NextRequest) {
   }
 
   /* ── Rate limiting (signed-in tiers; matches /api/score) ── */
-  if (userId) {
-    const tier = await getUserTier(userId);
+  const tier = userId ? await getUserTier(userId) : null;
+  if (userId && tier) {
     if (!isPaidTier(tier)) {
       const usedKey = lifetimeScansKey(userId);
       const used = (await redis.get<number>(usedKey)) ?? 0;
@@ -167,8 +168,15 @@ export async function POST(req: NextRequest) {
                 rungs: result.rungs,
                 source: source || "upload",
                 thumbnail,
-                // Anonymous scores are always private.
-                isPublic: userId ? !!isPublic : false,
+                // Anonymous scores are always private. Free signed-in users
+                // can't score privately (paid feature, #290), so their scores
+                // are forced public regardless of the posted flag; paid tiers
+                // are honored.
+                isPublic: userId
+                  ? tierCanScorePrivately(tier)
+                    ? !!isPublic
+                    : true
+                  : false,
                 timestamp: Date.now(),
                 sessionType,
               };

@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-06-05
+updatedAt: 2026-06-08
 updatedBy: Sara
-lastPr: 288
+lastPr: 322
 ---
 
 ## How to use this page
@@ -12,6 +12,12 @@ The why behind big choices. Read this before you push back on a feature, a price
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
 
 ---
+
+## Private scoring is a paid feature; paid scores default to private (2026-06-08)
+
+**Rule:** Free accounts cannot save a score privately — their scores are always public on runladder.com. Every paid/team tier (Pro, Team, Pulse) can score privately, and the private toggle **defaults on** so a paid user is never surprised by a public-by-default score. Turning it off shows an inline warning. The label is tier-aware: single users (Free/Pro) see "Private," team-context users (Team/Pulse) see "Internal" (still team-visible). See [Glossary → Score visibility](/hq/glossary#score-visibility).
+
+Why: public free scores feed the Top 100 and the top-of-funnel demo, so "free = public" is a deliberate growth lever, not just a gate. Privacy is part of what paid buys. Defaulting paid users to private respects that they're paying for confidentiality; the off-warning prevents accidental publication. Enforced on the client (toggle gating) **and** the server (`/api/score` + `/api/score/stream` force `isPublic` for free users), so the gate can't be bypassed via the API. Shipped with [#290](https://github.com/drawbackwards/runladder/issues/290) + [#301](https://github.com/drawbackwards/runladder/issues/301).
 
 ## Versioning source of truth (2026-06-04)
 
@@ -24,6 +30,7 @@ How to apply:
 - Treat `src/lib/app-version.ts` as the single source of truth for the web app version. Bump it on every user-visible PR.
 - In the same PR, mirror the new `CURRENT_APP_VERSION` into `package.json`'s `version`, and add a matching `CHANGELOG.md` entry. Use that same `X.Y.Z` as the version label in the Features inventory row.
 - Never read `package.json` `version` at runtime. If you need the app version in code, import `CURRENT_APP_VERSION`.
+- The **scoring engine** now versions independently too: `CURRENT_ENGINE_VERSION` in the same file, surfaced in the footer as "Scoring Engine vX.Y," started at `1.2` ([#309](https://github.com/drawbackwards/runladder/issues/309)). Bump it when scoring behaviour (prompt/rubric/model) changes, separate from the app version.
 - The full bump procedure is in [Architecture → Versioning](/hq/architecture). Reconciled in [PR #277](https://github.com/drawbackwards/runladder/pull/277).
 
 Known follow-up (not resolved here): `features.mdx` and this log reference `v0.5.5` (#200) and `v0.5.6` for client-provisioning work, but those versions have no `CHANGELOG.md` entry and no constant bump — they were labeled ahead of the source of truth. Reconcile by either backfilling changelog entries or relabeling those rows to PR numbers; tracked separately so this PR stays scoped to the version system.

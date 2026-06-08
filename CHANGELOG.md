@@ -6,6 +6,18 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.7 / api 1.0.0 (2026-06-08)
+
+**Private scoring as a paid feature, scoring-engine versioning, and dashboard polish.**
+
+- **Private / Internal scoring (#290 + #301).** The scan-screen public/private toggle is now tier-aware. Free accounts can't score privately — the toggle is disabled, locked to public, with an "Upgrade to keep your scores private" prompt. Pro/Team/Pulse default to **private**, and turning it off shows an inline warning that the score will be public. The label is tier-aware everywhere a non-public score appears (dashboard list, score detail, designer detail): single users (Free/Pro) see "Private," team-context users (Team/Pulse) see "Internal." Enforced client-side and server-side (`/api/score` + `/api/score/stream` force `isPublic` for free users so the gate can't be bypassed via the API). New shared helper `src/lib/score-scope.ts`.
+- **Scoring-engine version (#309).** New `CURRENT_ENGINE_VERSION` constant (started at `1.2`) tracks the scoring algorithm independently of the app/API versions. Footer now reads "Scoring Engine v1.2 · App v0.5.7."
+- **Team dashboard hover fix (#303).** On a member row, the Archive/Delete actions now fade in as the score stats + drill arrow fade out, so the actions no longer overlap the numbers.
+- Versions 0.5.5 and 0.5.6 were skipped — they're reserved by the client-provisioning work (#200 / #217) that labeled ahead of the source of truth.
+- `/hq` updated: Architecture (Versioning), Decisions Log (private-scoring entry + engine version), Glossary (Score visibility), Features (private-scoring row).
+
+---
+
 ## app 0.5.4 / api 1.0.0 (2026-05-26)
 
 **Auth + onboarding fixes ahead of the Ladder Team sale.**

@@ -1,8 +1,8 @@
 ---
 title: Glossary
-updatedAt: 2026-05-29
+updatedAt: 2026-06-08
 updatedBy: Sara
-lastPr: 261
+lastPr: 322
 ---
 
 ## Why this exists
@@ -53,6 +53,16 @@ See [Roles](/hq/roles) for the full matrix. Quick reference:
 | **Pulse User** | Customer on a Pulse engagement. |
 | **Admin** | Internal Drawbackwards admin (Ward, Michael, Jordan). |
 | **Super Admin** | Ward only. |
+
+## Score visibility
+
+How a saved score is exposed. The public/private toggle on the scan screen drives a single `isPublic` flag; the label shown depends on the account ([#290](https://github.com/drawbackwards/runladder/issues/290) / [#301](https://github.com/drawbackwards/runladder/issues/301)).
+
+| Term | Definition |
+| --- | --- |
+| **Public score** | `isPublic = true`. Saved to the dashboard and visible on runladder.com. Free accounts' scores are always public — private scoring is a paid feature. |
+| **Private score** | A non-public score on a single-user account (Free/Pro). Only the owner can see it. Labeled "Private." Free users can't create these. |
+| **Internal score** | A non-public score on a team-context account (Team/Pulse). Same `isPublic = false` flag as Private, but labeled **"Internal"** because it's visible to the team, not just one person. Pulse counts as a team context for labeling even though it doesn't hit the scan toggle yet. |
 
 ## Engagements
 

@@ -386,6 +386,15 @@ function MemberRow({
       ? `/dashboard/team/members/${member.userId}`
       : null;
 
+  // Team Leads get Archive/Delete actions on every row but their own. Those
+  // fade in on hover; the score stats + drill arrow fade out in lockstep so
+  // the actions never overlap the numbers (#303). Rows without actions keep
+  // their stats visible on hover.
+  const showActions = isAdmin && !isSelf && !!member.userId;
+  const fadeOnHover = showActions
+    ? "group-hover:opacity-0 transition-opacity"
+    : "";
+
   const Body = (
     <div className="px-4 py-4 flex items-center gap-5">
       <Avatar
@@ -451,7 +460,7 @@ function MemberRow({
         </div>
       )}
 
-      <div className="flex items-start gap-5 flex-shrink-0">
+      <div className={`flex items-start gap-5 flex-shrink-0 ${fadeOnHover}`}>
         <div className="text-right min-w-[48px]">
           <p
             className="text-xl font-bold tabular-nums leading-none"
@@ -474,7 +483,7 @@ function MemberRow({
       </div>
 
       {drillHref && (
-        <span className="text-muted group-hover:text-foreground transition-colors text-base flex-shrink-0">
+        <span className={`text-muted group-hover:text-foreground transition-colors text-base flex-shrink-0 ${fadeOnHover}`}>
           →
         </span>
       )}
@@ -494,7 +503,7 @@ function MemberRow({
         Body
       )}
       {isAdmin && !isSelf && member.userId && (
-        <div className="absolute top-4 right-12 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-4 right-12 z-10 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={(e) => {
               e.preventDefault();

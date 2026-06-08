@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth, useOrganization, SignUpButton } from "@clerk/nextjs";
+import { useAuth, useUser, useOrganization, SignUpButton } from "@clerk/nextjs";
+import { canScorePrivately as tierCanScorePrivately, isTeamScope } from "@/lib/score-scope";
 import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
 import { ScoreBar } from "@/components/ScoreBar";
 import type { RungName, RungScores } from "@/lib/ladder";
@@ -300,6 +301,13 @@ function AnonSignupPrompt({
 export default function ScorePage() {
   const router = useRouter();
   const { isSignedIn, isLoaded } = useAuth();
+  const { user, isLoaded: userLoaded } = useUser();
+  // Tier drives private-scoring access + labeling (#290 / #301). Free can't
+  // score privately; paid tiers default to private; team/pulse label it
+  // "Internal" rather than "Private".
+  const tier = (user?.publicMetadata as { tier?: string } | undefined)?.tier;
+  const canScorePrivately = tierCanScorePrivately(tier);
+  const internalScope = isTeamScope(tier);
   // Active Clerk organization = the user is currently scoring in a team
   // context. Only team members ever see the design/evaluation session
   // prompt — for free/Pro users the bucketing has no surface to show up
@@ -342,6 +350,18 @@ export default function ScorePage() {
   const fileRef = useRef<HTMLInputElement>(null);
   // Guards the one-shot claim of a pending anonymous score after sign-up.
   const claimedRef = useRef(false);
+  // Guards the one-shot tier-based privacy default so it doesn't clobber a
+  // manual toggle on later re-renders (#290).
+  const privacyDefaultApplied = useRef(false);
+
+  // Paid tiers (pro/team/pulse) default to a private score; free users stay
+  // public and can't change it. Applied once, after the Clerk user (and thus
+  // tier) has loaded, so it doesn't override a manual toggle.
+  useEffect(() => {
+    if (!userLoaded || !user || privacyDefaultApplied.current) return;
+    privacyDefaultApplied.current = true;
+    if (canScorePrivately) setIsPublic(false);
+  }, [userLoaded, user, canScorePrivately]);
 
   // Recent-scores list source:
   //  - Signed-in users: the account's backend-persisted scores (/api/dashboard),
@@ -765,38 +785,74 @@ export default function ScorePage() {
 
             {/* Informational callouts — above the drop zone (Ward feedback).
                 Public/private toggle for signed-in users, terms note for anon. */}
-            {isLoaded && isSignedIn ? (
-              <div className="mb-4 flex items-center justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsPublic(!isPublic)}
-                  className={`relative w-8 h-[18px] rounded-full transition-colors cursor-pointer ${
-                    isPublic ? "bg-ladder-green" : "bg-[#333]"
-                  }`}
-                  aria-label="Toggle public score"
-                >
-                  <span
-                    className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white transition-transform ${
-                      isPublic ? "left-[16px]" : "left-[2px]"
+            {!isLoaded || !isSignedIn ? (
+              isLoaded ? (
+                <p className="mb-4 text-[11px] text-muted leading-relaxed text-center max-w-md mx-auto">
+                  By scoring, you agree to our{" "}
+                  <a href="/terms" className="text-ladder-green hover:text-ladder-green/80 transition-colors cursor-pointer">Terms</a>{" "}
+                  and{" "}
+                  <a href="/privacy" className="text-ladder-green hover:text-ladder-green/80 transition-colors cursor-pointer">Privacy Policy</a>.
+                  Free scores may be published on runladder.com.{" "}
+                  <a href="/login" className="text-ladder-green hover:text-ladder-green/80 transition-colors cursor-pointer">Sign in</a>{" "}
+                  for private scoring.
+                </p>
+              ) : null
+            ) : !userLoaded ? (
+              // Tier still resolving — render nothing rather than flash the
+              // wrong toggle state (free vs paid) for a frame.
+              <div className="mb-4 h-[18px]" />
+            ) : canScorePrivately ? (
+              <div className="mb-4 flex flex-col items-center gap-1.5">
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsPublic(!isPublic)}
+                    className={`relative w-8 h-[18px] rounded-full transition-colors cursor-pointer ${
+                      isPublic ? "bg-ladder-green" : "bg-[#333]"
                     }`}
-                  />
-                </button>
-                <span className="text-[11px] text-muted">
-                  {isPublic
-                    ? "Public score — saved to your dashboard and visible on runladder.com"
-                    : "Private score — saved to your dashboard, only you can see it"}
-                </span>
+                    aria-label="Toggle public score"
+                  >
+                    <span
+                      className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white transition-transform ${
+                        isPublic ? "left-[16px]" : "left-[2px]"
+                      }`}
+                    />
+                  </button>
+                  <span className="text-[11px] text-muted">
+                    {isPublic
+                      ? "Public score — saved to your dashboard and visible on runladder.com"
+                      : internalScope
+                        ? "Internal score — saved to your dashboard, visible to your team"
+                        : "Private score — saved to your dashboard, only you can see it"}
+                  </span>
+                </div>
+                {isPublic && (
+                  <p className="text-[11px] text-ladder-orange leading-relaxed text-center max-w-md mx-auto">
+                    Heads up — this score will be publicly visible on runladder.com.
+                  </p>
+                )}
               </div>
             ) : (
-              <p className="mb-4 text-[11px] text-muted leading-relaxed text-center max-w-md mx-auto">
-                By scoring, you agree to our{" "}
-                <a href="/terms" className="text-ladder-green hover:text-ladder-green/80 transition-colors cursor-pointer">Terms</a>{" "}
-                and{" "}
-                <a href="/privacy" className="text-ladder-green hover:text-ladder-green/80 transition-colors cursor-pointer">Privacy Policy</a>.
-                Free scores may be published on runladder.com.{" "}
-                <a href="/login" className="text-ladder-green hover:text-ladder-green/80 transition-colors cursor-pointer">Sign in</a>{" "}
-                for private scoring.
-              </p>
+              // Free tier: private scoring is a paid feature (#290). Lock the
+              // toggle to public and nudge an upgrade.
+              <div className="mb-4 flex flex-col items-center gap-1.5">
+                <div className="flex items-center justify-center gap-3 opacity-60">
+                  <span
+                    className="relative w-8 h-[18px] rounded-full bg-ladder-green cursor-not-allowed"
+                    aria-label="Public score. Private scoring requires a paid plan."
+                    title="Private scoring is available on paid plans"
+                  >
+                    <span className="absolute top-[2px] left-[16px] w-[14px] h-[14px] rounded-full bg-white" />
+                  </span>
+                  <span className="text-[11px] text-muted">
+                    Public score — saved to your dashboard and visible on runladder.com
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted leading-relaxed text-center max-w-md mx-auto">
+                  <a href="/pricing" className="text-ladder-green hover:text-ladder-green/80 transition-colors cursor-pointer">Upgrade</a>{" "}
+                  to keep your scores private.
+                </p>
+              </div>
             )}
 
             {/* Drop zone */}
