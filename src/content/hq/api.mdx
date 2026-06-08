@@ -1,8 +1,8 @@
 ---
 title: API Protocols
-updatedAt: 2026-05-27
+updatedAt: 2026-06-08
 updatedBy: Sara
-lastPr: 229
+lastPr: 323
 ---
 
 ## Two surfaces, one to come
@@ -23,7 +23,7 @@ All endpoints below are real routes in this repo. Find them under `src/app/api/`
 | `/api/top-100` | GET | Public | Top 100 listing. |
 | `/api/dashboard` | GET | Clerk session | Personal dashboard data. |
 | `/api/dashboard/scores` | GET | Clerk session | User's score history. |
-| `/api/dashboard/scores/[id]` | GET | Clerk session | Individual score detail. |
+| `/api/dashboard/scores/[id]` | GET | Clerk session | Individual score detail. Owner by default; a Team Lead can pass `?member=<userId>` to read a score owned by a member of their active org (authorized as `org:admin` + member-in-org, mirroring the member-detail endpoint). Team Leads also receive soft-deleted scores for audit (#300). |
 | `/api/dashboard/scores/[id]/annotations` | GET, POST | Clerk session | Reviews pin annotations. |
 | `/api/dashboard/team` | GET | Clerk Org (team) | Team dashboard data. |
 | `/api/skill/token` | POST | Clerk session | Issue a Skill token for use in Claude.ai. |

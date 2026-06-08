@@ -91,13 +91,23 @@ export default function ScoreDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [recent, setRecent] = useState<RecentScore[]>([]);
+  // Set when a Team Lead opens this score from a designer's detail page
+  // (?member=<userId>). Drives the authorized fetch + the back link (#300).
+  const [memberId, setMemberId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isSignedIn) return;
 
+    const member =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("member")
+        : null;
+    setMemberId(member);
+
     async function fetchScore() {
       try {
-        const res = await fetch(`/api/dashboard/scores/${params.id}`);
+        const qs = member ? `?member=${encodeURIComponent(member)}` : "";
+        const res = await fetch(`/api/dashboard/scores/${params.id}${qs}`);
         if (!res.ok) throw new Error("Score not found");
         const json = await res.json();
         setData(json);
@@ -109,6 +119,9 @@ export default function ScoreDetailPage() {
     }
 
     async function fetchRecent() {
+      // The recent strip shows the viewer's own scores — irrelevant (and
+      // confusing) when a Team Lead is viewing a member's score.
+      if (member) return;
       try {
         const res = await fetch("/api/dashboard");
         if (!res.ok) return;
@@ -164,12 +177,15 @@ export default function ScoreDetailPage() {
 
         {/* Back + meta */}
         <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
-          <Link href="/dashboard" className="text-[11px] text-muted uppercase tracking-widest hover:text-foreground transition-colors">
-            &larr; Dashboard
+          <Link
+            href={memberId ? `/dashboard/team/members/${memberId}` : "/dashboard"}
+            className="text-[11px] text-muted uppercase tracking-widest hover:text-foreground transition-colors"
+          >
+            &larr; {memberId ? "Back to designer" : "Dashboard"}
           </Link>
           <div className="flex items-center gap-3">
             <span className="text-[10px] uppercase tracking-widest text-ladder-green border border-ladder-green/30 bg-ladder-green/5 px-2 py-0.5">
-              ✓ Saved to your dashboard
+              {memberId ? "Team member's score" : "✓ Saved to your dashboard"}
             </span>
             <span className={`text-[9px] uppercase tracking-widest px-2 py-0.5 border ${
               data.isPublic

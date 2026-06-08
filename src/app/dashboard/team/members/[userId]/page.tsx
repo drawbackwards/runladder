@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
+import { surfaceParts } from "@/lib/surface";
+import { SHOW_EVALUATIONS_AND_REVIEWS } from "@/lib/feature-flags";
 import {
   ActivityHeatmap,
   type DailyActivity,
@@ -113,11 +115,24 @@ function StatPill({
   );
 }
 
-function ScoreRow({ entry }: { entry: ScoreEntry }) {
+function ScoreRow({
+  entry,
+  memberUserId,
+}: {
+  entry: ScoreEntry;
+  memberUserId: string;
+}) {
   const isDeleted = typeof entry.deletedAt === "number";
+  // Clean display name + the surface it was scored on (#299).
+  const { name: displayName, surface } = surfaceParts(
+    entry.screenName || entry.source,
+  );
+  // The Team Lead can open any of this designer's scores (#300). The detail
+  // page authorizes the cross-user read via the ?member param.
   return (
-    <div
-      className={`border transition-colors ${
+    <Link
+      href={`/dashboard/scores/${entry.id}?member=${memberUserId}`}
+      className={`block border transition-colors ${
         isDeleted
           ? // Faded + dashed border for audit-only entries the member
             // has removed from their own view.
@@ -163,8 +178,15 @@ function ScoreRow({ entry }: { entry: ScoreEntry }) {
                   : "text-foreground"
               }`}
             >
-              {entry.screenName || entry.source}
+              {displayName}
             </p>
+            {/* Surface tag — where the score was made (Figma / Claude / Web /
+                Skill / Pulse), parsed from the name suffix (#299). */}
+            {surface && (
+              <span className="text-[8px] text-[#888] uppercase tracking-widest border border-[#3a3a3a] px-1.5 py-0.5 flex-shrink-0">
+                {surface}
+              </span>
+            )}
             {isDeleted && (
               <span
                 className="text-[8px] uppercase tracking-widest border px-1.5 py-0.5 flex-shrink-0"
@@ -211,7 +233,7 @@ function ScoreRow({ entry }: { entry: ScoreEntry }) {
           </p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -426,12 +448,15 @@ export default function TeamMemberDetailPage() {
             active={tab === "design"}
             onClick={() => setTab("design")}
           />
-          <TabButton
-            label="Evaluations"
-            count={evaluation.scores.length}
-            active={tab === "evaluation"}
-            onClick={() => setTab("evaluation")}
-          />
+          {/* Evaluations hidden for launch (#302). */}
+          {SHOW_EVALUATIONS_AND_REVIEWS && (
+            <TabButton
+              label="Evaluations"
+              count={evaluation.scores.length}
+              active={tab === "evaluation"}
+              onClick={() => setTab("evaluation")}
+            />
+          )}
           <span className="ml-auto pb-3 text-[10px] text-muted">
             {tab === "design"
               ? "Their own design work"
@@ -536,7 +561,7 @@ export default function TeamMemberDetailPage() {
         ) : (
           <div className="space-y-1.5">
             {bucket.scores.map((entry) => (
-              <ScoreRow key={entry.id} entry={entry} />
+              <ScoreRow key={entry.id} entry={entry} memberUserId={userId ?? ""} />
             ))}
           </div>
         )}
