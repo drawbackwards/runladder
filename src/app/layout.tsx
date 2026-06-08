@@ -73,6 +73,15 @@ export default function RootLayout({
           colorDanger: "#ef4444",
           fontFamily: "var(--font-inter), Inter, sans-serif",
         },
+        elements: {
+          // Hide Clerk's app logo across every Clerk surface (the modal that
+          // pops from Subscribe, user-button popovers, etc.) — it's a dark
+          // wordmark that's invisible on our dark UI and duplicates our own
+          // branding. The /login and /sign-up pages hide it via authAppearance;
+          // this covers the modal + everywhere else.
+          logoBox: "!hidden",
+          logoImage: "!hidden",
+        },
       }}
       localization={{
         signIn: {

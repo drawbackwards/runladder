@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth, SignInButton } from "@clerk/nextjs";
+import { useAuth, SignUpButton } from "@clerk/nextjs";
 
 type Props = {
   plan: "pro";
@@ -11,9 +11,11 @@ type Props = {
 
 /**
  * Triggers Stripe Checkout for a given plan.
- * Unauthed users get Clerk's modal sign-in overlaid on the page so they
- * don't lose their place — after signing in they're still on /pricing
- * and the next click goes straight to Stripe Checkout.
+ * Signed-out users get Clerk's modal **sign-up** overlaid on the page (most
+ * people clicking Subscribe are new customers; the sign-up modal still offers
+ * "Sign in" + Google for returning users). They don't lose their place — after
+ * auth they're back on /pricing and the next click goes to Stripe Checkout.
+ * (Auto-resuming into checkout after auth is tracked in #316.)
  */
 export function SubscribeButton({ plan, className, children }: Props) {
   const { isSignedIn, isLoaded } = useAuth();
@@ -50,15 +52,15 @@ export function SubscribeButton({ plan, className, children }: Props) {
 
   if (!isSignedIn) {
     return (
-      <SignInButton
+      <SignUpButton
         mode="modal"
         forceRedirectUrl="/pricing"
-        signUpForceRedirectUrl="/pricing"
+        signInForceRedirectUrl="/pricing"
       >
         <button type="button" className={className}>
           {children}
         </button>
-      </SignInButton>
+      </SignUpButton>
     );
   }
 

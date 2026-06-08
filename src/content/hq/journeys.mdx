@@ -36,7 +36,7 @@ Triggers for the upgrade conversation:
 - User clicks a Pro-only tab (a11y audit, UX copywriting) on a score result.
 - User hits the Pricing page directly.
 
-The Stripe checkout is self-serve at the Pro price on `/pricing` ($1,000/mo today, via `POST /api/stripe/checkout`). On success the user lands on `/dashboard?welcome=pro` and Pro features unlock immediately. Free users can also start the same checkout straight from the account menu's **Upgrade to Pro** row (#275); until Stripe is configured (#213) that row surfaces a "Billing not set up yet" message instead of navigating.
+The Stripe checkout is self-serve at the Pro price on `/pricing` ($1,000/mo today, via `POST /api/stripe/checkout`). A **signed-out** visitor who clicks Subscribe gets Clerk's **sign-up** modal (so a new customer can create an account; returning users use its "Sign in" link / Google), then returns to `/pricing` to continue — auto-resume into checkout is tracked in #316. On success the user lands on `/dashboard?upgraded=pro`, which shows a dismissible "Welcome to Pro" confirmation and re-fetches so the tier reflects Pro once the webhook lands. Free users can also start the same checkout from the account menu's **Upgrade to Pro** row (#275). Stripe config + go-live is tracked in #213; webhook `→ /api/stripe/webhooks` maps the price to `tier: pro`.
 
 ### Team provisioning (Live, admin-side — v0.5.5, PR #200)
 
