@@ -177,7 +177,7 @@ export default function ManageClientsPage() {
                 <tr className="border-b border-[#2a2a2a] text-muted uppercase tracking-widest text-[9px]">
                   <th className="text-left p-3 w-1/4">Org</th>
                   <th className="text-left p-3">Team Lead</th>
-                  <th className="text-left p-3">Members</th>
+                  <th className="text-left p-3 w-20 whitespace-nowrap">Members</th>
                   <th className="text-left p-3">Usage</th>
                   <th className="text-left p-3">Status</th>
                   <th className="text-left p-3">Joined</th>
@@ -216,7 +216,7 @@ export default function ManageClientsPage() {
                             </span>
                           )}
                         </td>
-                        <td className="p-3 text-muted truncate">{leadLabel}</td>
+                        <td className="p-3 text-muted">{leadLabel}</td>
                         <td className="p-3 text-left tabular-nums text-muted">
                           {c.membersCount}
                         </td>
