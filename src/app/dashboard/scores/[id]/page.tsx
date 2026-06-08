@@ -200,11 +200,12 @@ export default function ScoreDetailPage() {
 
         {/* Score hero */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-8 mb-10">
-          {/* Left: thumbnail */}
-          <div>
+          {/* Left: thumbnail. self-start so the box hugs the image instead of
+              stretching to the score panel's height and leaving dead space. */}
+          <div className="self-start">
             {data.thumbnail ? (
               <div className="border border-[#333] bg-[#1e1e1e] p-1">
-                <img src={data.thumbnail} alt="" className="w-full max-h-[420px] object-contain" />
+                <img src={data.thumbnail} alt="" className="w-full h-auto max-h-[640px] object-contain" />
               </div>
             ) : (
               <div className="border border-[#333] bg-[#1e1e1e] p-12 flex items-center justify-center">
