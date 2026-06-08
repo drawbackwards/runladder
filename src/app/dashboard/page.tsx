@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth, useUser, RedirectToSignIn } from "@clerk/nextjs";
 import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
 import Link from "next/link";
@@ -483,6 +483,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [upgradedToPro, setUpgradedToPro] = useState(false);
 
   // Make sure the user's org is the session's active org (invite-based
   // provisioning doesn't auto-activate the way self-serve creation did) so the
@@ -492,25 +493,35 @@ export default function DashboardPage() {
   // client org hooks.
   useEnsureActiveOrg();
 
+  const loadDashboard = useCallback(async () => {
+    try {
+      const res = await fetch("/api/dashboard");
+      if (res.ok) setData(await res.json());
+    } catch {
+      // Silently fail
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!isSignedIn) return;
+    loadDashboard();
+  }, [isSignedIn, loadDashboard]);
 
-    async function fetchData() {
-      try {
-        const res = await fetch("/api/dashboard");
-        if (res.ok) {
-          const json = await res.json();
-          setData(json);
-        }
-      } catch {
-        // Silently fail
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, [isSignedIn]);
+  // Stripe checkout returns to /dashboard?upgraded=pro. Confirm the upgrade and
+  // re-fetch shortly after — the tier flips via the Stripe webhook (async), so
+  // the first load can still read "Free". Read from window (not useSearchParams)
+  // to avoid a Suspense boundary requirement. (#213)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("upgraded") !== "pro") return;
+    setUpgradedToPro(true);
+    window.history.replaceState({}, "", "/dashboard");
+    const t = setTimeout(() => loadDashboard(), 2500);
+    return () => clearTimeout(t);
+  }, [loadDashboard]);
 
   async function deleteScore(scoreId: string) {
     setDeleting(scoreId);
@@ -559,6 +570,26 @@ export default function DashboardPage() {
 
   return (
     <div className="pt-20 font-mono">
+      {/* Post-checkout confirmation (#213). Dismissible; the tier catches up via
+          the Stripe webhook + the delayed re-fetch above. */}
+      {upgradedToPro && (
+        <div className="border-b border-ladder-green/30 bg-ladder-green/5">
+          <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-center gap-4 flex-wrap">
+            <span className="text-[11px] text-muted font-sans">
+              <span className="text-ladder-green font-semibold uppercase tracking-widest text-[10px]">
+                Welcome to Pro
+              </span>{" "}
+              — 2,000 scores/month across every surface.
+            </span>
+            <button
+              onClick={() => setUpgradedToPro(false)}
+              className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
       {/* Both the plan strip and the team-setup banner are gated on the
           dashboard fetch (`data`) so they never flash a wrong default
           (e.g. the free strip for an internal/team user) on first paint. */}
