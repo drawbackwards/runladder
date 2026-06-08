@@ -15,7 +15,7 @@ import { TabButton } from "@/components/Tabs";
 
 const TABS: { label: string; href: string; badge?: string }[] = [
   { label: "Clients", href: "/admin/clients" },
-  { label: "Evaluations", href: "/admin/evaluations", badge: "Beta" },
+  { label: "Heuristic Evaluations", href: "/admin/evaluations", badge: "Beta" },
   { label: "Feedback", href: "/admin/feedback" },
   { label: "Comps", href: "/admin/comps" },
   { label: "Beta Codes", href: "/admin/beta-codes" },

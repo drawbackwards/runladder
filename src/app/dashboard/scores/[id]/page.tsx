@@ -144,7 +144,7 @@ export default function ScoreDetailPage() {
   if (loading) {
     return (
       <div className="pt-20 font-mono">
-        <div className="max-w-5xl mx-auto px-6 py-12">
+        <div className="max-w-6xl mx-auto px-6 py-12">
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="border border-[#333] bg-[#1e1e1e] p-5 shimmer h-20" />
@@ -158,7 +158,7 @@ export default function ScoreDetailPage() {
   if (error || !data) {
     return (
       <div className="pt-20 font-mono">
-        <div className="max-w-5xl mx-auto px-6 py-12 text-center">
+        <div className="max-w-6xl mx-auto px-6 py-12 text-center">
           <p className="text-sm text-muted font-sans mb-4">Score not found</p>
           <Link href="/dashboard" className="text-xs text-ladder-green uppercase tracking-widest hover:underline">
             Back to dashboard
@@ -173,7 +173,7 @@ export default function ScoreDetailPage() {
 
   return (
     <div className="pt-20 font-mono">
-      <div className="max-w-5xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-6 py-12">
 
         {/* Back + meta */}
         <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
