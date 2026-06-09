@@ -285,6 +285,15 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 0 !important;
 }
 
+/* Clerk renders a "Last used" badge on the social sign-in button for whichever
+   provider you authenticated with last. It's absolutely positioned and straddles
+   the rounded button's top-right edge, so it reads as a clipped visual artifact
+   ("Last u…") rather than a label. We don't want a last-used hint here — hide it
+   on the social buttons only (profile/account badges are unaffected). See #307. */
+.cl-socialButtonsBlockButton .cl-badge {
+  display: none !important;
+}
+
 /* ─ Form inputs ─ */
 .cl-formFieldInput,
 .cl-phoneNumberInput,

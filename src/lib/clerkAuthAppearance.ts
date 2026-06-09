@@ -29,7 +29,7 @@ export const authAppearance = {
     main: "!gap-4",
     socialButtons: "!gap-2",
     socialButtonsBlockButton:
-      "!bg-card !border !border-border !text-foreground hover:!bg-card-hover !rounded-full !py-3 !shadow-none !overflow-hidden !relative",
+      "!bg-card !border !border-border !text-foreground hover:!bg-card-hover !rounded-full !py-3 !shadow-none",
     socialButtonsBlockButtonText: "!text-foreground !font-medium !text-sm",
     socialButtonsProviderIcon: "!w-4 !h-4",
     dividerLine: "!bg-border",
