@@ -41,7 +41,6 @@ type ScoreEntry = {
   sessionType?: "design" | "evaluation";
 };
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 const RHYTHM_WINDOW_DAYS = 91;
 
 /**
@@ -53,25 +52,27 @@ function bucketActivity(
   scores: ScoreEntry[],
   windowDays: number,
 ): DailyActivity[] {
-  const todayMidnight = (() => {
-    const d = new Date();
-    return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-  })();
+  // Bucket by the viewer's LOCAL calendar day, not UTC. With UTC bucketing,
+  // scores logged late one evening and the next morning can land in the same
+  // UTC day and collapse into a single "active day" (#327). This runs in the
+  // browser, so local Date getters reflect the user's timezone. Day math
+  // decrements the date field (not a fixed 24h offset) so DST transitions
+  // don't shift bucket boundaries.
+  const localKey = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+      d.getDate(),
+    ).padStart(2, "0")}`;
 
-  const buckets = new Map<number, { count: number; total: number }>();
+  const now = new Date();
+  const buckets = new Map<string, { count: number; total: number }>();
   for (let i = windowDays - 1; i >= 0; i--) {
-    buckets.set(todayMidnight - i * DAY_MS, { count: 0, total: 0 });
+    const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    buckets.set(localKey(day), { count: 0, total: 0 });
   }
 
   for (const s of scores) {
     if (typeof s.timestamp !== "number") continue;
-    const d = new Date(s.timestamp);
-    const dayMidnight = Date.UTC(
-      d.getUTCFullYear(),
-      d.getUTCMonth(),
-      d.getUTCDate(),
-    );
-    const bucket = buckets.get(dayMidnight);
+    const bucket = buckets.get(localKey(new Date(s.timestamp)));
     if (!bucket) continue;
     bucket.count += 1;
     if (typeof s.score === "number" && Number.isFinite(s.score)) {
@@ -80,9 +81,9 @@ function bucketActivity(
   }
 
   return Array.from(buckets.entries())
-    .sort((a, b) => a[0] - b[0])
-    .map(([ts, b]) => ({
-      date: new Date(ts).toISOString().slice(0, 10),
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([date, b]) => ({
+      date,
       count: b.count,
       avgScore: b.count > 0 ? Math.round((b.total / b.count) * 10) / 10 : null,
     }));
