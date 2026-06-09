@@ -2,40 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { redis } from "@/lib/redis";
 import { CURRENT_API_VERSION } from "@/lib/app-version";
+import {
+  recordKey,
+  writeScoreFeedback,
+  type StoredFeedback,
+} from "@/lib/score-feedback";
 
 /**
- * Score-analysis feedback — per-score thumbs from authenticated users.
+ * Score-analysis feedback — per-score thumbs from authenticated web users.
+ * Shares the score-feedback store (see @/lib/score-feedback) with the Figma
+ * plugin path (/api/plugin/feedback), so all of it surfaces in the admin.
  *
  * GET  ?scoreId=X        → current user's existing feedback for that score
  * POST { scoreId, rating, note? }  → upsert this user's feedback
- *
- * Storage:
- *   score-feedback:{scoreId}:{userId} → JSON record
- *   score-feedback:index              → zset (ts → "{scoreId}:{userId}")
  *
  * Anonymous viewers get 401 and the client hides the widget.
  */
 
 const API_VERSION_HEADERS = { "X-Ladder-API-Version": CURRENT_API_VERSION };
-
-const FEEDBACK_INDEX_KEY = "score-feedback:index";
-
-function recordKey(scoreId: string, userId: string): string {
-  return `score-feedback:${scoreId}:${userId}`;
-}
-
-function indexMember(scoreId: string, userId: string): string {
-  return `${scoreId}:${userId}`;
-}
-
-type StoredFeedback = {
-  scoreId: string;
-  userId: string;
-  orgId: string | null;
-  rating: "up" | "down";
-  note: string;
-  ts: number;
-};
 
 export async function GET(req: NextRequest) {
   const { userId } = await auth();
@@ -104,25 +88,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const note =
-    typeof body.note === "string" ? body.note.slice(0, 1000) : "";
-  const ts = Date.now();
-  const feedback: StoredFeedback = {
+  const feedback = await writeScoreFeedback(redis, {
     scoreId: body.scoreId,
     userId,
     orgId: orgId ?? null,
     rating: body.rating,
-    note,
-    ts,
-  };
-
-  await Promise.all([
-    redis.set(recordKey(body.scoreId, userId), JSON.stringify(feedback)),
-    redis.zadd(FEEDBACK_INDEX_KEY, {
-      score: ts,
-      member: indexMember(body.scoreId, userId),
-    }),
-  ]);
+    note: body.note,
+  });
 
   return NextResponse.json(
     { ok: true, feedback },
