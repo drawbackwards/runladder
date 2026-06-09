@@ -285,12 +285,15 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 0 !important;
 }
 
-/* Clerk renders a "Last used" badge on the social sign-in button for whichever
+/* Clerk renders a "Last used" pill on the social sign-in button for whichever
    provider you authenticated with last. It's absolutely positioned and straddles
    the rounded button's top-right edge, so it reads as a clipped visual artifact
-   ("Last u…") rather than a label. We don't want a last-used hint here — hide it
-   on the social buttons only (profile/account badges are unaffected). See #307. */
-.cl-socialButtonsBlockButton .cl-badge {
+   ("Last u…") rather than a label. Hide it. The element is
+   `cl-lastAuthenticationStrategyBadge` (a stable Clerk class) with
+   data-localization-key="lastAuthenticationStrategy" — target both for safety.
+   NOTE: it is NOT `.cl-badge` (that's profile/account badges, left intact). See #307. */
+.cl-lastAuthenticationStrategyBadge,
+[data-localization-key="lastAuthenticationStrategy"] {
   display: none !important;
 }
 
