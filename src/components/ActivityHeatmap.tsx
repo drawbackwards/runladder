@@ -1,13 +1,28 @@
 "use client";
 
 export type DailyActivity = {
-  /** YYYY-MM-DD (UTC) */
+  /** YYYY-MM-DD in the viewer's local day (see bucketActivity). */
   date: string;
   /** Number of scores logged that day. */
   count: number;
   /** Average score for the day, or null if no scores. */
   avgScore: number | null;
 };
+
+/**
+ * Format a YYYY-MM-DD day string for a tooltip without a timezone shift.
+ * `new Date("2026-06-02")` parses as UTC midnight and renders as the previous
+ * day in behind-UTC zones; building the Date from local parts avoids that.
+ */
+function friendlyDate(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y || !m || !d) return iso;
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
 /**
  * GitHub-style activity grid for a member's last N days of scoring.
@@ -79,7 +94,7 @@ export function ActivityHeatmap({
           {week.map((cell, di) => {
             const intensity = intensityClass(cell?.count ?? 0);
             const titleText = cell
-              ? `${cell.date}: ${cell.count} score${cell.count === 1 ? "" : "s"}${
+              ? `${friendlyDate(cell.date)}: ${cell.count} score${cell.count === 1 ? "" : "s"}${
                   cell.avgScore !== null ? ` · avg ${cell.avgScore.toFixed(1)}` : ""
                 }`
               : undefined;

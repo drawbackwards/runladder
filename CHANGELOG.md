@@ -6,6 +6,16 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.11 / api 1.0.0 (2026-06-08)
+
+**Design-rhythm heatmap: local-day buckets + friendlier tooltips.**
+
+- `bucketActivity` now buckets scores by the viewer's **local** calendar day instead of UTC. UTC bucketing was a latent off-by-one for scores made near midnight or outside US timezones (it could collapse two days into one, or label a cell with the wrong day). Active Days, Sessions, and the heatmap all key off local days now.
+- Heatmap tooltips show a friendly, timezone-safe date ("Jun 2, 2026") instead of the raw ISO string. The date is parsed from local parts so it never shifts a day under `toLocaleDateString`.
+- No data change; existing scores re-bucket correctly. (The "Active Days = 1" report was a stale dashboard view — the underlying data was always 2 distinct days.)
+
+---
+
 ## app 0.5.10 / api 1.0.0 (2026-06-08)
 
 **Admin archive-not-delete, client usage, and score-detail/admin polish.**
