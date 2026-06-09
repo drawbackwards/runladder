@@ -319,7 +319,7 @@ export default function FrameworkPage() {
             {ROLES.map((r) => (
               <div
                 key={r.role}
-                className="border border-border rounded-xl bg-card p-8 hover:bg-card-hover hover:border-muted transition-colors"
+                className="border border-border rounded-xl bg-card p-8"
               >
                 <h3 className="font-mono text-sm font-bold text-ladder-green mb-4">
                   {r.role}

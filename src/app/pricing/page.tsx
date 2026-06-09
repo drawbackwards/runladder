@@ -54,7 +54,7 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
     name: "Professional",
     price: "$1,000",
     period: "/ mo",
-    highlight: true,
+    highlight: false,
     limit: "2,000 scores/mo",
     features: [
       "2,000 scores per month on web, Claude Skill, and Figma",
@@ -84,11 +84,9 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
       "Team leaderboard",
       "Seat management: invite, archive, and remove team members",
       "Design rhythm + activity heatmap per designer",
-      { text: "Design Reviews: iteration-by-iteration scoring with pinned crit and score lift tracking across the sprint", badge: "Beta" },
-      "Team Collaboration: designers can leave comments on how to improve the score on each other's designs and managers can see all commenting activity across their team",
       "Access to customer sentiment and Ladder Pulse scoring data + insights, if subscribed (coming soon)",
-      "Custom volume available, talk to us",
-      "SSO available, talk to us",
+      "Custom volume available",
+      "SSO available",
     ],
     cta: "Talk to us about Teams",
     href: "/contact?interest=teams-beta",
@@ -144,12 +142,10 @@ export default async function PricingPage() {
             <div
               key={tier.name}
               aria-current={isCurrent ? "true" : undefined}
-              className={`rounded-2xl p-8 flex flex-col ${
+              className={`rounded-2xl p-8 flex flex-col transition-colors ${
                 isCurrent
                   ? "border-2 border-ladder-green bg-ladder-green/[0.07]"
-                  : tier.highlight
-                  ? "border-2 border-ladder-green bg-ladder-green/5"
-                  : "border-2 border-ladder-green/30 bg-card"
+                  : "border-2 border-ladder-green/30 bg-card hover:border-ladder-green/60"
               }`}
             >
               {/* Name + current badge */}
@@ -234,13 +230,7 @@ export default async function PricingPage() {
               ) : (
                 <Link
                   href={tier.href}
-                  className={`text-center text-sm font-semibold py-3 rounded-full transition-colors ${
-                    tier.highlight
-                      ? "bg-ladder-green text-background hover:bg-ladder-green/90"
-                      : tier.solidCta
-                      ? "bg-foreground text-background hover:bg-foreground/90"
-                      : "border border-border text-foreground hover:bg-card-hover"
-                  }`}
+                  className="text-center text-sm font-semibold py-3 rounded-full transition-colors bg-ladder-green text-background hover:bg-ladder-green/90"
                 >
                   {tier.cta}
                 </Link>
@@ -249,7 +239,7 @@ export default async function PricingPage() {
           );})}
 
           {/* Enterprise card */}
-          <div className="rounded-2xl p-8 flex flex-col border-2 border-ladder-green/30 bg-card">
+          <div className="rounded-2xl p-8 flex flex-col transition-colors border-2 border-ladder-green/30 bg-card hover:border-ladder-green/60">
             <div className="mb-4">
               <h2 className="text-lg font-bold text-foreground">Enterprise</h2>
             </div>
@@ -279,7 +269,7 @@ export default async function PricingPage() {
             </ul>
             <Link
               href="/contact"
-              className="text-center text-sm font-semibold py-3 rounded-full transition-colors border border-border text-foreground hover:bg-card-hover"
+              className="text-center text-sm font-semibold py-3 rounded-full transition-colors bg-ladder-green text-background hover:bg-ladder-green/90"
             >
               Talk to us about Enterprise
             </Link>
@@ -317,7 +307,7 @@ export default async function PricingPage() {
               <div className="flex gap-8">
                 {[
                   [
-                    "Customer feedback, reviews, and support transcripts mapped to Ladder scores (coming soon)",
+                    "Voice of Customer, reviews, and support transcripts mapped to Ladder scores (coming soon)",
                     "Custom bespoke dashboards and interfaces",
                     "Dedicated onboarding and support",
                   ],
