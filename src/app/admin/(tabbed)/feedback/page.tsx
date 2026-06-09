@@ -3,6 +3,11 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { getScoreColor } from "@/lib/ladder";
+import { surfaceParts } from "@/lib/surface";
+
+// Surface chip (Web / Figma / Skill / …) — matches the dashboard score-row badge.
+const SURFACE_BADGE =
+  "flex-shrink-0 text-[8px] text-[#888] uppercase tracking-widest border border-[#3a3a3a] px-1.5 py-0.5";
 
 type FeedbackEntry = {
   scoreId: string;
@@ -172,9 +177,14 @@ export default function AdminFeedbackPage() {
                       </p>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground font-sans truncate">
-                        {e.screenName || "Untitled screen"}
-                      </p>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <p className="text-sm text-foreground font-sans truncate">
+                          {surfaceParts(e.screenName ?? "").name || "Untitled screen"}
+                        </p>
+                        <span className={SURFACE_BADGE}>
+                          {surfaceParts(e.screenName ?? "").surface}
+                        </span>
+                      </div>
                       <p className="text-xs text-muted font-sans truncate">
                         {e.userName ?? "—"} · {e.userEmail ?? "—"}
                         {e.orgName && (

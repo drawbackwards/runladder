@@ -1,8 +1,8 @@
 ---
 title: API Protocols
-updatedAt: 2026-06-08
+updatedAt: 2026-06-09
 updatedBy: Sara
-lastPr: 323
+lastPr: 332
 ---
 
 ## Two surfaces, one to come
@@ -32,7 +32,8 @@ All endpoints below are real routes in this repo. Find them under `src/app/api/`
 | `/api/plugin/verify-token` | POST | Plugin token | Token introspection for the plugin. |
 | `/api/plugin/analyze` | POST | Plugin token | Scoring callable from the Figma plugin. |
 | `/api/plugin/meta` | GET | Public | Plugin metadata (version, etc.). |
-| `/api/plugin/persist-score` | POST | Plugin token | Save a plugin-originated score. |
+| `/api/plugin/persist-score` | POST | Service token | Save a plugin-originated score (server-to-server). |
+| `/api/plugin/feedback` | POST | Service token | Forward Figma in-canvas score feedback into the central admin store (#330). |
 | `/api/stripe/checkout` | POST | Clerk session | Pro upgrade Stripe checkout session. |
 | `/api/stripe/portal` | POST | Clerk session | Stripe customer portal. |
 | `/api/stripe/webhooks` | POST | Stripe webhook signature | Stripe event ingest. |

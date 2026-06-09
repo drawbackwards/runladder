@@ -1,8 +1,8 @@
 ---
 title: Feature Inventory
-updatedAt: 2026-06-08
+updatedAt: 2026-06-09
 updatedBy: Sara
-lastPr: 326
+lastPr: 332
 ---
 
 ## How to read this page
@@ -139,7 +139,7 @@ Gated by `ADMIN_EMAILS` env var. Defaults: Ward, Michael, Jordan.
 | User records + tier management | Admin | Live | `src/app/admin/page.tsx` |
 | Invite codes (generate, view, copy, revoke) | Admin | Live | `src/app/admin/page.tsx` |
 | Evaluations (rubric evaluation runs) | Admin | Live | `src/app/admin/evaluations/page.tsx` |
-| Feedback inbox | Admin | Live | `src/app/admin/feedback/page.tsx` |
+| Feedback inbox — all surfaces (Web + Figma), with surface chip | Admin | Live (#332) | `src/app/admin/(tabbed)/feedback/page.tsx`, `src/lib/score-feedback.ts`, `src/app/api/plugin/feedback/route.ts` |
 | Comps (comparison scoring runs) | Admin | Live | `src/app/admin/comps/page.tsx` |
 | Plugin backend proxy (`pluginFetch`) | Admin | Live | `src/lib/admin.ts` |
 | Super-admin protection on `SUPER_ADMIN_EMAILS` | Super Admin | Live | `src/lib/admin.ts`, hardcoded, passphrase-gated |
