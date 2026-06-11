@@ -71,7 +71,7 @@ export default function ReportPage() {
         </div>
         <button
           onClick={() => window.print()}
-          className="text-xs font-semibold bg-ladder-green text-background px-5 py-1.5 rounded-sm hover:bg-ladder-green/90 transition-colors font-sans"
+          className="text-xs font-semibold bg-ladder-green text-background px-5 py-1.5 rounded-sm hover:bg-ladder-green-light transition-colors font-sans"
         >
           Print / Export PDF
         </button>

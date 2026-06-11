@@ -278,7 +278,7 @@ export default async function BlogPostPage({ params }: Props) {
           </p>
           <Link
             href="/contact"
-            className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
+            className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green-light transition-colors text-sm"
           >
             Request a Pulse demo
           </Link>

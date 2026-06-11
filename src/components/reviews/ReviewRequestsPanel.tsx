@@ -107,7 +107,7 @@ export function ReviewRequestsPanel() {
                   <button
                     type="button"
                     onClick={() => setExpandedId(isExpanded ? null : req.id)}
-                    className="text-[10px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-3 py-1.5 hover:bg-ladder-green/90 transition-colors"
+                    className="text-[10px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-3 py-1.5 hover:bg-ladder-green-light transition-colors"
                   >
                     {isExpanded ? "Close" : "Accept"}
                   </button>

@@ -146,7 +146,7 @@ export function AnalysisFeedback({ scoreId }: { scoreId: string }) {
             <button
               onClick={() => persist(rating, note)}
               disabled={busy || note === (existing?.note ?? "")}
-              className="text-[10px] font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-3 py-1.5 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="text-[10px] font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-3 py-1.5 hover:bg-ladder-green-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {busy
                 ? submitted

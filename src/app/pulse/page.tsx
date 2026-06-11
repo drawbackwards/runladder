@@ -30,7 +30,7 @@ export default function PulsePage() {
           <div className="flex items-center gap-6 flex-wrap">
             <Link
               href="/contact"
-              className="bg-ladder-purple text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-purple/90 transition-colors text-base"
+              className="bg-ladder-purple text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-purple-light transition-colors text-base"
             >
               Talk to us about Pulse
             </Link>
@@ -47,7 +47,7 @@ export default function PulsePage() {
       {/* ── Product preview ── */}
       <section className="pb-36 px-6">
         <div className="max-w-5xl mx-auto">
-          <div className="border border-border rounded-2xl overflow-hidden bg-card">
+          <div className="rounded-2xl overflow-hidden">
             <Image
               src="https://drawbackwards.com/images/ladder/ladder-on-laptop.webp"
               alt="Ladder Pulse dashboard showing real-time UX quality score from customer data"
@@ -61,15 +61,14 @@ export default function PulsePage() {
       </section>
 
       {/* ── The shift ── */}
-      <section className="py-36 px-6 border-t border-border">
+      <section className="py-36 px-6">
         <div className="max-w-3xl mx-auto">
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
             A new way to measure
           </p>
-          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
-            For twenty years, we measured satisfaction.
-            <br />
-            <span className="text-body">We should have been measuring quality.</span>
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-10">
+            For twenty years, we measured satisfaction.{" "}
+            <span className="text-ladder-purple">We should have been measuring quality.</span>
           </h2>
           <div className="space-y-6 text-body leading-relaxed">
             <p>
@@ -101,7 +100,7 @@ export default function PulsePage() {
       <section className="py-36 px-6 border-t border-border">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-[2rem] font-bold mb-6">
+            <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
               Four things no other tool does.
             </h2>
           </div>
@@ -119,7 +118,7 @@ export default function PulsePage() {
                   unoptimized
                 />
               </div>
-              <h3 className="text-sm font-bold text-foreground mb-2">
+              <h3 className="card-subhead text-foreground mb-2">
                 AI-driven experience scoring
               </h3>
               <p className="text-xs text-body leading-relaxed">
@@ -140,7 +139,7 @@ export default function PulsePage() {
                   unoptimized
                 />
               </div>
-              <h3 className="text-sm font-bold text-foreground mb-2">
+              <h3 className="card-subhead text-foreground mb-2">
                 Real-time experience pulse
               </h3>
               <p className="text-xs text-body leading-relaxed">
@@ -161,7 +160,7 @@ export default function PulsePage() {
                   unoptimized
                 />
               </div>
-              <h3 className="text-sm font-bold text-foreground mb-2">
+              <h3 className="card-subhead text-foreground mb-2">
                 Built for the people who decide
               </h3>
               <p className="text-xs text-body leading-relaxed">
@@ -182,7 +181,7 @@ export default function PulsePage() {
                   unoptimized
                 />
               </div>
-              <h3 className="text-sm font-bold text-foreground mb-2">
+              <h3 className="card-subhead text-foreground mb-2">
                 Connects to everything
               </h3>
               <p className="text-xs text-body leading-relaxed">
@@ -197,62 +196,54 @@ export default function PulsePage() {
       {/* ── The product screenshots ── */}
       <section className="py-36 px-6 border-t border-border">
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-            <div className="border border-border rounded-xl overflow-hidden bg-card">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center">
               <Image
-                src="https://drawbackwards.com/images/ladder/customer-insights-score.svg"
+                src="/images/ladder/customer-insights-score.svg"
                 alt="Customer data in, UX quality score out"
-                width={600}
-                height={400}
-                className="w-full p-6"
+                width={64}
+                height={64}
+                className="w-16 h-16 mx-auto mb-5"
                 unoptimized
               />
-              <div className="px-8 pb-8">
-                <p className="text-sm font-bold text-foreground">Customer data in. UX score out.</p>
-                <p className="text-xs text-body mt-1">Every signal mapped to the five-level Ladder framework</p>
-              </div>
+              <h3 className="card-subhead text-foreground mb-2">Customer data in. UX score out.</h3>
+              <p className="text-xs text-body leading-relaxed">Every signal mapped to the five-level Ladder framework</p>
             </div>
-            <div className="border border-border rounded-xl overflow-hidden bg-card">
+            <div className="text-center">
               <Image
-                src="https://drawbackwards.com/images/ladder/customer-insights-filters.svg"
+                src="/images/ladder/customer-insights-filters.svg"
                 alt="Apply filters to get a targeted experience score"
-                width={600}
-                height={400}
-                className="w-full p-6"
+                width={64}
+                height={64}
+                className="w-16 h-16 mx-auto mb-5"
                 unoptimized
               />
-              <div className="px-8 pb-8">
-                <p className="text-sm font-bold text-foreground">Apply filters. Get a targeted score.</p>
-                <p className="text-xs text-body mt-1">Segment by team, region, product, channel, or audience</p>
-              </div>
+              <h3 className="card-subhead text-foreground mb-2">Apply filters. Get a targeted score.</h3>
+              <p className="text-xs text-body leading-relaxed">Segment by team, region, product, channel, or audience</p>
             </div>
-            <div className="border border-border rounded-xl overflow-hidden bg-card">
+            <div className="text-center">
               <Image
-                src="https://drawbackwards.com/images/ladder/customer-insights-secure.svg"
+                src="/images/ladder/customer-insights-secure.svg"
                 alt="Customer data is private and secure"
-                width={600}
-                height={400}
-                className="w-full p-6"
+                width={64}
+                height={64}
+                className="w-16 h-16 mx-auto mb-5"
                 unoptimized
               />
-              <div className="px-8 pb-8">
-                <p className="text-sm font-bold text-foreground">Your data is private and secure.</p>
-                <p className="text-xs text-body mt-1">Enterprise-grade security, SOC 2 compliant infrastructure</p>
-              </div>
+              <h3 className="card-subhead text-foreground mb-2">Your data is private and secure.</h3>
+              <p className="text-xs text-body leading-relaxed">Enterprise-grade security, SOC 2 compliant infrastructure</p>
             </div>
-            <div className="border border-border rounded-xl overflow-hidden bg-card">
+            <div className="text-center">
               <Image
-                src="https://drawbackwards.com/images/ladder/customer-insights-trusted.svg"
+                src="/images/ladder/customer-insights-trusted.svg"
                 alt="Trusted by global brands"
-                width={600}
-                height={400}
-                className="w-full p-6"
+                width={64}
+                height={64}
+                className="w-16 h-16 mx-auto mb-5"
                 unoptimized
               />
-              <div className="px-8 pb-8">
-                <p className="text-sm font-bold text-foreground">Trusted by global brands.</p>
-                <p className="text-xs text-body mt-1">Built by the team behind 20 years of Fortune 50 design work</p>
-              </div>
+              <h3 className="card-subhead text-foreground mb-2">Trusted by global brands.</h3>
+              <p className="text-xs text-body leading-relaxed">Built by the team behind 20 years of Fortune 50 design work</p>
             </div>
           </div>
         </div>
@@ -264,7 +255,7 @@ export default function PulsePage() {
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
             Beyond customer feedback
           </p>
-          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] mb-10">
             Everyone you serve has a voice.
             <br />
             <span className="text-ladder-purple">Pulse makes it count.</span>
@@ -283,7 +274,7 @@ export default function PulsePage() {
               tickets, internal surveys, and break room conversations that
               never make it to a dashboard.
             </p>
-            <p className="text-foreground font-medium">
+            <p>
               Pulse treats every voice as signal. Customer or employee. External
               or internal. Digital or physical. If someone&apos;s experience
               depends on the systems you build and the decisions you make,
@@ -300,7 +291,7 @@ export default function PulsePage() {
             <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
               Signal sources
             </p>
-            <h2 className="text-[2rem] font-bold mb-6">
+            <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
               Pulse listens to{" "}
               <span className="text-ladder-purple">everything</span>
             </h2>
@@ -319,7 +310,7 @@ export default function PulsePage() {
                 key={s.source}
                 className="border border-border rounded-xl p-8 bg-card"
               >
-                <h3 className="font-mono text-sm font-semibold text-foreground mb-3">
+                <h3 className="card-subhead text-foreground mb-3">
                   {s.source}
                 </h3>
                 <p className="text-sm text-body leading-relaxed">{s.detail}</p>
@@ -335,16 +326,16 @@ export default function PulsePage() {
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
             How it works
           </p>
-          <h2 className="text-[2rem] font-bold mb-16">
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-16">
             From raw signal to{" "}
             <span className="text-ladder-purple">trusted score</span>
           </h2>
 
           <div className="space-y-16">
             <div className="grid grid-cols-[60px_1fr] gap-6 items-start">
-              <span className="font-mono text-3xl font-bold text-ladder-purple/30">01</span>
+              <span className="font-mono text-3xl font-bold text-ladder-purple/70">01</span>
               <div>
-                <h3 className="text-lg font-bold text-foreground mb-3">Connect your signals</h3>
+                <h3 className="card-subhead text-foreground mb-3">Connect your signals</h3>
                 <p className="text-body leading-relaxed">
                   We ingest data from wherever your people talk: review
                   platforms, support tools, CRM systems, internal channels,
@@ -356,9 +347,9 @@ export default function PulsePage() {
             </div>
 
             <div className="grid grid-cols-[60px_1fr] gap-6 items-start">
-              <span className="font-mono text-3xl font-bold text-ladder-purple/30">02</span>
+              <span className="font-mono text-3xl font-bold text-ladder-purple/70">02</span>
               <div>
-                <h3 className="text-lg font-bold text-foreground mb-3">Map to the Ladder</h3>
+                <h3 className="card-subhead text-foreground mb-3">Map to the Ladder</h3>
                 <p className="text-body leading-relaxed">
                   Our AI, trained on 20 years of experience evaluation,
                   analyzes sentiment, identifies friction patterns, and scores
@@ -371,9 +362,9 @@ export default function PulsePage() {
             </div>
 
             <div className="grid grid-cols-[60px_1fr] gap-6 items-start">
-              <span className="font-mono text-3xl font-bold text-ladder-purple/30">03</span>
+              <span className="font-mono text-3xl font-bold text-ladder-purple/70">03</span>
               <div>
-                <h3 className="text-lg font-bold text-foreground mb-3">Your interface, your context</h3>
+                <h3 className="card-subhead text-foreground mb-3">Your interface, your context</h3>
                 <p className="text-body leading-relaxed">
                   We design a bespoke Pulse dashboard for your organization.
                   Your teams, your segments, your vocabulary, your reporting
@@ -386,9 +377,9 @@ export default function PulsePage() {
             </div>
 
             <div className="grid grid-cols-[60px_1fr] gap-6 items-start">
-              <span className="font-mono text-3xl font-bold text-ladder-purple/30">04</span>
+              <span className="font-mono text-3xl font-bold text-ladder-purple/70">04</span>
               <div>
-                <h3 className="text-lg font-bold text-foreground mb-3">Watch the score move</h3>
+                <h3 className="card-subhead text-foreground mb-3">Watch the score move</h3>
                 <p className="text-body leading-relaxed">
                   As your organization makes changes (new tools, new
                   workflows, new policies), Pulse shows whether the experience
@@ -409,7 +400,7 @@ export default function PulsePage() {
             <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
               Where Pulse works
             </p>
-            <h2 className="text-[2rem] font-bold mb-6">
+            <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
               Any organization. Any audience. One score.
             </h2>
           </div>
@@ -450,7 +441,7 @@ export default function PulsePage() {
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
             Why this matters
           </p>
-          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] mb-10">
             Transform the way you improve
             <br />
             <span className="text-ladder-purple">every experience you deliver.</span>
@@ -488,7 +479,7 @@ export default function PulsePage() {
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
             Engagement
           </p>
-          <h2 className="text-[2rem] font-bold mb-6">
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
             Enterprise deployments starting at $100K / year
           </h2>
           <p className="text-body max-w-lg mx-auto leading-relaxed mb-8">
@@ -515,7 +506,7 @@ export default function PulsePage() {
           <div>
             <Link
               href="/contact"
-              className="inline-block bg-ladder-purple text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-purple/90 transition-colors text-lg"
+              className="inline-block bg-ladder-purple text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-purple-light transition-colors text-lg"
             >
               Talk to us about Pulse
             </Link>

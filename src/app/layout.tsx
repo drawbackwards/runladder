@@ -8,6 +8,7 @@ import { Footer } from "@/components/Footer";
 import { PasswordGate } from "@/components/PasswordGate";
 import { ViewAsProvider } from "@/lib/dev/view-as";
 import { ViewAsSwitcher } from "@/components/dev/ViewAsSwitcher";
+import { MarketingScope } from "@/components/MarketingScope";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -102,10 +103,25 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="en">
+      <html
+        lang="en"
+        className={`${inter.variable} ${ibmPlexMono.variable}`}
+        suppressHydrationWarning
+      >
         <body
           className={`${inter.variable} ${ibmPlexMono.variable} font-sans antialiased`}
         >
+          {/*
+            Set the marketing scope class on <html> before first paint so the
+            warmer marketing styling (Inter, darker cards) never flashes from
+            the app defaults. Mirrors PRODUCT_PATH in MarketingScope.tsx.
+          */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(){try{if(!/^\\/(dashboard|score|settings|hq|admin)(\\/|$)/.test(location.pathname)){document.documentElement.classList.add('marketing')}}catch(e){}})()`,
+            }}
+          />
+          <MarketingScope />
           <ViewAsProvider>
             {gateEnabled ? (
               <PasswordGate>

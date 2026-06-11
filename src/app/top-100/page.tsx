@@ -13,11 +13,11 @@ export default function Top100Page() {
   }, [category]);
 
   return (
-    <div className="pt-32 pb-24 px-6">
+    <div className="pt-40 pb-24 px-6">
       <div className="max-w-4xl mx-auto">
         {/* ── Hero ── */}
         <div className="text-center mb-16">
-          <p className="text-xs font-semibold text-ladder-green uppercase tracking-[0.2em] mb-6">
+          <p className="font-mono text-xs text-ladder-green uppercase tracking-widest mb-8">
             Ladder Top 100
           </p>
           <h1 className="text-3xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-6 text-foreground">
@@ -170,7 +170,7 @@ export default function Top100Page() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/score"
-              className="font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
+              className="font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green-light transition-colors text-sm"
             >
               Score your product
             </Link>

@@ -70,7 +70,7 @@ export default function FrameworkPage() {
           <p className="font-mono text-xs text-ladder-green uppercase tracking-widest mb-8">
             One score. Every role. Every team.
           </p>
-          <h1 className="text-[3.5rem] md:text-[5rem] font-bold tracking-tight leading-[1.05] mb-8">
+          <h1 className="text-[3.5rem] md:text-[5rem] font-bold tracking-tight leading-[1.05] text-balance mb-8">
             The language your{" "}
             <span className="text-ladder-green">whole org speaks</span>
           </h1>
@@ -84,7 +84,7 @@ export default function FrameworkPage() {
           <div className="flex items-center justify-center gap-6">
             <Link
               href="/pricing"
-              className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-base"
+              className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green-light transition-colors text-base"
             >
               See organization plans
             </Link>
@@ -104,10 +104,10 @@ export default function FrameworkPage() {
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
             The problem
           </p>
-          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] mb-10">
             Every team has a different definition{" "}
             <br />
-            <span className="text-body">of &ldquo;good enough.&rdquo;</span>
+            <span className="text-ladder-green">of &ldquo;good enough.&rdquo;</span>
           </h2>
           <div className="space-y-6 text-body leading-relaxed">
             <p>
@@ -122,7 +122,7 @@ export default function FrameworkPage() {
               uptime monitors. But for the actual human experience of using
               a product? There has never been a standard. Until now.
             </p>
-            <p className="text-foreground font-medium">
+            <p>
               Ladder is the quality standard your organization has been
               missing. Five levels. One score. A shared language that turns
               subjective design debates into objective quality decisions.
@@ -137,7 +137,7 @@ export default function FrameworkPage() {
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
             Every workflow
           </p>
-          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] mb-10">
             AI, hybrid, or human-first.
             <br />
             <span className="text-ladder-green">One honest number.</span>
@@ -158,7 +158,7 @@ export default function FrameworkPage() {
               rung. A designer in Figma and a PM reviewing auto-generated
               variants land on the same five-point scale.
             </p>
-            <p className="text-foreground font-medium">
+            <p>
               That portability is why design leaders reach for Ladder
               first. It&apos;s a defensible number for the work they
               champion, a calibration check for everything AI brings into
@@ -177,7 +177,7 @@ export default function FrameworkPage() {
               <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
                 Universal language
               </p>
-              <h2 className="text-[2rem] font-bold leading-snug mb-6">
+              <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
                 Five levels everyone{" "}
                 <span className="text-ladder-green">understands.</span>
               </h2>
@@ -236,7 +236,7 @@ export default function FrameworkPage() {
               The full picture
             </p>
             <img src="/ladderpulse-logo.svg" alt="Ladder Pulse" width={240} className="mx-auto mb-8" />
-            <h2 className="text-[2rem] md:text-[2.5rem] font-bold mb-6">
+            <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
               Screen Score is the starting line.{" "}
               <span className="text-ladder-purple">Pulse changes the trajectory.</span>
             </h2>
@@ -252,7 +252,7 @@ export default function FrameworkPage() {
               <p className="font-mono text-[10px] text-ladder-green uppercase tracking-widest mb-3">
                 Screen Score
               </p>
-              <p className="text-base font-semibold text-foreground mb-3">
+              <p className="card-subhead text-foreground mb-3">
                 What the interface shows
               </p>
               <p className="text-sm text-body leading-relaxed mb-4">
@@ -269,7 +269,7 @@ export default function FrameworkPage() {
               <p className="font-mono text-[10px] text-ladder-purple uppercase tracking-widest mb-3">
                 Pulse Score
               </p>
-              <p className="text-base font-semibold text-foreground mb-3">
+              <p className="card-subhead text-foreground mb-3">
                 What real users feel
               </p>
               <p className="text-sm text-body leading-relaxed mb-4">
@@ -305,7 +305,7 @@ export default function FrameworkPage() {
             <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
               Every seat at the table
             </p>
-            <h2 className="text-[2rem] md:text-[2.5rem] font-bold mb-6">
+            <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
               Their pain.{" "}
               <span className="text-ladder-green">Your answer.</span>
             </h2>
@@ -319,9 +319,9 @@ export default function FrameworkPage() {
             {ROLES.map((r) => (
               <div
                 key={r.role}
-                className="border border-border rounded-xl bg-card p-8 hover:bg-card-hover hover:border-muted transition-colors"
+                className="border border-border rounded-xl bg-card p-8"
               >
-                <h3 className="font-mono text-sm font-bold text-ladder-green mb-4">
+                <h3 className="card-subhead text-ladder-green mb-4">
                   {r.role}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -354,9 +354,8 @@ export default function FrameworkPage() {
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
             Why not build your own
           </p>
-          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
-            You could build a quality scoring system.
-            <br />
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
+            You could build a quality scoring system.{" "}
             <span className="text-ladder-green">But why would you?</span>
           </h2>
           <div className="space-y-6 text-body leading-relaxed">
@@ -375,7 +374,7 @@ export default function FrameworkPage() {
               can adopt immediately and that benchmarks you against the
               industry, not just against yourselves.
             </p>
-            <p className="text-foreground font-medium">
+            <p>
               You don&apos;t build your own credit scoring system. You
               don&apos;t invent your own financial audit standard. Ladder
               is the quality standard for experience. Buy into it and
@@ -418,7 +417,7 @@ export default function FrameworkPage() {
             <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
               Set the bar
             </p>
-            <h2 className="text-[2rem] md:text-[2.5rem] font-bold mb-6">
+            <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
               Quality policies{" "}
               <span className="text-ladder-green">that stick.</span>
             </h2>
@@ -434,7 +433,7 @@ export default function FrameworkPage() {
                 key={p.policy}
                 className="border border-border rounded-xl p-8 bg-card"
               >
-                <h3 className="font-mono text-sm font-semibold text-foreground mb-3">
+                <h3 className="card-subhead text-foreground mb-3">
                   {p.policy}
                 </h3>
                 <p className="text-sm text-body leading-relaxed">
@@ -454,7 +453,7 @@ export default function FrameworkPage() {
               <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
                 Fits your workflow
               </p>
-              <h2 className="text-[2rem] font-bold leading-snug mb-6">
+              <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
                 Score everywhere{" "}
                 <span className="text-ladder-green">your team works.</span>
               </h2>
@@ -475,7 +474,7 @@ export default function FrameworkPage() {
                   key={s.surface}
                   className="border border-border rounded-xl px-6 py-5 bg-card"
                 >
-                  <h3 className="font-mono text-sm font-semibold text-foreground mb-1">
+                  <h3 className="card-subhead text-foreground mb-1">
                     {s.surface}
                   </h3>
                   <p className="text-sm text-body leading-relaxed">
@@ -491,7 +490,7 @@ export default function FrameworkPage() {
       {/* CTA */}
       <section className="py-36 px-6 border-t border-border">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-[2.5rem] font-bold mb-6">
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
             Give your org a{" "}
             <span className="text-ladder-green">common language.</span>
           </h2>
@@ -503,7 +502,7 @@ export default function FrameworkPage() {
           <div className="flex items-center justify-center gap-6">
             <Link
               href="/pricing"
-              className="inline-block bg-ladder-green text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-lg"
+              className="inline-block bg-ladder-green text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-green-light transition-colors text-lg"
             >
               See organization plans
             </Link>

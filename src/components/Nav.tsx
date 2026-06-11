@@ -24,6 +24,14 @@ export function Nav() {
   // still-loading) visitors go to the marketing home.
   const logoHref = isSignedIn ? "/dashboard" : "/";
 
+  // Highlight the nav item for the section you're currently in (#312).
+  const isActive = (href: string) =>
+    pathname === href || (pathname?.startsWith(href + "/") ?? false);
+  const navLinkClass = (href: string) =>
+    `transition-colors ${
+      isActive(href) ? "text-foreground" : "text-muted hover:text-foreground"
+    }`;
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
       <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -33,19 +41,19 @@ export function Nav() {
 
         {!inProduct && (
           <div className="hidden md:flex items-center gap-10 text-sm font-bold text-body">
-            <Link href="/framework" className="hover:text-foreground transition-colors">
+            <Link href="/framework" aria-current={isActive("/framework") ? "page" : undefined} className={navLinkClass("/framework")}>
               Framework
             </Link>
-            <Link href="/products" className="hover:text-foreground transition-colors">
+            <Link href="/products" aria-current={isActive("/products") ? "page" : undefined} className={navLinkClass("/products")}>
               Products
             </Link>
-            <Link href="/top-100" className="hover:text-foreground transition-colors">
+            <Link href="/top-100" aria-current={isActive("/top-100") ? "page" : undefined} className={navLinkClass("/top-100")}>
               Top 100
             </Link>
-            <Link href="/blog" className="hover:text-foreground transition-colors">
+            <Link href="/blog" aria-current={isActive("/blog") ? "page" : undefined} className={navLinkClass("/blog")}>
               Blog
             </Link>
-            <Link href="/pricing" className="hover:text-foreground transition-colors">
+            <Link href="/pricing" aria-current={isActive("/pricing") ? "page" : undefined} className={navLinkClass("/pricing")}>
               Pricing
             </Link>
           </div>
@@ -60,7 +68,7 @@ export function Nav() {
                 </button>
               </SignInButton>
               <SignUpButton mode="redirect">
-                <button className="text-sm font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors">
+                <button className="text-sm font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green-light transition-colors">
                   Sign up to score
                 </button>
               </SignUpButton>

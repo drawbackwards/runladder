@@ -45,7 +45,7 @@ export default function RequestReviewPage() {
             </p>
             <Link
               href="/dashboard"
-              className="inline-block text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-5 py-2.5 hover:bg-ladder-green/90 transition-colors"
+              className="inline-block text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-5 py-2.5 hover:bg-ladder-green-light transition-colors"
             >
               Back to dashboard
             </Link>
@@ -146,7 +146,7 @@ export default function RequestReviewPage() {
             <button
               type="submit"
               disabled={!subject.trim() || !note.trim()}
-              className="text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-6 py-3 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-6 py-3 hover:bg-ladder-green-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Send request
             </button>

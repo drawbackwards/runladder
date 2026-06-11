@@ -97,7 +97,7 @@ export default function Home() {
           <p className="font-mono text-xs text-ladder-green uppercase tracking-widest mb-8">
             Built over 20 years. Now available to everyone.
           </p>
-          <h1 className="text-[3.5rem] md:text-[5rem] font-bold tracking-tight leading-[1.05] mb-8">
+          <h1 className="text-[3.5rem] md:text-[5rem] font-bold tracking-tight leading-[1.05] text-balance mb-8">
             The quality score for{" "}
             <span className="text-ladder-green">every experience</span>
           </h1>
@@ -110,7 +110,7 @@ export default function Home() {
           <div className="flex items-center justify-center gap-6">
             <Link
               href="/score"
-              className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-base"
+              className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green-light transition-colors text-base"
             >
               Get your first Ladder score
             </Link>
@@ -161,10 +161,10 @@ export default function Home() {
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
             Why Ladder exists
           </p>
-          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] mb-10">
             Everyone can ship a product now.
             <br />
-            <span className="text-body">Almost no one knows if it&apos;s good.</span>
+            <span className="text-ladder-green">Almost no one knows if it&apos;s good.</span>
           </h2>
           <div className="space-y-6 text-body leading-relaxed">
             <p>
@@ -179,7 +179,7 @@ export default function Home() {
               and churned. The only feedback loop was revenue, and by then it
               was too late.
             </p>
-            <p className="text-foreground font-medium">
+            <p>
               Ladder changes that. One score, one framework, one honest answer:
               where does this experience actually stand, and what would make it
               better?
@@ -196,7 +196,7 @@ export default function Home() {
               <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
                 The origin
               </p>
-              <h2 className="text-[2rem] font-bold leading-snug mb-6">
+              <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] mb-6">
                 20 years in the making.
                 <br />
                 <span className="text-ladder-green">Not a weekend project.</span>
@@ -224,7 +224,7 @@ export default function Home() {
                 methodology, then as the lens through which every design
                 decision was evaluated. Clients started asking for it by name.
               </p>
-              <p className="text-foreground font-medium">
+              <p>
                 The Ladder framework wasn&apos;t invented to be a product. It was
                 earned through decades of real work with real users at real
                 companies. The AI just made it possible to share with the world.
@@ -263,10 +263,10 @@ export default function Home() {
               <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
                 How it works
               </p>
-              <h2 className="text-[2rem] font-bold leading-snug mb-6">
+              <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] mb-6">
                 Upload a screenshot.
                 <br />
-                Get the truth.
+                <span className="text-ladder-green">Get the truth.</span>
               </h2>
               <p className="text-body leading-relaxed mb-6">
                 Upload a screenshot and get a <strong className="text-foreground">Screen Score</strong>: an
@@ -312,8 +312,9 @@ export default function Home() {
             <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
               The framework
             </p>
-            <h2 className="text-[2.5rem] font-bold mb-6">
-              Five levels. One honest score.
+            <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
+              Five levels.{" "}
+              <span className="text-ladder-green">One honest score.</span>
             </h2>
             <p className="text-body max-w-lg mx-auto leading-relaxed">
               Every experience is scored from 1.0 to 5.0. Most products are
@@ -360,7 +361,7 @@ export default function Home() {
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
             Why us
           </p>
-          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-snug mb-10">
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] mb-10">
             Anyone can build an AI scoring tool.
             <br />
             <span className="text-ladder-green">No one else has the framework.</span>
@@ -381,7 +382,7 @@ export default function Home() {
               accomplish their goal. That distinction takes decades to learn.
               You can&apos;t prompt-engineer it into existence.
             </p>
-            <p className="text-foreground font-medium">
+            <p>
               The framework is the moat. The AI is just the delivery mechanism.
               Drawbackwards spent 20 years building the judgment. Now Ladder
               makes it instant.
@@ -397,7 +398,7 @@ export default function Home() {
             <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
               The platform
             </p>
-            <h2 className="text-[2.5rem] font-bold mb-6">
+            <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
               One score.{" "}
               <span className="text-ladder-green">Everywhere.</span>
             </h2>
@@ -415,7 +416,7 @@ export default function Home() {
                 href={product.href}
                 className="border border-border rounded-xl p-8 bg-card hover:bg-card-hover hover:border-muted transition-colors group"
               >
-                <h3 className="font-mono text-sm font-semibold text-foreground mb-3">
+                <h3 className="card-subhead text-foreground mb-3">
                   {product.name}
                 </h3>
                 <p className="text-sm text-body leading-relaxed mb-5">
@@ -433,7 +434,7 @@ export default function Home() {
       {/* CTA */}
       <section className="py-36 px-6 border-t border-border">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-[2.5rem] font-bold mb-6">
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
             What&apos;s your Ladder score?
           </h2>
           <p className="text-body mb-10 leading-relaxed max-w-lg mx-auto">
@@ -442,7 +443,7 @@ export default function Home() {
           </p>
           <Link
             href="/score"
-            className="inline-block bg-ladder-green text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-lg"
+            className="inline-block bg-ladder-green text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-green-light transition-colors text-lg"
           >
             Get your first Ladder score
           </Link>

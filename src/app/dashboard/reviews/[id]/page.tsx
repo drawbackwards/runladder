@@ -64,7 +64,7 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
             </button>
             <Link
               href={`/score?review=${review.slug}`}
-              className="text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-5 py-2 hover:bg-ladder-green/90 transition-colors"
+              className="text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-5 py-2 hover:bg-ladder-green-light transition-colors"
             >
               + Score a frame
             </Link>

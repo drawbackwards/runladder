@@ -13,17 +13,17 @@ export default function TeardownsPage() {
   const rest = TEARDOWN_POSTS.filter((p) => !p.featured);
 
   return (
-    <div className="pt-32 pb-24 px-6">
+    <div className="pt-40 pb-24 px-6">
       <div className="max-w-4xl mx-auto">
         {/* Hero */}
         <div className="mb-16">
-          <p className="font-mono text-xs text-ladder-green uppercase tracking-[0.2em] mb-6">
+          <p className="font-mono text-xs text-ladder-green uppercase tracking-widest mb-8">
             Ladder Teardowns
           </p>
           <h1 className="text-3xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-6 text-foreground">
             The products you use every day.
             <br />
-            <span className="text-[#6AC89B]">Scored honestly.</span>
+            <span className="text-ladder-green">Scored honestly.</span>
           </h1>
           <p className="text-base text-body max-w-xl leading-relaxed">
             We apply the full Ladder framework to real products. Not to expose
@@ -148,7 +148,7 @@ export default function TeardownsPage() {
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <Link
               href="/score"
-              className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
+              className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green-light transition-colors text-sm"
             >
               Score a screen free
             </Link>

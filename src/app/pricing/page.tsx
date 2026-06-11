@@ -54,7 +54,7 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
     name: "Professional",
     price: "$1,000",
     period: "/ mo",
-    highlight: true,
+    highlight: false,
     limit: "2,000 scores/mo",
     features: [
       "2,000 scores per month on web, Claude Skill, and Figma",
@@ -84,11 +84,9 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
       "Team leaderboard",
       "Seat management: invite, archive, and remove team members",
       "Design rhythm + activity heatmap per designer",
-      { text: "Design Reviews: iteration-by-iteration scoring with pinned crit and score lift tracking across the sprint", badge: "Beta" },
-      "Team Collaboration: designers can leave comments on how to improve the score on each other's designs and managers can see all commenting activity across their team",
       "Access to customer sentiment and Ladder Pulse scoring data + insights, if subscribed (coming soon)",
-      "Custom volume available, talk to us",
-      "SSO available, talk to us",
+      "Custom volume available",
+      "SSO available",
     ],
     cta: "Talk to us about Teams",
     href: "/contact?interest=teams-beta",
@@ -96,17 +94,14 @@ const SCREEN_SCORE_TIERS: ScreenTier[] = [
   },
 ];
 
+// "Current plan" button — styled to match the green tag pill (border + faint
+// fill + green text), keeping the button's own sans font (#312).
 const CURRENT_PLAN_CLASSES =
-  "w-full text-center text-sm font-semibold py-3 rounded-full border border-border text-muted bg-card cursor-not-allowed";
+  "w-full text-center text-sm font-semibold py-3 rounded-full border border-ladder-green/40 bg-ladder-green/5 text-ladder-green cursor-not-allowed";
 
-function CurrentPlanBadge({ comp }: { comp?: boolean }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-ladder-green/40 bg-ladder-green/5 text-[10px] font-mono uppercase tracking-widest text-ladder-green">
-      <span className="w-1.5 h-1.5 rounded-full bg-ladder-green" />
-      {comp ? "Complimentary" : "Current plan"}
-    </span>
-  );
-}
+// Manage-subscription is interactive, so it keeps the neutral pill treatment.
+const MANAGE_SUB_CLASSES =
+  "w-full text-center text-sm font-semibold py-3 rounded-full border border-border text-muted bg-card transition-colors hover:text-foreground hover:border-ladder-green/40";
 
 export default async function PricingPage() {
   const { userId } = await auth();
@@ -114,12 +109,15 @@ export default async function PricingPage() {
   const currentTier: Tier | null = sub?.tier ?? null;
   const isComp = !!sub?.comp;
   return (
-    <div className="pt-32 pb-24 px-6">
+    <div className="pt-40 pb-24 px-6">
       <div className="max-w-7xl mx-auto">
         {/* Hero */}
         <div className="text-center mb-20">
-          <h1 className="text-[2.5rem] font-bold mb-6">
-            Simple pricing. Score your first screen free.
+          <p className="font-mono text-xs text-ladder-green uppercase tracking-widest mb-8">
+            Simple pricing
+          </p>
+          <h1 className="text-[3rem] md:text-[4rem] font-bold tracking-tight leading-[1.05] mb-6">
+            Score your first screen free.
           </h1>
           <p className="text-body max-w-lg mx-auto leading-relaxed">
             One subscription works across every Ladder surface: web,
@@ -144,20 +142,17 @@ export default async function PricingPage() {
             <div
               key={tier.name}
               aria-current={isCurrent ? "true" : undefined}
-              className={`rounded-2xl p-8 flex flex-col ${
+              className={`rounded-2xl p-8 flex flex-col transition-colors ${
                 isCurrent
                   ? "border-2 border-ladder-green bg-ladder-green/[0.07]"
-                  : tier.highlight
-                  ? "border-2 border-ladder-green bg-ladder-green/5"
-                  : "border-2 border-ladder-green/30 bg-card"
+                  : "border border-ladder-green/40 bg-ladder-green/[0.04] hover:bg-ladder-green/[0.08] hover:border-ladder-green/60"
               }`}
             >
-              {/* Name + current badge */}
-              <div className="flex items-center justify-between gap-2 mb-4">
+              {/* Name */}
+              <div className="mb-4">
                 <h2 className="text-lg font-bold text-foreground">
                   {tier.name}
                 </h2>
-                {isCurrent && <CurrentPlanBadge comp={isComp} />}
               </div>
 
               {/* Price */}
@@ -170,7 +165,7 @@ export default async function PricingPage() {
               <div className="mb-6" />
 
               {/* Usage limit */}
-              <div className="border border-border rounded-lg px-4 py-3 mb-8">
+              <div className="border border-ladder-green/20 rounded-lg px-4 py-3 mb-8">
                 <p className="font-mono text-xs text-ladder-green whitespace-nowrap overflow-hidden text-ellipsis">
                   {tier.limit}
                 </p>
@@ -202,15 +197,15 @@ export default async function PricingPage() {
                   <button
                     type="button"
                     disabled
-                    aria-label={`${tier.name} is complimentary access`}
+                    aria-label={`${tier.name} is your current plan`}
                     className={CURRENT_PLAN_CLASSES}
                     title={sub?.comp?.reason || undefined}
                   >
-                    Complimentary access
+                    Current plan
                   </button>
                 ) : tier.key === "pro" ? (
                   <ManageSubscriptionButton
-                    className={CURRENT_PLAN_CLASSES + " hover:text-foreground hover:border-ladder-green/40"}
+                    className={MANAGE_SUB_CLASSES}
                   >
                     Manage subscription
                   </ManageSubscriptionButton>
@@ -227,20 +222,14 @@ export default async function PricingPage() {
               ) : tier.key === "pro" ? (
                 <SubscribeButton
                   plan="pro"
-                  className="w-full text-center text-sm font-semibold py-3 rounded-full transition-colors bg-ladder-green text-background hover:bg-ladder-green/90 disabled:opacity-60"
+                  className="w-full text-center text-sm font-semibold py-3 rounded-full transition-colors bg-ladder-green text-background hover:bg-ladder-green-light disabled:opacity-60"
                 >
                   {tier.cta}
                 </SubscribeButton>
               ) : (
                 <Link
                   href={tier.href}
-                  className={`text-center text-sm font-semibold py-3 rounded-full transition-colors ${
-                    tier.highlight
-                      ? "bg-ladder-green text-background hover:bg-ladder-green/90"
-                      : tier.solidCta
-                      ? "bg-foreground text-background hover:bg-foreground/90"
-                      : "border border-border text-foreground hover:bg-card-hover"
-                  }`}
+                  className="text-center text-sm font-semibold py-3 rounded-full transition-colors bg-ladder-green text-background hover:bg-ladder-green-light"
                 >
                   {tier.cta}
                 </Link>
@@ -249,7 +238,7 @@ export default async function PricingPage() {
           );})}
 
           {/* Enterprise card */}
-          <div className="rounded-2xl p-8 flex flex-col border-2 border-ladder-green/30 bg-card">
+          <div className="rounded-2xl p-8 flex flex-col transition-colors border border-ladder-green/40 bg-ladder-green/[0.04] hover:bg-ladder-green/[0.08] hover:border-ladder-green/60">
             <div className="mb-4">
               <h2 className="text-lg font-bold text-foreground">Enterprise</h2>
             </div>
@@ -257,7 +246,7 @@ export default async function PricingPage() {
               <span className="text-[2.5rem] font-bold text-foreground leading-none">Custom</span>
             </div>
             <div className="mb-6" />
-            <div className="border border-border rounded-lg px-4 py-3 mb-8">
+            <div className="border border-ladder-green/20 rounded-lg px-4 py-3 mb-8">
               <p className="font-mono text-xs text-ladder-green whitespace-nowrap overflow-hidden text-ellipsis">Custom score volume</p>
             </div>
             <ul className="space-y-3 mb-10 flex-1">
@@ -279,7 +268,7 @@ export default async function PricingPage() {
             </ul>
             <Link
               href="/contact"
-              className="text-center text-sm font-semibold py-3 rounded-full transition-colors border border-border text-foreground hover:bg-card-hover"
+              className="text-center text-sm font-semibold py-3 rounded-full transition-colors bg-ladder-green text-background hover:bg-ladder-green-light"
             >
               Talk to us about Enterprise
             </Link>
@@ -296,10 +285,10 @@ export default async function PricingPage() {
         </div>
         <div
           aria-current={currentTier === "pulse" ? "true" : undefined}
-          className={`rounded-2xl p-10 border-2 ${
+          className={`rounded-2xl p-10 transition-colors ${
             currentTier === "pulse"
-              ? "border-ladder-purple bg-ladder-purple/[0.09]"
-              : "border-ladder-purple bg-ladder-purple/5"
+              ? "border-2 border-ladder-purple bg-ladder-purple/[0.09]"
+              : "border border-ladder-purple/40 bg-ladder-purple/[0.04] hover:bg-ladder-purple/[0.08] hover:border-ladder-purple/60"
           }`}
         >
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
@@ -307,17 +296,11 @@ export default async function PricingPage() {
               <div className="mb-3">
                 <img src="/ladderpulse-logo.svg" alt="Ladder Pulse" width={140} className="mb-4" />
                 <span className="text-[2rem] font-bold text-foreground leading-none">Custom</span>
-                {currentTier === "pulse" && (
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-ladder-purple/40 bg-ladder-purple/5 text-[10px] font-mono uppercase tracking-widest text-ladder-purple">
-                    <span className="w-1.5 h-1.5 rounded-full bg-ladder-purple" />
-                    {isComp ? "Complimentary" : "Current plan"}
-                  </span>
-                )}
               </div>
               <div className="flex gap-8">
                 {[
                   [
-                    "Customer feedback, reviews, and support transcripts mapped to Ladder scores (coming soon)",
+                    "Voice of Customer, reviews, and support transcripts mapped to Ladder scores (coming soon)",
                     "Custom bespoke dashboards and interfaces",
                     "Dedicated onboarding and support",
                   ],
@@ -342,16 +325,16 @@ export default async function PricingPage() {
                 <button
                   type="button"
                   disabled
-                  aria-label={isComp ? "Pulse is your complimentary plan" : "Pulse is your current plan"}
-                  className="text-center text-sm font-semibold border border-border text-muted bg-card py-3 px-8 rounded-full cursor-not-allowed"
+                  aria-label="Pulse is your current plan"
+                  className="text-center text-sm font-semibold border border-ladder-purple/40 bg-ladder-purple/5 text-ladder-purple py-3 px-8 rounded-full cursor-not-allowed"
                   title={isComp ? sub?.comp?.reason || undefined : undefined}
                 >
-                  {isComp ? "Complimentary access" : "Current plan"}
+                  Current plan
                 </button>
               ) : (
                 <Link
                   href="/contact"
-                  className="text-center text-sm font-semibold border border-ladder-purple/40 text-ladder-purple hover:bg-ladder-purple/10 py-3 px-8 rounded-full transition-colors"
+                  className="text-center text-sm font-semibold py-3 px-8 rounded-full transition-colors bg-ladder-purple text-background hover:bg-ladder-purple-light"
                 >
                   Talk to us about Pulse
                 </Link>
@@ -361,10 +344,10 @@ export default async function PricingPage() {
         </div>
 
         {/* Drawbackwards Consulting */}
-        <div className="mt-4 border border-border rounded-2xl p-10 bg-card">
+        <div className="mt-4 border border-border rounded-2xl p-10 bg-card transition-colors hover:border-muted hover:bg-card-hover">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
             <div>
-              <h3 className="font-mono text-sm font-semibold text-foreground mb-3">
+              <h3 className="text-lg font-bold text-foreground mb-3">
                 Drawbackwards
               </h3>
               <p className="text-sm text-body max-w-[720px] leading-relaxed">
@@ -376,7 +359,7 @@ export default async function PricingPage() {
             </div>
             <Link
               href="https://drawbackwards.com"
-              className="shrink-0 text-center text-sm font-semibold border border-border text-foreground hover:bg-card-hover py-3 px-8 rounded-full transition-colors"
+              className="shrink-0 text-center text-sm font-semibold border border-border text-foreground hover:bg-foreground hover:text-background hover:border-foreground py-3 px-8 rounded-full transition-colors"
             >
               Work with Drawbackwards
             </Link>
