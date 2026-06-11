@@ -29,7 +29,7 @@ export function Nav() {
     pathname === href || (pathname?.startsWith(href + "/") ?? false);
   const navLinkClass = (href: string) =>
     `transition-colors ${
-      isActive(href) ? "text-foreground" : "hover:text-foreground"
+      isActive(href) ? "text-foreground" : "text-muted hover:text-foreground"
     }`;
 
   return (
@@ -68,7 +68,7 @@ export function Nav() {
                 </button>
               </SignInButton>
               <SignUpButton mode="redirect">
-                <button className="text-sm font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors">
+                <button className="text-sm font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green-light transition-colors">
                   Sign up to score
                 </button>
               </SignUpButton>

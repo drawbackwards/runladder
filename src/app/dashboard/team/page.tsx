@@ -168,7 +168,7 @@ function InviteForm({
         <button
           type="submit"
           disabled={busy || !email.trim()}
-          className="text-[11px] uppercase tracking-widest font-semibold text-[#1a1a1a] bg-ladder-green px-4 py-2 hover:bg-ladder-green/90 transition-colors disabled:opacity-40"
+          className="text-[11px] uppercase tracking-widest font-semibold text-[#1a1a1a] bg-ladder-green px-4 py-2 hover:bg-ladder-green-light transition-colors disabled:opacity-40"
         >
           {busy ? "Sending…" : "Invite"}
         </button>

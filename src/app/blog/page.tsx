@@ -18,19 +18,19 @@ export default function BlogPage() {
   const rest = BLOG_POSTS.filter((p) => !p.featured);
 
   return (
-    <div className="pt-32 pb-24 px-6">
+    <div className="pt-40 pb-24 px-6">
       <div className="max-w-4xl mx-auto">
         {/* Hero */}
-        <div className="mb-16">
-          <p className="font-mono text-xs text-ladder-green uppercase tracking-[0.2em] mb-6">
+        <div className="text-center mb-16">
+          <p className="font-mono text-xs text-ladder-green uppercase tracking-widest mb-8">
             Ladder Blog
           </p>
           <h1 className="text-3xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-6 text-foreground">
             Scores don&apos;t lie.
             <br />
-            <span className="text-muted">Neither does Ladder.</span>
+            <span className="text-ladder-green">Neither does Ladder.</span>
           </h1>
-          <p className="text-base text-body max-w-xl leading-relaxed">
+          <p className="text-base text-body max-w-xl mx-auto leading-relaxed">
             Ladder&apos;s Screen and Pulse proprietary intelligence scoring
             engine tells the real experience story behind every offering. These
             are the stories it uncovers.
@@ -48,7 +48,7 @@ export default function BlogPage() {
                 <Link
                   key={post.slug}
                   href={`/blog/${post.slug}`}
-                  className="border border-border bg-card/30 p-6 hover:border-muted transition-colors group"
+                  className="border border-border bg-card/30 p-6 hover:bg-ladder-green/[0.08] hover:border-ladder-green/60 transition-colors group"
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <span className="font-mono text-[10px] text-ladder-green uppercase tracking-widest">
@@ -98,7 +98,7 @@ export default function BlogPage() {
                       })}
                     </span>
                   </div>
-                  <h3 className="text-sm font-bold text-foreground group-hover:text-ladder-green transition-colors mb-1">
+                  <h3 className="text-lg font-bold text-foreground group-hover:text-ladder-green transition-colors mb-1">
                     {post.title}
                   </h3>
                   <p className="text-xs text-body leading-relaxed truncate">
@@ -145,7 +145,7 @@ export default function BlogPage() {
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <Link
               href="/contact"
-              className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
+              className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green-light transition-colors text-sm"
             >
               Request a Pulse demo
             </Link>

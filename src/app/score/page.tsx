@@ -285,7 +285,7 @@ function AnonSignupPrompt({
         <SignUpButton mode="modal" forceRedirectUrl="/score">
           {/* Tool aesthetic: square corners, all-caps, mono (inherited).
               Matches the "Upgrade to Pro" button. */}
-          <button className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest">
+          <button className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green-light transition-colors uppercase tracking-widest">
             Sign up free
           </button>
         </SignUpButton>
@@ -913,7 +913,7 @@ export default function ScorePage() {
               <button
                 onClick={captureUrl}
                 disabled={!urlInput.trim()}
-                className="bg-ladder-green text-[#1a1a1a] font-bold text-xs uppercase tracking-widest px-6 py-3 hover:bg-ladder-green/90 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="bg-ladder-green text-[#1a1a1a] font-bold text-xs uppercase tracking-widest px-6 py-3 hover:bg-ladder-green-light transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 Capture
               </button>
@@ -1031,7 +1031,7 @@ export default function ScorePage() {
                 </div>
                 <button
                   onClick={() => scoreImage()}
-                  className="bg-ladder-green text-[#1a1a1a] font-bold text-xs uppercase tracking-widest px-8 py-3 hover:bg-ladder-green/90 transition-colors"
+                  className="bg-ladder-green text-[#1a1a1a] font-bold text-xs uppercase tracking-widest px-8 py-3 hover:bg-ladder-green-light transition-colors"
                 >
                   Score this screen
                 </button>
@@ -1319,7 +1319,7 @@ export default function ScorePage() {
                   </ul>
                   <Link
                     href="/pricing"
-                    className="inline-block mt-6 text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green/90 transition-colors uppercase tracking-widest"
+                    className="inline-block mt-6 text-xs font-semibold bg-ladder-green text-[#1a1a1a] px-6 py-3 hover:bg-ladder-green-light transition-colors uppercase tracking-widest"
                   >
                     $1,000/mo — Upgrade to Pro
                   </Link>

@@ -87,7 +87,7 @@ export function ContactForm() {
         </p>
         <a
           href="/score"
-          className="inline-block mt-6 text-sm font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors"
+          className="inline-block mt-6 text-sm font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green-light transition-colors"
         >
           Get your first Ladder score
         </a>
@@ -178,7 +178,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={status === "sending" || !form.name || !form.email || !form.message}
-        className="bg-ladder-green text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+        className="bg-ladder-green text-background font-semibold px-10 py-4 rounded-full hover:bg-ladder-green-light transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {status === "sending" ? "Sending..." : "Start the conversation"}
       </button>

@@ -126,7 +126,7 @@ export default function ProductsPage() {
           <p className="font-mono text-xs text-ladder-green uppercase tracking-widest mb-8">
             The platform
           </p>
-          <h1 className="text-[3rem] md:text-[4rem] font-bold tracking-tight leading-[1.05] mb-8">
+          <h1 className="text-[3rem] md:text-[4rem] font-bold tracking-tight leading-[1.05] text-balance mb-8">
             One score.{" "}
             <span className="text-ladder-green">Every surface.</span>
           </h1>
@@ -245,9 +245,9 @@ export default function ProductsPage() {
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-8">
             One subscription. Every surface.
           </p>
-          <h2 className="text-[2rem] font-bold mb-6">
+          <h2 className="text-[2rem] md:text-[2.5rem] font-bold leading-[1.15] text-balance mb-6">
             Your score is your score.{" "}
-            <span className="text-body">Everywhere.</span>
+            <span className="text-ladder-green">Everywhere.</span>
           </h2>
           <p className="text-body leading-relaxed max-w-xl mx-auto mb-10">
             Score a screen on the web or reference it in
@@ -263,7 +263,7 @@ export default function ProductsPage() {
             </Link>
             <Link
               href="/score"
-              className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green/90 transition-colors text-base"
+              className="bg-ladder-green text-background font-semibold px-8 py-4 rounded-full hover:bg-ladder-green-light transition-colors text-base"
             >
               Get your first Ladder score
             </Link>

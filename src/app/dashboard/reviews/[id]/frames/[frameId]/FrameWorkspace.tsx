@@ -182,7 +182,7 @@ export function FrameWorkspace({
             <DeltaBadge lift={lift} />
             <Link
               href={`/score?review=${review.slug}`}
-              className="text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-4 py-2 hover:bg-ladder-green/90 transition-colors"
+              className="text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-4 py-2 hover:bg-ladder-green-light transition-colors"
             >
               + Score next iteration
             </Link>
@@ -269,7 +269,7 @@ export function FrameWorkspace({
                     type="button"
                     onClick={commitPendingPin}
                     disabled={!pendingComment.trim()}
-                    className="text-[10px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-3 py-1.5 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="text-[10px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-3 py-1.5 hover:bg-ladder-green-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Drop pin
                   </button>
@@ -768,7 +768,7 @@ function TeamTakesPanel({
             <button
               type="submit"
               disabled={!rationale.trim()}
-              className="text-[10px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-3 py-1.5 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="text-[10px] font-semibold uppercase tracking-widest bg-ladder-green text-background px-3 py-1.5 hover:bg-ladder-green-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Submit Take
             </button>

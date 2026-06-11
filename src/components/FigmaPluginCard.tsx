@@ -141,7 +141,7 @@ export function FigmaPluginCard() {
         href={FIGMA_PLUGIN_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-block text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold"
+        className="inline-block text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green-light transition-colors px-4 py-2 font-semibold"
       >
         Open in Figma Community →
       </a>

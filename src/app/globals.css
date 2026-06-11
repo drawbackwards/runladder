@@ -13,6 +13,8 @@
   /* Ladder score colors */
   --color-ladder-green: #6AC89B;
   --color-ladder-green-dim: #6AC89B33;
+  /* Hover state for green primary buttons — lighter, not darker. */
+  --color-ladder-green-light: #95DDBA;
   --color-ladder-red: #ef4444;
   --color-ladder-orange: #f97316;
   --color-ladder-yellow: #eab308;
@@ -20,6 +22,8 @@
   --color-ladder-white: #ffffff;
   --color-ladder-purple: #A78BFA;
   --color-ladder-purple-dim: #A78BFA33;
+  /* Hover state for purple primary buttons — slightly lighter, not darker. */
+  --color-ladder-purple-light: #B49CFB;
 
   /* Fonts */
   --font-sans: var(--font-inter);
@@ -35,6 +39,56 @@
   --text-body: 1rem;
   --text-body-sm: 0.875rem;
   --text-caption: 0.75rem;
+}
+
+/*
+ * Marketing-site scope (#312). The marketing (non-auth) surface is warmer and
+ * friendlier than the app: Inter everywhere (option B) and a slightly darker
+ * card surface. The app keeps IBM Plex Mono and the lighter #2a2a2a card. The
+ * `marketing` class is set on <html> pre-paint by an inline script in the root
+ * layout (no flash) and kept in sync on client navigation by MarketingScope.
+ *
+ * Card colors are overridden as utility rules (not tokens) because @theme
+ * inline bakes the literal value into bg-card/bg-card-hover, so a token
+ * override wouldn't reach them. These unlayered rules win over Tailwind's
+ * layered utilities. To revert eyebrows to mono later, scope a rule that
+ * re-asserts font-family: var(--font-ibm-plex-mono) on the eyebrow elements.
+ */
+/*
+ * Override the font-mono utility directly (not the token): next/font sets
+ * --font-ibm-plex-mono on the same <html> element, so a variable override there
+ * loses on source order. A descendant utility override wins. The variable
+ * override is also kept for any raw var(--font-mono) usage (e.g. code blocks).
+ * To revert eyebrows to mono later, re-assert font-family on those elements.
+ */
+.marketing {
+  --font-mono: var(--font-inter);
+  --font-ibm-plex-mono: var(--font-inter);
+}
+.marketing .font-mono {
+  font-family: var(--font-inter);
+}
+
+/* Marketing card surface: base #222, elevated/hover #2a2a2a. */
+.marketing .bg-card,
+.marketing .hover\:bg-card:hover {
+  background-color: #222222;
+}
+.marketing .hover\:bg-card-hover:hover {
+  background-color: #2a2a2a;
+}
+
+/*
+ * Card subhead — the title inside content cards (role cards, policy cards,
+ * surface cards, etc.). Single source of truth for size/weight (#312); tune
+ * here once instead of per-instance. Color stays on the element (semantic:
+ * white default, green for accent cards). Font follows the page (Inter on
+ * marketing via the scope above).
+ */
+.card-subhead {
+  font-size: 1.125rem; /* text-lg / 18px */
+  line-height: 1.4;
+  font-weight: 600; /* semibold */
 }
 
 body {

@@ -89,7 +89,7 @@ export function TeamCard() {
       </p>
       <Link
         href="/dashboard/team"
-        className="inline-block text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold"
+        className="inline-block text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green-light transition-colors px-4 py-2 font-semibold"
       >
         {isManager ? "Manage team →" : "View team →"}
       </Link>

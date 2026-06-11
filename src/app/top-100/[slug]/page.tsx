@@ -361,7 +361,7 @@ export default async function ProductPage({ params }: Props) {
           </p>
           <Link
             href="/score"
-            className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
+            className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green-light transition-colors text-sm"
           >
             Score your product
           </Link>

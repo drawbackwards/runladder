@@ -368,7 +368,7 @@ function EmptyHero() {
         Upload an image or paste a URL. You&apos;ll get a Ladder score and
         ranked findings back in seconds.
       </p>
-      <span className="inline-block text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-[#1a1a1a] px-5 py-2.5 group-hover:bg-ladder-green/90 transition-colors">
+      <span className="inline-block text-[11px] font-semibold uppercase tracking-widest bg-ladder-green text-[#1a1a1a] px-5 py-2.5 group-hover:bg-ladder-green-light transition-colors">
         Score a screen →
       </span>
     </Link>

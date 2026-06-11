@@ -11,7 +11,7 @@ export default function LegalPage() {
   return (
     <div className="pt-32 pb-24 px-6">
       <div className="max-w-3xl mx-auto">
-        <p className="text-xs font-semibold text-ladder-green uppercase tracking-[0.2em] mb-6">
+        <p className="text-xs font-semibold text-ladder-green uppercase tracking-widest mb-6">
           Licensing &amp; Intellectual Property
         </p>
         <h1 className="text-[2rem] md:text-[2.5rem] font-bold leading-tight mb-4">

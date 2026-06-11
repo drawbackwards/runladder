@@ -240,7 +240,7 @@ export default async function TeardownPage({ params }: Props) {
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <Link
               href="/score"
-              className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
+              className="inline-block font-semibold bg-ladder-green text-background px-8 py-3 rounded-full hover:bg-ladder-green-light transition-colors text-sm"
             >
               Score a screen free
             </Link>

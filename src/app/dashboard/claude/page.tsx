@@ -267,7 +267,7 @@ export default function ClaudeDetailPage() {
                   <button
                     onClick={skill.command ? skill.copyCommand : skill.reset}
                     disabled={skill.working}
-                    className="text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold disabled:opacity-40"
+                    className="text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green-light transition-colors px-4 py-2 font-semibold disabled:opacity-40"
                   >
                     {skill.working
                       ? "Preparing…"
@@ -338,7 +338,7 @@ export default function ClaudeDetailPage() {
                       </code>
                       <button
                         onClick={copyToken}
-                        className="text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-3 py-1.5 font-semibold flex-shrink-0"
+                        className="text-[10px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green-light transition-colors px-3 py-1.5 font-semibold flex-shrink-0"
                       >
                         {copiedToken ? "Copied" : "Copy"}
                       </button>
@@ -346,7 +346,7 @@ export default function ClaudeDetailPage() {
                   )}
                   <a
                     href={skill.downloadUrl}
-                    className="inline-block text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green/90 transition-colors px-4 py-2 font-semibold"
+                    className="inline-block text-[11px] uppercase tracking-widest text-[#1a1a1a] bg-ladder-green hover:bg-ladder-green-light transition-colors px-4 py-2 font-semibold"
                   >
                     Download SKILL.md File
                   </a>

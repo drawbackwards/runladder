@@ -392,7 +392,7 @@ export default function AdminPage() {
               <button
                 onClick={generate}
                 disabled={generating}
-                className="ml-auto text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="ml-auto text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {generating ? "Generating…" : "Generate"}
               </button>
@@ -576,7 +576,7 @@ export default function AdminPage() {
                                       <button
                                         onClick={saveDetail}
                                         disabled={saving}
-                                        className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                        className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                       >
                                         {saving ? "Saving…" : "Save"}
                                       </button>

@@ -245,7 +245,7 @@ export default function CompsAdminPage() {
                 <button
                   onClick={submitGrant}
                   disabled={submitting || !formValid}
-                  className="w-full text-xs font-semibold uppercase tracking-widest bg-ladder-green text-background px-4 py-3 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full text-xs font-semibold uppercase tracking-widest bg-ladder-green text-background px-4 py-3 hover:bg-ladder-green-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {submitting ? "Granting…" : "Grant comp"}
                 </button>

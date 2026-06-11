@@ -130,7 +130,7 @@ export default function AddClientPage() {
             <button
               type="submit"
               disabled={busy}
-              className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="text-xs font-semibold bg-ladder-green text-[#1a1a1a] uppercase tracking-widest px-5 py-2.5 hover:bg-ladder-green-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {busy ? "Provisioning…" : "Create org + invite Lead"}
             </button>

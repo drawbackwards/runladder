@@ -91,7 +91,7 @@ export function PasswordGate({ children }: { children: React.ReactNode }) {
           />
           <button
             type="submit"
-            className="w-full bg-ladder-green text-background font-semibold py-3 rounded-full hover:bg-ladder-green/90 transition-colors text-sm"
+            className="w-full bg-ladder-green text-background font-semibold py-3 rounded-full hover:bg-ladder-green-light transition-colors text-sm"
           >
             Enter
           </button>

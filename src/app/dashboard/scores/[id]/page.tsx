@@ -418,7 +418,7 @@ export default function ScoreDetailPage() {
               href="https://drawbackwards.com/contact?subject=Moderated%20usability%20interviews"
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 inline-block text-xs font-semibold uppercase tracking-widest bg-ladder-green text-background px-6 py-3 hover:bg-ladder-green/90 transition-colors"
+              className="shrink-0 inline-block text-xs font-semibold uppercase tracking-widest bg-ladder-green text-background px-6 py-3 hover:bg-ladder-green-light transition-colors"
             >
               Get Moderated Testing
             </a>
@@ -487,7 +487,7 @@ export default function ScoreDetailPage() {
             </Link>
             <Link
               href="/score"
-              className="text-xs font-semibold uppercase tracking-widest bg-ladder-green text-background px-6 py-3 hover:bg-ladder-green/90 transition-colors"
+              className="text-xs font-semibold uppercase tracking-widest bg-ladder-green text-background px-6 py-3 hover:bg-ladder-green-light transition-colors"
             >
               Score another screen
             </Link>

@@ -332,7 +332,7 @@ export default function EvaluationReviewPage() {
               <button
                 onClick={save}
                 disabled={saving}
-                className="text-xs font-semibold bg-ladder-green text-background px-4 py-1.5 rounded-sm hover:bg-ladder-green/90 transition-colors disabled:opacity-40"
+                className="text-xs font-semibold bg-ladder-green text-background px-4 py-1.5 rounded-sm hover:bg-ladder-green-light transition-colors disabled:opacity-40"
               >
                 {saving ? "Saving…" : "Save changes"}
               </button>
@@ -349,7 +349,7 @@ export default function EvaluationReviewPage() {
             {evaluation.status === "approved" && (
               <Link
                 href={`/admin/evaluations/${evaluation.id}/report`}
-                className="text-xs font-semibold bg-ladder-green text-background px-4 py-1.5 rounded-sm hover:bg-ladder-green/90 transition-colors"
+                className="text-xs font-semibold bg-ladder-green text-background px-4 py-1.5 rounded-sm hover:bg-ladder-green-light transition-colors"
               >
                 Open report
               </Link>
