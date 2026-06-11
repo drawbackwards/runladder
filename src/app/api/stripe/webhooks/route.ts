@@ -11,6 +11,20 @@ import { setUserSubscription, userIdForStripeCustomer } from "@/lib/tier";
 export const runtime = "nodejs";
 
 /**
+ * Clerk throws a 4xx ClerkAPIResponseError (e.g. 404 "Not Found") when an event
+ * references a user that doesn't exist — typically test-mode events whose
+ * reference IDs aren't users in this Clerk instance, or a since-deleted user.
+ * That's permanent: acknowledge it (2xx) so Stripe stops retrying. 5xx /
+ * network errors are transient and should bubble to a 500 so Stripe retries
+ * (#338 — unguarded checkout events were 500ing and threatening endpoint
+ * disablement).
+ */
+function isPermanentUserError(err: unknown): boolean {
+  const status = (err as { status?: number })?.status;
+  return typeof status === "number" && status >= 400 && status < 500;
+}
+
+/**
  * Stripe webhook receiver. Validates the signature, then mirrors subscription
  * state into Clerk publicMetadata.tier so every surface (web, Skill, MCP, API)
  * sees a consistent tier.
@@ -54,10 +68,18 @@ export async function POST(req: NextRequest) {
             : session.customer?.id;
         if (userId && customerId) {
           // Subscription event will follow with full state — record the customer now.
-          await setUserSubscription(userId, {
-            tier: "pro",
-            stripeCustomerId: customerId,
-          });
+          try {
+            await setUserSubscription(userId, {
+              tier: "pro",
+              stripeCustomerId: customerId,
+            });
+          } catch (err) {
+            if (!isPermanentUserError(err)) throw err;
+            console.warn(
+              "[LADDER:STRIPE] checkout.session.completed references unknown user; acknowledging.",
+              { userId, customerId }
+            );
+          }
         }
         break;
       }
@@ -85,13 +107,21 @@ export async function POST(req: NextRequest) {
         const active = isActiveSubscription(sub.status);
         const tier = active ? tierForPriceId(priceId) : "free";
 
-        await setUserSubscription(userId, {
-          tier,
-          stripeCustomerId: customerId,
-          stripeSubscriptionId: sub.id,
-          currentPeriodEnd: sub.items.data[0]?.current_period_end ?? undefined,
-          cancelAtPeriodEnd: sub.cancel_at_period_end,
-        });
+        try {
+          await setUserSubscription(userId, {
+            tier,
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: sub.id,
+            currentPeriodEnd: sub.items.data[0]?.current_period_end ?? undefined,
+            cancelAtPeriodEnd: sub.cancel_at_period_end,
+          });
+        } catch (err) {
+          if (!isPermanentUserError(err)) throw err;
+          console.warn(
+            "[LADDER:STRIPE] subscription event references unknown user; acknowledging.",
+            { userId, customerId }
+          );
+        }
         break;
       }
 

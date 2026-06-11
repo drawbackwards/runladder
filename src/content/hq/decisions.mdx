@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-06-08
+updatedAt: 2026-06-09
 updatedBy: Sara
-lastPr: 326
+lastPr: 328
 ---
 
 ## How to use this page
@@ -12,6 +12,14 @@ The why behind big choices. Read this before you push back on a feature, a price
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
 
 ---
+
+## App stays on runladder.com for launch; `app.runladder.com` split is post-launch (2026-06-09)
+
+**Rule:** Do NOT migrate the app to `app.runladder.com` before launch. The marketing/app domain split ([#314](https://github.com/drawbackwards/runladder/issues/314)) is deferred to the week *after* launch, with a written runbook on the ticket.
+
+Why the split is wanted: best practice to separate the marketing site from the app. It's cleanup, not a feature, and adds zero user-facing value.
+
+Why not before launch: the migration rewires **Clerk (login)** and **Stripe (payments)** — the two flows we just stabilized and verified live — and Ward is demoing a real customer the same week. Breaking either breaks the demo. Nobody uses the app yet (password gate came off 2026-06-06), so waiting costs nothing and the job is the same size later, not harder; doing it now risks a potential sale to save zero days. The "you can't move it later" fear is largely false — subdomain moves are routine with 301 redirects, and the code is already domain-portable (origin-based Stripe URLs, relative Clerk redirects). Full scope + ordered runbook + rollback live on [#314](https://github.com/drawbackwards/runladder/issues/314); it has been moved out of the MVP Launch milestone.
 
 ## Client data is archived, never deleted (2026-06-08)
 

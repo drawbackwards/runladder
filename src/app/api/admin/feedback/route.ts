@@ -3,11 +3,18 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { getAdminEmail } from "@/lib/admin";
 import { redis } from "@/lib/redis";
 import { CURRENT_API_VERSION } from "@/lib/app-version";
+import {
+  FEEDBACK_INDEX_KEY,
+  recordKey,
+  type StoredFeedback,
+} from "@/lib/score-feedback";
 
 /**
  * Admin feedback aggregation — surfaces every analysis-quality rating users
- * have submitted via /api/feedback/score, enriched with the user's email
- * and the underlying score (so QA can quickly see what was rated).
+ * have submitted, from any surface: web (/api/feedback/score) and the Figma
+ * plugin (/api/plugin/feedback) share one store (@/lib/score-feedback). Each
+ * record is enriched with the user's email and the underlying score, and the UI
+ * derives the surface tag from the score-name suffix.
  *
  * GET /api/admin/feedback?limit=50
  *   → { feedback: EnrichedFeedback[] } most-recent-first
@@ -16,16 +23,6 @@ import { CURRENT_API_VERSION } from "@/lib/app-version";
  */
 
 const API_VERSION_HEADERS = { "X-Ladder-API-Version": CURRENT_API_VERSION };
-const FEEDBACK_INDEX_KEY = "score-feedback:index";
-
-type StoredFeedback = {
-  scoreId: string;
-  userId: string;
-  orgId: string | null;
-  rating: "up" | "down";
-  note: string;
-  ts: number;
-};
 
 type EnrichedFeedback = StoredFeedback & {
   userEmail: string | null;
@@ -42,10 +39,6 @@ type ScoreSnapshot = {
   label?: string;
   screenName?: string;
 };
-
-function recordKey(scoreId: string, userId: string): string {
-  return `score-feedback:${scoreId}:${userId}`;
-}
 
 export async function GET(req: NextRequest) {
   const admin = await getAdminEmail();
