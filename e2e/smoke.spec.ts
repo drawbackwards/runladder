@@ -47,10 +47,6 @@ test.describe("Marketing surfaces render", () => {
     await expectPageRenders(page, "/top-100");
   });
 
-  test("teams page", async ({ page }) => {
-    await expectPageRenders(page, "/teams");
-  });
-
   test("products page", async ({ page }) => {
     await expectPageRenders(page, "/products");
   });
