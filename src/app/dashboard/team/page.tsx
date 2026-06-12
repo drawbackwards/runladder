@@ -835,6 +835,25 @@ export default function TeamPage() {
   const selfUserId = fxTeam
     ? fxTeam.selfUserId
     : membership?.publicUserData?.userId;
+  // Row order:
+  //  - Team Lead (org:admin) is always first.
+  //  - If the viewer IS the lead, the remaining members are alphabetical by
+  //    first name.
+  //  - If the viewer is a member (not the lead), they appear directly below the
+  //    lead, then everyone else keeps API order.
+  // (Array.sort is stable, so equal-rank rows keep their original order.)
+  const orderedMembers = [...memberList].sort((a, b) => {
+    const isLead = (m: TeamMember) => (m.role === "org:admin" ? 0 : 1);
+    if (isLead(a) !== isLead(b)) return isLead(a) - isLead(b);
+    if (isLead(a) === 0) return 0; // both leads — leave as-is
+    if (isAdmin) {
+      const firstName = (m: TeamMember) =>
+        (m.firstName ?? m.email ?? "").toLowerCase();
+      return firstName(a).localeCompare(firstName(b));
+    }
+    const isSelf = (m: TeamMember) => (m.userId && m.userId === selfUserId ? 0 : 1);
+    return isSelf(a) - isSelf(b);
+  });
   const activityWindowDays = teamDataEff?.activityWindowDays ?? 91;
   const teamLoadingEff = fxTeam ? false : teamLoading;
   const teamErrEff = fxTeam ? null : teamErr;
@@ -1048,7 +1067,7 @@ export default function TeamPage() {
               </div>
             ) : (
               <ul>
-                {memberList.map((m) => (
+                {orderedMembers.map((m) => (
                   <MemberRow
                     key={m.membershipId}
                     member={m}
