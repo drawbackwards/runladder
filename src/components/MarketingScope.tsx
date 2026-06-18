@@ -7,6 +7,9 @@ import { useEffect, useLayoutEffect } from "react";
 // else is the marketing site and gets the warmer treatment (Inter, darker
 // cards). This list mirrors `inProduct` in Nav.tsx — keep them in sync. The
 // same regex lives in the pre-paint inline script in app/layout.tsx.
+// On app/dev subdomains the entire site is the product — never marketing scope.
+// On runladder.com or localhost, fall back to path-based detection.
+const APP_DOMAIN = /^(app|dev)\.runladder\.com$/;
 const PRODUCT_PATH = /^\/(dashboard|score|settings|hq|admin)(\/|$)/;
 
 // Run before paint on the client so client-side navigation doesn't flash; fall
@@ -24,7 +27,8 @@ export function MarketingScope() {
   const pathname = usePathname();
 
   useIsomorphicLayoutEffect(() => {
-    const isMarketing = !PRODUCT_PATH.test(pathname ?? "");
+    const isAppDomain = APP_DOMAIN.test(window.location.hostname);
+    const isMarketing = !isAppDomain && !PRODUCT_PATH.test(pathname ?? "");
     document.documentElement.classList.toggle("marketing", isMarketing);
   }, [pathname]);
 

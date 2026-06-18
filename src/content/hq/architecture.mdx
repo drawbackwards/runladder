@@ -1,9 +1,24 @@
 ---
 title: Architecture
-updatedAt: 2026-06-08
-updatedBy: Sara
-lastPr: 322
+updatedAt: 2026-06-17
+updatedBy: Michael
+lastPr: 249
 ---
+
+## Deployment environments
+
+`runladder` ships to two environments. Both run the same Next.js codebase from the same Vercel project.
+
+| Environment | URL | Deploy trigger | Clerk | Redis |
+| --- | --- | --- | --- | --- |
+| **Dev** | `dev.runladder.com` | Auto — every merge to `main` | Dev instance | Dev Upstash instance |
+| **Production** | `app.runladder.com` | Manual — `vercel --prod --force` | Prod instance | Prod Upstash instance |
+
+**Promotion flow:** `feature branch → PR → CI (next build + vitest) → merge to main → auto-deploy to dev → QA → manual promo to prod`
+
+`runladder.com` and `www.runladder.com` are the public marketing and content domains — same Vercel project, same build, routed as additional domains on the Production environment. Canonical content URLs (OG tags, share links, sitemaps) always reference `runladder.com`. Auth entry point is `app.runladder.com/login`.
+
+Branch protection on `main` requires a passing `build` CI check and disables force-push. Self-merge is allowed.
 
 ## One scoring framework, three codebases (today)
 
