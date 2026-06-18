@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-06-11
-updatedBy: Sara
-lastPr: 354
+updatedAt: 2026-06-17
+updatedBy: Michael
+lastPr: 355
 ---
 
 ## How to use this page
@@ -12,6 +12,30 @@ The why behind big choices. Read this before you push back on a feature, a price
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
 
 ---
+
+## Two-environment deployment: dev.runladder.com + app.runladder.com (2026-06-17)
+
+**Rule:** The platform runs two environments: `dev.runladder.com` (QA, auto-deploys from `main`) and `app.runladder.com` (production, explicit manual promotion). Marketing and content pages stay at `runladder.com`. Shipped in [#249](https://github.com/drawbackwards/runladder/issues/249).
+
+**Domain roles:**
+
+| URL | Role |
+| --- | --- |
+| `runladder.com` / `www.runladder.com` | Public marketing and content (framework, blog, teardowns, top-100, pricing) |
+| `app.runladder.com` | Production app (authenticated users, scoring, dashboard, login) |
+| `dev.runladder.com` | Dev/QA environment — auto-deploys from `main`, uses dev Clerk + dev Redis, safe to break |
+
+**Deploy flow:** `feature branch → PR → CI (next build) → merge to main → auto-deploys to dev.runladder.com → QA → explicit `vercel --prod --force` to app.runladder.com`
+
+**Environment variable split:**
+
+| Scope | Clerk | Redis | NEXT_PUBLIC_APP_URL |
+| --- | --- | --- | --- |
+| Production (`app.runladder.com`) | Prod Clerk instance | Prod Redis | `https://app.runladder.com` |
+| Dev (`dev.runladder.com`) + Preview | Dev Clerk instance | Dev Redis (separate Upstash instance) | `https://dev.runladder.com` |
+| Local | Dev Clerk instance | Dev Redis | `http://localhost:3000` |
+
+Why: the team was shipping directly to production with no safe QA environment. Any error in new code immediately hit real users and real data. The two-environment setup gives a stable URL to QA work before it reaches production. The subdomain move (#314) was deferred from launch week to avoid rewiring Clerk and Stripe during a live demo — that window has passed, and the migration is now part of standing up the environment infrastructure.
 
 ## Multi-environment plan (Dev / Staging / Prod): isolate Clerk, Upstash, and Stripe per env (2026-06-11)
 
@@ -32,14 +56,6 @@ Code touchpoints:
 - Good moment to fix `userIdForStripeCustomer`'s first-100-users scan with a Redis secondary index.
 
 **Postgres** stays "planned, not scheduled" (see [Architecture → Data](/hq/architecture)). Do not couple it to this work; migrate on the current Redis layer and revisit Postgres only when a relational need forces it.
-
-## App stays on runladder.com for launch; `app.runladder.com` split is post-launch (2026-06-09)
-
-**Rule:** Do NOT migrate the app to `app.runladder.com` before launch. The marketing/app domain split ([#314](https://github.com/drawbackwards/runladder/issues/314)) is deferred to the week *after* launch, with a written runbook on the ticket.
-
-Why the split is wanted: best practice to separate the marketing site from the app. It's cleanup, not a feature, and adds zero user-facing value.
-
-Why not before launch: the migration rewires **Clerk (login)** and **Stripe (payments)** — the two flows we just stabilized and verified live — and Ward is demoing a real customer the same week. Breaking either breaks the demo. Nobody uses the app yet (password gate came off 2026-06-06), so waiting costs nothing and the job is the same size later, not harder; doing it now risks a potential sale to save zero days. The "you can't move it later" fear is largely false — subdomain moves are routine with 301 redirects, and the code is already domain-portable (origin-based Stripe URLs, relative Clerk redirects). Full scope + ordered runbook + rollback live on [#314](https://github.com/drawbackwards/runladder/issues/314); it has been moved out of the MVP Launch milestone.
 
 ## Client data is archived, never deleted (2026-06-08)
 

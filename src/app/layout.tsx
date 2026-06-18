@@ -118,7 +118,7 @@ export default function RootLayout({
           */}
           <script
             dangerouslySetInnerHTML={{
-              __html: `(function(){try{if(!/^\\/(dashboard|score|settings|hq|admin)(\\/|$)/.test(location.pathname)){document.documentElement.classList.add('marketing')}}catch(e){}})()`,
+              __html: `(function(){try{var h=location.hostname;if(!/^(app|dev)\\.runladder\\.com$/.test(h)&&!/^\\/(dashboard|score|settings|hq|admin)(\\/|$)/.test(location.pathname)){document.documentElement.classList.add('marketing')}}catch(e){}})()`,
             }}
           />
           <MarketingScope />
