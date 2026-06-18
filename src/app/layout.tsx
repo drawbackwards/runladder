@@ -54,13 +54,16 @@ export default function RootLayout({
 }>) {
   const gateEnabled = !!process.env.SITE_PASSWORD;
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+
   return (
     <ClerkProvider
-      signInUrl="/login"
-      signUpUrl="/sign-up"
-      signInFallbackRedirectUrl="/dashboard"
-      signUpFallbackRedirectUrl="/score"
-      afterSignOutUrl="/"
+      signInUrl={`${appUrl}/login`}
+      signUpUrl={`${appUrl}/sign-up`}
+      signInFallbackRedirectUrl={`${appUrl}/dashboard`}
+      signUpFallbackRedirectUrl={`${appUrl}/score`}
+      afterSignOutUrl={appUrl || "/"}
+
       appearance={{
         variables: {
           colorPrimary: "#6AC89B",
