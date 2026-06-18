@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-06-09
+updatedAt: 2026-06-11
 updatedBy: Sara
-lastPr: 328
+lastPr: 343
 ---
 
 ## How to use this page
@@ -12,6 +12,26 @@ The why behind big choices. Read this before you push back on a feature, a price
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
 
 ---
+
+## Multi-environment plan (Dev / Staging / Prod): isolate Clerk, Upstash, and Stripe per env (2026-06-11)
+
+**Rule:** When standing up **Staging** and doing the `app.runladder.com` split, every environment gets its **own** Clerk instance, Upstash Redis DB, and Stripe mode. Never let a non-prod environment read or write prod's Clerk users, Redis keys, or live Stripe data. This migration is overwhelmingly an **auth/isolation** problem, not a database one.
+
+Plan in flight: **Dev (local) → Staging (new) → Prod (existing)**, alongside the subdomain split (see the post-launch decision below + [#314](https://github.com/drawbackwards/runladder/issues/314)).
+
+Landmines (we lost ~2 hours on 2026-06-11 to dev/prod Clerk sharing — don't repeat it):
+
+- **Clerk has exactly two instances per application** — Development (`pk_test`) and Production (`pk_live`). Three environments do **not** map cleanly. Decide deliberately: **(A)** Dev + Staging both use the Clerk *Development* instance, Prod uses Production (simplest; Staging shares dev's user pool); or **(B)** a *separate Clerk application* for Staging with its own dev/prod instances (cleaner isolation, more setup). This is the single most important decision.
+- **`.env.local` points at the Clerk *Development* instance (`sk_test`), which is separate from prod.** Local Clerk reads/writes never touch prod users — and you can't inspect or fix a prod Clerk user from local. This is the correct state; it just isn't obvious.
+- **Upstash Redis:** one DB per env, selected by `UPSTASH_REDIS_REST_URL`/`TOKEN`. Give Staging a brand-new DB; verify local dev isn't already sharing prod's DB.
+- **Stripe:** Staging uses test/sandbox keys + its **own** webhook endpoint and signing secret; Prod uses live. The webhook signing secret must match the endpoint exactly, and **Vercel "Sensitive" env vars can't be read back** (edit screen shows a placeholder, `env pull` returns blank) — verify config by behavior, not by eye.
+
+Code touchpoints:
+- `app.runladder.com` is an auth migration: add the subdomain to Clerk **allowed origins + redirect URLs**, set up a **satellite domain** so sessions work across `runladder.com` (marketing) ↔ `app.runladder.com` (app), with shared cookie domain `.runladder.com`.
+- `MarketingScope` currently switches marketing-vs-app styling by **path** (`/dashboard`, `/score`, …); once the app moves to its own subdomain, switch it to key off **host**.
+- Good moment to fix `userIdForStripeCustomer`'s first-100-users scan with a Redis secondary index.
+
+**Postgres** stays "planned, not scheduled" (see [Architecture → Data](/hq/architecture)). Do not couple it to this work; migrate on the current Redis layer and revisit Postgres only when a relational need forces it.
 
 ## App stays on runladder.com for launch; `app.runladder.com` split is post-launch (2026-06-09)
 
