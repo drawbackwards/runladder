@@ -1,8 +1,8 @@
 ---
 title: API Protocols
-updatedAt: 2026-06-09
+updatedAt: 2026-06-24
 updatedBy: Sara
-lastPr: 332
+lastPr: 359
 ---
 
 ## Two surfaces, one to come
@@ -25,7 +25,7 @@ All endpoints below are real routes in this repo. Find them under `src/app/api/`
 | `/api/dashboard/scores` | GET | Clerk session | User's score history. |
 | `/api/dashboard/scores/[id]` | GET | Clerk session | Individual score detail. Owner by default; a Team Lead can pass `?member=<userId>` to read a score owned by a member of their active org (authorized as `org:admin` + member-in-org, mirroring the member-detail endpoint). Team Leads also receive soft-deleted scores for audit (#300). |
 | `/api/dashboard/scores/[id]/annotations` | GET, POST | Clerk session | Reviews pin annotations. |
-| `/api/dashboard/team` | GET | Clerk Org (team) | Team dashboard data. |
+| `/api/dashboard/team` | GET | Clerk Org (team) | Team dashboard data. On a data-store (Redis/KV) failure, degrades to the Clerk member roster with `degraded: true` instead of 500ing; only auth/Clerk failures return 500 (#358). |
 | `/api/skill/token` | POST | Clerk session | Issue a Skill token for use in Claude.ai. |
 | `/api/skill/score` | POST | Skill token | Scoring callable from the Ladder Skill. |
 | `/api/plugin/issue-token` | POST | Clerk session | Issue a plugin token for use in the Figma plugin. |

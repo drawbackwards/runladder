@@ -99,6 +99,8 @@ export type TeamData = {
   insights: Insights | null;
   activityWindowDays: number;
   pool: TeamPool;
+  /** True when live performance data couldn't be loaded; roster still shows (#358). */
+  degraded?: boolean;
 };
 
 function fmtDate(input: number | string | Date | null | undefined): string {
@@ -985,6 +987,15 @@ export default function TeamPage() {
         {teamErrEff && (
           <div className="mb-6 border border-ladder-red/40 bg-ladder-red/5 text-ladder-red text-xs font-sans p-3">
             {teamErrEff}
+          </div>
+        )}
+
+        {!teamErrEff && teamDataEff?.degraded && (
+          <div className="mb-6 border border-[#3a3a2a] bg-[#1f1d12] text-yellow-500/90 text-xs font-sans p-3">
+            Live performance data is temporarily unavailable, so scores and
+            activity may be missing. Your team roster is current and scoring
+            still works — this will refresh automatically once the data service
+            recovers.
           </div>
         )}
 
