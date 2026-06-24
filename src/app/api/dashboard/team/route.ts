@@ -212,6 +212,18 @@ type Insights = {
 };
 
 export async function GET() {
+  try {
+    return await buildTeamResponse();
+  } catch (err) {
+    // Auth/org lookups (Clerk) failed unexpectedly. Log the real cause so it
+    // is visible in runtime logs — before #358 this surfaced as an opaque 500
+    // with no server-side trace, which made the Redis/KV misconfig invisible.
+    console.error("[dashboard/team] fetch failed:", err);
+    return NextResponse.json({ error: "Failed to load team" }, { status: 500 });
+  }
+}
+
+async function buildTeamResponse(): Promise<NextResponse> {
   const { userId, orgId, orgRole } = await auth();
 
   if (!userId) {
@@ -261,6 +273,9 @@ export async function GET() {
   };
   let totalScores = 0;
   let totalScoreSum = 0;
+  // Flipped true if any Redis-backed enrichment fails. The roster (from Clerk)
+  // still renders; the client shows a "live data unavailable" notice (#358).
+  let degraded = false;
 
   // Hide the provisioning service account (the Drawbackwards owner) from the
   // client's roster and counts — it owns the org but must be invisible to the
@@ -295,51 +310,70 @@ export async function GET() {
         };
       }
 
-      const [stats, recent, monthlyScans] = await Promise.all([
-        getUserStats(memberUserId),
-        readRecentScores(memberUserId, activityWindowStart),
-        getMonthlyScans(memberUserId),
-      ]);
+      try {
+        const [stats, recent, monthlyScans] = await Promise.all([
+          getUserStats(memberUserId),
+          readRecentScores(memberUserId, activityWindowStart),
+          getMonthlyScans(memberUserId),
+        ]);
 
-      // Performance metrics (recentScans, team avg, rung insights) and the
-      // row heatmap reflect *design* sessions only, by Ward's product call.
-      // Evaluations are tracked separately so audit/research work is visible
-      // without diluting craft signals.
-      const designRecent = recent.filter(
-        (s) => effectiveSessionType(s) === "design",
-      );
-      const evaluationsInWindow = recent.filter(
-        (s) =>
-          effectiveSessionType(s) === "evaluation" &&
-          typeof s.timestamp === "number" &&
-          s.timestamp >= activityWindowStart,
-      ).length;
+        // Performance metrics (recentScans, team avg, rung insights) and the
+        // row heatmap reflect *design* sessions only, by Ward's product call.
+        // Evaluations are tracked separately so audit/research work is visible
+        // without diluting craft signals.
+        const designRecent = recent.filter(
+          (s) => effectiveSessionType(s) === "design",
+        );
+        const evaluationsInWindow = recent.filter(
+          (s) =>
+            effectiveSessionType(s) === "evaluation" &&
+            typeof s.timestamp === "number" &&
+            s.timestamp >= activityWindowStart,
+        ).length;
 
-      let memberRecentCount = 0;
-      for (const s of designRecent) {
-        if (typeof s.score !== "number" || !Number.isFinite(s.score)) continue;
-        if (typeof s.timestamp !== "number") continue;
-        if (s.timestamp < insightsWindowStart) continue;
-        memberRecentCount += 1;
-        totalScores += 1;
-        totalScoreSum += s.score;
-        const rs = parseRungScores(s.rungs);
-        if (rs) {
-          for (const name of RUNG_NAMES) {
-            rungSums[name] += rs[name].score;
-            rungCounts[name] += 1;
+        let memberRecentCount = 0;
+        for (const s of designRecent) {
+          if (typeof s.score !== "number" || !Number.isFinite(s.score))
+            continue;
+          if (typeof s.timestamp !== "number") continue;
+          if (s.timestamp < insightsWindowStart) continue;
+          memberRecentCount += 1;
+          totalScores += 1;
+          totalScoreSum += s.score;
+          const rs = parseRungScores(s.rungs);
+          if (rs) {
+            for (const name of RUNG_NAMES) {
+              rungSums[name] += rs[name].score;
+              rungCounts[name] += 1;
+            }
           }
         }
-      }
 
-      return {
-        ...base,
-        stats,
-        recentScans: memberRecentCount,
-        monthlyScans,
-        activity: bucketActivity(designRecent, ACTIVITY_WINDOW_DAYS),
-        evaluationsInWindow,
-      };
+        return {
+          ...base,
+          stats,
+          recentScans: memberRecentCount,
+          monthlyScans,
+          activity: bucketActivity(designRecent, ACTIVITY_WINDOW_DAYS),
+          evaluationsInWindow,
+        };
+      } catch (err) {
+        // Redis/KV read failed for this member — degrade to roster-only
+        // rather than failing the whole team page (#358).
+        console.error(
+          `[dashboard/team] stats unavailable for ${memberUserId}:`,
+          err,
+        );
+        degraded = true;
+        return {
+          ...base,
+          stats: null,
+          recentScans: 0,
+          monthlyScans: 0,
+          activity: [],
+          evaluationsInWindow: 0,
+        };
+      }
     }),
   );
 
@@ -347,7 +381,13 @@ export async function GET() {
   // counts toward team insights. Manager-only.
   let archived: ArchivedSummary[] = [];
   if (isManager) {
-    const archivedIds = await listArchivedMembers(orgId);
+    let archivedIds: string[] = [];
+    try {
+      archivedIds = await listArchivedMembers(orgId);
+    } catch (err) {
+      console.error("[dashboard/team] archived list unavailable:", err);
+      degraded = true;
+    }
     archived = await Promise.all(
       archivedIds.map(async (memberUserId): Promise<ArchivedSummary> => {
         const base: ArchivedSummary = {
@@ -375,45 +415,57 @@ export async function GET() {
           // history under the userId, so let the row render with the unknown name.
         }
 
-        const [stats, recent] = await Promise.all([
-          getUserStats(memberUserId),
-          readRecentScores(memberUserId, activityWindowStart),
-        ]);
+        try {
+          const [stats, recent] = await Promise.all([
+            getUserStats(memberUserId),
+            readRecentScores(memberUserId, activityWindowStart),
+          ]);
 
-        const designRecent = recent.filter(
-          (s) => effectiveSessionType(s) === "design",
-        );
-        const evaluationsInWindow = recent.filter(
-          (s) =>
-            effectiveSessionType(s) === "evaluation" &&
-            typeof s.timestamp === "number" &&
-            s.timestamp >= activityWindowStart,
-        ).length;
+          const designRecent = recent.filter(
+            (s) => effectiveSessionType(s) === "design",
+          );
+          const evaluationsInWindow = recent.filter(
+            (s) =>
+              effectiveSessionType(s) === "evaluation" &&
+              typeof s.timestamp === "number" &&
+              s.timestamp >= activityWindowStart,
+          ).length;
 
-        let recentScans = 0;
-        for (const s of designRecent) {
-          if (typeof s.score !== "number" || !Number.isFinite(s.score)) continue;
-          if (typeof s.timestamp !== "number") continue;
-          if (s.timestamp < insightsWindowStart) continue;
-          recentScans += 1;
-          totalScores += 1;
-          totalScoreSum += s.score;
-          const rs = parseRungScores(s.rungs);
-          if (rs) {
-            for (const name of RUNG_NAMES) {
-              rungSums[name] += rs[name].score;
-              rungCounts[name] += 1;
+          let recentScans = 0;
+          for (const s of designRecent) {
+            if (typeof s.score !== "number" || !Number.isFinite(s.score))
+              continue;
+            if (typeof s.timestamp !== "number") continue;
+            if (s.timestamp < insightsWindowStart) continue;
+            recentScans += 1;
+            totalScores += 1;
+            totalScoreSum += s.score;
+            const rs = parseRungScores(s.rungs);
+            if (rs) {
+              for (const name of RUNG_NAMES) {
+                rungSums[name] += rs[name].score;
+                rungCounts[name] += 1;
+              }
             }
           }
-        }
 
-        return {
-          ...base,
-          stats,
-          recentScans,
-          activity: bucketActivity(designRecent, ACTIVITY_WINDOW_DAYS),
-          evaluationsInWindow,
-        };
+          return {
+            ...base,
+            stats,
+            recentScans,
+            activity: bucketActivity(designRecent, ACTIVITY_WINDOW_DAYS),
+            evaluationsInWindow,
+          };
+        } catch (err) {
+          // Degrade this archived row to name-only rather than failing the
+          // page (#358). `base` already carries null stats / empty activity.
+          console.error(
+            `[dashboard/team] archived stats unavailable for ${memberUserId}:`,
+            err,
+          );
+          degraded = true;
+          return base;
+        }
       }),
     );
   }
@@ -459,6 +511,9 @@ export async function GET() {
     members,
     archived,
     insights,
+    // True when some Redis-backed performance data couldn't be loaded; the
+    // roster still renders and the client shows a non-blocking notice (#358).
+    degraded,
     activityWindowDays: ACTIVITY_WINDOW_DAYS,
     pool: {
       used: poolUsed,
