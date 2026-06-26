@@ -1,8 +1,8 @@
 ---
 title: API Protocols
-updatedAt: 2026-06-09
+updatedAt: 2026-06-24
 updatedBy: Sara
-lastPr: 332
+lastPr: 360
 ---
 
 ## Two surfaces, one to come
@@ -26,6 +26,8 @@ All endpoints below are real routes in this repo. Find them under `src/app/api/`
 | `/api/dashboard/scores/[id]` | GET | Clerk session | Individual score detail. Owner by default; a Team Lead can pass `?member=<userId>` to read a score owned by a member of their active org (authorized as `org:admin` + member-in-org, mirroring the member-detail endpoint). Team Leads also receive soft-deleted scores for audit (#300). |
 | `/api/dashboard/scores/[id]/annotations` | GET, POST | Clerk session | Reviews pin annotations. |
 | `/api/dashboard/team` | GET | Clerk Org (team) | Team dashboard data. |
+| `/api/org/style-guide` | POST, GET, DELETE | Clerk Org (Team plan; writes require team lead) | Manage a team's writing style guide. POST (multipart PDF) distills a ruleset (Sonnet, native PDF) → Redis and stores the PDF in Vercel Blob; GET returns status; DELETE removes it. |
+| `/api/org/style-guide/download` | GET | Clerk Org (member) | Streams the team's style-guide PDF (proxied through this route so the Blob URL isn't exposed). |
 | `/api/skill/token` | POST | Clerk session | Issue a Skill token for use in Claude.ai. |
 | `/api/skill/score` | POST | Skill token | Scoring callable from the Ladder Skill. |
 | `/api/plugin/issue-token` | POST | Clerk session | Issue a plugin token for use in the Figma plugin. |
@@ -53,6 +55,7 @@ Reading [`src/app/api/score/route.ts`](https://github.com/drawbackwards/runladde
 - Input: image data URL parsed via `parseImageDataUrl` from `src/lib/scoring.ts`. (Not the `{input: {url}, options: {surface}}` JSON shape this page used to claim.)
 - Limits: read from `src/lib/plans.ts` (`FREE_LIFETIME_LIMIT`, `PRO_MONTHLY_LIMIT`, `monthlyHardCapForTier`). Free tier hard-blocks past the lifetime cap.
 - Persistence: scores are written to Upstash Redis via `persistScoreEntry`.
+- Team style guide: for a signed-in Team member whose org has an uploaded style guide, the response also carries an optional `styleGuide` object — `{ status: "compliant" | "issues" | "unavailable", teamName, findings: [{ originalText, issue, suggestion, severity }] }`. Produced by a separate parallel pass; **advisory only — it never affects the numeric score** (#team-style-guide).
 
 Detailed request/response shape lives in the route file. When the public API ships at `api.runladder.com`, we document the formal shape on that surface.
 

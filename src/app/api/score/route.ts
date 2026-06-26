@@ -17,6 +17,7 @@ import { getMonthlyScans } from "@/lib/usage";
 import { getUserTier } from "@/lib/tier";
 import { canScorePrivately as tierCanScorePrivately } from "@/lib/score-scope";
 import { persistScoreEntry, type ScoreEntryInput } from "@/lib/scores";
+import { getOrgStyleGuide } from "@/lib/style-guide";
 import {
   ANON_COOKIE,
   readAnonId,
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
     /* ── Auth / anonymous gate ── Signed-in users score per their tier.
      * Signed-out visitors get ONE free score (#187): cookie-capped with a
      * per-IP daily backstop. Other surfaces still gate at the door. */
-    const { userId } = await auth();
+    const { userId, orgId } = await auth();
 
     let anonId: string | null = null;
     let anonIsNew = false;
@@ -121,7 +122,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await scoreImage(parsed);
+    // Team style-guide compliance (advisory, never affects the score). Only
+    // signed-in team members with an active org have a guide to check.
+    const styleGuide = orgId ? await getOrgStyleGuide(orgId) : null;
+
+    const result = await scoreImage(parsed, {
+      styleRuleset: styleGuide?.ruleset,
+      styleTeamName: styleGuide?.teamName,
+    });
     if (isScoringError(result)) {
       return NextResponse.json(
         { error: result.error },
@@ -145,6 +153,7 @@ export async function POST(req: NextRequest) {
       next: result.next,
       findings: result.findings,
       rungs: result.rungs,
+      styleGuide: result.styleGuide,
       source: source || "upload",
       thumbnail,
       // Anonymous scores are always private; only signed-in users opt in.
