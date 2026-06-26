@@ -16,6 +16,7 @@ import { getMonthlyScans } from "@/lib/usage";
 import { getUserTier } from "@/lib/tier";
 import { canScorePrivately as tierCanScorePrivately } from "@/lib/score-scope";
 import { persistScoreEntry, type ScoreEntryInput } from "@/lib/scores";
+import { getOrgStyleGuide } from "@/lib/style-guide";
 import {
   ANON_COOKIE,
   readAnonId,
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
   /* ── Auth / anonymous gate ── Mirror /api/score: signed-in users score
    * per their tier; signed-out visitors get ONE free score (#187),
    * cookie-capped with a per-IP daily backstop. */
-  const { userId } = await auth();
+  const { userId, orgId } = await auth();
 
   let anonId: string | null = null;
   let anonIsNew = false;
@@ -123,6 +124,9 @@ export async function POST(req: NextRequest) {
     return errorResponse("Invalid image format. Use a data URL (base64).", 400);
   }
 
+  // Team style-guide compliance (advisory; never affects the score).
+  const styleGuide = orgId ? await getOrgStyleGuide(orgId) : null;
+
   /* ── Stream! ── */
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
@@ -134,7 +138,10 @@ export async function POST(req: NextRequest) {
       };
 
       try {
-        for await (const ev of scoreImageStream(parsed)) {
+        for await (const ev of scoreImageStream(parsed, {
+          styleRuleset: styleGuide?.ruleset,
+          styleTeamName: styleGuide?.teamName,
+        })) {
           if (ev.kind === "error") {
             send("error", { message: ev.value, status: ev.status });
             controller.close();
@@ -166,6 +173,7 @@ export async function POST(req: NextRequest) {
                 next: result.next,
                 findings: result.findings,
                 rungs: result.rungs,
+                styleGuide: result.styleGuide,
                 source: source || "upload",
                 thumbnail,
                 // Anonymous scores are always private. Free signed-in users

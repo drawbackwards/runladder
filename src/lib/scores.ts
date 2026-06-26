@@ -41,6 +41,11 @@ export type ScoreEntryInput = {
   next?: string;
   findings?: unknown[];
   rungs?: unknown;
+  /**
+   * Advisory team style-guide outcome (StyleGuideResult: status + findings).
+   * Stored so the dashboard score detail can re-render it. Never affects the score.
+   */
+  styleGuide?: unknown;
   source: string;
   thumbnail?: string;
   isPublic?: boolean;

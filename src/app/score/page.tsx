@@ -10,6 +10,10 @@ import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel 
 import { ScoreBar } from "@/components/ScoreBar";
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
+import {
+  StyleGuideFindings,
+  type StyleGuideResultView,
+} from "@/components/StyleGuideFindings";
 import { ScoreLoadingSkeleton } from "@/components/score/ScoreLoadingSkeleton";
 import { ScoreReviewContextBanner } from "@/components/reviews/ScoreReviewContextBanner";
 import {
@@ -37,6 +41,8 @@ type ScoreResult = {
   next: string;
   findings: Finding[];
   rungs?: RungScores;
+  /** Advisory team style-guide outcome. Never affects the score. */
+  styleGuide?: StyleGuideResultView;
 };
 
 type Screenshot = {
@@ -1194,11 +1200,7 @@ export default function ScorePage() {
             </div>
 
             {/* Rung breakdown */}
-            {result.rungs && (
-              <div className="border border-[#333] bg-[#1e1e1e] p-6 md:p-8">
-                <RungBreakdown rungs={result.rungs} />
-              </div>
-            )}
+            {result.rungs && <RungBreakdown rungs={result.rungs} />}
 
             {/* Next step banner */}
             <div className="border border-ladder-green/20 bg-[#1e1e1e] p-5 flex items-start gap-4">
@@ -1267,23 +1269,21 @@ export default function ScorePage() {
                   </div>
                 ))}
 
-                <div className="border border-[#333] bg-[#1e1e1e] p-5 mt-4">
+                <div className="border border-ladder-green/40 bg-ladder-green/[0.06] p-5 mt-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-muted uppercase tracking-widest">
+                    <span className="text-[10px] text-ladder-green uppercase tracking-widest">
                       Potential score if all findings addressed
                     </span>
-                    <span
-                      className="text-xl font-bold"
-                      style={{ color: getScoreColor(
-                        Math.min(5, result.score + (result.findings?.reduce((s, f) => s + (f.uplift || 0), 0) || 0))
-                      )}}
-                    >
+                    <span className="text-xl font-bold text-ladder-green">
                       {Math.min(5, result.score + (result.findings?.reduce((s, f) => s + (f.uplift || 0), 0) || 0)).toFixed(1)}
                     </span>
                   </div>
                 </div>
               </div>
             )}
+
+            {/* Team style-guide compliance — advisory, never affects the score. */}
+            <StyleGuideFindings styleGuide={result.styleGuide} />
 
             {/* Pro upgrade promo */}
             <div className="border border-ladder-green/20 bg-[#1e1e1e] p-8">

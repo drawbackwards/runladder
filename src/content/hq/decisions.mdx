@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-06-17
-updatedBy: Michael
-lastPr: 355
+updatedAt: 2026-06-24
+updatedBy: Sara
+lastPr: 361
 ---
 
 ## How to use this page
@@ -10,6 +10,14 @@ lastPr: 355
 The why behind big choices. Read this before you push back on a feature, a price, or a roadmap call. Most decisions look arbitrary until you know the constraint that drove them. New entries go at the top with a date and one-line rule.
 
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
+
+---
+
+## Team style guide is advisory — it never affects the Ladder score (2026-06-24)
+
+**Rule:** A Team-plan team lead can upload a PDF writing style guide (Settings → Style Guide). Ladder flags on-screen copy that deviates from it — on web scores now, the Figma plugin's Improve Copy next — but style-guide compliance is **advisory only and never changes the numeric Ladder score**. It runs as a SEPARATE, parallel model pass (Sonnet) alongside scoring (Haiku); the score is never affected. The result carries a **status** so the UI is never silent when a guide exists: `compliant` (positive "Complies with {team} style guide" confirmation), `issues` (findings list), or `unavailable` (the pass errored — shown as a calm note, score still unaffected).
+
+**Storage:** the original PDF lives in Vercel Blob; on upload we distill it once (Claude reads the PDF natively — no PDF parser) into a compact ruleset cached in Redis (`org:{orgId}:style-guide`, JSON: ruleset + team name) for cheap per-score checks. Gated to the Team plan; uploads require the team lead (`org:admin`); the PDF is served only through an authed download route, never a public Blob URL. Phase 1 (web) shipped; the Figma plugin integration is phased as a follow-up (it needs org context plumbed into the plugin auth).
 
 ---
 

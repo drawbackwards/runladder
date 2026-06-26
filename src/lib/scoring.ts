@@ -17,6 +17,8 @@ import {
   designTypeClassifierPrompt,
   aiLensPrompt,
 } from "./ladder-framework";
+import { extractJsonObject } from "./json-extract";
+import { analyzeStyleCompliance, type StyleGuideResult } from "./style-guide";
 
 /* ── Content moderation prompt ── */
 const MODERATION_PROMPT = `Look at this image. Is it a UI/UX screen, website, app interface, or design mockup?
@@ -132,59 +134,20 @@ export type ScoreResult = {
     { score: number; summary: string }
   >;
   findings?: ScoreFinding[];
+  /**
+   * Advisory team style-guide outcome from a SEPARATE model pass against the
+   * team's uploaded guide (#team-style-guide). Present only when the caller
+   * passes a team `styleRuleset`. NEVER affects the numeric `score` — computed
+   * independently. Carries a status so the UI is never silent: compliant,
+   * issues, or unavailable.
+   */
+  styleGuide?: StyleGuideResult;
 };
 
 export type ScoringError = {
   error: string;
   status: number;
 };
-
-/**
- * Extract a single JSON object from arbitrary model output.
- *
- * Why this exists: smaller models (Haiku) sometimes ignore the
- * "return ONLY JSON" instruction and append explanation text, or
- * wrap the JSON in ```json fences with trailing prose. JSON.parse
- * fails on anything after the closing brace ("Unexpected
- * non-whitespace character after JSON at position N").
- *
- * Strategy: strip code fences, find the first `{`, then walk the
- * string with a tiny brace counter that respects strings + escapes
- * so we land on the matching closing `}`. Whatever the model wrote
- * before or after is discarded.
- */
-function extractJsonObject(raw: string): string {
-  const stripped = raw.replace(/```json|```/g, "").trim();
-  const start = stripped.indexOf("{");
-  if (start === -1) return stripped; // let the caller's parse fail with a useful error
-
-  let depth = 0;
-  let inString = false;
-  let escape = false;
-  for (let i = start; i < stripped.length; i++) {
-    const c = stripped[i];
-    if (escape) {
-      escape = false;
-      continue;
-    }
-    if (c === "\\") {
-      escape = true;
-      continue;
-    }
-    if (c === '"') {
-      inString = !inString;
-      continue;
-    }
-    if (inString) continue;
-    if (c === "{") depth++;
-    else if (c === "}") {
-      depth--;
-      if (depth === 0) return stripped.slice(start, i + 1);
-    }
-  }
-  // Unbalanced braces — return what we have and let the parser fail.
-  return stripped.slice(start);
-}
 
 /**
  * Parse a data URL into its base64 payload + media type.
@@ -220,7 +183,11 @@ export async function scoreImage(
     mediaType: MediaType;
     base64Data: string;
   },
-  opts: { applyAiLens?: boolean } = {},
+  opts: {
+    applyAiLens?: boolean;
+    styleRuleset?: string | null;
+    styleTeamName?: string | null;
+  } = {},
 ): Promise<ScoreResult | ScoringError> {
   // Cap image size (~5MB base64)
   if (base64Data.length > 7_000_000) {
@@ -297,6 +264,18 @@ export async function scoreImage(
    * coming /api/improve endpoint and admin annotation analysis,
    * where the cost/quality balance flips the other way.
    */
+  // Kick off the team style-guide compliance pass IN PARALLEL with scoring.
+  // It is computed independently and NEVER feeds the numeric score, and it
+  // never fails the request — a thrown pass becomes an "unavailable" status.
+  const stylePromise = opts.styleRuleset
+    ? analyzeStyleCompliance({ mediaType, base64Data }, opts.styleRuleset)
+        .then((findings) => ({ ok: true as const, findings }))
+        .catch((e) => {
+          console.warn("[LADDER:WARN] style-guide pass failed:", e);
+          return { ok: false as const };
+        })
+    : null;
+
   const response = await client.messages.create({
     model: "claude-haiku-4-5",
     max_tokens: 4096,
@@ -344,6 +323,21 @@ export async function scoreImage(
     return { error: "Invalid scoring response shape", status: 500 };
   }
 
+  if (stylePromise) {
+    const outcome = await stylePromise;
+    result.styleGuide = outcome.ok
+      ? {
+          status: outcome.findings.length > 0 ? "issues" : "compliant",
+          teamName: opts.styleTeamName ?? null,
+          findings: outcome.findings,
+        }
+      : {
+          status: "unavailable",
+          teamName: opts.styleTeamName ?? null,
+          findings: [],
+        };
+  }
+
   return result;
 }
 
@@ -386,7 +380,11 @@ export async function* scoreImageStream(
     mediaType,
     base64Data,
   }: { mediaType: MediaType; base64Data: string },
-  opts: { applyAiLens?: boolean } = {},
+  opts: {
+    applyAiLens?: boolean;
+    styleRuleset?: string | null;
+    styleTeamName?: string | null;
+  } = {},
 ): AsyncGenerator<ScoringStreamEvent> {
   if (base64Data.length > 7_000_000) {
     yield {
@@ -451,6 +449,17 @@ export async function* scoreImageStream(
     console.error("[LADDER:ERROR] Moderation failed:", e);
     // Fail open — proceed to scoring
   }
+
+  // Team style-guide compliance pass, in parallel with streaming scoring.
+  // Independent of the score; never fails the request.
+  const stylePromise = opts.styleRuleset
+    ? analyzeStyleCompliance({ mediaType, base64Data }, opts.styleRuleset)
+        .then((findings) => ({ ok: true as const, findings }))
+        .catch((e) => {
+          console.warn("[LADDER:WARN] style-guide pass failed:", e);
+          return { ok: false as const };
+        })
+    : null;
 
   /* ── Streaming scoring call ──
    * Haiku 4.5 (matches the non-streaming scoreImage). Haiku
@@ -552,6 +561,20 @@ export async function* scoreImageStream(
     ) {
       yield { kind: "error", value: "Invalid scoring response shape", status: 500 };
       return;
+    }
+    if (stylePromise) {
+      const outcome = await stylePromise;
+      result.styleGuide = outcome.ok
+        ? {
+            status: outcome.findings.length > 0 ? "issues" : "compliant",
+            teamName: opts.styleTeamName ?? null,
+            findings: outcome.findings,
+          }
+        : {
+            status: "unavailable",
+            teamName: opts.styleTeamName ?? null,
+            findings: [],
+          };
     }
     yield { kind: "complete", value: result };
   } catch (e) {

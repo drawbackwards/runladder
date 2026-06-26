@@ -3,6 +3,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { userIdFromBearer } from "@/lib/skill-auth";
 import { FREE_LIFETIME_LIMIT, isPaidTier } from "@/lib/plans";
 import { getUserSubscription } from "@/lib/tier";
+import { getOrgStyleGuide } from "@/lib/style-guide";
 import { redis, lifetimeScansKey } from "@/lib/redis";
 import { CURRENT_API_VERSION } from "@/lib/app-version";
 import { CURRENT_PLUGIN_VERSION } from "@/lib/plugin-version";
@@ -67,6 +68,25 @@ export async function POST(req: NextRequest) {
     const user = await clerk.users.getUser(userId);
     const paid = isPaidTier(sub.tier);
 
+    // Team style guide (Phase 2): surface the team's ruleset so the plugin's
+    // Improve Copy can check copy against it. Gated to Team tier + an active
+    // org that has uploaded a guide. Best-effort — never blocks verification.
+    let styleGuide: { ruleset: string; teamName: string | null } | null = null;
+    if (sub.tier === "team") {
+      try {
+        const memberships = await clerk.users.getOrganizationMembershipList({
+          userId,
+        });
+        const orgId = memberships.data[0]?.organization?.id ?? null;
+        if (orgId) {
+          const sg = await getOrgStyleGuide(orgId);
+          if (sg) styleGuide = { ruleset: sg.ruleset, teamName: sg.teamName };
+        }
+      } catch {
+        // best-effort: a failure just means no guide reaches the plugin
+      }
+    }
+
     // Record the plugin version the user is running. The plugin's
     // ai-design-assistant backend forwards X-Ladder-Plugin-Version from
     // the plugin's fetch to here. Fire-and-forget so a failed write
@@ -108,6 +128,9 @@ export async function POST(req: NextRequest) {
           used: used ?? 0,
           limit: paid ? null : FREE_LIFETIME_LIMIT,
         },
+        // Team style guide for the plugin's Improve Copy (null unless the
+        // user's Team org has uploaded one). See #team-style-guide Phase 2.
+        styleGuide,
         comp: sub.comp
           ? {
               reason: sub.comp.reason,

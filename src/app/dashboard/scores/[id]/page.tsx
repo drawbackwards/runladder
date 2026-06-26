@@ -10,6 +10,10 @@ import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
 import { ScoreBar } from "@/components/ScoreBar";
 import { AnalysisFeedback } from "@/components/AnalysisFeedback";
+import {
+  StyleGuideFindings,
+  type StyleGuideResultView,
+} from "@/components/StyleGuideFindings";
 // ScoreAnnotations removed from the score detail flow in v0.4.1.
 // The redline / evaluation feature lives as its own surface
 // (separate page, separate entry point) per the ROADMAP. Component
@@ -35,6 +39,8 @@ type ScoreDetail = {
   next?: string;
   findings?: Finding[];
   rungs?: RungScores;
+  /** Advisory team style-guide outcome. Never affects the score. */
+  styleGuide?: StyleGuideResultView;
   source: string;
   thumbnail?: string;
   isPublic: boolean;
@@ -275,7 +281,7 @@ export default function ScoreDetailPage() {
 
         {/* Rung breakdown */}
         {data.rungs && (
-          <div className="border border-[#333] bg-[#1e1e1e] p-6 md:p-8 mb-10">
+          <div className="mb-10">
             <RungBreakdown rungs={data.rungs} />
           </div>
         )}
@@ -348,23 +354,21 @@ export default function ScoreDetailPage() {
               </div>
             ))}
 
-            <div className="border border-[#333] bg-[#1e1e1e] p-5 mt-4">
+            <div className="border border-ladder-green/40 bg-ladder-green/[0.06] p-5 mt-4">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-muted uppercase tracking-widest">
+                <span className="text-[10px] text-ladder-green uppercase tracking-widest">
                   Potential score if all findings addressed
                 </span>
-                <span
-                  className="text-xl font-bold"
-                  style={{ color: getScoreColor(
-                    Math.min(5, data.score + (data.findings?.reduce((s, f) => s + (f.uplift || 0), 0) || 0))
-                  )}}
-                >
+                <span className="text-xl font-bold text-ladder-green">
                   {Math.min(5, data.score + (data.findings?.reduce((s, f) => s + (f.uplift || 0), 0) || 0)).toFixed(1)}
                 </span>
               </div>
             </div>
           </div>
         )}
+
+        {/* Team style-guide compliance — advisory, never affects the score. */}
+        <StyleGuideFindings styleGuide={data.styleGuide} />
 
         {/* No detailed data message for older scores */}
         {!data.findings && !data.rungs && (

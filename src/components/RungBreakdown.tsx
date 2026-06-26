@@ -59,23 +59,30 @@ export function RungBreakdown({ rungs }: { rungs: RungScores }) {
   const { strongest, weakest } = analyzeRungs(rungs);
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center gap-3 mb-2">
-        <span className="font-mono text-[10px] text-muted uppercase tracking-widest">
+    <div className="space-y-1">
+      {/* Heading outside the box, matching the Findings section. */}
+      <div className="flex items-center gap-3 mb-6">
+        <span className="text-[10px] text-muted uppercase tracking-widest">
           Per-rung breakdown
         </span>
       </div>
 
-      {RUNG_DISPLAY_ORDER.map((rung) => (
-        <RungBar
-          key={rung}
-          rung={rung}
-          score={rungs[rung].score}
-          summary={rungs[rung].summary}
-          isStrongest={rung === strongest.rung && strongest.score !== weakest.score}
-          isWeakest={rung === weakest.rung && strongest.score !== weakest.score}
-        />
-      ))}
+      <div className="border border-[#333] bg-[#1e1e1e] p-6 md:p-8 space-y-5">
+        {RUNG_DISPLAY_ORDER.map((rung) => (
+          <RungBar
+            key={rung}
+            rung={rung}
+            score={rungs[rung].score}
+            summary={rungs[rung].summary}
+            isStrongest={
+              rung === strongest.rung && strongest.score !== weakest.score
+            }
+            isWeakest={
+              rung === weakest.rung && strongest.score !== weakest.score
+            }
+          />
+        ))}
+      </div>
     </div>
   );
 }

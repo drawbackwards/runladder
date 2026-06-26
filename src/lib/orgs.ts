@@ -20,6 +20,19 @@ export type TeamLeadMeta = {
   email?: string;
 };
 
+/**
+ * Pointer to a team's uploaded writing style guide. The distilled ruleset
+ * (what scoring reads) lives in Redis, not here — Clerk publicMetadata is
+ * small (~8KB), so we keep only this pointer. See src/lib/style-guide.ts.
+ */
+export type StyleGuideMeta = {
+  /** Vercel Blob URL of the original PDF (served via an authed download route). */
+  blobUrl: string;
+  fileName: string;
+  uploadedAt: number;
+  uploadedBy: string;
+};
+
 /** Shape we store on an org's publicMetadata. All fields optional/defaulted. */
 export type OrgPublicMetadata = {
   status?: OrgStatus;
@@ -29,6 +42,7 @@ export type OrgPublicMetadata = {
   provisionedAt?: number;
   suspendedAt?: number;
   suspendedBy?: string;
+  styleGuide?: StyleGuideMeta;
 };
 
 /** Minimal org shape these helpers need — satisfied by a Clerk Organization. */

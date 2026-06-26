@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, type ChangeEvent } from "react";
 import {
   useUser,
   useClerk,
   useReverification,
   RedirectToSignIn,
 } from "@clerk/nextjs";
+import { TabButton } from "@/components/Tabs";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 /**
  * Dedicated account settings page (#203), replacing Clerk's `openUserProfile()`
@@ -37,6 +39,7 @@ const BTN_GHOST =
 
 export default function SettingsPage() {
   const { isLoaded, isSignedIn } = useUser();
+  const [tab, setTab] = useState<"profile" | "style-guide">("profile");
 
   if (!isLoaded) return null;
   if (!isSignedIn) return <RedirectToSignIn />;
@@ -47,15 +50,32 @@ export default function SettingsPage() {
         <div className="mb-8">
           <h1 className="text-xl text-foreground font-sans">Settings</h1>
           <p className="text-xs text-muted font-sans mt-1">
-            Your account and sign-in.
+            Your account, sign-in, and team style guide.
           </p>
         </div>
 
-        <div className="space-y-4">
-          <ProfileCard />
-          <GoogleCard />
-          <DangerCard />
+        <div className="border-b border-[#2a2a2a] flex items-center gap-2 mb-8">
+          <TabButton
+            label="Profile"
+            active={tab === "profile"}
+            onClick={() => setTab("profile")}
+          />
+          <TabButton
+            label="Style Guide"
+            active={tab === "style-guide"}
+            onClick={() => setTab("style-guide")}
+          />
         </div>
+
+        {tab === "profile" ? (
+          <div className="space-y-4">
+            <ProfileCard />
+            <GoogleCard />
+            <DangerCard />
+          </div>
+        ) : (
+          <StyleGuideCard />
+        )}
       </div>
     </div>
   );
@@ -430,5 +450,230 @@ function DangerCard() {
         </div>
       )}
     </>
+  );
+}
+
+type StyleGuideStatus = {
+  present: boolean;
+  fileName: string | null;
+  uploadedAt: number | null;
+  tier: string;
+  canManage: boolean;
+};
+
+/**
+ * Team style guide upload/manage (Settings → Style Guide tab). Drives entirely
+ * off GET /api/org/style-guide, which reports tier + whether this user can
+ * manage. Non-team users see an upsell; non-lead members see read-only status.
+ */
+function StyleGuideCard() {
+  const [status, setStatus] = useState<StyleGuideStatus | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  /** Live progress line shown while the PDF is being distilled (slow step). */
+  const [progress, setProgress] = useState<string | null>(null);
+  /** Success confirmation after an upload/replace. */
+  const [notice, setNotice] = useState<string | null>(null);
+  /** Branded remove-confirmation dialog. */
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  async function load() {
+    try {
+      const res = await fetch("/api/org/style-guide");
+      if (!res.ok) throw new Error("Couldn't load style-guide status.");
+      setStatus((await res.json()) as StyleGuideStatus);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Failed to load.");
+    }
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function handleUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same filename
+    if (!file) return;
+    setBusy(true);
+    setErr(null);
+    setNotice(null);
+    setProgress("Reading your style guide. This can take a few seconds…");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/org/style-guide", {
+        method: "POST",
+        body: fd,
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error || "Upload failed.");
+      await load();
+      setNotice(
+        "Style guide saved. Ladder will flag copy that doesn't match it on future scans.",
+      );
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Upload failed.");
+    } finally {
+      setBusy(false);
+      setProgress(null);
+    }
+  }
+
+  async function handleRemove() {
+    setBusy(true);
+    setErr(null);
+    setNotice(null);
+    try {
+      const res = await fetch("/api/org/style-guide", { method: "DELETE" });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || "Remove failed.");
+      }
+      await load();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Remove failed.");
+    } finally {
+      setBusy(false);
+      setConfirmOpen(false);
+    }
+  }
+
+  if (!status) {
+    return (
+      <div className={CARD}>
+        <p className="text-sm text-muted font-sans">Loading…</p>
+      </div>
+    );
+  }
+
+  // Not on the Team plan → upsell.
+  if (status.tier !== "team") {
+    return (
+      <div className={CARD}>
+        <p className={LABEL}>Style Guide</p>
+        <h2 className="text-base font-sans text-foreground mt-2 mb-2">
+          A Team-plan feature
+        </h2>
+        <p className="text-sm text-muted font-sans leading-relaxed">
+          Upload your team&apos;s writing style guide and Ladder flags copy that
+          deviates from it on every scan — in the web app and the Figma plugin.
+          It&apos;s part of the Ladder Team plan.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={CARD}>
+      <p className={LABEL}>Team Style Guide</p>
+      <div className="mt-3 grid gap-8 md:grid-cols-2">
+        {/* Left — what it does / doesn't do */}
+        <div>
+          <p className="text-sm text-muted font-sans leading-relaxed">
+            Upload a PDF of your team&apos;s writing style guide. Ladder reads it
+            and flags on-screen copy that doesn&apos;t comply, with a suggested
+            fix, on the web score and in the Figma plugin&apos;s Improve Copy.
+          </p>
+          <p className="text-[9px] text-muted uppercase tracking-widest font-semibold mt-4">
+            Does
+          </p>
+          <p className="text-sm text-muted font-sans mt-1 leading-relaxed">
+            Point out wording, terminology, tone, and formatting that breaks your
+            guide.
+          </p>
+          <p className="text-[9px] text-muted uppercase tracking-widest font-semibold mt-3">
+            Does Not
+          </p>
+          <p className="text-sm text-muted font-sans mt-1 leading-relaxed">
+            Change your Ladder score. Style compliance is advisory only.
+          </p>
+        </div>
+
+        {/* Right — upload + controls */}
+        <div>
+          {status.present ? (
+            <div className="border border-[#333] bg-[#111] p-3 flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <a
+                  href="/api/org/style-guide/download"
+                  target="_blank"
+                  rel="noopener"
+                  className="text-sm text-foreground font-sans underline"
+                >
+                  {status.fileName || "style-guide.pdf"}
+                </a>
+                <p className="text-[10px] text-muted font-sans mt-0.5">
+                  {status.uploadedAt
+                    ? `Uploaded ${new Date(status.uploadedAt).toLocaleDateString()}`
+                    : ""}
+                  {!status.canManage && " · Your team lead manages this."}
+                </p>
+              </div>
+              {status.canManage && (
+                <div className="flex items-center gap-2">
+                  <label className={`${BTN_GHOST} cursor-pointer`}>
+                    {busy ? "Working…" : "Replace"}
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      className="hidden"
+                      disabled={busy}
+                      onChange={handleUpload}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmOpen(true)}
+                    disabled={busy}
+                    className={BTN_GHOST}
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : status.canManage ? (
+            <label className={`${BTN_PRIMARY} cursor-pointer inline-block`}>
+              {busy ? "Uploading…" : "Upload PDF"}
+              <input
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                disabled={busy}
+                onChange={handleUpload}
+              />
+            </label>
+          ) : (
+            <p className="text-sm text-muted font-sans">
+              No style guide uploaded yet. Your team lead manages this.
+            </p>
+          )}
+
+          {progress && (
+            <p className="mt-3 text-xs text-ladder-green font-sans animate-pulse">
+              {progress}
+            </p>
+          )}
+          {notice && !progress && (
+            <p className="mt-3 text-xs text-ladder-green font-sans">{notice}</p>
+          )}
+          {err && (
+            <p className="mt-3 text-xs text-ladder-red font-sans">{err}</p>
+          )}
+        </div>
+      </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Remove style guide?"
+        body="Scans will stop checking copy against it."
+        confirmLabel="Remove"
+        destructive
+        busy={busy}
+        onConfirm={handleRemove}
+        onCancel={() => setConfirmOpen(false)}
+      />
+    </div>
   );
 }
