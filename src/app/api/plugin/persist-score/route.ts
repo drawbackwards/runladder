@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import { redis } from "@/lib/redis";
 import { parseImageDataUrl } from "@/lib/scoring";
 import { makeThumbnail } from "@/lib/thumbnail";
 import { persistScoreEntry, type ScoreEntryInput } from "@/lib/scores";
+import {
+  getOrgStyleGuide,
+  analyzeStyleCompliance,
+  type StyleGuideResult,
+} from "@/lib/style-guide";
 import { CURRENT_API_VERSION } from "@/lib/app-version";
+
+// Persisting a plugin score now runs the same style-compliance pass the web
+// score route does (an extra Sonnet call), so give it room past the default.
+export const maxDuration = 60;
 
 const API_VERSION_HEADERS = { "X-Ladder-API-Version": CURRENT_API_VERSION };
 
@@ -50,11 +60,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const parsed = image ? parseImageDataUrl(image) : null;
+
     /* ── Optional thumbnail: caller passes the raw image data URL, we resize ── */
     let thumbnail: string | undefined = score.thumbnail;
     let thumbnailDiag = "preset-or-none";
     if (!thumbnail && image) {
-      const parsed = parseImageDataUrl(image);
       if (!parsed) {
         thumbnailDiag = "image-not-parseable";
       } else {
@@ -73,6 +84,61 @@ export async function POST(req: NextRequest) {
       thumbnailDiag = "no-image-no-thumbnail";
     }
 
+    /* ── Team style-guide compliance ──────────────────────────────────────
+     * The plugin's "improve" (scoring) action never runs the style pass, so
+     * plugin-originated entries used to reach the dashboard with no Style
+     * Guide section at all (#363). Run the SAME pass the web score route uses
+     * here, on the same image, resolving the user's org → ruleset exactly as
+     * verify-token does — so plugin and web dashboard views are consistent.
+     *
+     * Advisory only: it NEVER affects the numeric score, and a failure becomes
+     * an "unavailable" status (or no section when the team has no guide). The
+     * whole block is best-effort and never fails the persist. We skip it if the
+     * caller already attached a styleGuide, so we don't double-spend the call. */
+    let styleGuide: StyleGuideResult | undefined = score.styleGuide as
+      | StyleGuideResult
+      | undefined;
+    let styleDiag = styleGuide ? "preset" : "skipped";
+    if (!styleGuide && parsed) {
+      try {
+        const clerk = await clerkClient();
+        const memberships = await clerk.users.getOrganizationMembershipList({
+          userId,
+        });
+        const orgId = memberships.data[0]?.organization?.id ?? null;
+        const orgGuide = orgId ? await getOrgStyleGuide(orgId) : null;
+        if (orgGuide) {
+          try {
+            const findings = await analyzeStyleCompliance(
+              { mediaType: parsed.mediaType, base64Data: parsed.base64Data },
+              orgGuide.ruleset,
+            );
+            styleGuide = {
+              status: findings.length > 0 ? "issues" : "compliant",
+              teamName: orgGuide.teamName,
+              findings,
+            };
+            styleDiag = `computed-${styleGuide.status}`;
+          } catch (e) {
+            console.warn("[LADDER:WARN] plugin style-guide pass failed:", e);
+            styleGuide = {
+              status: "unavailable",
+              teamName: orgGuide.teamName,
+              findings: [],
+            };
+            styleDiag = "unavailable";
+          }
+        } else {
+          styleDiag = "no-org-guide";
+        }
+      } catch (e) {
+        // Org/ruleset lookup failed — leave styleGuide unset (no section),
+        // never block the persist.
+        console.warn("[LADDER:WARN] plugin style-guide lookup failed:", e);
+        styleDiag = "lookup-failed";
+      }
+    }
+
     const stored = await persistScoreEntry(userId, {
       id: score.id,
       score: score.score,
@@ -82,6 +148,7 @@ export async function POST(req: NextRequest) {
       next: score.next,
       findings: score.findings,
       rungs: score.rungs,
+      styleGuide,
       source: score.source || "figma",
       thumbnail,
       isPublic: !!score.isPublic,
@@ -108,6 +175,7 @@ export async function POST(req: NextRequest) {
           imageBytes: image ? image.length : 0,
           thumbnail: thumbnailDiag,
           thumbnailLength: thumbnail ? thumbnail.length : 0,
+          styleGuide: styleDiag,
           ok: true,
         }),
       );
