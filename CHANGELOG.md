@@ -15,6 +15,7 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 - The style + copy passes run at `temperature: 0` so the same screen yields the same findings across surfaces and re-scans (#362, #343).
 - **Style compliance is computed once per scan and cached** (content-addressed by org + ruleset + exact text). The plugin's in-canvas Improve Copy and the persisted score that the web displays now reuse the *same* result instead of each making an independent model call — so they can no longer drift (different count/categories). Editing the guide or the screen produces a fresh result (the key changes).
 - Plugin UI now renders a "Style Guide" section (in the web's tag / strikethrough → suggestion / reason layout) and a separate "General suggestions" section, with green section headings. Web score display is unchanged.
+- **Accuracy: the compliance pass is precision-tuned.** It now flags only confident violations, applies each rule literally (e.g. "capitalize the first word" no longer demands title case), and the MOST SPECIFIC rule for an element wins — a broad "title-case all UI text" rule no longer over-rides a specific "field labels: sentence case" rule and flags compliant labels. Distillation now preserves each rule's exact scope and casing so guides don't distill into self-conflicting rules. The cache key folds in the prompt, so this fix isn't masked by previously-cached results. Verified by `scripts/eval-style-guide.mjs`.
 
 ---
 

@@ -1,0 +1,79 @@
+/**
+ * Manual eval for style-guide compliance ACCURACY (#362).
+ *
+ * Style-guide enforcement must be PRECISE: it must not flag copy that already
+ * complies (false positives destroy trust), and it must still catch real
+ * violations. The hard case is a guide with a broad rule (e.g. "title case for
+ * UI text") that names an element a more specific rule also governs — the
+ * specific rule must win. These scenarios lock that behavior in; run this after
+ * any change to COMPLIANCE_SYSTEM / DISTILL_SYSTEM in src/lib/style-guide.ts.
+ *
+ * Run (needs a real ANTHROPIC_API_KEY in .env.local):
+ *   unset ANTHROPIC_API_KEY && npx tsx scripts/eval-style-guide.mjs
+ *
+ * Not wired into CI — it makes live model calls. It's a guardrail for humans
+ * editing the prompts, not an automated test.
+ */
+import nextEnv from "@next/env";
+nextEnv.loadEnvConfig(process.cwd(), true);
+
+const { analyzeStyleCompliance } = await import("../src/lib/style-guide.ts");
+
+const SCENARIOS = [
+  {
+    name: "broad title-case rule must NOT override specific first-word label rule",
+    ruleset: `Capitalization
+- Capitalize the first word of field labels.
+
+Naming
+- Use title case for UI text: page names, section headings, and labels.
+
+Terminology
+- Use "Sign in" (two words) as the verb; never "Login" or "Signin".
+
+Abbreviation
+- Approved abbreviations: OK, info, admin, IP. Spell out any other abbreviation.`,
+    textContent: ['"Unit type"', '"Build by"', '"Assigned to"', '"order summary"', '"Login"'],
+    // first word already capitalized → compliant under the specific label rule
+    mustNotFlag: ["Unit type", "Build by", "Assigned to"],
+    mustFlag: ["order summary", "Login"],
+  },
+  {
+    name: "title case IS required for labels → real violations must be flagged",
+    ruleset: `Capitalization
+- Field labels: use title case — capitalize every word.
+
+Terminology
+- Use "Sign in" (two words) as the verb; never "Login" or "Signin".`,
+    textContent: ['"Unit type"', '"Assigned to"', '"Order Number"', '"Login"'],
+    mustNotFlag: ["Order Number"],
+    mustFlag: ["Unit type", "Assigned to", "Login"],
+  },
+  {
+    name: "clean sentence-case guide → compliant labels pass, lowercase-first flagged",
+    ruleset: `Capitalization
+- Field labels use sentence case: capitalize only the first word.`,
+    textContent: ['"Order no"', '"Unit type"', '"order summary"'],
+    mustNotFlag: ["Order no", "Unit type"],
+    mustFlag: ["order summary"],
+  },
+];
+
+let allPass = true;
+for (const s of SCENARIOS) {
+  const { findings } = await analyzeStyleCompliance(
+    { frameText: { name: "Eval", textContent: s.textContent } },
+    s.ruleset,
+  );
+  const flagged = new Set(findings.map((f) => f.originalText.replace(/^"|"$/g, "")));
+  const falsePositives = s.mustNotFlag.filter((t) => flagged.has(t));
+  const missed = s.mustFlag.filter((t) => !flagged.has(t));
+  const pass = falsePositives.length === 0 && missed.length === 0;
+  allPass = allPass && pass;
+  console.log(`\n${pass ? "PASS ✓" : "FAIL ✗"}  ${s.name}`);
+  for (const f of findings) console.log(`    [${f.category}] "${f.originalText}" → "${f.suggestion}"`);
+  if (falsePositives.length) console.log(`    false positives: ${falsePositives.join(", ")}`);
+  if (missed.length) console.log(`    missed: ${missed.join(", ")}`);
+}
+console.log(`\n${allPass ? "ALL SCENARIOS PASS ✓" : "SOME SCENARIOS FAILED ✗"}`);
+process.exit(allPass ? 0 : 1);
