@@ -7,7 +7,9 @@ import { persistScoreEntry, type ScoreEntryInput } from "@/lib/scores";
 import {
   getOrgStyleGuide,
   analyzeStyleCompliance,
+  hasFrameText,
   type StyleGuideResult,
+  type FrameText,
 } from "@/lib/style-guide";
 import { CURRENT_API_VERSION } from "@/lib/app-version";
 
@@ -50,8 +52,9 @@ export async function POST(req: NextRequest) {
       userId?: string;
       score?: ScoreEntry;
       image?: string;
+      frameText?: FrameText;
     };
-    const { userId, score, image } = body;
+    const { userId, score, image, frameText } = body;
 
     if (!userId || !score?.id || typeof score.score !== "number") {
       return NextResponse.json(
@@ -99,7 +102,7 @@ export async function POST(req: NextRequest) {
       | StyleGuideResult
       | undefined;
     let styleDiag = styleGuide ? "preset" : "skipped";
-    if (!styleGuide && parsed) {
+    if (!styleGuide && (parsed || hasFrameText(frameText))) {
       try {
         const clerk = await clerkClient();
         const memberships = await clerk.users.getOrganizationMembershipList({
@@ -109,22 +112,32 @@ export async function POST(req: NextRequest) {
         const orgGuide = orgId ? await getOrgStyleGuide(orgId) : null;
         if (orgGuide) {
           try {
-            const findings = await analyzeStyleCompliance(
-              { mediaType: parsed.mediaType, base64Data: parsed.base64Data },
+            // Prefer the plugin's ground-truth frame text; the screenshot is a
+            // best-effort fallback. Same engine + same text as the in-canvas
+            // Improve Copy, so the dashboard card agrees with it (#362/#363).
+            const outcome = await analyzeStyleCompliance(
+              {
+                image: parsed
+                  ? { mediaType: parsed.mediaType, base64Data: parsed.base64Data }
+                  : null,
+                frameText,
+              },
               orgGuide.ruleset,
             );
             styleGuide = {
-              status: findings.length > 0 ? "issues" : "compliant",
+              status: outcome.findings.length > 0 ? "issues" : "compliant",
               teamName: orgGuide.teamName,
-              findings,
+              findings: outcome.findings,
+              textSource: outcome.textSource,
             };
-            styleDiag = `computed-${styleGuide.status}`;
+            styleDiag = `computed-${styleGuide.status}-${outcome.textSource}`;
           } catch (e) {
             console.warn("[LADDER:WARN] plugin style-guide pass failed:", e);
             styleGuide = {
               status: "unavailable",
               teamName: orgGuide.teamName,
               findings: [],
+              textSource: hasFrameText(frameText) ? "exact" : "inferred",
             };
             styleDiag = "unavailable";
           }

@@ -325,6 +325,54 @@ export async function POST(req: NextRequest) {
 
     const pageTitle = await page.title().catch(() => normalizedUrl);
 
+    // Capture GROUND-TRUTH visible text from the live DOM. The page is already
+    // rendered here; this is the URL equivalent of the Figma plugin's frame
+    // text, and it's what lets the style-guide check judge the real copy
+    // instead of reading it out of pixels (#362). Best-effort — a failure just
+    // means the scorer falls back to the screenshot.
+    const frameText = await page
+      .evaluate(() => {
+        const SEEN = new Set<string>();
+        const lines: { y: number; line: string }[] = [];
+        // Block-ish text containers, in document order.
+        const els = Array.from(
+          document.querySelectorAll(
+            "h1,h2,h3,h4,h5,h6,p,li,a,button,label,span,td,th,figcaption,summary,blockquote,[role='button'],[role='heading']",
+          ),
+        ) as HTMLElement[];
+        for (const el of els) {
+          // Only leaf-ish text nodes — skip containers whose text is just their
+          // children concatenated (avoids duplicating every string up the tree).
+          const own = Array.from(el.childNodes)
+            .filter((n) => n.nodeType === Node.TEXT_NODE)
+            .map((n) => (n.textContent || "").trim())
+            .filter(Boolean)
+            .join(" ")
+            .trim();
+          if (!own || own.length > 300) continue;
+          if (!el.offsetParent && el.getAttribute("aria-hidden") === "true") continue;
+          const rect = el.getBoundingClientRect();
+          if (rect.width === 0 || rect.height === 0) continue;
+          const key = own.toLowerCase();
+          if (SEEN.has(key)) continue;
+          SEEN.add(key);
+          const tag = el.tagName.toLowerCase();
+          const size = parseFloat(window.getComputedStyle(el).fontSize) || 0;
+          let label = "";
+          if (/^h[1-3]$/.test(tag) || size >= 28) label = "[HEADING] ";
+          else if (/^h[4-6]$/.test(tag) || size >= 20) label = "[SUBHEADING] ";
+          else if (tag === "button" || el.getAttribute("role") === "button")
+            label = "[BUTTON] ";
+          else if (tag === "a") label = "[LINK] ";
+          else if (tag === "label") label = "[LABEL] ";
+          lines.push({ y: rect.top + window.scrollY, line: `${label}"${own}"` });
+          if (lines.length > 400) break; // safety cap
+        }
+        lines.sort((a, b) => a.y - b.y);
+        return lines.slice(0, 250).map((l) => l.line);
+      })
+      .catch(() => null);
+
     await browser.close();
     browser = null;
 
@@ -335,6 +383,11 @@ export async function POST(req: NextRequest) {
         label: s.label,
         image: `data:image/png;base64,${s.data}`,
       })),
+      // Ground-truth on-screen text for the style-compliance pass (#362).
+      frameText:
+        frameText && frameText.length > 0
+          ? { name: pageTitle, textContent: frameText }
+          : null,
     });
   } catch (err) {
     if (browser) {

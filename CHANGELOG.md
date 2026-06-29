@@ -6,6 +6,19 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.12 / api 1.1.0 (2026-06-29)
+
+**Text-driven style-guide checks + one canonical copy engine (#362 Chunk 1).**
+
+- **Style compliance now judges ground-truth text when we have it.** `analyzeStyleCompliance` accepts the screen's exact on-screen text (Figma frame layers, or a URL's rendered DOM) and checks those strings instead of reading copy out of pixels. This is what makes style findings consistent across surfaces — the score itself is unchanged (still image-only Haiku), so the scoring-engine version stays at 1.2.
+- **URL scoring now captures the live DOM's visible text** and sends it with the score. URL and Figma are now "ground-truth" sources; raw image uploads remain pixel-inferred.
+- **Best-effort caveat.** When a screen is scored from an uploaded image (no real text available), the Style Guide section shows a gold caveat that some copy may be missed and to use Figma or a URL for a complete check.
+- **One canonical copy engine.** New `POST /api/plugin/analyze/copy` runs the UX copy audit + style-guide pass server-side (resolving the team ruleset from the user's org), replacing the plugin's forked copy prompt. The plugin becomes a thin client (rewire ships separately).
+- **Plugin score persistence** now uses the plugin's real frame text for its style check, so the dashboard Style Guide card matches the in-canvas findings (#363 follow-through).
+- `/hq` updated: Architecture (corrected the "one engine" claim), Features (style-guide row), Decisions (canonical-input + the scoring-was-never-unified history).
+
+---
+
 ## app 0.5.11 / api 1.0.0 (2026-06-08)
 
 **Design-rhythm heatmap: local-day buckets + friendlier tooltips.**

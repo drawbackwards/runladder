@@ -333,6 +333,12 @@ export default function ScorePage() {
   const [fileName, setFileName] = useState<string>("");
   const [urlInput, setUrlInput] = useState("");
   const [urlScreenshots, setUrlScreenshots] = useState<Screenshot[]>([]);
+  // Ground-truth text captured from a URL's DOM. Sent with the score so the
+  // style-guide check judges the real copy (#362). Null for raw image uploads.
+  const [urlFrameText, setUrlFrameText] = useState<{
+    name?: string;
+    textContent?: string[];
+  } | null>(null);
   const [selectedShot, setSelectedShot] = useState(0);
   const [capturing, setCapturing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -477,6 +483,7 @@ export default function ScorePage() {
     setError(null);
     setFileName(file.name);
     setUrlScreenshots([]);
+    setUrlFrameText(null); // raw upload → no ground-truth text, best-effort
     const reader = new FileReader();
     reader.onload = () => setImage(reader.result as string);
     reader.readAsDataURL(file);
@@ -488,6 +495,7 @@ export default function ScorePage() {
     setError(null);
     setImage(null);
     setUrlScreenshots([]);
+    setUrlFrameText(null);
     setScanPhase(0);
 
     const interval = setInterval(() => {
@@ -506,6 +514,7 @@ export default function ScorePage() {
       if (!res.ok) throw new Error(data.error || "Screenshot failed");
 
       setUrlScreenshots(data.screenshots);
+      setUrlFrameText(data.frameText ?? null);
       setSelectedShot(0);
       if (data.screenshots.length > 0) {
         setImage(data.screenshots[0].image);
@@ -555,6 +564,9 @@ export default function ScorePage() {
           isPublic,
           thumbnail: thumb,
           sessionType: sessionType ?? "design",
+          // Ground-truth DOM text for URL captures; null for raw uploads so the
+          // style check is honestly best-effort there (#362).
+          frameText: urlFrameText,
         }),
       });
 
@@ -661,6 +673,7 @@ export default function ScorePage() {
     setFileName("");
     setUrlInput("");
     setUrlScreenshots([]);
+    setUrlFrameText(null);
     setSelectedShot(0);
     setResult(null);
     setError(null);

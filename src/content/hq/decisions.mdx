@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-06-24
+updatedAt: 2026-06-29
 updatedBy: Sara
-lastPr: 361
+lastPr: 366
 ---
 
 ## How to use this page
@@ -10,6 +10,16 @@ lastPr: 361
 The why behind big choices. Read this before you push back on a feature, a price, or a roadmap call. Most decisions look arbitrary until you know the constraint that drove them. New entries go at the top with a date and one-line rule.
 
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
+
+---
+
+## Canonical scoring input is ground-truth text where we have it; image is best-effort (2026-06-29)
+
+**Context:** Scoring the same screen on web vs. the Figma plugin returned different results ([#362](https://github.com/drawbackwards/runladder/issues/362)). Investigating corrected a long-held belief (Ward's "web and the plugin score from the same API"): **they never did for scoring.** The plugin shipped its own engine in March 2026; #75 (Apr 2026) built `/api/plugin/analyze` and migrated the plugin's *service* endpoints to `runladder`, but the *scoring computation* was never migrated and nothing ever called that endpoint. The old `/hq/architecture` "one engine for web, plugin, and Skill" line described #75's intent, not reality.
+
+**Rule:** The real divergence is (1) two forked prompts, (2) style-compliance logic implemented twice, and (3) input fidelity. On input, the divide is **source type, not surface**: the Figma frame and a URL's DOM both give ground-truth text; a raw image upload gives only pixels. So the engine treats **exact on-screen text as canonical when available** (Figma layers, URL DOM) and falls back to reading the image (best-effort) otherwise. Style compliance is the most text-sensitive operation, so for the **style-guide feature specifically**: full guarantee on Figma + URL; image uploads run best-effort and show a gold caveat ("score from Figma or a URL for a complete check"). We do **not** pretend pixel inference equals ground truth — that false confidence is what let the web miss violations the plugin caught.
+
+**Consequence:** Consolidation is phased. Chunk 1 (PR #366) put style/copy checking behind one canonical engine fed ground-truth text. Chunk 2 unifies the Ladder score itself. The numeric score stays image-based for now (engine v1.2 unchanged); only the advisory style/copy pass became text-driven.
 
 ---
 

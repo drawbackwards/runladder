@@ -20,6 +20,12 @@ export type StyleGuideResultView = {
     severity?: string;
     category?: string;
   }[];
+  /**
+   * "exact" when we checked the screen's real text (Figma layers / a URL's
+   * DOM); "inferred" when we read it from an uploaded image's pixels. Drives the
+   * best-effort caveat (#362). Older persisted scores omit it (treated as exact).
+   */
+  textSource?: "exact" | "inferred";
 };
 
 const CARD = "border border-[#333] bg-[#1e1e1e] p-6";
@@ -40,6 +46,12 @@ export function StyleGuideFindings({
       ? `${findings.length} ${findings.length === 1 ? "issue" : "issues"} · doesn't affect your score`
       : "doesn't affect your score";
 
+  // Best-effort caveat: when we read this screen's text from an uploaded image
+  // (not Figma layers or a URL's DOM), we may have missed some copy. Shown only
+  // when the check actually ran — not on the "couldn't check" card (#362).
+  const showBestEffort =
+    styleGuide.textSource === "inferred" && status !== "unavailable";
+
   return (
     <div className="space-y-1 mt-10">
       {/* Heading — outside any box, matching the Findings section. */}
@@ -49,6 +61,16 @@ export function StyleGuideFindings({
         </span>
         <span className="text-[10px] text-[#444]">{subtext}</span>
       </div>
+
+      {showBestEffort && (
+        <div className="border border-[#b8860b]/50 bg-[#b8860b]/10 px-4 py-3 mb-3">
+          <p className="text-xs text-[#e3c46b] leading-relaxed">
+            Best-effort check — we read this screen&apos;s text from an uploaded
+            image, so some copy may be missed. For a complete style-guide check,
+            score from Figma or paste a URL.
+          </p>
+        </div>
+      )}
 
       {status === "compliant" && (
         <div className={CARD}>
