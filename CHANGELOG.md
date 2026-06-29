@@ -6,6 +6,15 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.14 / api 1.3.0 (2026-06-29)
+
+**Style-guide ambiguities: stable detection + Settings polish (#362).**
+
+- **Conflict detection is now cached by the guide's content hash**, so re-uploading the same PDF always returns the same conflicts. Detection is an open-ended "find all contradictions" pass that isn't perfectly deterministic even at temperature 0; without caching the count could drift (5 vs 3) on identical input, which read as untrustworthy. The detection prompt is also tightened to report only definite contradictions (borderline ones are dropped, not flip-flopped). A changed guide hashes differently → fresh detection.
+- **Settings → Style Guide polish:** when a guide has conflicts, the gold "N ambiguities in your guide" heading sits left-aligned at the top of the right column (same row as "Team Style Guide"); the description sits in its own gold box; each contradiction is its own box; topic + summary are gold, the "Ladder applies" line white; the green "saved" notice is suppressed while ambiguities are shown.
+
+---
+
 ## app 0.5.13 / api 1.3.0 (2026-06-29)
 
 **Surface style-guide ambiguities (#362).**

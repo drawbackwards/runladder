@@ -565,9 +565,130 @@ function StyleGuideCard() {
     );
   }
 
+  const conflicts = status.conflicts ?? [];
+  const hasConflicts = status.present && conflicts.length > 0;
+
+  const fileBox = (
+    <div className="border border-[#333] bg-[#111] p-3 flex items-center justify-between gap-3 flex-wrap">
+      <div>
+        <a
+          href="/api/org/style-guide/download"
+          target="_blank"
+          rel="noopener"
+          className="text-sm text-foreground font-sans underline"
+        >
+          {status.fileName || "style-guide.pdf"}
+        </a>
+        <p className="text-[10px] text-muted font-sans mt-0.5">
+          {status.uploadedAt
+            ? `Uploaded ${new Date(status.uploadedAt).toLocaleDateString()}`
+            : ""}
+          {!status.canManage && " · Your team lead manages this."}
+        </p>
+      </div>
+      {status.canManage && (
+        <div className="flex items-center gap-2">
+          <label className={`${BTN_GHOST} cursor-pointer`}>
+            {busy ? "Working…" : "Replace"}
+            <input
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              disabled={busy}
+              onChange={handleUpload}
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => setConfirmOpen(true)}
+            disabled={busy}
+            className={BTN_GHOST}
+          >
+            Remove
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  const uploadOrEmpty = status.canManage ? (
+    <label className={`${BTN_PRIMARY} cursor-pointer inline-block`}>
+      {busy ? "Uploading…" : "Upload PDF"}
+      <input
+        type="file"
+        accept="application/pdf"
+        className="hidden"
+        disabled={busy}
+        onChange={handleUpload}
+      />
+    </label>
+  ) : (
+    <p className="text-sm text-muted font-sans">
+      No style guide uploaded yet. Your team lead manages this.
+    </p>
+  );
+
+  const statusMessages = (
+    <>
+      {progress && (
+        <p className="mt-3 text-xs text-ladder-green font-sans animate-pulse">
+          {progress}
+        </p>
+      )}
+      {notice && !progress && !hasConflicts && (
+        <p className="mt-3 text-xs text-ladder-green font-sans">{notice}</p>
+      )}
+      {err && <p className="mt-3 text-xs text-ladder-red font-sans">{err}</p>}
+    </>
+  );
+
+  // When the guide has internal conflicts, the right column leads with this gold
+  // description box (the heading sits in the top row, aligned with "Team Style
+  // Guide"), then the file box, then the conflict detail boxes.
+  const ambiguitiesHeader = (
+    <div className="border border-[#b8860b]/50 bg-[#b8860b]/10 p-4">
+      <p className="text-sm text-[#e3c46b] font-sans leading-relaxed">
+        Your guide gives conflicting direction in places. Ladder applies the most
+        specific rule (shown below). To change how these are handled, edit your
+        style guide and upload a new version.
+      </p>
+    </div>
+  );
+
+  const conflictBoxes = (
+    <div className="mt-4 space-y-3">
+      {conflicts.map((c, i) => (
+        <div key={i} className="border border-[#b8860b]/50 bg-[#b8860b]/10 p-4">
+          <p className="text-sm text-[#e3c46b] font-sans font-semibold">
+            {c.topic}
+          </p>
+          <p className="text-sm text-[#e3c46b] font-sans mt-1.5 leading-relaxed">
+            {c.summary}
+          </p>
+          {c.interpretation && (
+            <p className="text-sm text-foreground font-sans mt-2 leading-relaxed">
+              Ladder applies: {c.interpretation}
+            </p>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className={CARD}>
-      <p className={LABEL}>Team Style Guide</p>
+      {/* Heading row mirrors the content grid below, so "Team Style Guide"
+          (left) and, when the guide has conflicts, the gold ambiguities heading
+          (right) are each left-aligned at the top of their own column. */}
+      <div className="grid gap-8 md:grid-cols-2">
+        <p className={LABEL}>Team Style Guide</p>
+        {hasConflicts && (
+          <p className="text-[9px] text-[#d4af37] uppercase tracking-widest font-semibold">
+            {conflicts.length} ambiguit{conflicts.length === 1 ? "y" : "ies"} in
+            your guide
+          </p>
+        )}
+      </div>
       <div className="mt-3 grid gap-8 md:grid-cols-2">
         {/* Left — what it does / doesn't do */}
         <div>
@@ -591,111 +712,21 @@ function StyleGuideCard() {
           </p>
         </div>
 
-        {/* Right — upload + controls */}
+        {/* Right — upload + controls. When the guide has conflicts, the alert
+            (heading + description) leads, then the file box, then the details. */}
         <div>
-          {status.present ? (
-            <div className="border border-[#333] bg-[#111] p-3 flex items-center justify-between gap-3 flex-wrap">
-              <div>
-                <a
-                  href="/api/org/style-guide/download"
-                  target="_blank"
-                  rel="noopener"
-                  className="text-sm text-foreground font-sans underline"
-                >
-                  {status.fileName || "style-guide.pdf"}
-                </a>
-                <p className="text-[10px] text-muted font-sans mt-0.5">
-                  {status.uploadedAt
-                    ? `Uploaded ${new Date(status.uploadedAt).toLocaleDateString()}`
-                    : ""}
-                  {!status.canManage && " · Your team lead manages this."}
-                </p>
-              </div>
-              {status.canManage && (
-                <div className="flex items-center gap-2">
-                  <label className={`${BTN_GHOST} cursor-pointer`}>
-                    {busy ? "Working…" : "Replace"}
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      className="hidden"
-                      disabled={busy}
-                      onChange={handleUpload}
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmOpen(true)}
-                    disabled={busy}
-                    className={BTN_GHOST}
-                  >
-                    Remove
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : status.canManage ? (
-            <label className={`${BTN_PRIMARY} cursor-pointer inline-block`}>
-              {busy ? "Uploading…" : "Upload PDF"}
-              <input
-                type="file"
-                accept="application/pdf"
-                className="hidden"
-                disabled={busy}
-                onChange={handleUpload}
-              />
-            </label>
+          {hasConflicts ? (
+            <>
+              {ambiguitiesHeader}
+              <div className="mt-4">{fileBox}</div>
+              {statusMessages}
+              {conflictBoxes}
+            </>
           ) : (
-            <p className="text-sm text-muted font-sans">
-              No style guide uploaded yet. Your team lead manages this.
-            </p>
-          )}
-
-          {progress && (
-            <p className="mt-3 text-xs text-ladder-green font-sans animate-pulse">
-              {progress}
-            </p>
-          )}
-          {notice && !progress && (
-            <p className="mt-3 text-xs text-ladder-green font-sans">{notice}</p>
-          )}
-          {err && (
-            <p className="mt-3 text-xs text-ladder-red font-sans">{err}</p>
-          )}
-
-          {status.present && status.conflicts && status.conflicts.length > 0 && (
-            <div className="mt-6">
-              {/* Heading above the boxes, gold, same style as the "Team Style Guide" label. */}
-              <p className="text-[9px] text-[#d4af37] uppercase tracking-widest font-semibold">
-                {status.conflicts.length} ambiguit
-                {status.conflicts.length === 1 ? "y" : "ies"} in your guide
-              </p>
-              <p className="text-sm text-foreground font-sans mt-2 leading-relaxed">
-                Your guide gives conflicting direction in places. Ladder applies the
-                most specific rule (shown below). To change how these are handled,
-                edit your style guide and upload a new version.
-              </p>
-              <div className="mt-4 space-y-3">
-                {status.conflicts.map((c, i) => (
-                  <div
-                    key={i}
-                    className="border border-[#b8860b]/50 bg-[#b8860b]/10 p-4"
-                  >
-                    <p className="text-sm text-foreground font-sans font-semibold">
-                      {c.topic}
-                    </p>
-                    <p className="text-sm text-foreground font-sans mt-1.5 leading-relaxed">
-                      {c.summary}
-                    </p>
-                    {c.interpretation && (
-                      <p className="text-sm text-[#e3c46b] font-sans mt-2 leading-relaxed">
-                        Ladder applies: {c.interpretation}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+            <>
+              {status.present ? fileBox : uploadOrEmpty}
+              {statusMessages}
+            </>
           )}
         </div>
       </div>
