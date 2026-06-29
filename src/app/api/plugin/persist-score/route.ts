@@ -6,7 +6,7 @@ import { makeThumbnail } from "@/lib/thumbnail";
 import { persistScoreEntry, type ScoreEntryInput } from "@/lib/scores";
 import {
   getOrgStyleGuide,
-  analyzeStyleCompliance,
+  analyzeStyleComplianceCached,
   hasFrameText,
   type StyleGuideResult,
   type FrameText,
@@ -113,9 +113,11 @@ export async function POST(req: NextRequest) {
         if (orgGuide) {
           try {
             // Prefer the plugin's ground-truth frame text; the screenshot is a
-            // best-effort fallback. Same engine + same text as the in-canvas
-            // Improve Copy, so the dashboard card agrees with it (#362/#363).
-            const outcome = await analyzeStyleCompliance(
+            // best-effort fallback. Cached by (org, ruleset, text) so this
+            // computes ONCE per scan and the in-canvas Improve Copy reuses the
+            // identical result — the dashboard card and the plugin never drift
+            // (#362/#363).
+            const outcome = await analyzeStyleComplianceCached(
               {
                 image: parsed
                   ? { mediaType: parsed.mediaType, base64Data: parsed.base64Data }
@@ -123,6 +125,7 @@ export async function POST(req: NextRequest) {
                 frameText,
               },
               orgGuide.ruleset,
+              orgId,
             );
             styleGuide = {
               status: outcome.findings.length > 0 ? "issues" : "compliant",

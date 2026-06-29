@@ -13,6 +13,7 @@
  * MUST stay server-side. Never log the ruleset or prompt text to clients.
  */
 import Anthropic from "@anthropic-ai/sdk";
+import { createHash } from "crypto";
 import type { MediaType } from "./scoring";
 import { extractJsonObject } from "./json-extract";
 import { redis } from "./redis";
@@ -311,4 +312,55 @@ export async function analyzeStyleCompliance(
     .filter((f): f is StyleGuideFinding => f !== null);
 
   return { findings, textSource };
+}
+
+/** Content-addressed cache key: same org + ruleset + exact text → same key. */
+function styleCacheKey(orgId: string, ruleset: string, frameText: FrameText): string {
+  const basis = `${ruleset}\n---\n${(frameText.textContent ?? []).join("\n")}`;
+  const hash = createHash("sha256").update(basis).digest("hex").slice(0, 32);
+  return `style:cache:${orgId}:${hash}`;
+}
+
+/**
+ * Style compliance, computed ONCE per (org, ruleset, exact text) and reused.
+ *
+ * A single screen is "scanned once" from the user's point of view, so its
+ * style-guide findings must be identical no matter which surface or action
+ * triggers the check — the plugin's in-canvas Improve Copy, the score the
+ * plugin persists, and the web dashboard that displays it (#362). Without this,
+ * each call to `analyzeStyleCompliance` is an independent model call that can
+ * drift (different count/categories) even at temperature 0.
+ *
+ * Only caches when we have ground-truth `frameText` (a stable, content-addressed
+ * key) and an org. Image-only/best-effort checks always recompute. The key
+ * includes the ruleset, so editing the team guide invalidates it; it includes
+ * the exact text, so editing the screen produces a fresh result.
+ */
+export async function analyzeStyleComplianceCached(
+  input: {
+    image?: { mediaType: MediaType; base64Data: string } | null;
+    frameText?: FrameText | null;
+  },
+  ruleset: string,
+  orgId: string | null,
+): Promise<StyleComplianceOutcome> {
+  if (!orgId || !hasFrameText(input.frameText)) {
+    return analyzeStyleCompliance(input, ruleset);
+  }
+  const key = styleCacheKey(orgId, ruleset, input.frameText);
+  try {
+    const cached = await redis.get<StyleComplianceOutcome>(key);
+    if (cached && Array.isArray(cached.findings)) return cached;
+  } catch {
+    // cache read is best-effort
+  }
+  const outcome = await analyzeStyleCompliance(input, ruleset);
+  try {
+    // 24h TTL; the key is content-addressed so it's safe to keep — a changed
+    // guide or changed screen produces a different key, not a stale hit.
+    await redis.set(key, outcome, { ex: 60 * 60 * 24 });
+  } catch {
+    // cache write is best-effort
+  }
+  return outcome;
 }
