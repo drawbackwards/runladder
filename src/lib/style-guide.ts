@@ -222,7 +222,7 @@ export async function distillStyleGuide(pdfBase64: string): Promise<string | nul
 
 const CONFLICT_SYSTEM = `You review a brand's WRITING style guide (a PDF) for INTERNAL CONTRADICTIONS and AMBIGUITIES — places where two statements pull in different directions for the same kind of text, so a reader can't be sure which to follow. A real example: "Use title case across all content" in one place, and "Capitalize the first word of field labels" in another — those conflict for field labels (title case vs. sentence case).
 
-Report ONLY genuine conflicts/ambiguities about WRITTEN COPY (capitalization, terminology, punctuation, formatting, naming). Do NOT report visual/brand guidance, and do NOT invent conflicts — if the guide is internally consistent, return an empty list. Be conservative: only flag a conflict a careful human would also be unsure about.
+Report ONLY clear, unambiguous contradictions about WRITTEN COPY (capitalization, terminology, punctuation, formatting, naming): two statements that genuinely cannot both be followed for the same element. Do NOT report visual/brand guidance, and do NOT invent conflicts. If two statements can be reasonably reconciled, or you are not sure they truly conflict, do NOT report it — leave it out. If the guide is internally consistent, return an empty list. Reason silently; do not include borderline or "possible" conflicts to be safe — only definite ones.
 
 For each conflict, explain how Ladder will RESOLVE it when checking copy: the MOST SPECIFIC rule for an element wins (a rule that names "field labels" beats a general "all content" rule); if neither is more specific, Ladder will not flag that aspect. We do NOT ask the team to choose in the app — they edit the guide and upload a new version.
 
@@ -244,6 +244,22 @@ If there are no genuine conflicts, return {"conflicts": []}.`;
  * output shown on the team's Settings page so they can fix + re-upload the guide.
  */
 export async function detectStyleConflicts(pdfBase64: string): Promise<StyleConflict[]> {
+  // Cache by the PDF's exact bytes + the prompt, so re-uploading the SAME guide
+  // always yields the SAME conflicts. Detection is an open-ended "find all
+  // contradictions" task that isn't perfectly deterministic even at temperature
+  // 0; without this, two uploads of one file can return different sets and the
+  // count appears to "drift" (#362). A changed guide hashes differently → fresh.
+  const cacheKey = `style:conflicts:${createHash("sha256")
+    .update(CONFLICT_SYSTEM + "\n" + pdfBase64)
+    .digest("hex")
+    .slice(0, 40)}`;
+  try {
+    const cached = await redis.get<StyleConflict[]>(cacheKey);
+    if (Array.isArray(cached)) return cached;
+  } catch {
+    // best-effort cache read
+  }
+
   const client = new Anthropic();
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
@@ -276,7 +292,7 @@ export async function detectStyleConflicts(pdfBase64: string): Promise<StyleConf
     return [];
   }
   if (!parsed || !Array.isArray(parsed.conflicts)) return [];
-  return parsed.conflicts
+  const conflicts = parsed.conflicts
     .map((c): StyleConflict | null => {
       if (!c || typeof c !== "object") return null;
       const o = c as Record<string, unknown>;
@@ -289,6 +305,14 @@ export async function detectStyleConflicts(pdfBase64: string): Promise<StyleConf
     })
     .filter((c): c is StyleConflict => c !== null)
     .slice(0, 12);
+
+  try {
+    // 30-day TTL; key is content-addressed so it's safe to keep.
+    await redis.set(cacheKey, conflicts, { ex: 60 * 60 * 24 * 30 });
+  } catch {
+    // best-effort cache write
+  }
+  return conflicts;
 }
 
 const COMPLIANCE_SYSTEM = `You are ENFORCING a team's written style guide against the text of a UI screen. Your job is PRECISION: flag only text that CLEARLY and CONFIDENTLY violates a specific rule in the provided ruleset. This is an enforcement tool — wrongly flagging copy that already complies destroys the team's trust and is worse than missing a borderline case. When in doubt, do NOT flag.
