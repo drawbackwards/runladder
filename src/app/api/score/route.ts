@@ -108,7 +108,15 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { image, source, isPublic, sessionType: rawSessionType } = body;
+    const {
+      image,
+      source,
+      isPublic,
+      sessionType: rawSessionType,
+      // Ground-truth on-screen text (e.g. captured from a URL's DOM) for the
+      // style-compliance pass. Absent for raw image uploads → best-effort.
+      frameText,
+    } = body;
     // Default to "design" when caller doesn't specify, but accept "evaluation"
     // when the user has explicitly picked an audit/research session.
     const sessionType: "design" | "evaluation" =
@@ -129,6 +137,7 @@ export async function POST(req: NextRequest) {
     const result = await scoreImage(parsed, {
       styleRuleset: styleGuide?.ruleset,
       styleTeamName: styleGuide?.teamName,
+      styleFrameText: frameText,
     });
     if (isScoringError(result)) {
       return NextResponse.json(

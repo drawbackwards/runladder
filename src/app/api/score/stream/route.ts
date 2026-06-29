@@ -115,6 +115,9 @@ export async function POST(req: NextRequest) {
     source,
     isPublic,
     sessionType: rawSessionType,
+    // Ground-truth on-screen text (e.g. captured from a URL's DOM) for the
+    // style-compliance pass. Absent for raw image uploads → best-effort.
+    frameText,
   } = body;
   const sessionType: "design" | "evaluation" =
     rawSessionType === "evaluation" ? "evaluation" : "design";
@@ -141,6 +144,7 @@ export async function POST(req: NextRequest) {
         for await (const ev of scoreImageStream(parsed, {
           styleRuleset: styleGuide?.ruleset,
           styleTeamName: styleGuide?.teamName,
+          styleFrameText: frameText,
         })) {
           if (ev.kind === "error") {
             send("error", { message: ev.value, status: ev.status });

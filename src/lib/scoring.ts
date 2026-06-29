@@ -18,7 +18,12 @@ import {
   aiLensPrompt,
 } from "./ladder-framework";
 import { extractJsonObject } from "./json-extract";
-import { analyzeStyleCompliance, type StyleGuideResult } from "./style-guide";
+import {
+  analyzeStyleCompliance,
+  hasFrameText,
+  type StyleGuideResult,
+  type FrameText,
+} from "./style-guide";
 
 /* ── Content moderation prompt ── */
 const MODERATION_PROMPT = `Look at this image. Is it a UI/UX screen, website, app interface, or design mockup?
@@ -187,6 +192,8 @@ export async function scoreImage(
     applyAiLens?: boolean;
     styleRuleset?: string | null;
     styleTeamName?: string | null;
+    /** Ground-truth on-screen text (URL DOM / future surfaces) for the style pass. */
+    styleFrameText?: FrameText | null;
   } = {},
 ): Promise<ScoreResult | ScoringError> {
   // Cap image size (~5MB base64)
@@ -268,8 +275,11 @@ export async function scoreImage(
   // It is computed independently and NEVER feeds the numeric score, and it
   // never fails the request — a thrown pass becomes an "unavailable" status.
   const stylePromise = opts.styleRuleset
-    ? analyzeStyleCompliance({ mediaType, base64Data }, opts.styleRuleset)
-        .then((findings) => ({ ok: true as const, findings }))
+    ? analyzeStyleCompliance(
+        { image: { mediaType, base64Data }, frameText: opts.styleFrameText },
+        opts.styleRuleset,
+      )
+        .then((outcome) => ({ ok: true as const, ...outcome }))
         .catch((e) => {
           console.warn("[LADDER:WARN] style-guide pass failed:", e);
           return { ok: false as const };
@@ -330,11 +340,13 @@ export async function scoreImage(
           status: outcome.findings.length > 0 ? "issues" : "compliant",
           teamName: opts.styleTeamName ?? null,
           findings: outcome.findings,
+          textSource: outcome.textSource,
         }
       : {
           status: "unavailable",
           teamName: opts.styleTeamName ?? null,
           findings: [],
+          textSource: hasFrameText(opts.styleFrameText) ? "exact" : "inferred",
         };
   }
 
@@ -384,6 +396,8 @@ export async function* scoreImageStream(
     applyAiLens?: boolean;
     styleRuleset?: string | null;
     styleTeamName?: string | null;
+    /** Ground-truth on-screen text (URL DOM / future surfaces) for the style pass. */
+    styleFrameText?: FrameText | null;
   } = {},
 ): AsyncGenerator<ScoringStreamEvent> {
   if (base64Data.length > 7_000_000) {
@@ -453,8 +467,11 @@ export async function* scoreImageStream(
   // Team style-guide compliance pass, in parallel with streaming scoring.
   // Independent of the score; never fails the request.
   const stylePromise = opts.styleRuleset
-    ? analyzeStyleCompliance({ mediaType, base64Data }, opts.styleRuleset)
-        .then((findings) => ({ ok: true as const, findings }))
+    ? analyzeStyleCompliance(
+        { image: { mediaType, base64Data }, frameText: opts.styleFrameText },
+        opts.styleRuleset,
+      )
+        .then((outcome) => ({ ok: true as const, ...outcome }))
         .catch((e) => {
           console.warn("[LADDER:WARN] style-guide pass failed:", e);
           return { ok: false as const };
@@ -569,11 +586,13 @@ export async function* scoreImageStream(
             status: outcome.findings.length > 0 ? "issues" : "compliant",
             teamName: opts.styleTeamName ?? null,
             findings: outcome.findings,
+            textSource: outcome.textSource,
           }
         : {
             status: "unavailable",
             teamName: opts.styleTeamName ?? null,
             findings: [],
+            textSource: hasFrameText(opts.styleFrameText) ? "exact" : "inferred",
           };
     }
     yield { kind: "complete", value: result };

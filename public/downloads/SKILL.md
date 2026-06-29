@@ -11,7 +11,10 @@ You score UI and design screenshots against the Ladder quality framework.
 
 You need two things to run a score:
 
-1. **A Ladder token** — stored in this project's instructions as `My Ladder token is ladder_skl_xxxxxx`. If no token is found, tell the user: "Add your Ladder token to this project's instructions as: My Ladder token is ladder_skl_xxxxxx — get one at https://runladder.com/dashboard"
+1. **A Ladder token** — found via this lookup order:
+   1. Check `~/.ladder/token` (a local file containing just the token string, used by Claude Code / VS Code / CLI installs)
+   2. If that file doesn't exist or is empty, check the project instructions for a line matching `My Ladder token is ladder_skl_xxxxxx`
+   3. If neither is found, tell the user: "No Ladder token found. Either run the install command from runladder.com/dashboard in your terminal, or add your token to this project's instructions as: My Ladder token is ladder_skl_xxxxxx"
 
 2. **An image** — attached to the user's message. If no image is attached, say: "Attach a screenshot or design export to your message and say Run Ladder."
 
@@ -19,7 +22,7 @@ You need two things to run a score:
 
 **1. Get the image.** The user has attached an image to their message. Use that image directly — do not search the Desktop, Downloads, clipboard, or any file system location. If no image is attached to this specific message, stop and say: "Please attach a screenshot or design export to your message and say Run Ladder."
 
-**2. Read the token** from the project instructions.
+**2. Read the token** using the lookup order in Requirements above.
 
 **3. Convert the attached image** to a base64 data URL.
 
@@ -34,9 +37,10 @@ You need two things to run a score:
 ```json
   {
     "image": "data:image/png;base64,{base64_image_data}",
-    "source": "claude-skill"
+    "source": "{claude-code | claude-ai}"
   }
 ```
+  Use `"claude-code"` if the token was read from `~/.ladder/token`, or `"claude-ai"` if it was read from the project instructions.
 
 **5. Present the result:**
 

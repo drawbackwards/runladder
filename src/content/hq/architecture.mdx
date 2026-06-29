@@ -1,8 +1,8 @@
 ---
 title: Architecture
-updatedAt: 2026-06-17
-updatedBy: Michael
-lastPr: 355
+updatedAt: 2026-06-29
+updatedBy: Sara
+lastPr: 366
 ---
 
 ## Deployment environments
@@ -58,7 +58,7 @@ This diagram shows the future-target architecture (one engine, thin clients). To
 
 ## Shared services (target state, partial today)
 
-**Scoring engine.** Anthropic Claude with the Ladder rubric prompt. Server-side only. Today this runs in `runladder` for web, plugin, and Skill surfaces. Pulse runs its own scoring stack in `ladder-beta`. Consolidation is roadmap.
+**Scoring engine.** Anthropic Claude with the Ladder rubric prompt. Server-side only. Web and Skill score through `runladder`'s engine (`src/lib/scoring.ts`). The **Figma plugin still scores in its own backend** (`ai-design-assistant/api/analyze.js`) — it was never migrated, despite the half-finished unification in #75 (the plugin's service endpoints moved to `runladder`, the scoring computation did not). Consolidating the plugin onto `runladder`'s engine is [#362](https://github.com/drawbackwards/runladder/issues/362): Chunk 1 moved style/copy checking to one canonical engine (`/api/plugin/analyze/copy`, `src/lib/copy-audit.ts`); the Ladder score itself is Chunk 2. Pulse runs its own scoring stack in `ladder-beta`.
 
 **Auth.** Clerk for human users on `runladder` surfaces. Plugin token + Skill token (server-issued via `/api/plugin/issue-token` and `/api/skill/token`). API keys for `api.runladder.com` are roadmap (the issuance UI doesn't exist yet either).
 
