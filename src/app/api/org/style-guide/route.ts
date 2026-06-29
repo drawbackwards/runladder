@@ -5,8 +5,11 @@ import { getUserSubscription } from "@/lib/tier";
 import { orgMeta, type OrgPublicMetadata } from "@/lib/orgs";
 import {
   distillStyleGuide,
+  detectStyleConflicts,
   setOrgStyleGuide,
+  getOrgStyleGuide,
   clearOrgStyleGuide,
+  type StyleConflict,
 } from "@/lib/style-guide";
 
 /**
@@ -69,9 +72,19 @@ export async function POST(req: NextRequest) {
   const bytes = Buffer.from(await file.arrayBuffer());
 
   // Distill FIRST — if the guide has no usable writing rules, store nothing.
+  // Conflict detection runs alongside (best-effort, advisory) and never blocks
+  // the upload: a failure just means no conflicts are surfaced (#362).
+  const pdfBase64 = bytes.toString("base64");
   let ruleset: string | null;
+  let conflicts: StyleConflict[] = [];
   try {
-    ruleset = await distillStyleGuide(bytes.toString("base64"));
+    [ruleset, conflicts] = await Promise.all([
+      distillStyleGuide(pdfBase64),
+      detectStyleConflicts(pdfBase64).catch((e) => {
+        console.warn("[style-guide] conflict detection failed:", e);
+        return [] as StyleConflict[];
+      }),
+    ]);
   } catch (e) {
     console.error("[style-guide] distill failed:", e);
     return NextResponse.json(
@@ -106,7 +119,7 @@ export async function POST(req: NextRequest) {
     await del(existing.styleGuide.blobUrl).catch(() => {});
   }
 
-  await setOrgStyleGuide(orgId, { ruleset, teamName: org.name ?? null });
+  await setOrgStyleGuide(orgId, { ruleset, teamName: org.name ?? null, conflicts });
 
   const styleGuide = {
     blobUrl: blob.url,
@@ -121,6 +134,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     styleGuide: { fileName: styleGuide.fileName, uploadedAt: styleGuide.uploadedAt },
+    conflicts,
   });
 }
 
@@ -136,10 +150,13 @@ export async function GET() {
   const client = await clerkClient();
   const org = await client.organizations.getOrganization({ organizationId: orgId });
   const sg = orgMeta(org).styleGuide;
+  // Conflicts live in Redis (with the ruleset), not in Clerk metadata.
+  const stored = sg ? await getOrgStyleGuide(orgId) : null;
   return NextResponse.json({
     present: !!sg,
     fileName: sg?.fileName ?? null,
     uploadedAt: sg?.uploadedAt ?? null,
+    conflicts: stored?.conflicts ?? [],
     tier,
     canManage: tier === "team" && orgRole === "org:admin",
   });

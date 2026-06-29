@@ -116,10 +116,27 @@ function styleGuideKey(orgId: string): string {
 /** Cap the cached ruleset so per-score prompts stay cheap and bounded. */
 const MAX_RULESET_CHARS = 12_000;
 
+/**
+ * An internal contradiction/ambiguity detected in an uploaded guide (#362).
+ * Advisory only: we DON'T let the team resolve it in the UI — we show how we'll
+ * interpret it and tell them to edit + re-upload the guide. Surfaced on Settings,
+ * not per-scan.
+ */
+export type StyleConflict = {
+  /** Short label, e.g. "Field label capitalization". */
+  topic: string;
+  /** What the guide says that conflicts, in plain language. */
+  summary: string;
+  /** How Ladder will apply it (most-specific rule wins). */
+  interpretation: string;
+};
+
 /** What scoring needs about a team's style guide: the ruleset + team name. */
 export type OrgStyleGuide = {
   ruleset: string;
   teamName: string | null;
+  /** Contradictions/ambiguities found in the guide at upload time (advisory). */
+  conflicts?: StyleConflict[];
 };
 
 /** Read an org's stored style guide, or null if none is set. */
@@ -128,7 +145,11 @@ export async function getOrgStyleGuide(
 ): Promise<OrgStyleGuide | null> {
   const v = await redis.get<OrgStyleGuide>(styleGuideKey(orgId));
   return v && typeof v.ruleset === "string" && v.ruleset.trim().length > 0
-    ? { ruleset: v.ruleset, teamName: v.teamName ?? null }
+    ? {
+        ruleset: v.ruleset,
+        teamName: v.teamName ?? null,
+        conflicts: Array.isArray(v.conflicts) ? v.conflicts : [],
+      }
     : null;
 }
 
@@ -140,6 +161,7 @@ export async function setOrgStyleGuide(
   await redis.set(styleGuideKey(orgId), {
     ruleset: data.ruleset.slice(0, MAX_RULESET_CHARS),
     teamName: data.teamName,
+    conflicts: data.conflicts ?? [],
   });
 }
 
@@ -196,6 +218,77 @@ export async function distillStyleGuide(pdfBase64: string): Promise<string | nul
   const text = textBlock.text.trim();
   if (!text || text === "NO_RULES") return null;
   return text.slice(0, MAX_RULESET_CHARS);
+}
+
+const CONFLICT_SYSTEM = `You review a brand's WRITING style guide (a PDF) for INTERNAL CONTRADICTIONS and AMBIGUITIES — places where two statements pull in different directions for the same kind of text, so a reader can't be sure which to follow. A real example: "Use title case across all content" in one place, and "Capitalize the first word of field labels" in another — those conflict for field labels (title case vs. sentence case).
+
+Report ONLY genuine conflicts/ambiguities about WRITTEN COPY (capitalization, terminology, punctuation, formatting, naming). Do NOT report visual/brand guidance, and do NOT invent conflicts — if the guide is internally consistent, return an empty list. Be conservative: only flag a conflict a careful human would also be unsure about.
+
+For each conflict, explain how Ladder will RESOLVE it when checking copy: the MOST SPECIFIC rule for an element wins (a rule that names "field labels" beats a general "all content" rule); if neither is more specific, Ladder will not flag that aspect. We do NOT ask the team to choose in the app — they edit the guide and upload a new version.
+
+Return ONLY valid JSON, no markdown:
+{
+  "conflicts": [
+    {
+      "topic": "short label, e.g. Field label capitalization",
+      "summary": "what the guide says that conflicts, in plain language, quoting both sides",
+      "interpretation": "how Ladder will apply it (the most-specific rule that wins, and what that means for this element)"
+    }
+  ]
+}
+If there are no genuine conflicts, return {"conflicts": []}.`;
+
+/**
+ * Scan an uploaded guide PDF for internal contradictions/ambiguities (#362).
+ * Independent of distillation; best-effort — a failure returns []. Advisory
+ * output shown on the team's Settings page so they can fix + re-upload the guide.
+ */
+export async function detectStyleConflicts(pdfBase64: string): Promise<StyleConflict[]> {
+  const client = new Anthropic();
+  const response = await client.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 2048,
+    temperature: 0,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "document",
+            source: { type: "base64", media_type: "application/pdf", data: pdfBase64 },
+          },
+          {
+            type: "text",
+            text: "Review this style guide for internal contradictions/ambiguities about written copy.",
+          },
+        ],
+      },
+    ],
+    system: CONFLICT_SYSTEM,
+  });
+
+  const textBlock = response.content.find((b) => b.type === "text");
+  if (!textBlock || textBlock.type !== "text") return [];
+  let parsed: { conflicts?: unknown };
+  try {
+    parsed = JSON.parse(extractJsonObject(textBlock.text));
+  } catch {
+    return [];
+  }
+  if (!parsed || !Array.isArray(parsed.conflicts)) return [];
+  return parsed.conflicts
+    .map((c): StyleConflict | null => {
+      if (!c || typeof c !== "object") return null;
+      const o = c as Record<string, unknown>;
+      if (typeof o.topic !== "string" || typeof o.summary !== "string") return null;
+      return {
+        topic: o.topic,
+        summary: o.summary,
+        interpretation: typeof o.interpretation === "string" ? o.interpretation : "",
+      };
+    })
+    .filter((c): c is StyleConflict => c !== null)
+    .slice(0, 12);
 }
 
 const COMPLIANCE_SYSTEM = `You are ENFORCING a team's written style guide against the text of a UI screen. Your job is PRECISION: flag only text that CLEARLY and CONFIDENTLY violates a specific rule in the provided ruleset. This is an enforcement tool — wrongly flagging copy that already complies destroys the team's trust and is worse than missing a borderline case. When in doubt, do NOT flag.

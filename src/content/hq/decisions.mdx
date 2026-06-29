@@ -2,7 +2,7 @@
 title: Decisions Log
 updatedAt: 2026-06-29
 updatedBy: Sara
-lastPr: 366
+lastPr: 370
 ---
 
 ## How to use this page
@@ -10,6 +10,16 @@ lastPr: 366
 The why behind big choices. Read this before you push back on a feature, a price, or a roadmap call. Most decisions look arbitrary until you know the constraint that drove them. New entries go at the top with a date and one-line rule.
 
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
+
+---
+
+## Ambiguous style guides: surface the conflict, don't resolve it in-app (2026-06-29)
+
+**Context:** A client's uploaded guide contradicted itself — "use title case across all content" AND "capitalize the first word of field labels" (title case vs. sentence case for the same element). No checker can be reliably "right" when the source disagrees with itself, and silently guessing an interpretation is dangerous for a tool we sell as *enforcement*.
+
+**Rule:** On upload, detect internal contradictions/ambiguities and **surface them** on Settings → Style Guide — each with a plain-language summary and **how Ladder will interpret it** (the compliance engine applies the MOST SPECIFIC rule for an element; a rule naming "field labels" beats a general "all content" rule). We do **not** let the team resolve the conflict in the app (no pick-one toggle); the guidance is "edit the guide and upload a new version." This keeps scope tight, keeps the guide as the single source of truth, and turns a weakness (can't decide) into a feature (we caught a flaw in your guide). Detection is a best-effort pass at upload; it never blocks. The compliance prompt itself is precision-tuned so it never over-flags compliant copy regardless ([#362](https://github.com/drawbackwards/runladder/issues/362)).
+
+**How to apply:** when a team reports "wrong" style findings, first check Settings → Style Guide for surfaced ambiguities and inspect their distilled ruleset — the fix is often clarifying their guide, not the engine.
 
 ---
 
