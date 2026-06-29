@@ -6,6 +6,17 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.12 / api 1.2.0 (2026-06-29)
+
+**One style engine everywhere; plugin Improve Copy splits Style Guide vs General (#362).**
+
+- The plugin's Improve Copy was still classifying style differently from the web score (e.g. "Order no" → ABBREVIATION in the plugin vs CAPITALIZATION on web) because it ran its own copy prompt. `POST /api/plugin/analyze/copy` now returns **two separate sections**: `styleGuide` (computed by the SAME `analyzeStyleCompliance` engine the web score uses — byte-identical findings) and `general` (a general UX copy audit that deliberately skips style matters, so it never duplicates or contradicts the style section). Response shape changed from `{ ladder, copy }` to `{ mode, styleGuide, general }` (api 1.2.0).
+- `auditCopy` is now general-only — the style-guide block was removed; style compliance has a single source of truth.
+- The style + copy passes run at `temperature: 0` so the same screen yields the same findings across surfaces and re-scans (#362, #343).
+- Plugin UI now renders a "Style Guide" section (in the web's tag / strikethrough → suggestion / reason layout) and a separate "General suggestions" section. Web score display is unchanged.
+
+---
+
 ## app 0.5.12 / api 1.1.0 (2026-06-29)
 
 **Text-driven style-guide checks + one canonical copy engine (#362 Chunk 1).**

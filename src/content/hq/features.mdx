@@ -2,7 +2,7 @@
 title: Feature Inventory
 updatedAt: 2026-06-29
 updatedBy: Sara
-lastPr: 366
+lastPr: 367
 ---
 
 ## How to read this page
@@ -28,7 +28,7 @@ When you ship a feature, add the row here in the same PR. Template:
 | Feature | Roles | Status | Evidence |
 | --- | --- | --- | --- |
 | Public scoring tool (`/score`) | All signed-in | Live | `src/app/score/` |
-| Team style guide compliance: Team Lead uploads a PDF writing style guide (Settings → Style Guide); Ladder flags on-screen copy that deviates from it, with a suggested fix and category, on web scores, in the Figma plugin's Improve Copy, and on plugin-originated scores on the dashboard. **Text-driven (#362 Chunk 1, PR #366):** checks ground-truth text from Figma layers / a URL's DOM; raw image uploads are best-effort with a gold caveat. Advisory only, never affects the score. | Team Lead (upload) / Team (sees findings) | Live (PR #361, #364, #366) | `src/lib/style-guide.ts`, `src/lib/copy-audit.ts`, `src/app/api/plugin/analyze/copy/route.ts`, `src/app/api/screenshot/route.ts`, `src/lib/scoring.ts`, `src/app/api/plugin/persist-score/route.ts`, `src/components/StyleGuideFindings.tsx`, `src/app/api/org/style-guide/` |
+| Team style guide compliance: Team Lead uploads a PDF writing style guide (Settings → Style Guide); Ladder flags on-screen copy that deviates from it, with a suggested fix and category, on web scores, in the Figma plugin's Improve Copy, and on plugin-originated scores on the dashboard. **Text-driven (#362 Chunk 1, PR #366):** checks ground-truth text from Figma layers / a URL's DOM; raw image uploads are best-effort with a gold caveat. **One engine everywhere (PR #367):** the plugin's Improve Copy shows a "Style Guide" section (identical findings to the web score, same `analyzeStyleCompliance` engine, same layout) plus a separate "General suggestions" section; style passes run at temperature 0. Advisory only, never affects the score. | Team Lead (upload) / Team (sees findings) | Live (PR #361, #364, #366, #367) | `src/lib/style-guide.ts`, `src/lib/copy-audit.ts`, `src/app/api/plugin/analyze/copy/route.ts`, `src/app/api/screenshot/route.ts`, `src/lib/scoring.ts`, `src/app/api/plugin/persist-score/route.ts`, `src/components/StyleGuideFindings.tsx`, `src/app/api/org/style-guide/` |
 | Private / Internal scoring (paid feature; toggle defaults on for paid, free locked to public, off-warning, tier-aware "Private"/"Internal" label) | Pro / Team / Pulse (free = public only) | Live (v0.5.7, [#290](https://github.com/drawbackwards/runladder/issues/290) / [#301](https://github.com/drawbackwards/runladder/issues/301)) | `src/app/score/page.tsx`, `src/lib/score-scope.ts`, `src/app/api/score/route.ts`, `src/app/api/score/stream/route.ts` |
 | Personal dashboard (`/dashboard`) | All signed-in | Live | `src/app/dashboard/` |
 | Design rhythm + activity heatmap on personal dashboard (paid only) | Pro / Team / Pulse | Live (#289) | `src/app/dashboard/page.tsx` (gated on `paid`) |
