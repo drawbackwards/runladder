@@ -351,6 +351,48 @@ export type StyleComplianceOutcome = {
   textSource: "exact" | "inferred";
 };
 
+const TRANSCRIBE_SYSTEM = `You transcribe EVERY piece of visible text in a UI screenshot, verbatim. Include headings, body, button labels, field labels, menu and tab labels, table cells, placeholder text, timestamps, badges, and small or low-contrast text — every string a user can read. Read carefully and do not skip small text. Do not paraphrase, translate, summarize, or add commentary. Output ONE line per distinct visible string, roughly top to bottom. No numbering, no markdown, no quotes.`;
+
+/**
+ * Best-effort transcription of all visible text in a screenshot, so the
+ * style-compliance check can judge a full text listing instead of reading text
+ * inline (and missing small labels/buttons). Used only for image-only inputs —
+ * still "inferred", not ground truth. Returns null on failure; the caller then
+ * falls back to reading the image directly.
+ */
+export async function transcribeScreenText(image: {
+  mediaType: MediaType;
+  base64Data: string;
+}): Promise<FrameText | null> {
+  const client = new Anthropic();
+  const response = await client.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 2048,
+    temperature: 0,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "image",
+            source: { type: "base64", media_type: image.mediaType, data: image.base64Data },
+          },
+          { type: "text", text: "Transcribe every visible string in this screen." },
+        ],
+      },
+    ],
+    system: TRANSCRIBE_SYSTEM,
+  });
+  const textBlock = response.content.find((b) => b.type === "text");
+  if (!textBlock || textBlock.type !== "text") return null;
+  const textContent = textBlock.text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0)
+    .slice(0, 300);
+  return textContent.length > 0 ? { textContent } : null;
+}
+
 /**
  * Run the style-compliance pass: the team's ruleset + the screen's copy →
  * advisory findings. Independent of scoring; callers treat a throw or empty
@@ -373,14 +415,29 @@ export async function analyzeStyleCompliance(
   ruleset: string,
 ): Promise<StyleComplianceOutcome> {
   const hasText = hasFrameText(frameText);
+  // textSource reflects whether we had GROUND-TRUTH text. An image we transcribe
+  // is still "inferred" (best-effort) — the caveat must keep showing.
   const textSource: "exact" | "inferred" = hasText ? "exact" : "inferred";
   if (!image && !hasText) return { findings: [], textSource };
+
+  // Build the text listing the check judges. Ground-truth frameText is used
+  // directly. With only an image, transcribe its visible text FIRST so the
+  // (precise) check sees a full listing instead of reading text inline and
+  // missing small labels/buttons — this is what closes the image-upload recall
+  // gap vs Figma/URL (#362). Falls back to image-only reading if transcription
+  // is unavailable.
+  let listing: FrameText | null = hasText ? frameText : null;
+  if (!listing && image) {
+    const transcribed = await transcribeScreenText(image).catch(() => null);
+    if (hasFrameText(transcribed)) listing = transcribed;
+  }
+  const haveListing = hasFrameText(listing);
 
   const content: Anthropic.MessageParam["content"] = [
     { type: "text", text: `Team style-guide ruleset:\n\n${ruleset}` },
   ];
-  if (hasText) {
-    content.push({ type: "text", text: formatFrameText(frameText) });
+  if (hasFrameText(listing)) {
+    content.push({ type: "text", text: formatFrameText(listing) });
   }
   if (image) {
     content.push({
@@ -390,8 +447,8 @@ export async function analyzeStyleCompliance(
   }
   content.push({
     type: "text",
-    text: hasText
-      ? "Check the exact on-screen text above against the ruleset. Quote originalText verbatim from that listing."
+    text: haveListing
+      ? "Check the on-screen text listing above against the ruleset. Quote originalText verbatim from that listing."
       : "Check the written copy in this screen against the ruleset above.",
   });
 

@@ -6,6 +6,15 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.15 / api 1.3.0 (2026-06-29)
+
+**Better style-guide recall on image uploads (#362).**
+
+- When a style check runs on an uploaded image (no ground-truth text — e.g. a screenshot, vs Figma layers or a URL's DOM), it now first **transcribes all visible text** from the image, then runs the compliance check against that listing. Previously the check read text inline and missed smaller strings (button labels, field labels), so an image scan could catch far fewer violations than the same screen scored in Figma. This narrows that gap; the result is still `inferred` (best-effort), so the "score from Figma or a URL for a complete check" caveat still shows.
+- Known limitation (unchanged): a genuinely self-contradictory guide (e.g. "title case all content" AND "capitalize the first word of labels") can't be resolved reliably by the model from the prompt alone — the engine biases toward NOT over-flagging compliant copy in that case, and the contradiction is surfaced on Settings for the team to fix.
+
+---
+
 ## app 0.5.14 / api 1.3.0 (2026-06-29)
 
 **Style-guide ambiguities: stable detection + Settings polish (#362).**
