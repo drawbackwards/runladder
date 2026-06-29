@@ -328,7 +328,8 @@ How to judge each piece of text:
 The JSON is your FINAL ANSWER, not a scratchpad:
 - Never include deliberation, "on reflection", "actually complies", or "no violation found" in any field. If you conclude it complies, the finding simply does not exist.
 - "suggestion" MUST be a genuine rewrite that DIFFERS from "originalText". If your rewrite would equal the original, there is no violation — omit it.
-- "issue" states ONLY the specific rule broken and how — never your reasoning about whether it's broken.
+- "issue" is ONE short sentence (aim for under 20 words) citing the SINGLE rule broken — not your reasoning, not a chain of rules. If a text could be read as breaking more than one rule, cite only the one your "suggestion" actually fixes.
+- CONSISTENCY: when several texts break the SAME rule (e.g. "Order no" and "Model no" both abbreviate "number"), write their "issue" the SAME way and use the same category. Identical violations must read identically.
 
 Return ONLY valid JSON, no markdown:
 {

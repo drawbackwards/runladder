@@ -57,6 +57,20 @@ Terminology
     mustNotFlag: ["Order no", "Unit type"],
     mustFlag: ["order summary"],
   },
+  {
+    name: "same violation reads identically (Order no / Model no abbreviation)",
+    ruleset: `Capitalization
+- Capitalize the first word of field labels.
+
+Terminology
+- Avoid abbreviations unless commonly understood. Approved: OK, info, admin, IP.`,
+    textContent: ['"Order no"', '"Model no"'],
+    mustFlag: ["Order no", "Model no"],
+    mustNotFlag: [],
+    // Both are the SAME violation ("no" → "number"); their category and issue
+    // text must match so the results read consistently.
+    sameRule: ["Order no", "Model no"],
+  },
 ];
 
 let allPass = true;
@@ -70,13 +84,25 @@ for (const s of SCENARIOS) {
   const missed = s.mustFlag.filter((t) => !flagged.has(t));
   // No-op findings (suggestion === original) must never reach the user.
   const noOps = findings.filter((f) => f.suggestion.trim() === f.originalText.trim());
-  const pass = falsePositives.length === 0 && missed.length === 0 && noOps.length === 0;
+  // Same-rule consistency: the named items must share a category AND an issue.
+  let inconsistent = false;
+  if (s.sameRule) {
+    const fs = s.sameRule
+      .map((t) => findings.find((f) => f.originalText.replace(/^"|"$/g, "") === t))
+      .filter(Boolean);
+    const cats = new Set(fs.map((f) => f.category));
+    const issues = new Set(fs.map((f) => f.issue.trim().toLowerCase()));
+    inconsistent = fs.length !== s.sameRule.length || cats.size > 1 || issues.size > 1;
+  }
+  const pass =
+    falsePositives.length === 0 && missed.length === 0 && noOps.length === 0 && !inconsistent;
   allPass = allPass && pass;
   console.log(`\n${pass ? "PASS ✓" : "FAIL ✗"}  ${s.name}`);
-  for (const f of findings) console.log(`    [${f.category}] "${f.originalText}" → "${f.suggestion}"`);
+  for (const f of findings) console.log(`    [${f.category}] "${f.originalText}" → "${f.suggestion}"  (${f.issue})`);
   if (falsePositives.length) console.log(`    false positives: ${falsePositives.join(", ")}`);
   if (missed.length) console.log(`    missed: ${missed.join(", ")}`);
   if (noOps.length) console.log(`    no-op findings: ${noOps.map((f) => f.originalText).join(", ")}`);
+  if (inconsistent) console.log(`    INCONSISTENT: same-rule items differ in category or issue text`);
 }
 console.log(`\n${allPass ? "ALL SCENARIOS PASS ✓" : "SOME SCENARIOS FAILED ✗"}`);
 process.exit(allPass ? 0 : 1);
