@@ -3,7 +3,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { parseImageDataUrl } from "@/lib/scoring";
 import {
   getOrgStyleGuide,
-  analyzeStyleCompliance,
+  analyzeStyleComplianceCached,
   hasFrameText,
   type FrameText,
   type StyleGuideResult,
@@ -69,11 +69,12 @@ export async function POST(req: NextRequest) {
     // Resolve the team's style ruleset from the user's org (best-effort).
     let ruleset: string | null = null;
     let teamName: string | null = null;
+    let orgId: string | null = null;
     if (userId) {
       try {
         const clerk = await clerkClient();
         const memberships = await clerk.users.getOrganizationMembershipList({ userId });
-        const orgId = memberships.data[0]?.organization?.id ?? null;
+        orgId = memberships.data[0]?.organization?.id ?? null;
         const orgGuide = orgId ? await getOrgStyleGuide(orgId) : null;
         if (orgGuide) {
           ruleset = orgGuide.ruleset;
@@ -89,7 +90,7 @@ export async function POST(req: NextRequest) {
     // style matters. Each degrades on its own without failing the other.
     const [styleGuide, general] = await Promise.all([
       ruleset
-        ? analyzeStyleCompliance({ image: imageInput, frameText }, ruleset)
+        ? analyzeStyleComplianceCached({ image: imageInput, frameText }, ruleset, orgId)
             .then(
               (outcome): StyleGuideResult => ({
                 status: outcome.findings.length > 0 ? "issues" : "compliant",

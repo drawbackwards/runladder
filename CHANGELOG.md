@@ -13,7 +13,8 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 - The plugin's Improve Copy was still classifying style differently from the web score (e.g. "Order no" → ABBREVIATION in the plugin vs CAPITALIZATION on web) because it ran its own copy prompt. `POST /api/plugin/analyze/copy` now returns **two separate sections**: `styleGuide` (computed by the SAME `analyzeStyleCompliance` engine the web score uses — byte-identical findings) and `general` (a general UX copy audit that deliberately skips style matters, so it never duplicates or contradicts the style section). Response shape changed from `{ ladder, copy }` to `{ mode, styleGuide, general }` (api 1.2.0).
 - `auditCopy` is now general-only — the style-guide block was removed; style compliance has a single source of truth.
 - The style + copy passes run at `temperature: 0` so the same screen yields the same findings across surfaces and re-scans (#362, #343).
-- Plugin UI now renders a "Style Guide" section (in the web's tag / strikethrough → suggestion / reason layout) and a separate "General suggestions" section. Web score display is unchanged.
+- **Style compliance is computed once per scan and cached** (content-addressed by org + ruleset + exact text). The plugin's in-canvas Improve Copy and the persisted score that the web displays now reuse the *same* result instead of each making an independent model call — so they can no longer drift (different count/categories). Editing the guide or the screen produces a fresh result (the key changes).
+- Plugin UI now renders a "Style Guide" section (in the web's tag / strikethrough → suggestion / reason layout) and a separate "General suggestions" section, with green section headings. Web score display is unchanged.
 
 ---
 
