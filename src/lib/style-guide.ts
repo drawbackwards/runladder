@@ -266,6 +266,10 @@ export async function analyzeStyleCompliance(
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 2048,
+    // temperature 0: the compliance check should be as deterministic as
+    // possible so the same screen yields the same findings across surfaces and
+    // re-scans (#362, #343).
+    temperature: 0,
     messages: [{ role: "user", content }],
     system: COMPLIANCE_SYSTEM,
   });

@@ -1,28 +1,23 @@
 /**
- * UX copy-audit engine — PROTECTED IP (model prompts live here).
+ * General UX copy-audit engine — PROTECTED IP (model prompts live here).
  *
- * The Figma plugin's "Improve Copy" action used to build this prompt itself and
- * call Anthropic directly, which is one of the two forked implementations of
- * style-guide checking that made results diverge across surfaces (#362). This
- * is the single canonical implementation: the plugin now calls
- * `/api/plugin/analyze/copy`, which runs this. It reuses the SAME team-style
- * ruleset source (`getOrgStyleGuide`) and the SAME category taxonomy
- * (`STYLE_CATEGORIES`) as the score-time compliance pass in `style-guide.ts`,
- * so a given string can only ever be classified one way.
+ * This is the "Improve Copy" feature's GENERAL pass: it judges each visible
+ * string by its copy type (CTA, heading, body, empty state, …) and suggests
+ * better copy. It deliberately does NOT do team-style-guide compliance — that
+ * is a SEPARATE, single source of truth (`analyzeStyleCompliance` in
+ * `style-guide.ts`), so the same string is never classified two different ways
+ * across surfaces (#362). The plugin's Improve Copy shows the style-guide
+ * findings (from that one engine) and these general suggestions as two distinct
+ * sections; the web score shows only the style-guide section for now.
  *
- * Like the compliance pass, this judges ground-truth `frameText` when provided
+ * Like the style pass, this judges ground-truth `frameText` when provided
  * (Figma layers / URL DOM) and falls back to reading the image's pixels
- * otherwise. MUST stay server-side — never log the ruleset or prompt to clients.
+ * otherwise. MUST stay server-side — never log the prompt to clients.
  */
 import Anthropic from "@anthropic-ai/sdk";
 import type { MediaType } from "./scoring";
 import { extractJsonObject } from "./json-extract";
-import {
-  STYLE_CATEGORIES,
-  hasFrameText,
-  type StyleCategory,
-  type FrameText,
-} from "./style-guide";
+import { hasFrameText, type FrameText } from "./style-guide";
 
 /** Copy types the audit classifies each string as, then judges by its own rules. */
 export const COPY_TYPES = [
@@ -49,21 +44,16 @@ export type CopyRewrite = {
   rule: string;
   /** Why the suggestion is better, from the user's perspective. */
   rationale: string;
-  /** True only when the rewrite is driven by the team style guide. */
-  styleGuide: boolean;
-  /** Set only when styleGuide is true — which kind of rule it breaks. */
-  category: StyleCategory | "";
 };
 
-export type CopyAuditResult = {
-  mode: "copy";
-  ladder: { score: number; label: string; summary: string; next: string };
-  copy: { summary: string; rewrites: CopyRewrite[] };
-  /** "exact" when judged from ground-truth text, "inferred" when read from pixels. */
-  textSource: "exact" | "inferred";
+export type GeneralCopyResult = {
+  summary: string;
+  rewrites: CopyRewrite[];
 };
 
-const COPY_SYSTEM = `You are a senior UX writer auditing the WRITTEN TEXT of a single UI screen. You classify every significant piece of visible text by its copy type, then evaluate it against the rules that apply to THAT type — not generic writing principles. You never comment on visual design, layout, or color, and you never invent a Ladder design score; the "ladder" you return is a judgment of COPY quality only.
+const COPY_SYSTEM = `You are a senior UX writer auditing the WRITTEN TEXT of a single UI screen. You classify every significant piece of visible text by its copy type, then evaluate it against the rules that apply to THAT type — not generic writing principles. You never comment on visual design, layout, or color, and you never produce a score.
+
+A SEPARATE team style-guide check already handles capitalization, punctuation, abbreviations, terminology, and spelling. Do NOT flag those kinds of issues here — they will be shown to the user separately, and duplicating them is confusing. Focus on whether each string DOES ITS JOB for its type: clarity, structure, specificity, the right verb on a button, a heading that front-loads its concept, body copy that is scannable, an empty state that offers a next action.
 
 The screen's copy may arrive as an EXACT TEXT LISTING (the real text layers — authoritative; quote "original" verbatim from it), as an IMAGE you must read the text out of, or both. When an exact listing is present, treat it as the source of truth and use the image only for context.
 
@@ -72,133 +62,74 @@ Different copy types have completely different goals. A nav title being short is
 COPY TYPE TAXONOMY AND RULES:
 
 nav-title — Navigation labels, tabs, sidebar items, menu items, breadcrumbs
-  CORRECT: 1–3 words, noun or noun phrase, no verbs, no articles ("a","the"), no personal pronouns ("Your","My"), no punctuation, title case.
-  CORRECT examples: "Settings", "Trip Planning", "Guest List", "Flight Details"
-  Flag only if: longer than 4 words, uses verbs where a noun suffices, or uses internal jargon the user would not recognize.
+  CORRECT: 1–3 words, noun or noun phrase. Flag only if longer than 4 words, uses verbs where a noun suffices, or uses internal jargon the user would not recognize.
 
-section-heading — Page H1 or section H2, visible title of a content area
-  CORRECT: 3–8 words, clear, front-loads the key concept, may be imperative or descriptive noun phrase.
-  Flag if: vague ("Overview", "Details"), company-centric instead of user-centric, buries the key word at the end.
+section-heading — Page H1 or section H2, the visible title of a content area
+  CORRECT: 3–8 words, front-loads the key concept. Flag if vague ("Overview", "Details"), company-centric, or buries the key word at the end.
 
 card-title — Title of a card, list item header, accordion header
-  CORRECT: Noun phrase, concise (2–6 words), describes the content inside without requiring a verb. Not action-oriented.
-  Flag if: duplicates the nav label above it, uses passive voice, is ambiguous without reading the card body.
+  CORRECT: concise noun phrase (2–6 words) describing the content. Flag if it duplicates the nav label above it, is passive, or is ambiguous without reading the body.
 
 cta — Buttons, links that trigger an action
-  CORRECT: Action verb + specific object, 2–4 words, describes exactly what happens on click.
-  CORRECT examples: "Start Free Trial", "Add Guest", "Save Changes", "Download PDF"
-  WRONG: "Submit", "Click Here", "Go", "OK", "Continue" (too generic)
-  Flag if: no verb, generic verb with no object, or the outcome is ambiguous.
+  CORRECT: action verb + specific object, 2–4 words. WRONG: "Submit", "Click Here", "Go", "OK", "Continue". Flag if no verb, generic verb with no object, or the outcome is ambiguous.
 
 form-label — Label text above or beside an input field
-  CORRECT: Short noun phrase (1–4 words), unambiguous, matches exactly what the field captures, no trailing colon.
-  Flag if: uses jargon, is a full sentence, or does not match the field's purpose.
+  CORRECT: short noun phrase that matches exactly what the field captures. Flag if it uses jargon, is a full sentence, or does not match the field's purpose. (Capitalization is the style guide's job — ignore it here.)
 
 placeholder — Ghost text inside an empty input field
-  CORRECT: Example value ("john@email.com") or brief instruction ("e.g. 2 adults"). Never repeats the label.
-  Flag if: repeats the label word-for-word, or gives instructions better suited to helper text.
+  CORRECT: an example value or brief hint. Flag if it repeats the label or gives instructions better suited to helper text.
 
 microcopy — Helper text below fields, tooltips, inline hints
-  CORRECT: Human, specific, reassuring. Tells the user what to expect or why information is needed. 1–2 short sentences.
-  Flag if: missing where anxiety is expected (password, payment, uploads), is a full paragraph, or uses legal/technical language.
+  CORRECT: human, specific, reassuring. Flag if missing where anxiety is expected (password, payment, uploads), is a full paragraph, or uses legal/technical language.
 
 error — Validation errors, system error messages
-  CORRECT: States what went wrong (specific) and how to fix it. Active voice. No blame. No jargon ("Error 422").
-  Flag if: just says "Invalid" or "Error" with no guidance, blames the user, or uses a code instead of plain language.
+  CORRECT: states what went wrong and how to fix it, active voice, no blame, no codes. Flag if it just says "Invalid"/"Error" with no guidance or blames the user.
 
 empty-state — Message shown when a list, feed, or section has no content
-  CORRECT: Explains what's missing + offers a clear next action. Human and brief.
-  Flag if: says only "Nothing here", "No results", or "N/A" with no guidance.
+  CORRECT: explains what's missing + a clear next action. Flag if it says only "Nothing here", "No results", or "N/A".
 
 body — Paragraph text, descriptive content, instructional copy
-  CORRECT: Scannable (short sentences, active voice), user-focused, jargon-free, no unnecessary preamble.
-  Flag if: starts with company name, uses passive voice throughout, or buries the action at the end.
+  CORRECT: scannable, user-focused, specific. Flag if it is a generic placeholder ("This is a description"), passive throughout, or buries the action.
 
 CLASSIFICATION PROCESS (follow in order):
 1. Look at where the text appears (nav rail, button, field label, card header, etc.).
 2. Assign the most specific type from the taxonomy above.
-3. Apply ONLY the rules for that type.
-4. Only flag it if it breaks a rule for its type. If it follows the rules, skip it — do not flag correct copy.`;
-
-const STYLE_GUIDE_BLOCK = (teamName: string) => `
-
-TEAM STYLE GUIDE — ADDITIONAL CHECK:
-
-In ADDITION to the general copy rules above, check the visible copy against ${teamName}'s own written style guide below. When a rewrite is driven by the style guide (not just general best-practice), set "styleGuide": true and set "category" to the kind of rule it breaks: one of ${STYLE_CATEGORIES.join(" | ")}.
-PRECEDENCE: where the team style guide conflicts with the generic rules above, the TEAM STYLE GUIDE WINS — follow it.
-CONTEXT: apply each rule with common sense about conventional forms. Standard usages are correct, not violations — e.g. US state abbreviations inside an address ("Raleigh, NC"), currency/unit codes, IDs, dates, and proper nouns. A rule like "avoid abbreviations" targets prose and labels, not data shown in its normal form. Surface real deviations even when minor (the reviewer can dismiss what does not apply); only withhold things correct by convention or not addressed by the guide.
-Do NOT invent rules that are not in the guide. General copy issues (not from the guide) keep "styleGuide": false.`;
-
-const OUTPUT_BLOCK = `
+3. Apply ONLY the rules for that type, and ONLY for copy clarity/structure (NOT style-guide compliance).
+4. Only flag it if it breaks a rule for its type. If it follows the rules, skip it — do not flag correct copy.
 
 Return ONLY a JSON object (no markdown, no preamble):
 {
-  "mode": "copy",
-  "ladder": { "score": 2.4, "label": "Usable", "summary": "One honest sentence about the overall copy quality", "next": "The single most impactful copy improvement" },
-  "copy": {
-    "summary": "One sentence about the overall copy quality",
-    "rewrites": [
-      { "type": "cta", "original": "exact current text", "suggested": "improved version", "rule": "the specific rule broken, stated plainly", "rationale": "why the suggestion is better for the user", "styleGuide": false, "category": "" }
-    ]
-  }
+  "summary": "One sentence about the overall copy quality",
+  "rewrites": [
+    { "type": "cta", "original": "exact current text", "suggested": "improved version", "rule": "the specific rule broken, stated plainly", "rationale": "why the suggestion is better for the user" }
+  ]
 }
 
 RULES:
-- Include 4–8 rewrites. Only flag text that genuinely breaks a rule for its type. If everything is strong, return fewer (or none).
-- DO NOT flag nav-title text for being short — short is correct for nav labels.
-- DO NOT apply CTA rules to headings, or heading rules to nav titles. Type determines the standard.
+- Include up to 8 rewrites. Only flag text that genuinely breaks a rule for its type. If the copy is strong, return fewer (or none).
+- DO NOT flag capitalization, punctuation, abbreviation, terminology, or spelling — the style-guide check owns those.
+- DO NOT flag nav-title text for being short. DO NOT apply CTA rules to headings. Type determines the standard.
 - "original" must be the EXACT text on screen (quote it verbatim from the exact listing when provided).
-- "rule" must name the specific rule that was broken, not generic writing advice.
+- "rule" must name the specific rule broken, not generic advice. "rationale" explains the user impact.
 - Order rewrites by impact — most impactful first.
-- "type" must be one of: ${COPY_TYPES.join(", ")}.
-- "label" must match the score: 1–1.99 Functional, 2–2.99 Usable, 3–3.99 Comfortable, 4–4.99 Delightful, 5 Meaningful.
-- "styleGuide": true ONLY for rewrites driven by the team style guide. "category" is set only when styleGuide is true (otherwise "").`;
-
-const LABELS: [number, string][] = [
-  [1, "Functional"],
-  [2, "Usable"],
-  [3, "Comfortable"],
-  [4, "Delightful"],
-  [5, "Meaningful"],
-];
-function labelFor(score: number): string {
-  let label = "Functional";
-  for (const [min, name] of LABELS) if (score >= min) label = name;
-  return label;
-}
+- "type" must be one of: ${COPY_TYPES.join(", ")}.`;
 
 /**
- * Run the canonical UX copy audit. Judges ground-truth `frameText` when present
- * (else reads the image), optionally layering the team style guide. Throws on a
- * hard API failure; returns an empty audit on an unparseable response so the
- * caller can degrade gracefully. At least one of image/frameText is required.
+ * Run the GENERAL copy audit (no style-guide compliance — that is a separate
+ * pass). Judges ground-truth `frameText` when present, else reads the image.
+ * Returns an empty result on an unparseable response so callers degrade
+ * gracefully. At least one of image/frameText must be provided.
  */
-export async function auditCopy(
-  {
-    image,
-    frameText,
-  }: {
-    image?: { mediaType: MediaType; base64Data: string } | null;
-    frameText?: FrameText | null;
-  },
-  { ruleset, teamName }: { ruleset?: string | null; teamName?: string | null },
-): Promise<CopyAuditResult> {
+export async function auditCopy({
+  image,
+  frameText,
+}: {
+  image?: { mediaType: MediaType; base64Data: string } | null;
+  frameText?: FrameText | null;
+}): Promise<GeneralCopyResult> {
   const hasText = hasFrameText(frameText);
-  const textSource: "exact" | "inferred" = hasText ? "exact" : "inferred";
-  const empty: CopyAuditResult = {
-    mode: "copy",
-    ladder: { score: 3, label: "Comfortable", summary: "", next: "" },
-    copy: { summary: "", rewrites: [] },
-    textSource,
-  };
+  const empty: GeneralCopyResult = { summary: "", rewrites: [] };
   if (!image && !hasText) return empty;
-
-  let system = COPY_SYSTEM;
-  if (ruleset && ruleset.trim()) {
-    system += STYLE_GUIDE_BLOCK(teamName?.trim() || "the team");
-    system += `\n\nTEAM STYLE GUIDE RULESET:\n${ruleset}`;
-  }
-  system += OUTPUT_BLOCK;
 
   const content: Anthropic.MessageParam["content"] = [];
   if (hasText) {
@@ -216,24 +147,23 @@ export async function auditCopy(
   }
   content.push({
     type: "text",
-    text: "Audit the copy in this screen. Classify each string by type and apply that type's rules.",
+    text: "Audit the copy in this screen. Classify each string by type and apply that type's clarity/structure rules. Skip anything that is purely a style-guide matter.",
   });
 
   const client = new Anthropic();
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 3000,
+    // temperature 0 for consistency across re-runs (#362, #343).
+    temperature: 0,
     messages: [{ role: "user", content }],
-    system,
+    system: COPY_SYSTEM,
   });
 
   const textBlock = response.content.find((b) => b.type === "text");
   if (!textBlock || textBlock.type !== "text") return empty;
 
-  let parsed: {
-    ladder?: { score?: unknown; label?: unknown; summary?: unknown; next?: unknown };
-    copy?: { summary?: unknown; rewrites?: unknown };
-  };
+  let parsed: { summary?: unknown; rewrites?: unknown };
   try {
     parsed = JSON.parse(extractJsonObject(textBlock.text));
   } catch {
@@ -241,49 +171,24 @@ export async function auditCopy(
   }
 
   const allowedType = new Set<string>(COPY_TYPES);
-  const allowedCategory = new Set<string>(STYLE_CATEGORIES);
-  const rawRewrites = Array.isArray(parsed.copy?.rewrites)
-    ? (parsed.copy.rewrites as unknown[])
-    : [];
+  const rawRewrites = Array.isArray(parsed.rewrites) ? (parsed.rewrites as unknown[]) : [];
   const rewrites = rawRewrites
     .map((r): CopyRewrite | null => {
       if (!r || typeof r !== "object") return null;
       const o = r as Record<string, unknown>;
       if (typeof o.original !== "string" || typeof o.suggested !== "string") return null;
-      const styleGuide = o.styleGuide === true;
-      const category =
-        styleGuide && allowedCategory.has(o.category as string)
-          ? (o.category as StyleCategory)
-          : "";
       return {
         type: allowedType.has(o.type as string) ? (o.type as CopyType) : "body",
         original: o.original,
         suggested: o.suggested,
         rule: typeof o.rule === "string" ? o.rule : "",
         rationale: typeof o.rationale === "string" ? o.rationale : "",
-        styleGuide,
-        category,
       };
     })
     .filter((r): r is CopyRewrite => r !== null);
 
-  const score =
-    typeof parsed.ladder?.score === "number"
-      ? Math.min(5, Math.max(1, parsed.ladder.score))
-      : 3;
   return {
-    mode: "copy",
-    ladder: {
-      score,
-      label:
-        typeof parsed.ladder?.label === "string" ? parsed.ladder.label : labelFor(score),
-      summary: typeof parsed.ladder?.summary === "string" ? parsed.ladder.summary : "",
-      next: typeof parsed.ladder?.next === "string" ? parsed.ladder.next : "",
-    },
-    copy: {
-      summary: typeof parsed.copy?.summary === "string" ? parsed.copy.summary : "",
-      rewrites,
-    },
-    textSource,
+    summary: typeof parsed.summary === "string" ? parsed.summary : "",
+    rewrites,
   };
 }
