@@ -152,6 +152,11 @@ const DISTILL_SYSTEM = `You convert a brand's WRITING style guide (a PDF) into a
 
 Extract ONLY actionable, checkable writing rules: tone and voice, terminology (preferred vs banned words), capitalization, punctuation, formatting conventions, grammar preferences, and product/feature naming. Ignore visual/brand-asset guidance (logos, colors, spacing) — those are out of scope here.
 
+PRESERVE EACH RULE'S EXACT SCOPE — which element it governs (field labels vs section headings vs buttons vs body text, etc.). This matters enormously: a checker will apply these rules literally.
+- Do NOT broaden a rule to "all UI text" or "everything" if the guide scoped it to a specific element. If the guide says "title-case page titles," write exactly that — not "title-case all UI text."
+- If the guide specifies DIFFERENT conventions for different elements (e.g. sentence case for field labels but title case for page titles), keep them as SEPARATE, clearly-scoped rules. Never merge them into one blanket rule, and never let a heading/title rule imply anything about labels (or vice versa).
+- State casing precisely: "sentence case (capitalize only the first word)" vs "title case (capitalize every major word)" — never just "capitalize."
+
 Output a tight, plain-text list of rules grouped under short headings (Tone, Terminology, Formatting, Grammar, Naming). Be specific and imperative ("Use 'sign in' not 'login'"). Omit anything not about written copy. No preamble, no closing remarks. If the document contains no usable writing rules, output exactly: NO_RULES`;
 
 /**
@@ -193,25 +198,29 @@ export async function distillStyleGuide(pdfBase64: string): Promise<string | nul
   return text.slice(0, MAX_RULESET_CHARS);
 }
 
-const COMPLIANCE_SYSTEM = `You are a copy editor checking a UI screen's WRITTEN TEXT against a team's style-guide ruleset.
+const COMPLIANCE_SYSTEM = `You are ENFORCING a team's written style guide against the text of a UI screen. Your job is PRECISION: flag only text that CLEARLY and CONFIDENTLY violates a specific rule in the provided ruleset. This is an enforcement tool — wrongly flagging copy that already complies destroys the team's trust and is worse than missing a borderline case. When in doubt, do NOT flag.
 
-You will receive the ruleset, then the screen's copy. The copy may come as an EXACT TEXT LISTING (the screen's real text layers — authoritative; quote from it verbatim), as an IMAGE you must read the text out of, or both. When an exact text listing is provided, treat it as the source of truth and use the image only for layout/context. Find text that violates the ruleset. Judge ONLY written copy — never comment on visual design, layout, or quality, and never produce a score.
+You will receive the ruleset, then the screen's copy: an EXACT TEXT LISTING (the real text layers — authoritative, quote verbatim) and/or an IMAGE you read text out of. When the listing is present, treat it as the source of truth and use the image only for layout/context. Judge ONLY written copy — never comment on visual design, layout, or quality, and never produce a score.
+
+How to judge each piece of text:
+1. Identify what it IS — a field label, button/CTA, section heading, page title, body text, etc.
+2. Find the MOST SPECIFIC rule that addresses that element type. A rule that names the element specifically (e.g. "field labels: capitalize the first word") WINS over a broad rule that only mentions it inside a general list (e.g. "use title case for all UI text"). Never apply a rule written for one element type (headings, titles, names) to a different element type (labels), and never stack a general rule on top of a specific one to demand more than the specific rule requires.
+3. Apply that rule EXACTLY as written — never stricter. "Capitalize the first word" requires ONLY the first word to be capitalized: a label like "Build by" or "Unit type" already COMPLIES (later words stay lowercase). Do NOT require title case unless a rule specifically requires title case for THAT element type.
+4. Before emitting a finding, restate the rule and confirm the text actually VIOLATES it as written. If the text already satisfies the rule, the ruleset doesn't clearly address it, or rules conflict and it's ambiguous — do NOT flag it.
 
 Return ONLY valid JSON, no markdown:
 {
   "findings": [
-    { "originalText": "the exact text on screen", "issue": "which rule it breaks, plainly", "suggestion": "a compliant rewrite", "severity": "low", "category": "Tone" }
+    { "originalText": "the exact text on screen", "issue": "the specific rule it breaks and how", "suggestion": "a compliant rewrite", "severity": "low", "category": "Tone" }
   ]
 }
 
 Rules:
 - "severity" is one of: low | medium | high.
 - "category" is one of: Tone | Terminology | Punctuation | Capitalization | Grammar | Formatting | Abbreviation | Other. Pick the closest; use "Other" only when none fit.
-- Flag only genuine deviations from the PROVIDED ruleset. Never invent rules that aren't in it. If everything complies, return {"findings": []}.
-- Apply each rule in CONTEXT, using common sense about conventional forms. Standard, domain-required usages are correct — not violations: US state abbreviations inside an address ("Raleigh, NC"), country/currency codes, units of measure, dates, IDs, and proper nouns. A rule like "avoid abbreviations" targets prose and UI labels, not an address or code shown in its normal form.
-- Within those bounds, surface real deviations even when minor — the person reviewing can dismiss what doesn't apply, so a useful suggestion they can ignore beats silence. Don't withhold a genuine match for being small; only skip things that are correct by common convention or that the ruleset doesn't actually address.
-- Quote "originalText" exactly as it appears on screen.
-- Be concise.`;
+- Flag only genuine, confident violations of the PROVIDED ruleset. Never invent or extend rules. If everything complies, return {"findings": []}.
+- Apply rules in CONTEXT with common sense about conventional forms. Standard, domain-required usages are correct — not violations: US state abbreviations inside an address ("Raleigh, NC"), country/currency codes, units of measure, dates, IDs, and proper nouns.
+- "issue" must name the exact rule and explain how the text violates it; if you cannot, drop the finding. Quote "originalText" exactly as it appears. Be concise.`;
 
 /** What the compliance pass returns: the findings plus how text was sourced. */
 export type StyleComplianceOutcome = {
@@ -314,9 +323,14 @@ export async function analyzeStyleCompliance(
   return { findings, textSource };
 }
 
-/** Content-addressed cache key: same org + ruleset + exact text → same key. */
+/**
+ * Content-addressed cache key: same org + ruleset + exact text + same prompt →
+ * same key. Folding COMPLIANCE_SYSTEM into the hash means any change to the
+ * compliance prompt automatically invalidates every cached result, so a prompt
+ * fix is never masked by stale cache entries (#362).
+ */
 function styleCacheKey(orgId: string, ruleset: string, frameText: FrameText): string {
-  const basis = `${ruleset}\n---\n${(frameText.textContent ?? []).join("\n")}`;
+  const basis = `${COMPLIANCE_SYSTEM}\n===\n${ruleset}\n---\n${(frameText.textContent ?? []).join("\n")}`;
   const hash = createHash("sha256").update(basis).digest("hex").slice(0, 32);
   return `style:cache:${orgId}:${hash}`;
 }
