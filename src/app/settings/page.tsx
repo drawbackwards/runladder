@@ -457,6 +457,7 @@ type StyleGuideStatus = {
   present: boolean;
   fileName: string | null;
   uploadedAt: number | null;
+  conflicts?: { topic: string; summary: string; interpretation: string }[];
   tier: string;
   canManage: boolean;
 };
@@ -660,6 +661,37 @@ function StyleGuideCard() {
           )}
           {err && (
             <p className="mt-3 text-xs text-ladder-red font-sans">{err}</p>
+          )}
+
+          {status.present && status.conflicts && status.conflicts.length > 0 && (
+            <div className="mt-4 border border-[#b8860b]/50 bg-[#b8860b]/10 p-3">
+              <p className="text-xs text-[#e3c46b] font-sans font-semibold">
+                {status.conflicts.length} ambiguit
+                {status.conflicts.length === 1 ? "y" : "ies"} in your guide
+              </p>
+              <p className="text-[10px] text-[#e3c46b]/80 font-sans mt-1 leading-relaxed">
+                Your guide gives conflicting direction in places. Ladder applies the
+                most specific rule (shown below). To change how these are handled,
+                edit your style guide and upload a new version.
+              </p>
+              <ul className="mt-3 space-y-3">
+                {status.conflicts.map((c, i) => (
+                  <li key={i} className="border-t border-[#b8860b]/20 pt-2 first:border-t-0 first:pt-0">
+                    <p className="text-xs text-foreground font-sans font-semibold">
+                      {c.topic}
+                    </p>
+                    <p className="text-[11px] text-muted font-sans mt-0.5 leading-relaxed">
+                      {c.summary}
+                    </p>
+                    {c.interpretation && (
+                      <p className="text-[11px] text-[#e3c46b] font-sans mt-1 leading-relaxed">
+                        Ladder applies: {c.interpretation}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
       </div>
