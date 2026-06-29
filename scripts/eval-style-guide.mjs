@@ -68,12 +68,15 @@ for (const s of SCENARIOS) {
   const flagged = new Set(findings.map((f) => f.originalText.replace(/^"|"$/g, "")));
   const falsePositives = s.mustNotFlag.filter((t) => flagged.has(t));
   const missed = s.mustFlag.filter((t) => !flagged.has(t));
-  const pass = falsePositives.length === 0 && missed.length === 0;
+  // No-op findings (suggestion === original) must never reach the user.
+  const noOps = findings.filter((f) => f.suggestion.trim() === f.originalText.trim());
+  const pass = falsePositives.length === 0 && missed.length === 0 && noOps.length === 0;
   allPass = allPass && pass;
   console.log(`\n${pass ? "PASS ✓" : "FAIL ✗"}  ${s.name}`);
   for (const f of findings) console.log(`    [${f.category}] "${f.originalText}" → "${f.suggestion}"`);
   if (falsePositives.length) console.log(`    false positives: ${falsePositives.join(", ")}`);
   if (missed.length) console.log(`    missed: ${missed.join(", ")}`);
+  if (noOps.length) console.log(`    no-op findings: ${noOps.map((f) => f.originalText).join(", ")}`);
 }
 console.log(`\n${allPass ? "ALL SCENARIOS PASS ✓" : "SOME SCENARIOS FAILED ✗"}`);
 process.exit(allPass ? 0 : 1);

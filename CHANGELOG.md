@@ -11,6 +11,7 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 **Surface style-guide ambiguities (#362).**
 
 - Some uploaded guides contradict themselves (e.g. "use title case across all content" AND "capitalize the first word of field labels" — those conflict for labels). On upload we now detect these internal contradictions/ambiguities and list them on **Settings → Style Guide**, each with a plain-language summary and **how Ladder will interpret it** (the most-specific rule wins). Read-only and advisory — to change the handling, the team edits the guide and uploads a new version (no in-app override). Detection runs as a separate best-effort pass alongside distillation; it never blocks an upload. `GET /api/org/style-guide` now returns a `conflicts` array (additive → api 1.3.0).
+- **No-op findings can't reach the user.** The verify-before-flagging step occasionally made the model emit a finding it then talked itself out of (suggestion identical to the original, with "actually complies / no violation found" in the explanation). The prompt now reasons silently and never emits a no-op, and a deterministic code filter drops any finding whose suggestion equals the original — belt and suspenders.
 
 ---
 

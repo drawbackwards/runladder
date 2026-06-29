@@ -299,7 +299,12 @@ How to judge each piece of text:
 1. Identify what it IS — a field label, button/CTA, section heading, page title, body text, etc.
 2. Find the MOST SPECIFIC rule that addresses that element type. A rule that names the element specifically (e.g. "field labels: capitalize the first word") WINS over a broad rule that only mentions it inside a general list (e.g. "use title case for all UI text"). Never apply a rule written for one element type (headings, titles, names) to a different element type (labels), and never stack a general rule on top of a specific one to demand more than the specific rule requires.
 3. Apply that rule EXACTLY as written — never stricter. "Capitalize the first word" requires ONLY the first word to be capitalized: a label like "Build by" or "Unit type" already COMPLIES (later words stay lowercase). Do NOT require title case unless a rule specifically requires title case for THAT element type.
-4. Before emitting a finding, restate the rule and confirm the text actually VIOLATES it as written. If the text already satisfies the rule, the ruleset doesn't clearly address it, or rules conflict and it's ambiguous — do NOT flag it.
+4. Reason SILENTLY. Before emitting a finding, confirm to yourself the text actually VIOLATES the rule as written. If the text already satisfies the rule, the ruleset doesn't clearly address it, or rules conflict and it's ambiguous — OMIT it entirely. Do NOT emit a finding you then talk yourself out of.
+
+The JSON is your FINAL ANSWER, not a scratchpad:
+- Never include deliberation, "on reflection", "actually complies", or "no violation found" in any field. If you conclude it complies, the finding simply does not exist.
+- "suggestion" MUST be a genuine rewrite that DIFFERS from "originalText". If your rewrite would equal the original, there is no violation — omit it.
+- "issue" states ONLY the specific rule broken and how — never your reasoning about whether it's broken.
 
 Return ONLY valid JSON, no markdown:
 {
@@ -411,7 +416,15 @@ export async function analyzeStyleCompliance(
         category,
       };
     })
-    .filter((f): f is StyleGuideFinding => f !== null);
+    .filter((f): f is StyleGuideFinding => f !== null)
+    // Drop NO-OP findings: a suggestion identical to (or empty vs) the original
+    // is not a violation. The model sometimes "reasons aloud" and emits a
+    // finding it then talks itself out of (suggestion == original); this is a
+    // deterministic backstop so that never reaches the user (#362).
+    .filter((f) => {
+      const sug = f.suggestion.trim();
+      return sug.length > 0 && sug !== f.originalText.trim();
+    });
 
   return { findings, textSource };
 }
