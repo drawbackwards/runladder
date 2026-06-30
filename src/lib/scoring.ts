@@ -11,6 +11,7 @@
  * See /memory/feedback_never_expose_prompts_rubric.md for the full rule.
  */
 import Anthropic from "@anthropic-ai/sdk";
+import { createHash } from "crypto";
 import {
   ladderFullPrompt,
   ladderPerRungPrompt,
@@ -18,6 +19,8 @@ import {
   aiLensPrompt,
 } from "./ladder-framework";
 import { extractJsonObject } from "./json-extract";
+import { redis } from "./redis";
+import { CURRENT_ENGINE_VERSION } from "./app-version";
 import {
   analyzeStyleCompliance,
   hasFrameText,
@@ -155,6 +158,61 @@ export type ScoringError = {
 };
 
 /**
+ * The score fields that are a pure function of (model, prompt, image) — i.e.
+ * everything EXCEPT the org-dependent styleGuide. This is what we cache so the
+ * exact same screenshot returns the exact same score (#210/#343).
+ */
+type CachedScore = Pick<
+  ScoreResult,
+  "score" | "label" | "screenName" | "summary" | "next" | "rungs" | "findings"
+>;
+
+/**
+ * Content-addressed score cache key: hashes the model + the exact system prompt
+ * (which encodes applyAiLens + the framework) + the image bytes. A given
+ * screenshot always maps to the same score; any change to the prompt, the
+ * model, or the image produces a fresh key, so there are no stale scores.
+ */
+function scoreCacheKey(system: string, base64Data: string): string {
+  const hash = createHash("sha256")
+    .update(`${CURRENT_ENGINE_VERSION}\n${SCORING_MODEL}\n${system}\n${base64Data}`)
+    .digest("hex")
+    .slice(0, 40);
+  return `score:cache:${hash}`;
+}
+
+async function getCachedScore(key: string): Promise<CachedScore | null> {
+  try {
+    const v = await redis.get<CachedScore>(key);
+    return v && typeof v.score === "number" ? v : null;
+  } catch {
+    return null; // cache read is best-effort
+  }
+}
+
+async function setCachedScore(key: string, r: ScoreResult): Promise<void> {
+  const core: CachedScore = {
+    score: r.score,
+    label: r.label,
+    screenName: r.screenName,
+    summary: r.summary,
+    next: r.next,
+    rungs: r.rungs,
+    findings: r.findings,
+  };
+  try {
+    // 30-day TTL; key is content-addressed so it's safe to keep — a changed
+    // image/prompt/model produces a different key, not a stale hit.
+    await redis.set(key, core, { ex: 60 * 60 * 24 * 30 });
+  } catch {
+    // cache write is best-effort
+  }
+}
+
+/** The model that turns a screen into a score (also part of the cache key). */
+const SCORING_MODEL = "claude-haiku-4-5";
+
+/**
  * Parse a data URL into its base64 payload + media type.
  * Returns null if the input isn't a supported image data URL.
  */
@@ -170,6 +228,61 @@ export function parseImageDataUrl(
     mediaType: match[1] as MediaType,
     base64Data: match[3],
   };
+}
+
+/**
+ * Pre-scoring content gate (cheap Haiku classification). Returns a ScoringError
+ * to reject (explicit content / not a UI screen) or null to proceed. Fails OPEN
+ * on a parse or API error (usability beats strictness). Skipped on a score cache
+ * hit — a cached score already passed this gate.
+ */
+async function runModeration(
+  client: Anthropic,
+  mediaType: MediaType,
+  base64Data: string,
+): Promise<ScoringError | null> {
+  try {
+    const modCheck = await client.messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: 200,
+      temperature: 0,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: { type: "base64", media_type: mediaType, data: base64Data },
+            },
+            { type: "text", text: "Classify this image." },
+          ],
+        },
+      ],
+      system: MODERATION_PROMPT,
+    });
+    const modText = modCheck.content.find((b) => b.type === "text");
+    if (modText && modText.type === "text") {
+      const modResult = JSON.parse(modText.text.replace(/```json|```/g, "").trim());
+      if (modResult.isExplicit) {
+        return {
+          error:
+            "This image contains content that violates our usage policy. Ladder scores UI/UX screens only.",
+          status: 400,
+        };
+      }
+      if (!modResult.isUI) {
+        return {
+          error:
+            "This doesn't appear to be a UI screen. Please upload a screenshot of a website, app, or design mockup.",
+          status: 400,
+        };
+      }
+    }
+  } catch {
+    // Fail open for usability — proceed with scoring.
+    console.warn("[LADDER:WARN] Moderation failed/parse error, proceeding with score");
+  }
+  return null;
 }
 
 /**
@@ -206,74 +319,23 @@ export async function scoreImage(
 
   const client = new Anthropic();
 
-  /* ── Content moderation check ──
-   * Cheap classification call. No adaptive thinking, no effort tuning —
-   * a binary "is this a UI screen + is it explicit" decision doesn't
-   * benefit from extra reasoning depth, and we want the fast path.
-   */
-  const modCheck = await client.messages.create({
-    model: "claude-haiku-4-5",
-    max_tokens: 200,
-    messages: [
-      {
-        role: "user",
-        content: [
-          {
-            type: "image",
-            source: { type: "base64", media_type: mediaType, data: base64Data },
-          },
-          { type: "text", text: "Classify this image." },
-        ],
-      },
-    ],
-    system: MODERATION_PROMPT,
-  });
+  // Same image + same prompt + same model → same score. We cache the score
+  // (everything except the org-dependent styleGuide) so an unchanged screen
+  // returns an identical score on every scan (#210/#343) instead of drifting
+  // with the model's run-to-run variance.
+  const system = buildLadderPrompt(opts);
+  const cacheKey = scoreCacheKey(system, base64Data);
+  const cached = await getCachedScore(cacheKey);
 
-  const modText = modCheck.content.find((b) => b.type === "text");
-  if (modText && modText.type === "text") {
-    try {
-      const modResult = JSON.parse(
-        modText.text.replace(/```json|```/g, "").trim(),
-      );
-      if (modResult.isExplicit) {
-        return {
-          error:
-            "This image contains content that violates our usage policy. Ladder scores UI/UX screens only.",
-          status: 400,
-        };
-      }
-      if (!modResult.isUI) {
-        return {
-          error:
-            "This doesn't appear to be a UI screen. Please upload a screenshot of a website, app, or design mockup.",
-          status: 400,
-        };
-      }
-    } catch {
-      // If moderation parse fails, proceed with scoring (fail open for usability)
-      console.warn("[LADDER:WARN] Moderation parse failed, proceeding with score");
-    }
+  // Moderation gate — only on a cache MISS (a cached score already passed it).
+  if (!cached) {
+    const modErr = await runModeration(client, mediaType, base64Data);
+    if (modErr) return modErr;
   }
 
-  /* ── Ladder scoring ──
-   * Haiku 4.5. Explicit trade-off: Haiku scores ~0.5 lower than
-   * Sonnet 4.6 on the same screen, but generates 3x faster
-   * (~200 tokens/sec, sub-second TTFT) at 1/3 the cost. With
-   * streaming + skeleton UX layered on top, the user sees the
-   * score number 1-2 seconds after submit. Speed + UX is the
-   * priority here; the streaming layer keeps the perceived
-   * calibration shift small because the user gets the number
-   * before they can re-anchor expectations.
-   *
-   * Note: Haiku doesn't support the `effort` or `thinking`
-   * params and will 400 if either is passed — keep this body
-   * lean. Sonnet 4.6 stays as the model of record for the
-   * coming /api/improve endpoint and admin annotation analysis,
-   * where the cost/quality balance flips the other way.
-   */
-  // Kick off the team style-guide compliance pass IN PARALLEL with scoring.
-  // It is computed independently and NEVER feeds the numeric score, and it
-  // never fails the request — a thrown pass becomes an "unavailable" status.
+  // Team style-guide compliance pass, in parallel. Computed independently, never
+  // feeds the numeric score, never fails the request. Runs on hit and miss
+  // because it depends on the org's current ruleset (and has its own cache).
   const stylePromise = opts.styleRuleset
     ? analyzeStyleCompliance(
         { image: { mediaType, base64Data }, frameText: opts.styleFrameText },
@@ -286,51 +348,53 @@ export async function scoreImage(
         })
     : null;
 
-  const response = await client.messages.create({
-    model: "claude-haiku-4-5",
-    max_tokens: 4096,
-    messages: [
-      {
-        role: "user",
-        content: [
-          {
-            type: "image",
-            source: {
-              type: "base64",
-              media_type: mediaType,
-              data: base64Data,
-            },
-          },
-          {
-            type: "text",
-            text: "Score this screen against the Ladder framework. Be honest.",
-          },
-        ],
-      },
-    ],
-    system: buildLadderPrompt(opts),
-  });
-
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    return { error: "No response from scoring engine", status: 500 };
-  }
-
-  const clean = extractJsonObject(textBlock.text);
   let result: ScoreResult;
-  try {
-    result = JSON.parse(clean);
-  } catch {
-    console.error("[LADDER:ERROR] JSON parse failed:", clean.slice(0, 200));
-    return { error: "Failed to parse scoring response", status: 500 };
-  }
+  if (cached) {
+    result = { ...cached };
+  } else {
+    /* ── Ladder scoring (Haiku 4.5, temperature 0 for determinism) ──
+     * Haiku scores ~0.5 lower than Sonnet but is 3x faster at 1/3 the cost;
+     * with streaming + skeleton UX the number lands ~1-2s after submit. Haiku
+     * rejects `effort`/`thinking` (400) — keep the body lean. `temperature` is
+     * supported and pinned to 0 so the same screen scores the same.
+     */
+    const response = await client.messages.create({
+      model: SCORING_MODEL,
+      max_tokens: 4096,
+      temperature: 0,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: { type: "base64", media_type: mediaType, data: base64Data },
+            },
+            {
+              type: "text",
+              text: "Score this screen against the Ladder framework. Be honest.",
+            },
+          ],
+        },
+      ],
+      system,
+    });
 
-  if (
-    typeof result.score !== "number" ||
-    !result.label ||
-    !result.summary
-  ) {
-    return { error: "Invalid scoring response shape", status: 500 };
+    const textBlock = response.content.find((b) => b.type === "text");
+    if (!textBlock || textBlock.type !== "text") {
+      return { error: "No response from scoring engine", status: 500 };
+    }
+    const clean = extractJsonObject(textBlock.text);
+    try {
+      result = JSON.parse(clean);
+    } catch {
+      console.error("[LADDER:ERROR] JSON parse failed:", clean.slice(0, 200));
+      return { error: "Failed to parse scoring response", status: 500 };
+    }
+    if (typeof result.score !== "number" || !result.label || !result.summary) {
+      return { error: "Invalid scoring response shape", status: 500 };
+    }
+    await setCachedScore(cacheKey, result);
   }
 
   if (stylePromise) {
@@ -411,61 +475,12 @@ export async function* scoreImageStream(
 
   const client = new Anthropic();
 
-  /* ── Moderation (Haiku, non-streaming, fast) ── */
-  try {
-    const modCheck = await client.messages.create({
-      model: "claude-haiku-4-5",
-      max_tokens: 200,
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "image",
-              source: { type: "base64", media_type: mediaType, data: base64Data },
-            },
-            { type: "text", text: "Classify this image." },
-          ],
-        },
-      ],
-      system: MODERATION_PROMPT,
-    });
-    const modText = modCheck.content.find((b) => b.type === "text");
-    if (modText && modText.type === "text") {
-      try {
-        const modResult = JSON.parse(
-          modText.text.replace(/```json|```/g, "").trim(),
-        );
-        if (modResult.isExplicit) {
-          yield {
-            kind: "error",
-            value:
-              "This image contains content that violates our usage policy. Ladder scores UI/UX screens only.",
-            status: 400,
-          };
-          return;
-        }
-        if (!modResult.isUI) {
-          yield {
-            kind: "error",
-            value:
-              "This doesn't appear to be a UI screen. Please upload a screenshot of a website, app, or design mockup.",
-            status: 400,
-          };
-          return;
-        }
-      } catch {
-        // Fail open for usability — proceed with scoring
-        console.warn("[LADDER:WARN] Moderation parse failed, proceeding with score");
-      }
-    }
-  } catch (e) {
-    console.error("[LADDER:ERROR] Moderation failed:", e);
-    // Fail open — proceed to scoring
-  }
+  const system = buildLadderPrompt(opts);
+  const cacheKey = scoreCacheKey(system, base64Data);
+  const cached = await getCachedScore(cacheKey);
 
-  // Team style-guide compliance pass, in parallel with streaming scoring.
-  // Independent of the score; never fails the request.
+  // Team style-guide compliance pass, in parallel. Attached to the final result
+  // on hit or miss (it depends on the org's current ruleset; never feeds the score).
   const stylePromise = opts.styleRuleset
     ? analyzeStyleCompliance(
         { image: { mediaType, base64Data }, frameText: opts.styleFrameText },
@@ -478,14 +493,49 @@ export async function* scoreImageStream(
         })
     : null;
 
-  /* ── Streaming scoring call ──
-   * Haiku 4.5 (matches the non-streaming scoreImage). Haiku
-   * doesn't support effort/thinking — omit. The speed combined
-   * with SSE means the score number lands ~1s after submit.
+  // Cache hit: synthesize the stream from the stored score — instant, and the
+  // same screen always streams the same number (#210/#343). No moderation
+  // needed (a cached score already passed it).
+  if (cached) {
+    yield { kind: "score", value: cached.score };
+    if (cached.label) yield { kind: "label", value: cached.label };
+    if (cached.screenName) yield { kind: "screenName", value: cached.screenName };
+    const result: ScoreResult = { ...cached };
+    if (stylePromise) {
+      const outcome = await stylePromise;
+      result.styleGuide = outcome.ok
+        ? {
+            status: outcome.findings.length > 0 ? "issues" : "compliant",
+            teamName: opts.styleTeamName ?? null,
+            findings: outcome.findings,
+            textSource: outcome.textSource,
+          }
+        : {
+            status: "unavailable",
+            teamName: opts.styleTeamName ?? null,
+            findings: [],
+            textSource: hasFrameText(opts.styleFrameText) ? "exact" : "inferred",
+          };
+    }
+    yield { kind: "complete", value: result };
+    return;
+  }
+
+  /* ── Moderation (Haiku, non-streaming, fast) — only on a cache miss ── */
+  const modErr = await runModeration(client, mediaType, base64Data);
+  if (modErr) {
+    yield { kind: "error", value: modErr.error, status: modErr.status };
+    return;
+  }
+
+  /* ── Streaming scoring call (Haiku 4.5, temperature 0 for determinism) ──
+   * Matches the non-streaming scoreImage. Haiku rejects effort/thinking; the
+   * speed + SSE means the score number lands ~1s after submit.
    */
   const stream = client.messages.stream({
-    model: "claude-haiku-4-5",
+    model: SCORING_MODEL,
     max_tokens: 4096,
+    temperature: 0,
     messages: [
       {
         role: "user",
@@ -505,7 +555,7 @@ export async function* scoreImageStream(
         ],
       },
     ],
-    system: buildLadderPrompt(opts),
+    system,
   });
 
   // Accumulate text deltas. Re-scan the buffer after each chunk for
@@ -579,6 +629,7 @@ export async function* scoreImageStream(
       yield { kind: "error", value: "Invalid scoring response shape", status: 500 };
       return;
     }
+    await setCachedScore(cacheKey, result);
     if (stylePromise) {
       const outcome = await stylePromise;
       result.styleGuide = outcome.ok

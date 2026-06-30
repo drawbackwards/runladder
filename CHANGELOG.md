@@ -6,6 +6,17 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.17 / api 1.3.0 (2026-06-30)
+
+**Score determinism: the same screenshot now scores the same (#210/#343). Scoring engine → v1.3.**
+
+- The Ladder score was drifting on re-scans of the *same* screen (e.g. 3.2 → 2.8) because the score model ran at the default temperature with no caching. Now: the scoring call is pinned to **temperature 0**, and the score is **cached, content-addressed** by the model + the exact system prompt + the image bytes. So an unchanged screenshot returns an identical score on every scan — verified scoring the same image twice (identical score/label/summary/rungs/findings; the re-score is a sub-200ms cache hit). The cache stores only the score (the org-dependent style-guide pass is excluded and runs independently). A changed image, prompt, model, or engine version produces a fresh key, so there are no stale scores.
+- The streaming path synthesizes its events from the cached score on a hit (instant, same number).
+- **Image read fidelity (#343):** web uploads/captures now re-encode at JPEG q0.92 (was 0.85), so small label/button text survives the resize for the model to read. Token cost is unchanged (vision tokens are resolution-based, not byte-based).
+- Scoring engine bumped **1.2 → 1.3** (behavior change). Bounded scope: this fixes *identical-input* determinism; cross-surface consistency (same screen scored in Figma vs an image upload) is still limited by input fidelity and is tracked separately.
+
+---
+
 ## app 0.5.16 / api 1.3.0 (2026-06-29)
 
 **Generic compliance prompt + enforced conflict resolutions (#362).**

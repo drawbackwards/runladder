@@ -1,8 +1,8 @@
 ---
 title: Architecture
-updatedAt: 2026-06-29
+updatedAt: 2026-06-30
 updatedBy: Sara
-lastPr: 366
+lastPr: 377
 ---
 
 ## Deployment environments
@@ -72,7 +72,7 @@ Every surface ships its own version and shows it to users. See [API Protocols](/
 
 **Source of truth — the version constants under `src/lib`:**
 
-- `src/lib/app-version.ts`: runladder web app (`CURRENT_APP_VERSION`, rendered in the footer), API (`CURRENT_API_VERSION`, sent on the `X-Ladder-API-Version` response header), and the **scoring engine** (`CURRENT_ENGINE_VERSION` — the prompt + rubric + model behaviour that turns a screen into a score, also rendered in the footer as "Scoring Engine vX.Y"). The engine versions independently of the app: it can be retuned without an app release, and every shipped score should be attributable to an engine version. Started at `1.2` ([#309](https://github.com/drawbackwards/runladder/issues/309)).
+- `src/lib/app-version.ts`: runladder web app (`CURRENT_APP_VERSION`, rendered in the footer), API (`CURRENT_API_VERSION`, sent on the `X-Ladder-API-Version` response header), and the **scoring engine** (`CURRENT_ENGINE_VERSION` — the prompt + rubric + model behaviour that turns a screen into a score, also rendered in the footer as "Scoring Engine vX.Y"). The engine versions independently of the app: it can be retuned without an app release, and every shipped score should be attributable to an engine version. Started at `1.2` ([#309](https://github.com/drawbackwards/runladder/issues/309)); now `1.3` — scoring pinned to temperature 0 + content-addressed score caching so the same screenshot always returns the same score ([#210](https://github.com/drawbackwards/runladder/issues/210)/[#343](https://github.com/drawbackwards/runladder/issues/343), PR #377). The engine version is part of the score cache key, so bumping it invalidates cached scores.
 - `src/lib/skill-version.ts`: Skill bundle (`CURRENT_SKILL_VERSION`, synced into the zip by `scripts/sync-skill-version.mjs`)
 - `src/lib/plugin-version.ts`: Figma plugin bundle
 
