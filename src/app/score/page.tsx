@@ -193,7 +193,11 @@ function resizeForScoring(dataUrl: string, maxDim = 1600): Promise<string> {
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.85));
+        // q0.92 (was 0.85): less JPEG artifacting on small text, so the model
+        // reads field/button labels more reliably (#343). Token cost is
+        // unchanged (vision tokens are counted by resolution, not bytes); the
+        // image stays well under payload limits at this dimension.
+        resolve(canvas.toDataURL("image/jpeg", 0.92));
       } else {
         resolve(dataUrl);
       }

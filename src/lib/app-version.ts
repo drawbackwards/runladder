@@ -17,7 +17,7 @@
 
 // runladder.com (this web app). Visible in the footer. Mirror this value
 // into package.json's `version` field on every bump.
-export const CURRENT_APP_VERSION = "0.5.16";
+export const CURRENT_APP_VERSION = "0.5.17";
 
 // Ladder API (plugin/analyze, framework, score, skill/score, etc.). Sent
 // back to every API caller via the X-Ladder-API-Version response header
@@ -29,4 +29,4 @@ export const CURRENT_API_VERSION = "1.3.0";
 // can be retuned without an app release, and we want every shipped score to be
 // attributable to an engine version. Surfaced in the footer. Bump on any
 // change to scoring behaviour and add a matching CHANGELOG.md entry.
-export const CURRENT_ENGINE_VERSION = "1.2";
+export const CURRENT_ENGINE_VERSION = "1.3";
