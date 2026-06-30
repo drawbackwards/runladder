@@ -170,6 +170,28 @@ export async function clearOrgStyleGuide(orgId: string): Promise<void> {
   await redis.del(styleGuideKey(orgId));
 }
 
+/**
+ * Build the ruleset the compliance check should actually use: the distilled
+ * rules PLUS the resolutions for any detected internal contradictions (#362).
+ *
+ * A self-contradictory guide can't be resolved reliably by the model from the
+ * generic prompt alone (it flip-flops). But we already DETECT the contradiction
+ * at upload and decide the resolution ("most specific rule wins"). Injecting
+ * those resolutions as an authoritative section turns the contradiction into a
+ * single clear directive — so the prompt stays fully generic and the result is
+ * deterministic. Returns the ruleset unchanged when there are no conflicts.
+ */
+export function rulesetWithResolutions(
+  ruleset: string,
+  conflicts?: StyleConflict[] | null,
+): string {
+  const lines = (conflicts ?? [])
+    .filter((c) => c.interpretation && c.interpretation.trim().length > 0)
+    .map((c) => `- ${c.topic}: ${c.interpretation.trim()}`);
+  if (lines.length === 0) return ruleset;
+  return `${ruleset}\n\nRESOLVED CONFLICTS — AUTHORITATIVE. This guide contradicts itself in the areas below. Apply EXACTLY these resolutions and IGNORE any general rule they override:\n${lines.join("\n")}`;
+}
+
 const DISTILL_SYSTEM = `You convert a brand's WRITING style guide (a PDF) into a compact, enforceable ruleset another model will use to check UI copy.
 
 Extract ONLY actionable, checkable writing rules: tone and voice, terminology (preferred vs banned words), capitalization, punctuation, formatting conventions, grammar preferences, and product/feature naming. Ignore visual/brand-asset guidance (logos, colors, spacing) — those are out of scope here.
@@ -321,8 +343,8 @@ You will receive the ruleset, then the screen's copy: an EXACT TEXT LISTING (the
 
 How to judge each piece of text:
 1. Identify what it IS — a field label, button/CTA, section heading, page title, body text, etc.
-2. Find the MOST SPECIFIC rule that addresses that element type. A rule that names the element specifically (e.g. "field labels: capitalize the first word") WINS over a broad rule that only mentions it inside a general list (e.g. "use title case for all UI text"). Never apply a rule written for one element type (headings, titles, names) to a different element type (labels), and never stack a general rule on top of a specific one to demand more than the specific rule requires.
-3. Apply that rule EXACTLY as written — never stricter. "Capitalize the first word" requires ONLY the first word to be capitalized: a label like "Build by" or "Unit type" already COMPLIES (later words stay lowercase). Do NOT require title case unless a rule specifically requires title case for THAT element type.
+2. Find the MOST SPECIFIC rule that governs that element type. A rule that names the element type explicitly outranks a broad rule that only sweeps it into "all content"/"all UI text" or a long list of elements. Never apply a rule written for one element type to a different one, and never stack a general rule on top of a specific one to demand more than the specific rule requires. If the ruleset has a "RESOLVED CONFLICTS" section, it is AUTHORITATIVE — follow it over any rule it overrides.
+3. Apply the governing rule EXACTLY as written — never stricter, and never a casing it didn't state. Match the casing the rule specifies: a "capitalize the first word"/sentence-case rule is satisfied when the first word is capitalized (later words may be lowercase) — do not demand title case; a "title case"/"capitalize every word" rule requires every significant word capitalized. Apply whichever the governing rule states; do not assume a default.
 4. Reason SILENTLY. Before emitting a finding, confirm to yourself the text actually VIOLATES the rule as written. If the text already satisfies the rule, the ruleset doesn't clearly address it, or rules conflict and it's ambiguous — OMIT it entirely. Do NOT emit a finding you then talk yourself out of.
 
 The JSON is your FINAL ANSWER, not a scratchpad:

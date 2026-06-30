@@ -6,8 +6,13 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
-## app 0.5.15 / api 1.3.0 (2026-06-29)
+## app 0.5.16 / api 1.3.0 (2026-06-29)
 
+**Generic compliance prompt + enforced conflict resolutions (#362).**
+
+- **No more guide-specific examples in the prompt.** The compliance prompt taught its precedence/casing rules using this client's actual labels — overfitting to one guide. It now teaches the principle generically (element-type precedence + apply the casing the governing rule states) with no hardcoded copy, so it works for ANY guide.
+- **Detected conflict resolutions are now ENFORCED, not just surfaced.** A self-contradictory guide can't be resolved reliably by the model from the prompt alone. We already detect the contradiction at upload and decide the resolution (most-specific rule wins); that resolution is now injected into the compliance ruleset as an authoritative "RESOLVED CONFLICTS" section. So the contradictory case (e.g. "title case all content" + "capitalize the first word of labels") is now deterministic — compliant labels are no longer over-flagged. Verified across runs by `scripts/eval-style-guide.mjs`.
+- Known limitation (tracked): a *pure* title-case-labels guide (no contradiction) can still occasionally under-flag on a fresh call due to model non-determinism; the cache stabilizes it per content. A multi-pass/voting step would harden recall — separate follow-up.
 **Better style-guide recall on image uploads (#362).**
 
 - When a style check runs on an uploaded image (no ground-truth text — e.g. a screenshot, vs Figma layers or a URL's DOM), it now first **transcribes all visible text** from the image, then runs the compliance check against that listing. Previously the check read text inline and missed smaller strings (button labels, field labels), so an image scan could catch far fewer violations than the same screen scored in Figma. This narrows that gap; the result is still `inferred` (best-effort), so the "score from Figma or a URL for a complete check" caveat still shows.
