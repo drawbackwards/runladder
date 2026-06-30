@@ -3,6 +3,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { parseImageDataUrl } from "@/lib/scoring";
 import {
   getOrgStyleGuide,
+  rulesetWithResolutions,
   analyzeStyleComplianceCached,
   hasFrameText,
   type FrameText,
@@ -77,7 +78,7 @@ export async function POST(req: NextRequest) {
         orgId = memberships.data[0]?.organization?.id ?? null;
         const orgGuide = orgId ? await getOrgStyleGuide(orgId) : null;
         if (orgGuide) {
-          ruleset = orgGuide.ruleset;
+          ruleset = rulesetWithResolutions(orgGuide.ruleset, orgGuide.conflicts);
           teamName = orgGuide.teamName;
         }
       } catch (e) {

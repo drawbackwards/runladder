@@ -17,7 +17,9 @@
 import nextEnv from "@next/env";
 nextEnv.loadEnvConfig(process.cwd(), true);
 
-const { analyzeStyleCompliance } = await import("../src/lib/style-guide.ts");
+const { analyzeStyleCompliance, rulesetWithResolutions } = await import(
+  "../src/lib/style-guide.ts"
+);
 
 const SCENARIOS = [
   {
@@ -34,7 +36,18 @@ Terminology
 Abbreviation
 - Approved abbreviations: OK, info, admin, IP. Spell out any other abbreviation.`,
     textContent: ['"Unit type"', '"Build by"', '"Assigned to"', '"order summary"', '"Login"'],
-    // first word already capitalized → compliant under the specific label rule
+    // The guide contradicts itself for labels; the detected resolution (most
+    // specific rule wins) is injected, so the check must apply sentence case and
+    // NOT title-case-flag the compliant labels.
+    conflicts: [
+      {
+        topic: "Field label capitalization",
+        summary:
+          "The guide says both to title-case all UI text and to capitalize the first word of field labels.",
+        interpretation:
+          "Field labels use sentence case — capitalize only the first word. Ignore the general title-case rule for labels.",
+      },
+    ],
     mustNotFlag: ["Unit type", "Build by", "Assigned to"],
     mustFlag: ["order summary", "Login"],
   },
@@ -77,7 +90,7 @@ let allPass = true;
 for (const s of SCENARIOS) {
   const { findings } = await analyzeStyleCompliance(
     { frameText: { name: "Eval", textContent: s.textContent } },
-    s.ruleset,
+    rulesetWithResolutions(s.ruleset, s.conflicts),
   );
   const flagged = new Set(findings.map((f) => f.originalText.replace(/^"|"$/g, "")));
   const falsePositives = s.mustNotFlag.filter((t) => flagged.has(t));

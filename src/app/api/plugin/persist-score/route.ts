@@ -6,6 +6,7 @@ import { makeThumbnail } from "@/lib/thumbnail";
 import { persistScoreEntry, type ScoreEntryInput } from "@/lib/scores";
 import {
   getOrgStyleGuide,
+  rulesetWithResolutions,
   analyzeStyleComplianceCached,
   hasFrameText,
   type StyleGuideResult,
@@ -124,7 +125,7 @@ export async function POST(req: NextRequest) {
                   : null,
                 frameText,
               },
-              orgGuide.ruleset,
+              rulesetWithResolutions(orgGuide.ruleset, orgGuide.conflicts),
               orgId,
             );
             styleGuide = {

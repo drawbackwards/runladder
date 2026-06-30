@@ -16,7 +16,7 @@ import { getMonthlyScans } from "@/lib/usage";
 import { getUserTier } from "@/lib/tier";
 import { canScorePrivately as tierCanScorePrivately } from "@/lib/score-scope";
 import { persistScoreEntry, type ScoreEntryInput } from "@/lib/scores";
-import { getOrgStyleGuide } from "@/lib/style-guide";
+import { getOrgStyleGuide, rulesetWithResolutions } from "@/lib/style-guide";
 import {
   ANON_COOKIE,
   readAnonId,
@@ -142,7 +142,9 @@ export async function POST(req: NextRequest) {
 
       try {
         for await (const ev of scoreImageStream(parsed, {
-          styleRuleset: styleGuide?.ruleset,
+          styleRuleset: styleGuide
+            ? rulesetWithResolutions(styleGuide.ruleset, styleGuide.conflicts)
+            : undefined,
           styleTeamName: styleGuide?.teamName,
           styleFrameText: frameText,
         })) {
