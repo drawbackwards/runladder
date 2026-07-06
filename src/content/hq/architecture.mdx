@@ -1,6 +1,6 @@
 ---
 title: Architecture
-updatedAt: 2026-06-30
+updatedAt: 2026-07-06
 updatedBy: Sara
 lastPr: 377
 ---
@@ -58,7 +58,9 @@ This diagram shows the future-target architecture (one engine, thin clients). To
 
 ## Shared services (target state, partial today)
 
-**Scoring engine.** Anthropic Claude with the Ladder rubric prompt. Server-side only. Web and Skill score through `runladder`'s engine (`src/lib/scoring.ts`). The **Figma plugin still scores in its own backend** (`ai-design-assistant/api/analyze.js`) — it was never migrated, despite the half-finished unification in #75 (the plugin's service endpoints moved to `runladder`, the scoring computation did not). Consolidating the plugin onto `runladder`'s engine is [#362](https://github.com/drawbackwards/runladder/issues/362): Chunk 1 moved style/copy checking to one canonical engine (`/api/plugin/analyze/copy`, `src/lib/copy-audit.ts`); the Ladder score itself is Chunk 2. Pulse runs its own scoring stack in `ladder-beta`.
+> **The Ladder score and Style Guide compliance are two separate features. Style Guide findings NEVER affect a screen's Ladder score — not by a point, not by a decimal, ever.** The Ladder score measures user experience (hierarchy, clarity, flow, assistance). Style Guide compliance is an advisory, team-specific check of on-screen copy against an uploaded brand/writing guide. It runs in a separate model pass (`analyzeStyleCompliance`), is attached to the result for display only, and is computed independently of the number. A screen's Ladder score is identical whether or not the team has a style guide. This separation is a hard invariant — any change that lets compliance influence the score is a bug.
+
+**Scoring engine.** Anthropic Claude with the Ladder rubric prompt. Server-side only. **Web, Skill, AND the Figma plugin now all score through `runladder`'s one canonical engine** (`src/lib/scoring.ts`, temperature 0, content-addressed cache). The plugin used to score in its own backend (`ai-design-assistant/api/analyze.js`) at the API default temperature with no cache, so the same screen drifted and never matched web; as of [#343](https://github.com/drawbackwards/runladder/issues/343) its Ladder score is routed to `POST /api/plugin/analyze/stream` (the streaming sibling of `/api/plugin/analyze`), finishing the consolidation begun in [#362](https://github.com/drawbackwards/runladder/issues/362) (Chunk 1 was style/copy via `/api/plugin/analyze/copy`; the score was Chunk 2). Only Pulse still runs its own scoring stack in `ladder-beta`.
 
 **Auth.** Clerk for human users on `runladder` surfaces. Plugin token + Skill token (server-issued via `/api/plugin/issue-token` and `/api/skill/token`). API keys for `api.runladder.com` are roadmap (the issuance UI doesn't exist yet either).
 

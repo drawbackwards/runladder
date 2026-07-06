@@ -1,0 +1,2919 @@
+{
+  "generatedAt": "2026-07-06T20:41:40.241Z",
+  "runs": 10,
+  "screens": [
+    {
+      "product": "stripe",
+      "path": "public/screenshots/stripe/hero.png",
+      "sha": "8455cedde6cc",
+      "runs": [
+        {
+          "score": 2.8,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.6,
+            "comfortable": 2.4,
+            "usable": 3.2,
+            "functional": 3.8
+          }
+        },
+        {
+          "score": 2.8,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.6,
+            "comfortable": 2.9,
+            "usable": 3.2,
+            "functional": 3.7
+          }
+        },
+        {
+          "score": 2.7,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.4,
+            "comfortable": 2.6,
+            "usable": 3.2,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.8,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.4,
+            "usable": 3.1,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.3,
+            "comfortable": 2.4,
+            "usable": 3.2,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.8,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.3,
+            "comfortable": 2.4,
+            "usable": 3.1,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.7,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.4,
+            "usable": 2.9,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 2.8,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.6,
+            "usable": 3.4,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 2.8,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.6,
+            "usable": 3.4,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.1,
+            "delightful": 1.3,
+            "comfortable": 2.4,
+            "usable": 3.2,
+            "functional": 3.7
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          2.8,
+          2.8,
+          2.7,
+          2.8,
+          2.6,
+          2.8,
+          2.7,
+          2.8,
+          2.8,
+          2.6
+        ],
+        "distinct": [
+          2.6,
+          2.7,
+          2.8
+        ],
+        "min": 2.6,
+        "max": 2.8,
+        "range": 0.2,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.6,
+          "usable": 0.5,
+          "comfortable": 0.5,
+          "delightful": 0.4,
+          "meaningful": 0.2
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "airbnb",
+      "path": "public/screenshots/airbnb/hero.png",
+      "sha": "d8cdd93bcd24",
+      "runs": [
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.7,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 4.1,
+            "functional": 4.4
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.8,
+            "usable": 4,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.2,
+            "comfortable": 3.7,
+            "usable": 3.9,
+            "functional": 4.5
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.9,
+            "usable": 4.1,
+            "functional": 4.3
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.2,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.4
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.4,
+            "comfortable": 3.8,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.4,
+            "comfortable": 3.8,
+            "usable": 3.9,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.4,
+            "comfortable": 3.8,
+            "usable": 4.1,
+            "functional": 4.3
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6
+        ],
+        "distinct": [
+          3.6
+        ],
+        "min": 3.6,
+        "max": 3.6,
+        "range": 0,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.4,
+          "usable": 0.3,
+          "comfortable": 0.3,
+          "delightful": 0.7,
+          "meaningful": 1.1
+        },
+        "exact": true
+      }
+    },
+    {
+      "product": "notion",
+      "path": "public/screenshots/notion/hero.png",
+      "sha": "1c301d77e225",
+      "runs": [
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.5,
+            "comfortable": 2.3,
+            "usable": 3.1,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.7,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.5,
+            "comfortable": 2.3,
+            "usable": 3.1,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.3,
+            "comfortable": 2.1,
+            "usable": 3.2,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.4,
+            "comfortable": 2.1,
+            "usable": 2.9,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.2,
+            "usable": 3.1,
+            "functional": 3.7
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.3,
+            "usable": 2.8,
+            "functional": 3.7
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.3,
+            "usable": 2.9,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.7,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.6,
+            "comfortable": 2.3,
+            "usable": 3.1,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 2.9,
+            "functional": 3.7
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.3,
+            "comfortable": 2.2,
+            "usable": 2.9,
+            "functional": 3.4
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          2.6,
+          2.7,
+          2.6,
+          2.6,
+          2.6,
+          2.6,
+          2.6,
+          2.7,
+          2.6,
+          2.6
+        ],
+        "distinct": [
+          2.6,
+          2.7
+        ],
+        "min": 2.6,
+        "max": 2.7,
+        "range": 0.1,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.5,
+          "usable": 0.4,
+          "comfortable": 0.2,
+          "delightful": 0.4,
+          "meaningful": 0.2
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "linear",
+      "path": "public/screenshots/linear/hero.png",
+      "sha": "dd4aefbd3234",
+      "runs": [
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 3.2,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 3.2,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 3,
+            "functional": 3.8
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 2.9,
+            "functional": 3.7
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 2.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.3,
+            "usable": 2.9,
+            "functional": 3.8
+          }
+        },
+        {
+          "score": 2.7,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.3,
+            "comfortable": 2.2,
+            "usable": 3.4,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 3.2,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.3,
+            "usable": 3.1,
+            "functional": 3.7
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 3.2,
+            "functional": 3.9
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          2.6,
+          2.6,
+          2.6,
+          2.6,
+          2.6,
+          2.6,
+          2.7,
+          2.6,
+          2.6,
+          2.6
+        ],
+        "distinct": [
+          2.6,
+          2.7
+        ],
+        "min": 2.6,
+        "max": 2.7,
+        "range": 0.1,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.6,
+          "usable": 0.6,
+          "comfortable": 0.2,
+          "delightful": 0.1,
+          "meaningful": 0
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "figma",
+      "path": "public/screenshots/figma/hero.png",
+      "sha": "6e91748f49dc",
+      "runs": [
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.6,
+            "usable": 3.5,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 4.2,
+            "delightful": 2.8,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.2,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.4,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.3
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 4.2,
+            "delightful": 2.8,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.3,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.6,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2
+        ],
+        "distinct": [
+          3.2
+        ],
+        "min": 3.2,
+        "max": 3.2,
+        "range": 0,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.2,
+          "usable": 0.4,
+          "comfortable": 0.4,
+          "delightful": 0.7,
+          "meaningful": 3.2
+        },
+        "exact": true
+      }
+    },
+    {
+      "product": "spotify",
+      "path": "public/screenshots/spotify/hero.png",
+      "sha": "e10a88595c40",
+      "runs": [
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 4.1,
+            "delightful": 3.3,
+            "comfortable": 3.2,
+            "usable": 3.4,
+            "functional": 3.8
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.6,
+            "comfortable": 3.4,
+            "usable": 3.5,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.6,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "error": "Failed to parse scoring response"
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.6,
+            "usable": 3.9,
+            "functional": 4.3
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.4,
+            "comfortable": 3.2,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.9,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.4,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2
+        ],
+        "distinct": [
+          3.2
+        ],
+        "min": 3.2,
+        "max": 3.2,
+        "range": 0,
+        "errors": 1,
+        "rungSpread": {
+          "functional": 0.5,
+          "usable": 0.5,
+          "comfortable": 0.4,
+          "delightful": 1.2,
+          "meaningful": 2.9
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "vercel",
+      "path": "public/screenshots/vercel/hero.png",
+      "sha": "320c8e92028e",
+      "runs": [
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.8,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.4,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.8,
+            "comfortable": 3.2,
+            "usable": 3.4,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.4,
+            "comfortable": 3.6,
+            "usable": 3.4,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.7,
+            "functional": 4.3
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.2,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2
+        ],
+        "distinct": [
+          3.2
+        ],
+        "min": 3.2,
+        "max": 3.2,
+        "range": 0,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.2,
+          "usable": 0.4,
+          "comfortable": 0.4,
+          "delightful": 0.6,
+          "meaningful": 0.8
+        },
+        "exact": true
+      }
+    },
+    {
+      "product": "webflow",
+      "path": "public/screenshots/webflow/hero.png",
+      "sha": "e920dfd28e40",
+      "runs": [
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.2,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.7,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.8,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.5,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.3,
+            "comfortable": 3.6,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.2,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.1,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.3,
+            "comfortable": 3.1,
+            "usable": 3.4,
+            "functional": 4.2
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.1
+        ],
+        "distinct": [
+          3.1,
+          3.2
+        ],
+        "min": 3.1,
+        "max": 3.2,
+        "range": 0.1,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.3,
+          "usable": 0.4,
+          "comfortable": 0.5,
+          "delightful": 1,
+          "meaningful": 1.1
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "retool",
+      "path": "public/screenshots/retool/hero.png",
+      "sha": "fb4d49d83f22",
+      "runs": [
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.4,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.7,
+            "usable": 4.1,
+            "functional": 4.3
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.4,
+            "comfortable": 3.5,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.6,
+            "comfortable": 3.8,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.3,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          3.2,
+          3.2,
+          3.6,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2
+        ],
+        "distinct": [
+          3.2,
+          3.6
+        ],
+        "min": 3.2,
+        "max": 3.6,
+        "range": 0.4,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.2,
+          "usable": 0.5,
+          "comfortable": 0.6,
+          "delightful": 0.7,
+          "meaningful": 1.1
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "salesforce",
+      "path": "public/screenshots/salesforce/hero.png",
+      "sha": "87010a66f3a7",
+      "runs": [
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.9,
+            "functional": 3.6
+          }
+        },
+        {
+          "error": "Failed to parse scoring response"
+        },
+        {
+          "score": 2.2,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.9,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.2,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 4
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.1,
+            "comfortable": 1.8,
+            "usable": 2.9,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.1,
+            "comfortable": 1.8,
+            "usable": 2.9,
+            "functional": 3.6
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          2.3,
+          2.2,
+          2.3,
+          2.3,
+          2.3,
+          2.3,
+          2.2,
+          2.3,
+          2.3
+        ],
+        "distinct": [
+          2.2,
+          2.3
+        ],
+        "min": 2.2,
+        "max": 2.3,
+        "range": 0.1,
+        "errors": 1,
+        "rungSpread": {
+          "functional": 0.4,
+          "usable": 0.1,
+          "comfortable": 0,
+          "delightful": 0.1,
+          "meaningful": 0.2
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "venmo",
+      "path": "public/screenshots/venmo/hero.png",
+      "sha": "9fad05c3658e",
+      "runs": [
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.6,
+            "usable": 4.2,
+            "functional": 4.5
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.2,
+            "comfortable": 3.4,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.3,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.2,
+            "delightful": 2.8,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.8,
+            "usable": 4.2,
+            "functional": 4.4
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.2,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.6,
+            "comfortable": 3.4,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.2,
+            "comfortable": 3.4,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.2,
+            "comfortable": 3.4,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          3.6,
+          3.4,
+          3.4,
+          3.4,
+          3.6,
+          3.4,
+          3.4,
+          3.4,
+          3.4,
+          3.4
+        ],
+        "distinct": [
+          3.4,
+          3.6
+        ],
+        "min": 3.4,
+        "max": 3.6,
+        "range": 0.2,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.4,
+          "usable": 0.6,
+          "comfortable": 0.4,
+          "delightful": 0.7,
+          "meaningful": 1.2
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "revolut",
+      "path": "public/screenshots/revolut/hero.png",
+      "sha": "bc97a3b5dc99",
+      "runs": [
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.2,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.2,
+            "comfortable": 3.4,
+            "usable": 3.7,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.7,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.2,
+            "comfortable": 3.6,
+            "usable": 4.1,
+            "functional": 4.6
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.5,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.4
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.4,
+          3.4,
+          3.2,
+          3.2
+        ],
+        "distinct": [
+          3.2,
+          3.4
+        ],
+        "min": 3.2,
+        "max": 3.4,
+        "range": 0.2,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.5,
+          "usable": 0.4,
+          "comfortable": 0.3,
+          "delightful": 0.7,
+          "meaningful": 1.1
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "uber",
+      "path": "public/screenshots/uber/hero.png",
+      "sha": "80fc7489477d",
+      "runs": [
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.2,
+            "comfortable": 3.8,
+            "usable": 3.9,
+            "functional": 4.6
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.4
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "error": "Failed to parse scoring response"
+        },
+        {
+          "score": 3.3,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.7,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.8,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 4.1,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.8,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.2,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.7,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          3.6,
+          3.2,
+          3.2,
+          3.3,
+          3.4,
+          3.4,
+          3.4,
+          3.4,
+          3.6
+        ],
+        "distinct": [
+          3.2,
+          3.3,
+          3.4,
+          3.6
+        ],
+        "min": 3.2,
+        "max": 3.6,
+        "range": 0.4,
+        "errors": 1,
+        "rungSpread": {
+          "functional": 0.5,
+          "usable": 0.4,
+          "comfortable": 0.2,
+          "delightful": 0.7,
+          "meaningful": 0.2
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "youtube",
+      "path": "public/screenshots/youtube/hero.png",
+      "sha": "535ba87e4595",
+      "runs": [
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.5,
+            "usable": 3.6,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.2,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.4,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2
+        ],
+        "distinct": [
+          3.2,
+          3.4
+        ],
+        "min": 3.2,
+        "max": 3.4,
+        "range": 0.2,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.1,
+          "usable": 0.2,
+          "comfortable": 0.3,
+          "delightful": 0.2,
+          "meaningful": 0.2
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "slack",
+      "path": "public/screenshots/slack/hero.png",
+      "sha": "5482f0ae1ae2",
+      "runs": [
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.4,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2,
+            "delightful": 2.3,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.2,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.4,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.2,
+          3.4
+        ],
+        "distinct": [
+          3.2,
+          3.4
+        ],
+        "min": 3.2,
+        "max": 3.4,
+        "range": 0.2,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.2,
+          "usable": 0.3,
+          "comfortable": 0.2,
+          "delightful": 0.7,
+          "meaningful": 1.1
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "shopify",
+      "path": "public/screenshots/shopify/hero.png",
+      "sha": "07b0619c38d3",
+      "runs": [
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.1,
+            "comfortable": 1.8,
+            "usable": 2.6,
+            "functional": 3.4
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.3,
+            "comfortable": 1.9,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.1,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.3,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.3,
+            "comfortable": 2.1,
+            "usable": 2.9,
+            "functional": 3.7
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.1,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.7
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.9,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.3,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          2.3,
+          2.3,
+          2.3,
+          2.6,
+          2.3,
+          2.6,
+          2.3,
+          2.3,
+          2.3,
+          2.6
+        ],
+        "distinct": [
+          2.3,
+          2.6
+        ],
+        "min": 2.3,
+        "max": 2.6,
+        "range": 0.3,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.7,
+          "usable": 0.3,
+          "comfortable": 0.5,
+          "delightful": 0.2,
+          "meaningful": 0.2
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "postman",
+      "path": "public/screenshots/postman/hero.png",
+      "sha": "db84f024172f",
+      "runs": [
+        {
+          "score": 2.8,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.3,
+            "usable": 3.4,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 2.8,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 3.4,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.7,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.4,
+            "comfortable": 2.2,
+            "usable": 3.1,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 3.1,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 3.4,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 2.8,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2,
+            "usable": 3.1,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.1,
+            "comfortable": 2.2,
+            "usable": 3.4,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.8,
+            "comfortable": 2.4,
+            "usable": 3.2,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.3,
+            "comfortable": 2.2,
+            "usable": 3.1,
+            "functional": 3.9
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          2.8,
+          2.8,
+          2.7,
+          2.6,
+          2.6,
+          2.6,
+          2.6,
+          2.6,
+          2.6,
+          2.6
+        ],
+        "distinct": [
+          2.6,
+          2.7,
+          2.8
+        ],
+        "min": 2.6,
+        "max": 2.8,
+        "range": 0.2,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.5,
+          "usable": 0.6,
+          "comfortable": 0.4,
+          "delightful": 0.7,
+          "meaningful": 0.2
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "supabase",
+      "path": "public/screenshots/supabase/hero.png",
+      "sha": "38f6b881dcef",
+      "runs": [
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2,
+            "delightful": 2.8,
+            "comfortable": 3.9,
+            "usable": 3.8,
+            "functional": 4.3
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.9,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.6,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.9,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.6,
+            "comfortable": 3.9,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.9,
+            "comfortable": 3.8,
+            "usable": 4.1,
+            "functional": 4.3
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.2,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.7,
+            "usable": 4.2,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.4,
+            "comfortable": 3.8,
+            "usable": 4.2,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.4,
+          3.6,
+          3.6,
+          3.4
+        ],
+        "distinct": [
+          3.4,
+          3.6
+        ],
+        "min": 3.4,
+        "max": 3.6,
+        "range": 0.2,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.2,
+          "usable": 0.5,
+          "comfortable": 0.3,
+          "delightful": 0.8,
+          "meaningful": 0.9
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "raycast",
+      "path": "public/screenshots/raycast/hero.png",
+      "sha": "2e45d52d7ea2",
+      "runs": [
+        {
+          "score": 2.1,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 3.2,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.1,
+            "comfortable": 1.8,
+            "usable": 3.2,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 1.6,
+          "label": "Functional",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1,
+            "comfortable": 1.1,
+            "usable": 2,
+            "functional": 2.8
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.2
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.7,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1,
+            "comfortable": 1.8,
+            "usable": 2.9,
+            "functional": 3.6
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          2.1,
+          2.3,
+          2.3,
+          2.3,
+          2.3,
+          1.6,
+          2.3,
+          2.3,
+          2.3,
+          2.3
+        ],
+        "distinct": [
+          1.6,
+          2.1,
+          2.3
+        ],
+        "min": 1.6,
+        "max": 2.3,
+        "range": 0.7,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 1.3,
+          "usable": 1.2,
+          "comfortable": 0.7,
+          "delightful": 0.2,
+          "meaningful": 0
+        },
+        "exact": false
+      }
+    },
+    {
+      "product": "todoist",
+      "path": "public/screenshots/todoist/hero.png",
+      "sha": "40458562c0cf",
+      "runs": [
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.7,
+            "usable": 3.9,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.9,
+            "usable": 3.4,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.7,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.8,
+            "comfortable": 3.7,
+            "usable": 3.9,
+            "functional": 4.6
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 4.1,
+            "functional": 4.4
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.9,
+            "usable": 4.2,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.9,
+            "usable": 4.1,
+            "functional": 4.7
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 4.1,
+            "functional": 4.4
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 2.1,
+            "delightful": 2.8,
+            "comfortable": 3.8,
+            "usable": 4.1,
+            "functional": 4.3
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.7,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        }
+      ],
+      "summary": {
+        "scores": [
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6,
+          3.6
+        ],
+        "distinct": [
+          3.6
+        ],
+        "min": 3.6,
+        "max": 3.6,
+        "range": 0,
+        "errors": 0,
+        "rungSpread": {
+          "functional": 0.6,
+          "usable": 0.8,
+          "comfortable": 0.2,
+          "delightful": 0.7,
+          "meaningful": 1.1
+        },
+        "exact": true
+      }
+    }
+  ]
+}

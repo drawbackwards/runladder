@@ -6,6 +6,17 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.18 / api 1.4.0 (2026-07-06)
+
+**Figma scoring unified onto the one canonical engine (#343).**
+
+- The Figma plugin's Ladder score used to run in the plugin's own backend, calling Anthropic directly at the API default temperature with no cache, so the same screen drifted (measured ~0.18 avg score range across 10 runs, worst 0.7, vs ~0.005 on the canonical engine) and never matched web/Skill. The plugin now scores through runladder's **one canonical engine** (temperature 0, content-addressed cache) — the same path web and Skill already use — so a given screen scores identically on every surface.
+- New endpoint `POST /api/plugin/analyze/stream` (additive → api 1.4.0): service-token auth, wraps `scoreImageStream`, emits the plugin's SSE event shape (score / label / screenName / complete / error) so the in-canvas score still streams in. Usage counting + persistence stay on the plugin side (single writer of Figma scores).
+- Engine behavior is unchanged (still v1.3); this only changes which engine the plugin calls. `scoreImage` gains internal-only `bypassCache` / `temperature` overrides used by the consistency harness (`scripts/score-consistency.mjs`); production callers never set them.
+- Known follow-up: routing through the shared engine adds a moderation round-trip + a network hop before the score streams, so the in-canvas number appears a little later than before. Tracked separately (perf, not consistency).
+
+---
+
 ## app 0.5.17 / api 1.3.0 (2026-06-30)
 
 **Score determinism: the same screenshot now scores the same (#210/#343). Scoring engine → v1.3.**
