@@ -1,8 +1,8 @@
 ---
 title: API Protocols
-updatedAt: 2026-06-29
+updatedAt: 2026-07-06
 updatedBy: Sara
-lastPr: 367
+lastPr: 379
 ---
 
 ## Two surfaces, one to come
@@ -32,7 +32,8 @@ All endpoints below are real routes in this repo. Find them under `src/app/api/`
 | `/api/skill/score` | POST | Skill token | Scoring callable from the Ladder Skill. |
 | `/api/plugin/issue-token` | POST | Clerk session | Issue a plugin token for use in the Figma plugin. |
 | `/api/plugin/verify-token` | POST | Plugin token | Token introspection for the plugin. |
-| `/api/plugin/analyze` | POST | Plugin token | Scoring callable from the Figma plugin. |
+| `/api/plugin/analyze` | POST | Service token | Score a Figma frame on the canonical engine (non-streaming). |
+| `/api/plugin/analyze/stream` | POST | Service token | Streaming score for the Figma plugin — wraps `scoreImageStream` (temp 0, cached); SSE events score / label / screenName / complete / error. The plugin's in-canvas score now runs on this one canonical engine (#343). |
 | `/api/plugin/analyze/copy` | POST | Service token | Improve Copy. Returns `{ styleGuide, general }` — style compliance (same engine as the web score) + a separate general copy audit (#362). |
 | `/api/plugin/meta` | GET | Public | Plugin metadata (version, etc.). |
 | `/api/plugin/persist-score` | POST | Service token | Save a plugin-originated score (server-to-server). |

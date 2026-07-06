@@ -307,6 +307,19 @@ export async function scoreImage(
     styleTeamName?: string | null;
     /** Ground-truth on-screen text (URL DOM / future surfaces) for the style pass. */
     styleFrameText?: FrameText | null;
+    /**
+     * Skip the score cache entirely (no read, no write). Used only by the
+     * consistency harness (`scripts/score-consistency.mjs`) to measure the
+     * model's true run-to-run variance — the thing #343 is fixing. Production
+     * callers must never set this; the cache is what makes scores stable today.
+     */
+    bypassCache?: boolean;
+    /**
+     * Override the scoring temperature. Harness-only, to measure how much the
+     * plugin's default-temperature path drifts vs the pinned temp 0. Production
+     * callers must never set this; scoring is pinned to 0.
+     */
+    temperature?: number;
   } = {},
 ): Promise<ScoreResult | ScoringError> {
   // Cap image size (~5MB base64)
@@ -325,7 +338,7 @@ export async function scoreImage(
   // with the model's run-to-run variance.
   const system = buildLadderPrompt(opts);
   const cacheKey = scoreCacheKey(system, base64Data);
-  const cached = await getCachedScore(cacheKey);
+  const cached = opts.bypassCache ? null : await getCachedScore(cacheKey);
 
   // Moderation gate — only on a cache MISS (a cached score already passed it).
   if (!cached) {
@@ -361,7 +374,7 @@ export async function scoreImage(
     const response = await client.messages.create({
       model: SCORING_MODEL,
       max_tokens: 4096,
-      temperature: 0,
+      temperature: opts.temperature ?? 0,
       messages: [
         {
           role: "user",
@@ -394,7 +407,7 @@ export async function scoreImage(
     if (typeof result.score !== "number" || !result.label || !result.summary) {
       return { error: "Invalid scoring response shape", status: 500 };
     }
-    await setCachedScore(cacheKey, result);
+    if (!opts.bypassCache) await setCachedScore(cacheKey, result);
   }
 
   if (stylePromise) {
