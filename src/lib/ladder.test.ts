@@ -4,6 +4,7 @@ import {
   RUNG_NAMES,
   RUNG_DISPLAY_ORDER,
   analyzeRungs,
+  computePotentialScore,
   computeTotalFromRungs,
   getGapToNext,
   getLevel,
@@ -183,6 +184,58 @@ describe("computeTotalFromRungs", () => {
       meaningful: 5,
     });
     expect(total).toBeLessThan(3.5);
+  });
+});
+
+describe("computePotentialScore", () => {
+  it("sums finding uplift on top of the current score", () => {
+    const { potential, hasSignal } = computePotentialScore(2.8, [
+      { uplift: 0.3, targetLevel: "Comfortable" },
+      { uplift: 0.2, targetLevel: "Comfortable" },
+      { uplift: 0.1, targetLevel: "Comfortable" },
+    ]);
+    expect(hasSignal).toBe(true);
+    expect(potential).toBeCloseTo(3.4, 5);
+  });
+
+  it("floors the potential at the deepest targetLevel when uplift falls short", () => {
+    // Uplift alone would land at 2.85, but a finding claims Comfortable (3.0).
+    const { potential, hasSignal } = computePotentialScore(2.8, [
+      { uplift: 0.05, targetLevel: "Comfortable" },
+    ]);
+    expect(hasSignal).toBe(true);
+    expect(potential).toBeCloseTo(3.0, 5);
+  });
+
+  it("reaches the target level with no uplift data (targetLevel only)", () => {
+    const { potential, hasSignal } = computePotentialScore(2.8, [
+      { targetLevel: "Comfortable" },
+    ]);
+    expect(hasSignal).toBe(true);
+    expect(potential).toBeCloseTo(3.0, 5);
+  });
+
+  it("reports no signal when findings carry neither uplift nor targetLevel", () => {
+    // Figma-persisted findings only have rung/severity — the box must hide,
+    // never echo the current score back as the potential (#343 display bug).
+    const { potential, hasSignal } = computePotentialScore(2.8, [
+      { uplift: null, targetLevel: null },
+      {},
+    ]);
+    expect(hasSignal).toBe(false);
+    expect(potential).toBe(2.8);
+  });
+
+  it("reports no signal with no findings", () => {
+    expect(computePotentialScore(2.8)).toEqual({ potential: 2.8, hasSignal: false });
+    expect(computePotentialScore(2.8, [])).toEqual({ potential: 2.8, hasSignal: false });
+  });
+
+  it("never exceeds 5.0", () => {
+    const { potential } = computePotentialScore(4.9, [
+      { uplift: 0.5, targetLevel: "Meaningful" },
+    ]);
+    expect(potential).toBe(5);
   });
 });
 

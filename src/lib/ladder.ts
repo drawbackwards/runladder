@@ -155,6 +155,59 @@ export function getGapToNext(score: number): number {
   return Math.ceil(score) - score;
 }
 
+/** A finding's forward-looking signals, as far as the potential math cares. */
+type PotentialFinding = { uplift?: number | null; targetLevel?: string | null };
+
+/**
+ * The score the screen would reach if every finding were addressed.
+ *
+ * Findings carry two forward-looking signals (see the scoring prompt in
+ * `ladder-framework.ts`):
+ *   - `uplift`: points this single fix adds (0.1–0.5)
+ *   - `targetLevel`: the Ladder level reached once this fix *and every
+ *     higher-ranked fix* are applied — so the deepest targetLevel is the
+ *     destination.
+ *
+ * We combine them: sum the uplifts, then floor at the entry score of the
+ * highest targetLevel any finding names. Either signal alone is enough.
+ *
+ * When NEITHER signal is present — e.g. scores persisted from the Figma plugin,
+ * whose findings only carry `rung`/`severity` (the plugin/analyze route drops
+ * uplift/targetLevel) — there is no honest potential to show. `hasSignal` is
+ * then `false` and callers MUST hide the box rather than print the current
+ * score straight back, which reads as "fixing everything changes nothing".
+ *
+ * This is a pure display derivation; it never feeds back into the score.
+ */
+export function computePotentialScore(
+  score: number,
+  findings?: PotentialFinding[],
+): { potential: number; hasSignal: boolean } {
+  if (!findings || findings.length === 0) {
+    return { potential: score, hasSignal: false };
+  }
+
+  const upliftSum = findings.reduce(
+    (sum, f) => sum + (typeof f.uplift === "number" ? f.uplift : 0),
+    0,
+  );
+
+  // Highest level any finding claims to reach → its entry score is a floor,
+  // so the potential lines up with the "Gap to <level>" header even when the
+  // uplifts alone fall a hair short of the level boundary.
+  let targetFloor = 0;
+  for (const f of findings) {
+    if (!f.targetLevel) continue;
+    const lvl = LEVELS.find((l) => l.label === f.targetLevel);
+    if (lvl && lvl.min > targetFloor) targetFloor = lvl.min;
+  }
+
+  const potential = Math.min(5, Math.max(score + upliftSum, targetFloor));
+  const hasSignal = upliftSum > 0 || targetFloor > score;
+
+  return { potential, hasSignal };
+}
+
 /** Brand green — used for Ladder branding, not level scoring */
 export const LADDER_GREEN = "#6AC89B";
 
