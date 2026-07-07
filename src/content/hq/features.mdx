@@ -1,8 +1,8 @@
 ---
 title: Feature Inventory
-updatedAt: 2026-07-06
+updatedAt: 2026-07-07
 updatedBy: Sara
-lastPr: 380
+lastPr: 381
 ---
 
 ## How to read this page
@@ -61,7 +61,7 @@ Plugin source lives in `ai-design-assistant`. Backend endpoints (`/api/plugin/*`
 
 | Feature | Roles | Status | Evidence |
 | --- | --- | --- | --- |
-| In-canvas frame scoring | Pro+ | Live | `src/app/api/plugin/analyze/route.ts` |
+| In-canvas frame scoring — now runs on runladder's **one canonical engine** (temp 0, content-addressed cache), streamed so the in-canvas reveal stays fast; unified in #343/PR #379 so the plugin score matches web/Skill instead of drifting at the old default temperature. The plugin-shape mapping keeps `rung`/`severity` but drops `uplift`/`targetLevel`, so persisted Figma findings carry no forward signal (dashboard "Potential score" box hides for them — PR #380). | Pro+ | Live (PR #379) | `src/app/api/plugin/analyze/stream/route.ts` (streaming), `src/app/api/plugin/analyze/route.ts` (non-streaming), `src/lib/scoring.ts` |
 | Plugin token issuance | All signed-in | Live | `src/app/api/plugin/issue-token/route.ts` |
 | Plugin token verification | Plugin token | Live | `src/app/api/plugin/verify-token/route.ts` |
 | Score persistence from plugin (also runs the team style-compliance pass so plugin scores show Style Guide findings on the dashboard, #364) | Plugin token | Live | `src/app/api/plugin/persist-score/route.ts` |
