@@ -6,6 +6,14 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.22 / api 1.4.0 (2026-07-07)
+
+**Faster Figma scoring: skip the moderation gate on the trusted plugin path.**
+
+- Unifying the Figma plugin onto the canonical engine (#343) added a blocking content-moderation call (the isUI/isExplicit gate, a separate Haiku round-trip) before the score streams — something the pre-unification plugin never did — so the in-canvas score appeared a few seconds later than before. The plugin/service-token scoring endpoints (`/api/plugin/analyze` + `/api/plugin/analyze/stream`) now set `skipModeration`, restoring the plugin's pre-unification speed. Safe because that path is authenticated and scores a signed-in designer's own frames (always UI); the anonymous web path keeps the gate. Scoring behavior/values are unchanged (engine still v1.3).
+
+---
+
 ## app 0.5.21 / api 1.4.0 (2026-07-07)
 
 **Team roster: members see teammates' scan counts; average score stays manager-only.**
