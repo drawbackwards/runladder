@@ -6,6 +6,15 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.20 / api 1.4.0 (2026-07-07)
+
+**Figma scores now feed the "Potential score" box (#343/#380).**
+
+- The plugin-shape mapping was collapsing each finding to a `severity` bucket and dropping `uplift`/`targetLevel`, so Figma-persisted scores carried no forward signal and the dashboard "Potential score" box stayed hidden for them (while web scores showed it). Both plugin endpoints (`/api/plugin/analyze` and `/api/plugin/analyze/stream`) now keep `uplift`/`targetLevel` alongside `severity`, so Figma findings feed `computePotentialScore` the same way web findings do. Runladder-only change; no plugin republish (the plugin persists whatever findings runladder returns).
+- Applies to Figma scans made **after** this ships. Figma scans persisted earlier never stored the fields, so their box stays hidden until the screen is re-scored.
+
+---
+
 ## app 0.5.19 / api 1.4.0 (2026-07-07)
 
 **Pin the score model + clearer team member removal (#343).**
