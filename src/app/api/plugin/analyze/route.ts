@@ -84,6 +84,10 @@ export async function POST(req: NextRequest) {
       rung: f.rung,
       severity:
         f.uplift >= 0.3 ? "high" : f.uplift >= 0.2 ? "medium" : "low",
+      // Keep the forward signal so persisted Figma scores feed the dashboard
+      // "Potential score" box (computePotentialScore needs these) (#343/#380).
+      uplift: f.uplift,
+      targetLevel: f.targetLevel,
     }));
 
     const top = result.findings?.[0];
