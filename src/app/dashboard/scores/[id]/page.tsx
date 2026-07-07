@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth, useUser, RedirectToSignIn } from "@clerk/nextjs";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
+import { getScoreColor, getLevelColor, getLevel, getNextLevel, getGapToNext, getRungLevel, computePotentialScore } from "@/lib/ladder";
 import { privateScopeLabel, isTeamScope } from "@/lib/score-scope";
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
@@ -354,16 +354,34 @@ export default function ScoreDetailPage() {
               </div>
             ))}
 
-            <div className="border border-ladder-green/40 bg-ladder-green/[0.06] p-5 mt-4">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] text-ladder-green uppercase tracking-widest">
-                  Potential score if all findings addressed
-                </span>
-                <span className="text-xl font-bold text-ladder-green">
-                  {Math.min(5, data.score + (data.findings?.reduce((s, f) => s + (f.uplift || 0), 0) || 0)).toFixed(1)}
-                </span>
-              </div>
-            </div>
+            {(() => {
+              // Potential = current + summed finding uplift, floored at the
+              // deepest targetLevel. Hidden entirely when the findings carry no
+              // uplift/targetLevel (e.g. Figma-persisted scores) so we never
+              // echo the current score back as the "potential" (#343 display).
+              const { potential, hasSignal } = computePotentialScore(
+                data.score,
+                data.findings,
+              );
+              if (!hasSignal) return null;
+              return (
+                <div className="border border-ladder-green/40 bg-ladder-green/[0.06] p-5 mt-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-ladder-green uppercase tracking-widest">
+                      Potential score if all findings addressed
+                    </span>
+                    <span className="flex items-baseline gap-2">
+                      <span className="text-xl font-bold text-ladder-green">
+                        {potential.toFixed(1)}
+                      </span>
+                      <span className="text-[10px] text-ladder-green uppercase tracking-widest">
+                        {getLevel(potential)}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 

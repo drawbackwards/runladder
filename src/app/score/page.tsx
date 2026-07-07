@@ -6,7 +6,7 @@ import { useAuth, useUser, useOrganization, SignUpButton } from "@clerk/nextjs";
 import { canScorePrivately as tierCanScorePrivately, isTeamScope } from "@/lib/score-scope";
 import { useViewAs } from "@/lib/dev/view-as";
 import { SHOW_EVALUATIONS_AND_REVIEWS } from "@/lib/feature-flags";
-import { getScoreColor, getLevelColor, getNextLevel, getGapToNext, getRungLevel } from "@/lib/ladder";
+import { getScoreColor, getLevelColor, getLevel, getNextLevel, getGapToNext, getRungLevel, computePotentialScore } from "@/lib/ladder";
 import { ScoreBar } from "@/components/ScoreBar";
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
@@ -1286,16 +1286,34 @@ export default function ScorePage() {
                   </div>
                 ))}
 
-                <div className="border border-ladder-green/40 bg-ladder-green/[0.06] p-5 mt-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-ladder-green uppercase tracking-widest">
-                      Potential score if all findings addressed
-                    </span>
-                    <span className="text-xl font-bold text-ladder-green">
-                      {Math.min(5, result.score + (result.findings?.reduce((s, f) => s + (f.uplift || 0), 0) || 0)).toFixed(1)}
-                    </span>
-                  </div>
-                </div>
+                {(() => {
+                  // Same potential derivation as the dashboard score-detail
+                  // view — sum uplift, floor at the deepest targetLevel, and
+                  // hide entirely when findings carry no forward signal so the
+                  // box never echoes the current score (#343 display).
+                  const { potential, hasSignal } = computePotentialScore(
+                    result.score,
+                    result.findings,
+                  );
+                  if (!hasSignal) return null;
+                  return (
+                    <div className="border border-ladder-green/40 bg-ladder-green/[0.06] p-5 mt-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-ladder-green uppercase tracking-widest">
+                          Potential score if all findings addressed
+                        </span>
+                        <span className="flex items-baseline gap-2">
+                          <span className="text-xl font-bold text-ladder-green">
+                            {potential.toFixed(1)}
+                          </span>
+                          <span className="text-[10px] text-ladder-green uppercase tracking-widest">
+                            {getLevel(potential)}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
