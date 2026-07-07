@@ -6,6 +6,14 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.21 / api 1.4.0 (2026-07-07)
+
+**Team roster: members see teammates' scan counts; average score stays manager-only.**
+
+- The team roster gated ALL per-member stats behind `org:admin`, so a regular member saw "0 scans / — avg" for everyone (including themselves), which read as broken data. Now scan **counts** (and activity) are visible to every member — seeing how active teammates are is not sensitive — while the **average score** and the team-insights panel remain manager-only, since an average reads as a "how good a designer are you" judgment. Fix is in `/api/dashboard/team` (`avgScore`/`bestScore` nulled for non-managers; quality aggregates only accumulate for the manager). No data was ever lost; this was a visibility gate, not a persistence bug.
+
+---
+
 ## app 0.5.20 / api 1.4.0 (2026-07-07)
 
 **Figma scores now feed the "Potential score" box (#343/#380).**

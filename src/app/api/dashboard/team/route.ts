@@ -284,7 +284,7 @@ export async function GET() {
         joinedAt: m.createdAt,
       };
 
-      if (!memberUserId || !isManager) {
+      if (!memberUserId) {
         return {
           ...base,
           stats: null,
@@ -321,20 +321,32 @@ export async function GET() {
         if (typeof s.timestamp !== "number") continue;
         if (s.timestamp < insightsWindowStart) continue;
         memberRecentCount += 1;
-        totalScores += 1;
-        totalScoreSum += s.score;
-        const rs = parseRungScores(s.rungs);
-        if (rs) {
-          for (const name of RUNG_NAMES) {
-            rungSums[name] += rs[name].score;
-            rungCounts[name] += 1;
+        // Team-quality aggregates (team avg + rung insights) are manager-only.
+        if (isManager) {
+          totalScores += 1;
+          totalScoreSum += s.score;
+          const rs = parseRungScores(s.rungs);
+          if (rs) {
+            for (const name of RUNG_NAMES) {
+              rungSums[name] += rs[name].score;
+              rungCounts[name] += 1;
+            }
           }
         }
       }
 
+      // Scan counts + activity are visible to ALL teammates (how many scans
+      // someone did is not sensitive). The AVERAGE (and best) score reads as a
+      // "how good a designer are you" judgment, so it stays manager-only — a
+      // member sees teammates' volume, not their grades.
+      const visibleStats =
+        stats && !isManager
+          ? { ...stats, avgScore: null, bestScore: null }
+          : stats;
+
       return {
         ...base,
-        stats,
+        stats: visibleStats,
         recentScans: memberRecentCount,
         monthlyScans,
         activity: bucketActivity(designRecent, ACTIVITY_WINDOW_DAYS),

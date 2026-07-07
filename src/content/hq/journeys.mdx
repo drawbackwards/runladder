@@ -1,8 +1,8 @@
 ---
 title: User Journeys
-updatedAt: 2026-06-08
+updatedAt: 2026-07-07
 updatedBy: Sara
-lastPr: 324
+lastPr: PENDING
 ---
 
 ## How to read this page
@@ -54,7 +54,7 @@ After provisioning, the Team Lead gets the `org:admin` invite. On accept, the fi
 1. Land on `/dashboard/team` with an empty roster. The page **activates their org** (`setActive`) on first visit if no org is the session's active one — before #190, self-serve `CreateOrganization` set the org active automatically; the invite-based flow does not, so without this the page hung on "Loading your team…".
 2. Invite designers by email. Clerk Organization handles the invite.
 3. Accepted invitees auto-get a `tier: team` complimentary subscription via `/api/webhooks/clerk` (shipped in v0.3.0).
-4. The team page is organized into two tabs (#274): **Team** (member roster with letter grades A–F, the Team Pool meter, and Invite) and **Reviews** (Beta). **For the MVP launch the Reviews tab is hidden (#302)** — only the Team tab renders; restore both Reviews and the member-detail Evaluations tab by flipping `SHOW_EVALUATIONS_AND_REVIEWS` in `src/lib/feature-flags.ts`. The Team Pool box mirrors the dashboard Usage meter — used/limit, monthly reset, hard cap, and a soft-cap tick. The page's top "Team" plan strip was removed (#274; comp-expiry surfacing tracked in #196).
+4. The team page is organized into two tabs (#274): **Team** (member roster with letter grades A–F, the Team Pool meter, and Invite) and **Reviews** (Beta). **For the MVP launch the Reviews tab is hidden (#302)** — only the Team tab renders; restore both Reviews and the member-detail Evaluations tab by flipping `SHOW_EVALUATIONS_AND_REVIEWS` in `src/lib/feature-flags.ts`. The Team Pool box mirrors the dashboard Usage meter — used/limit, monthly reset, hard cap, and a soft-cap tick. The page's top "Team" plan strip was removed (#274; comp-expiry surfacing tracked in #196). **Roster visibility (#343):** every member sees each teammate's **scan count** (activity/volume is not sensitive), but the **average score is manager-only** — it reads as a "how good a designer are you" judgment, so members don't see each other's grades (the average and the team-insights panel are gated on `org:admin` in `/api/dashboard/team`).
 5. Drill into a designer: clicking a roster member opens their detail page (scores, stats, activity heatmap, per-score surface tags #299). The Team Lead can click **any of that designer's scores** to open the full score detail (#300) — the score-detail page authorizes the cross-user read via `?member=<userId>` (`org:admin` + member-in-org). The member-detail Evaluations tab is hidden for launch (#302); only Design sessions show.
 6. Reviews flow (**hidden for launch, #302**): the Reviews tab (Lead) shows the Review Requests inbox plus the reviews overview — the same content as the dedicated `/dashboard/reviews` route, via shared components (`ReviewsIntro` / `ReviewsStats` / `ActiveReviewsList`) so the two don't drift. A designer requests a review, the Team Lead accepts or declines, the designer scores iterations in `/dashboard/reviews/[slug]`, and the Team Lead and peers add Team Takes and pin annotations.
 
