@@ -525,7 +525,7 @@ function MemberRow({
             className="text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors"
             title="Hard remove. Their work is dropped from team metrics."
           >
-            Delete
+            Remove from team
           </button>
         </div>
       )}
@@ -623,7 +623,7 @@ function ArchivedMemberRow({
         className="absolute top-4 right-4 text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors opacity-0 group-hover:opacity-100"
         title="Permanently scrub from team metrics. Cannot be undone."
       >
-        Delete
+        Remove from team
       </button>
     </li>
   );
@@ -934,7 +934,7 @@ export default function TeamPage() {
     const verb = args.fromArchived ? "scrub" : "delete";
     if (
       !confirm(
-        `${verb === "scrub" ? "Permanently scrub" : "Delete"} ${args.displayName} from this team?\n\nTheir work will be removed from team metrics. This cannot be undone.`,
+        `${verb === "scrub" ? "Permanently scrub" : "Remove"} ${args.displayName} from this team?\n\nTheir work will be removed from team metrics. This cannot be undone.`,
       )
     ) {
       return;
