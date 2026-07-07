@@ -209,8 +209,19 @@ async function setCachedScore(key: string, r: ScoreResult): Promise<void> {
   }
 }
 
-/** The model that turns a screen into a score (also part of the cache key). */
-const SCORING_MODEL = "claude-haiku-4-5";
+/**
+ * The model that turns a screen into a score (also part of the cache key).
+ *
+ * PINNED to a dated snapshot, not the floating `claude-haiku-4-5` alias (#343).
+ * A floating alias silently re-points to new model builds over time, so a screen
+ * scored today and re-scored months later could drift even at temperature 0 —
+ * the engine changing under us without an engine-version bump. Pinning the
+ * snapshot means the score only moves when WE deliberately change this string
+ * (and bump the engine version). Changing it invalidates the score cache (the
+ * model is part of the key), which is correct: a different model is a different
+ * engine.
+ */
+const SCORING_MODEL = "claude-haiku-4-5-20251001";
 
 /**
  * Parse a data URL into its base64 payload + media type.
@@ -243,7 +254,7 @@ async function runModeration(
 ): Promise<ScoringError | null> {
   try {
     const modCheck = await client.messages.create({
-      model: "claude-haiku-4-5",
+      model: SCORING_MODEL,
       max_tokens: 200,
       temperature: 0,
       messages: [

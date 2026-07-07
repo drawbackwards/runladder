@@ -6,6 +6,15 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.19 / api 1.4.0 (2026-07-07)
+
+**Pin the score model + clearer team member removal (#343).**
+
+- **Score model pinned to a dated snapshot.** The engine now calls `claude-haiku-4-5-20251001` instead of the floating `claude-haiku-4-5` alias. A floating alias silently re-points to new model builds over time, so a screen could drift even at temperature 0 — the engine changing under us without an engine-version bump. Pinning means scores only move when we deliberately change the snapshot. Verified no score movement: all 20 harness screens scored identically to the alias (the alias currently resolves to this snapshot). Engine behavior unchanged (still v1.3); the model string is part of the score cache key, so cached scores re-populate once (identically) after deploy.
+- **Team member removal is clearer.** The Team page action (and its confirmation) now reads **"Remove from team"** instead of "Delete", so it's obvious it removes the person from the team, not deletes their account or score history (it never did — scores are user-keyed).
+
+---
+
 ## app 0.5.18 / api 1.4.0 (2026-07-06)
 
 **Figma scoring unified onto the one canonical engine (#343).**

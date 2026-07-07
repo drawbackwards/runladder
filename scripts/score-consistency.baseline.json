@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-06T18:11:12.673Z",
+  "generatedAt": "2026-07-07T00:42:19.958Z",
   "runs": 10,
   "screens": [
     {
@@ -7,6 +7,39 @@
       "path": "public/screenshots/stripe/hero.png",
       "sha": "8455cedde6cc",
       "runs": [
+        {
+          "score": 2.8,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.8,
+            "comfortable": 2.6,
+            "usable": 3.2,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.8,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.8,
+            "comfortable": 2.6,
+            "usable": 3.2,
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.7,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.8,
+            "comfortable": 2.6,
+            "usable": 3.1,
+            "functional": 3.9
+          }
+        },
         {
           "score": 2.7,
           "label": "Usable",
@@ -16,50 +49,6 @@
             "comfortable": 2.6,
             "usable": 3.2,
             "functional": 3.9
-          }
-        },
-        {
-          "score": 2.8,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.8,
-            "comfortable": 2.6,
-            "usable": 3.2,
-            "functional": 3.9
-          }
-        },
-        {
-          "score": 2.8,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.8,
-            "comfortable": 2.6,
-            "usable": 3.2,
-            "functional": 3.9
-          }
-        },
-        {
-          "score": 2.8,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.8,
-            "comfortable": 2.6,
-            "usable": 3.2,
-            "functional": 3.9
-          }
-        },
-        {
-          "score": 2.8,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.8,
-            "comfortable": 2.6,
-            "usable": 3.2,
-            "functional": 4.1
           }
         },
         {
@@ -116,20 +105,31 @@
             "usable": 3.2,
             "functional": 3.9
           }
+        },
+        {
+          "score": 2.7,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.8,
+            "comfortable": 2.4,
+            "usable": 3.2,
+            "functional": 3.9
+          }
         }
       ],
       "summary": {
         "scores": [
+          2.8,
+          2.8,
+          2.7,
           2.7,
           2.8,
           2.8,
           2.8,
-          2.8,
-          2.8,
-          2.8,
-          2.8,
           2.7,
-          2.8
+          2.8,
+          2.7
         ],
         "distinct": [
           2.7,
@@ -140,8 +140,8 @@
         "range": 0.1,
         "errors": 0,
         "rungSpread": {
-          "functional": 0.2,
-          "usable": 0,
+          "functional": 0,
+          "usable": 0.1,
           "comfortable": 0.2,
           "delightful": 0,
           "meaningful": 0
@@ -158,77 +158,11 @@
           "score": 3.6,
           "label": "Comfortable",
           "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.3,
-            "comfortable": 3.8,
-            "usable": 3.9,
-            "functional": 4.2
-          }
-        },
-        {
-          "score": 3.6,
-          "label": "Comfortable",
-          "rungs": {
             "meaningful": 1.8,
             "delightful": 2.9,
             "comfortable": 3.6,
             "usable": 4.1,
             "functional": 4.3
-          }
-        },
-        {
-          "score": 3.6,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.3,
-            "comfortable": 3.8,
-            "usable": 4.1,
-            "functional": 4.4
-          }
-        },
-        {
-          "score": 3.6,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.3,
-            "comfortable": 3.8,
-            "usable": 3.9,
-            "functional": 4.2
-          }
-        },
-        {
-          "score": 3.6,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.3,
-            "comfortable": 3.8,
-            "usable": 4.1,
-            "functional": 4.4
-          }
-        },
-        {
-          "score": 3.6,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.3,
-            "comfortable": 3.8,
-            "usable": 4.1,
-            "functional": 4.4
-          }
-        },
-        {
-          "score": 3.6,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.3,
-            "comfortable": 3.6,
-            "usable": 4.1,
-            "functional": 4.4
           }
         },
         {
@@ -248,7 +182,7 @@
           "rungs": {
             "meaningful": 1.8,
             "delightful": 2.9,
-            "comfortable": 3.6,
+            "comfortable": 3.8,
             "usable": 4.1,
             "functional": 4.3
           }
@@ -257,11 +191,77 @@
           "score": 3.6,
           "label": "Comfortable",
           "rungs": {
-            "meaningful": 1.8,
-            "delightful": 2.9,
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
             "comfortable": 3.6,
             "usable": 4.1,
-            "functional": 4.3
+            "functional": 4.4
+          }
+        },
+        {
+          "score": 3.6,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 3.9,
+            "functional": 4.2
           }
         }
       ],
@@ -305,32 +305,10 @@
           "label": "Usable",
           "rungs": {
             "meaningful": 1.2,
-            "delightful": 1.5,
-            "comfortable": 2.3,
+            "delightful": 1.3,
+            "comfortable": 2.2,
             "usable": 3.1,
-            "functional": 3.7
-          }
-        },
-        {
-          "score": 2.6,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.2,
-            "comfortable": 2.1,
-            "usable": 3.2,
-            "functional": 3.6
-          }
-        },
-        {
-          "score": 2.6,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.2,
-            "comfortable": 2.3,
-            "usable": 2.9,
-            "functional": 3.7
+            "functional": 3.4
           }
         },
         {
@@ -360,10 +338,65 @@
           "label": "Usable",
           "rungs": {
             "meaningful": 1.2,
-            "delightful": 1.4,
+            "delightful": 1.3,
+            "comfortable": 2.1,
+            "usable": 2.9,
+            "functional": 3.7
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.3,
+            "comfortable": 2.1,
+            "usable": 3.2,
+            "functional": 3.7
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.3,
+            "comfortable": 2.1,
+            "usable": 3.2,
+            "functional": 3.7
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 3.2,
+            "functional": 3.8
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.3,
             "comfortable": 2.2,
             "usable": 3.1,
-            "functional": 3.6
+            "functional": 3.7
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 3.2,
+            "functional": 3.9
           }
         },
         {
@@ -375,39 +408,6 @@
             "comfortable": 2.3,
             "usable": 3.1,
             "functional": 3.7
-          }
-        },
-        {
-          "score": 2.6,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 1.3,
-            "comfortable": 2.1,
-            "usable": 3.2,
-            "functional": 3.7
-          }
-        },
-        {
-          "score": 2.6,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 1.3,
-            "comfortable": 2.1,
-            "usable": 3.2,
-            "functional": 3.7
-          }
-        },
-        {
-          "score": 2.6,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 1.4,
-            "comfortable": 2.2,
-            "usable": 3.1,
-            "functional": 3.6
           }
         }
       ],
@@ -432,7 +432,7 @@
         "range": 0,
         "errors": 0,
         "rungSpread": {
-          "functional": 0.1,
+          "functional": 0.5,
           "usable": 0.4,
           "comfortable": 0.2,
           "delightful": 0.3,
@@ -453,8 +453,30 @@
             "meaningful": 1,
             "delightful": 1.2,
             "comfortable": 2.3,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.3,
             "usable": 3.1,
-            "functional": 3.7
+            "functional": 3.9
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.3,
+            "usable": 3.1,
+            "functional": 3.9
           }
         },
         {
@@ -487,7 +509,7 @@
             "delightful": 1.2,
             "comfortable": 2.1,
             "usable": 3.2,
-            "functional": 3.9
+            "functional": 3.8
           }
         },
         {
@@ -508,30 +530,8 @@
             "meaningful": 1,
             "delightful": 1.2,
             "comfortable": 2.3,
-            "usable": 3.1,
-            "functional": 3.9
-          }
-        },
-        {
-          "score": 2.6,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.2,
-            "comfortable": 2.3,
-            "usable": 3.1,
-            "functional": 3.7
-          }
-        },
-        {
-          "score": 2.6,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.2,
-            "comfortable": 2.3,
-            "usable": 3.1,
-            "functional": 3.7
+            "usable": 2.8,
+            "functional": 3.6
           }
         },
         {
@@ -578,8 +578,8 @@
         "range": 0,
         "errors": 0,
         "rungSpread": {
-          "functional": 0.2,
-          "usable": 0.1,
+          "functional": 0.3,
+          "usable": 0.4,
           "comfortable": 0.2,
           "delightful": 0,
           "meaningful": 0
@@ -630,7 +630,7 @@
           "label": "Comfortable",
           "rungs": {
             "meaningful": 2.1,
-            "delightful": 2.3,
+            "delightful": 2.4,
             "comfortable": 3.2,
             "usable": 3.6,
             "functional": 4.1
@@ -641,7 +641,7 @@
           "label": "Comfortable",
           "rungs": {
             "meaningful": 2.1,
-            "delightful": 2.3,
+            "delightful": 2.4,
             "comfortable": 3.2,
             "usable": 3.6,
             "functional": 4.1
@@ -652,7 +652,7 @@
           "label": "Comfortable",
           "rungs": {
             "meaningful": 2.1,
-            "delightful": 2.3,
+            "delightful": 2.4,
             "comfortable": 3.2,
             "usable": 3.6,
             "functional": 4.1
@@ -727,7 +727,7 @@
           "functional": 0,
           "usable": 0,
           "comfortable": 0,
-          "delightful": 0,
+          "delightful": 0.1,
           "meaningful": 0
         },
         "exact": true
@@ -901,7 +901,7 @@
           "rungs": {
             "meaningful": 1,
             "delightful": 2.1,
-            "comfortable": 3.4,
+            "comfortable": 3.2,
             "usable": 3.6,
             "functional": 4.1
           }
@@ -911,6 +911,28 @@
           "label": "Comfortable",
           "rungs": {
             "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
             "delightful": 2.1,
             "comfortable": 3.4,
             "usable": 3.8,
@@ -932,9 +954,9 @@
           "score": 3.2,
           "label": "Comfortable",
           "rungs": {
-            "meaningful": 1,
-            "delightful": 2.3,
-            "comfortable": 3.6,
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.4,
             "usable": 3.8,
             "functional": 4.1
           }
@@ -956,7 +978,7 @@
           "rungs": {
             "meaningful": 1,
             "delightful": 2.1,
-            "comfortable": 3.2,
+            "comfortable": 3.4,
             "usable": 3.6,
             "functional": 4.1
           }
@@ -969,28 +991,6 @@
             "delightful": 2.3,
             "comfortable": 3.6,
             "usable": 3.8,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 2.1,
-            "comfortable": 3.2,
-            "usable": 3.6,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 2.1,
-            "comfortable": 3.2,
-            "usable": 3.6,
             "functional": 4.1
           }
         }
@@ -1020,7 +1020,7 @@
           "usable": 0.2,
           "comfortable": 0.4,
           "delightful": 0.2,
-          "meaningful": 0
+          "meaningful": 0.2
         },
         "exact": true
       }
@@ -1182,17 +1182,6 @@
           "rungs": {
             "meaningful": 1.2,
             "delightful": 2.1,
-            "comfortable": 3.2,
-            "usable": 3.6,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.1,
             "comfortable": 3.4,
             "usable": 3.8,
             "functional": 4.2
@@ -1206,17 +1195,6 @@
             "delightful": 2.1,
             "comfortable": 3.4,
             "usable": 3.8,
-            "functional": 4.2
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.1,
-            "comfortable": 3.2,
-            "usable": 3.6,
             "functional": 4.1
           }
         },
@@ -1259,8 +1237,30 @@
           "rungs": {
             "meaningful": 1.2,
             "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.4,
             "comfortable": 3.2,
             "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.8,
             "functional": 4.1
           }
         },
@@ -1311,8 +1311,8 @@
           "functional": 0.1,
           "usable": 0.2,
           "comfortable": 0.2,
-          "delightful": 0,
-          "meaningful": 0
+          "delightful": 0.3,
+          "meaningful": 0.6
         },
         "exact": true
       }
@@ -1473,65 +1473,10 @@
           "label": "Comfortable",
           "rungs": {
             "meaningful": 1.8,
-            "delightful": 2.2,
+            "delightful": 2.6,
             "comfortable": 3.4,
-            "usable": 3.7,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.4,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.8,
-            "delightful": 2.2,
-            "comfortable": 3.4,
-            "usable": 3.7,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.4,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.8,
-            "delightful": 2.2,
-            "comfortable": 3.4,
-            "usable": 3.7,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.4,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.8,
-            "delightful": 2.2,
-            "comfortable": 3.4,
-            "usable": 3.7,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.4,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.8,
-            "delightful": 2.2,
-            "comfortable": 3.4,
-            "usable": 3.7,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.4,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.8,
-            "delightful": 2.2,
-            "comfortable": 3.4,
-            "usable": 3.7,
-            "functional": 4.1
+            "usable": 3.9,
+            "functional": 4.2
           }
         },
         {
@@ -1542,6 +1487,61 @@
             "delightful": 2.2,
             "comfortable": 3.4,
             "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.2,
+            "comfortable": 3.4,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.2,
+            "comfortable": 3.4,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.2,
+            "comfortable": 3.4,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.2,
+            "comfortable": 3.4,
+            "usable": 3.7,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.8,
+            "delightful": 2.2,
+            "comfortable": 3.4,
+            "usable": 3.7,
             "functional": 4.1
           }
         },
@@ -1600,10 +1600,10 @@
         "range": 0,
         "errors": 0,
         "rungSpread": {
-          "functional": 0,
-          "usable": 0.1,
+          "functional": 0.1,
+          "usable": 0.3,
           "comfortable": 0,
-          "delightful": 0,
+          "delightful": 0.4,
           "meaningful": 0
         },
         "exact": true
@@ -1614,6 +1614,72 @@
       "path": "public/screenshots/revolut/hero.png",
       "sha": "bc97a3b5dc99",
       "runs": [
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.3,
+            "comfortable": 3.6,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
         {
           "score": 3.2,
           "label": "Comfortable",
@@ -1632,17 +1698,6 @@
             "meaningful": 1,
             "delightful": 2.1,
             "comfortable": 3.4,
-            "usable": 3.8,
-            "functional": 4.2
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 2.3,
-            "comfortable": 3.4,
             "usable": 3.6,
             "functional": 4.1
           }
@@ -1653,62 +1708,7 @@
           "rungs": {
             "meaningful": 1,
             "delightful": 2.3,
-            "comfortable": 3.6,
-            "usable": 3.8,
-            "functional": 4.2
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 2.3,
-            "comfortable": 3.6,
-            "usable": 3.8,
-            "functional": 4.2
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 2.3,
             "comfortable": 3.4,
-            "usable": 3.8,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 2.3,
-            "comfortable": 3.4,
-            "usable": 3.8,
-            "functional": 4.2
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 2.3,
-            "comfortable": 3.6,
-            "usable": 3.8,
-            "functional": 4.2
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 2.3,
-            "comfortable": 3.6,
             "usable": 3.8,
             "functional": 4.2
           }
@@ -1766,72 +1766,6 @@
           "rungs": {
             "meaningful": 1.2,
             "delightful": 2.3,
-            "comfortable": 3.8,
-            "usable": 4.1,
-            "functional": 4.6
-          }
-        },
-        {
-          "score": 3.4,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.3,
-            "comfortable": 3.6,
-            "usable": 3.8,
-            "functional": 4.2
-          }
-        },
-        {
-          "score": 3.4,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.3,
-            "comfortable": 3.6,
-            "usable": 3.8,
-            "functional": 4.2
-          }
-        },
-        {
-          "score": 3.4,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.3,
-            "comfortable": 3.6,
-            "usable": 3.8,
-            "functional": 4.2
-          }
-        },
-        {
-          "score": 3.4,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.3,
-            "comfortable": 3.6,
-            "usable": 3.8,
-            "functional": 4.2
-          }
-        },
-        {
-          "score": 3.4,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.3,
-            "comfortable": 3.6,
-            "usable": 3.8,
-            "functional": 4.2
-          }
-        },
-        {
-          "score": 3.4,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.3,
             "comfortable": 3.6,
             "usable": 3.8,
             "functional": 4.2
@@ -1865,8 +1799,74 @@
           "rungs": {
             "meaningful": 1.2,
             "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 3.9,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 4.1,
+            "functional": 4.6
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 3.6,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
             "comfortable": 3.6,
             "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 4.1,
+            "functional": 4.6
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 4.1,
+            "functional": 4.6
+          }
+        },
+        {
+          "score": 3.4,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.8,
+            "usable": 3.9,
             "functional": 4.2
           }
         }
@@ -1893,7 +1893,7 @@
         "errors": 0,
         "rungSpread": {
           "functional": 0.4,
-          "usable": 0.3,
+          "usable": 0.5,
           "comfortable": 0.2,
           "delightful": 0,
           "meaningful": 0
@@ -1906,6 +1906,17 @@
       "path": "public/screenshots/youtube/hero.png",
       "sha": "535ba87e4595",
       "runs": [
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.6,
+            "functional": 4.2
+          }
+        },
         {
           "score": 3.2,
           "label": "Comfortable",
@@ -1924,7 +1935,18 @@
             "meaningful": 1,
             "delightful": 2.1,
             "comfortable": 3.4,
-            "usable": 3.8,
+            "usable": 3.6,
+            "functional": 4.1
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.6,
             "functional": 4.2
           }
         },
@@ -1955,8 +1977,8 @@
           "label": "Comfortable",
           "rungs": {
             "meaningful": 1,
-            "delightful": 1.8,
-            "comfortable": 3.2,
+            "delightful": 2.1,
+            "comfortable": 3.4,
             "usable": 3.6,
             "functional": 4.1
           }
@@ -1977,30 +1999,8 @@
           "label": "Comfortable",
           "rungs": {
             "meaningful": 1,
-            "delightful": 1.8,
-            "comfortable": 3.2,
-            "usable": 3.6,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.8,
-            "comfortable": 3.2,
-            "usable": 3.6,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.8,
-            "comfortable": 3.2,
+            "delightful": 2.1,
+            "comfortable": 3.4,
             "usable": 3.6,
             "functional": 4.1
           }
@@ -2039,7 +2039,7 @@
         "errors": 0,
         "rungSpread": {
           "functional": 0.1,
-          "usable": 0.2,
+          "usable": 0,
           "comfortable": 0.2,
           "delightful": 0.3,
           "meaningful": 0
@@ -2056,9 +2056,9 @@
           "score": 3.2,
           "label": "Comfortable",
           "rungs": {
-            "meaningful": 1.2,
+            "meaningful": 1,
             "delightful": 2.1,
-            "comfortable": 3.4,
+            "comfortable": 3.2,
             "usable": 3.6,
             "functional": 4.1
           }
@@ -2070,7 +2070,29 @@
             "meaningful": 1.2,
             "delightful": 2.1,
             "comfortable": 3.4,
-            "usable": 3.6,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.1,
+            "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 2.3,
+            "comfortable": 3.4,
+            "usable": 3.8,
             "functional": 4.1
           }
         },
@@ -2081,8 +2103,8 @@
             "meaningful": 1.2,
             "delightful": 2.1,
             "comfortable": 3.4,
-            "usable": 3.6,
-            "functional": 4.1
+            "usable": 3.8,
+            "functional": 4.2
           }
         },
         {
@@ -2092,6 +2114,17 @@
             "meaningful": 1.2,
             "delightful": 2.1,
             "comfortable": 3.4,
+            "usable": 3.8,
+            "functional": 4.2
+          }
+        },
+        {
+          "score": 3.2,
+          "label": "Comfortable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 2.1,
+            "comfortable": 3.2,
             "usable": 3.6,
             "functional": 4.1
           }
@@ -2100,10 +2133,10 @@
           "score": 3.2,
           "label": "Comfortable",
           "rungs": {
-            "meaningful": 1.2,
+            "meaningful": 1,
             "delightful": 2.1,
-            "comfortable": 3.4,
-            "usable": 3.6,
+            "comfortable": 3.2,
+            "usable": 3.7,
             "functional": 4.1
           }
         },
@@ -2112,9 +2145,9 @@
           "label": "Comfortable",
           "rungs": {
             "meaningful": 1.2,
-            "delightful": 2.1,
+            "delightful": 2.3,
             "comfortable": 3.4,
-            "usable": 3.6,
+            "usable": 3.8,
             "functional": 4.1
           }
         },
@@ -2122,42 +2155,9 @@
           "score": 3.2,
           "label": "Comfortable",
           "rungs": {
-            "meaningful": 1.2,
+            "meaningful": 1,
             "delightful": 2.1,
-            "comfortable": 3.4,
-            "usable": 3.6,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.1,
-            "comfortable": 3.4,
-            "usable": 3.6,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.1,
-            "comfortable": 3.4,
-            "usable": 3.6,
-            "functional": 4.1
-          }
-        },
-        {
-          "score": 3.2,
-          "label": "Comfortable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 2.1,
-            "comfortable": 3.4,
+            "comfortable": 3.2,
             "usable": 3.6,
             "functional": 4.1
           }
@@ -2184,11 +2184,11 @@
         "range": 0,
         "errors": 0,
         "rungSpread": {
-          "functional": 0,
-          "usable": 0,
-          "comfortable": 0,
-          "delightful": 0,
-          "meaningful": 0
+          "functional": 0.1,
+          "usable": 0.2,
+          "comfortable": 0.2,
+          "delightful": 0.2,
+          "meaningful": 0.2
         },
         "exact": true
       }
@@ -2202,6 +2202,39 @@
           "score": 2.3,
           "label": "Usable",
           "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1.2,
+            "delightful": 1.3,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
             "meaningful": 1.2,
             "delightful": 1.3,
             "comfortable": 1.8,
@@ -2237,39 +2270,6 @@
           "rungs": {
             "meaningful": 1,
             "delightful": 1.2,
-            "comfortable": 1.8,
-            "usable": 2.8,
-            "functional": 3.6
-          }
-        },
-        {
-          "score": 2.3,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.2,
-            "comfortable": 1.8,
-            "usable": 2.8,
-            "functional": 3.6
-          }
-        },
-        {
-          "score": 2.3,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.2,
-            "comfortable": 1.8,
-            "usable": 2.8,
-            "functional": 3.6
-          }
-        },
-        {
-          "score": 2.3,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1.2,
-            "delightful": 1.3,
             "comfortable": 1.8,
             "usable": 2.8,
             "functional": 3.6
@@ -2350,9 +2350,9 @@
           "rungs": {
             "meaningful": 1,
             "delightful": 1.2,
-            "comfortable": 2.1,
-            "usable": 3.2,
-            "functional": 3.9
+            "comfortable": 1.8,
+            "usable": 2.9,
+            "functional": 3.7
           }
         },
         {
@@ -2373,8 +2373,8 @@
             "meaningful": 1,
             "delightful": 1.2,
             "comfortable": 1.8,
-            "usable": 3.1,
-            "functional": 3.9
+            "usable": 2.8,
+            "functional": 3.6
           }
         },
         {
@@ -2386,6 +2386,17 @@
             "comfortable": 2.1,
             "usable": 3.2,
             "functional": 3.9
+          }
+        },
+        {
+          "score": 2.6,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 2.1,
+            "usable": 3.2,
+            "functional": 3.8
           }
         },
         {
@@ -2407,17 +2418,6 @@
             "delightful": 1.2,
             "comfortable": 2.1,
             "usable": 3.2,
-            "functional": 3.8
-          }
-        },
-        {
-          "score": 2.6,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.2,
-            "comfortable": 2.1,
-            "usable": 3.2,
             "functional": 3.9
           }
         },
@@ -2451,7 +2451,7 @@
             "delightful": 1.2,
             "comfortable": 2.1,
             "usable": 3.2,
-            "functional": 3.8
+            "functional": 3.9
           }
         }
       ],
@@ -2476,8 +2476,8 @@
         "range": 0,
         "errors": 0,
         "rungSpread": {
-          "functional": 0.2,
-          "usable": 0.3,
+          "functional": 0.3,
+          "usable": 0.4,
           "comfortable": 0.3,
           "delightful": 0,
           "meaningful": 0
@@ -2652,17 +2652,6 @@
           "label": "Usable",
           "rungs": {
             "meaningful": 1,
-            "delightful": 1.1,
-            "comfortable": 1.8,
-            "usable": 2.8,
-            "functional": 3.6
-          }
-        },
-        {
-          "score": 2.3,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
             "delightful": 1.2,
             "comfortable": 1.8,
             "usable": 2.8,
@@ -2674,29 +2663,7 @@
           "label": "Usable",
           "rungs": {
             "meaningful": 1,
-            "delightful": 1.2,
-            "comfortable": 1.8,
-            "usable": 2.8,
-            "functional": 3.6
-          }
-        },
-        {
-          "score": 2.3,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.2,
-            "comfortable": 1.8,
-            "usable": 2.8,
-            "functional": 3.6
-          }
-        },
-        {
-          "score": 2.3,
-          "label": "Usable",
-          "rungs": {
-            "meaningful": 1,
-            "delightful": 1.1,
+            "delightful": 1,
             "comfortable": 1.8,
             "usable": 2.8,
             "functional": 3.6
@@ -2731,7 +2698,40 @@
             "meaningful": 1,
             "delightful": 1.1,
             "comfortable": 1.8,
-            "usable": 2.9,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1,
+            "comfortable": 1.8,
+            "usable": 2.8,
+            "functional": 3.6
+          }
+        },
+        {
+          "score": 2.3,
+          "label": "Usable",
+          "rungs": {
+            "meaningful": 1,
+            "delightful": 1.2,
+            "comfortable": 1.8,
+            "usable": 2.8,
             "functional": 3.6
           }
         },
@@ -2742,7 +2742,7 @@
             "meaningful": 1,
             "delightful": 1.1,
             "comfortable": 1.8,
-            "usable": 2.9,
+            "usable": 2.8,
             "functional": 3.6
           }
         }
@@ -2769,9 +2769,9 @@
         "errors": 0,
         "rungSpread": {
           "functional": 0,
-          "usable": 0.1,
+          "usable": 0,
           "comfortable": 0,
-          "delightful": 0.1,
+          "delightful": 0.2,
           "meaningful": 0
         },
         "exact": true
