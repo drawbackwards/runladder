@@ -119,7 +119,13 @@ export async function POST(req: NextRequest) {
         );
       };
       try {
-        for await (const ev of scoreImageStream(parsed, { applyAiLens })) {
+        // Trusted service-token caller (signed-in designer's own frame) — skip
+        // the anonymous-upload moderation gate so the in-canvas score isn't
+        // delayed by an extra round-trip (#343).
+        for await (const ev of scoreImageStream(parsed, {
+          applyAiLens,
+          skipModeration: true,
+        })) {
           if (ev.kind === "error") {
             send("error", { message: ev.value, status: ev.status });
             controller.close();

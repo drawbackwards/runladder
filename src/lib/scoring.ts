@@ -319,6 +319,14 @@ export async function scoreImage(
     /** Ground-truth on-screen text (URL DOM / future surfaces) for the style pass. */
     styleFrameText?: FrameText | null;
     /**
+     * Skip the pre-score content-moderation gate (isUI/isExplicit). Set by the
+     * trusted plugin/service-token path: it scores a signed-in designer's own
+     * Figma frames (always UI), and the pre-unification plugin never moderated,
+     * so skipping it keeps the score off that extra round-trip. The anonymous
+     * web path leaves it unset and keeps the gate.
+     */
+    skipModeration?: boolean;
+    /**
      * Skip the score cache entirely (no read, no write). Used only by the
      * consistency harness (`scripts/score-consistency.mjs`) to measure the
      * model's true run-to-run variance — the thing #343 is fixing. Production
@@ -351,8 +359,9 @@ export async function scoreImage(
   const cacheKey = scoreCacheKey(system, base64Data);
   const cached = opts.bypassCache ? null : await getCachedScore(cacheKey);
 
-  // Moderation gate — only on a cache MISS (a cached score already passed it).
-  if (!cached) {
+  // Moderation gate — only on a cache MISS (a cached score already passed it),
+  // and skipped for trusted service-token callers (see skipModeration).
+  if (!cached && !opts.skipModeration) {
     const modErr = await runModeration(client, mediaType, base64Data);
     if (modErr) return modErr;
   }
@@ -486,6 +495,13 @@ export async function* scoreImageStream(
     styleTeamName?: string | null;
     /** Ground-truth on-screen text (URL DOM / future surfaces) for the style pass. */
     styleFrameText?: FrameText | null;
+    /**
+     * Skip the pre-score moderation gate for trusted service-token callers (the
+     * plugin). Restores the pre-unification plugin behavior (no moderation) so
+     * the in-canvas score isn't delayed by an extra Haiku round-trip. The
+     * anonymous web stream leaves it unset and keeps the gate.
+     */
+    skipModeration?: boolean;
   } = {},
 ): AsyncGenerator<ScoringStreamEvent> {
   if (base64Data.length > 7_000_000) {
@@ -545,11 +561,15 @@ export async function* scoreImageStream(
     return;
   }
 
-  /* ── Moderation (Haiku, non-streaming, fast) — only on a cache miss ── */
-  const modErr = await runModeration(client, mediaType, base64Data);
-  if (modErr) {
-    yield { kind: "error", value: modErr.error, status: modErr.status };
-    return;
+  /* ── Moderation (Haiku, non-streaming) — only on a cache miss, and skipped
+   * for trusted service-token callers (see skipModeration) so the plugin's
+   * in-canvas score isn't gated behind an extra round-trip. ── */
+  if (!opts.skipModeration) {
+    const modErr = await runModeration(client, mediaType, base64Data);
+    if (modErr) {
+      yield { kind: "error", value: modErr.error, status: modErr.status };
+      return;
+    }
   }
 
   /* ── Streaming scoring call (Haiku 4.5, temperature 0 for determinism) ──

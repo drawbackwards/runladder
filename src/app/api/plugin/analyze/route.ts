@@ -67,7 +67,9 @@ export async function POST(req: NextRequest) {
       (t) => t.type === designType && t.aiLens,
     );
 
-    const result = await scoreImage(parsed, { applyAiLens });
+    // Trusted service-token caller scoring a signed-in designer's own frame —
+    // skip the anonymous-upload moderation gate (keeps the score fast) (#343).
+    const result = await scoreImage(parsed, { applyAiLens, skipModeration: true });
     if (isScoringError(result)) {
       return NextResponse.json(
         { error: result.error },
