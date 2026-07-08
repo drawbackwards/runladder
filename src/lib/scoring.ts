@@ -201,9 +201,14 @@ async function setCachedScore(key: string, r: ScoreResult): Promise<void> {
     findings: r.findings,
   };
   try {
-    // 30-day TTL; key is content-addressed so it's safe to keep — a changed
-    // image/prompt/model produces a different key, not a stale hit.
-    await redis.set(key, core, { ex: 60 * 60 * 24 * 30 });
+    // NO expiry — a score is permanent for its engine version (#343). The key
+    // is content-addressed (engine version + model + prompt + image), so a
+    // deliberate engine bump changes the key and supersedes old entries; nothing
+    // else should ever move a screen's score. A TTL would let a cached score
+    // expire and silently re-derive (drifting on a borderline screen), breaking
+    // "same screen, same score, forever." Entries are tiny; old-engine keys are
+    // orphaned on a bump and can be swept separately if storage ever matters.
+    await redis.set(key, core);
   } catch {
     // cache write is best-effort
   }

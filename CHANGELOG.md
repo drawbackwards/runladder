@@ -6,6 +6,14 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.23 / api 1.4.0 (2026-07-08)
+
+**Scores are now permanent per engine version (removed the 30-day cache TTL) (#343).**
+
+- The content-addressed score cache expired entries after 30 days, so a screen re-scored after a month could drift (even at temp 0 with the pinned model, ~0.1 on a borderline screen) — breaking "same screen, same score, forever." The cache now has **no expiry**: a scored screen keeps its exact score indefinitely. The key already includes the engine version + model + prompt + image bytes, so a deliberate engine bump supersedes old entries; nothing else moves a screen's score. Entries are tiny; old-engine keys are simply orphaned on a bump (can be swept later if storage ever matters). Verified the cache hit path end-to-end (same image: live miss then a ~110ms identical hit) on the shared `Redis.fromEnv()` binding that already powers scores/dashboard in prod.
+
+---
+
 ## app 0.5.22 / api 1.4.0 (2026-07-07)
 
 **Faster Figma scoring: skip the moderation gate on the trusted plugin path.**
