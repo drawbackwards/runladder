@@ -1,7 +1,29 @@
 # Deterministic Ladder Scoring — Engineering Plan
 
-Status: approved to build (Chester, 2026-07-02). Not started. Tracks GitHub #343.
-Owner: Chester + Sara (AI pair). Resume here after the holiday weekend.
+Tracks GitHub #343. Owner: Chester + Sara (AI pair).
+
+## STATUS / CORRECTION (2026-07-08) — read this first
+
+The phased plan below is the ORIGINAL plan and is partly superseded. What actually
+happened:
+
+- **Phase 0 (harness) done** and it overturned the core assumption: the model's
+  holistic total is already near-deterministic at temp 0 (19/20 fixtures exact,
+  worst 0.1), while the decomposed per-rung numbers are the NOISY part. So
+  **Phases 2 & 3 ("model measures, code computes from rungs") were ABANDONED** —
+  computing the total from noisy rungs would REGRESS determinism. Do not build
+  them without new data.
+- **Shipped:** Figma unified onto the one canonical engine (#379/#231); model
+  PINNED to `claude-haiku-4-5-20251001` (#382); score cache made PERMANENT, no
+  TTL (#387); consistency harness (`scripts/score-consistency.mjs`);
+  improvement-detection harness (`scripts/improvement-harness.mjs`, #388) — which
+  VALIDATED the purpose: a single-element fix moved the score +0.4 and a full
+  redesign +1.9, both with spread 0 across uncached runs. Plus supporting fixes
+  (Potential box for Figma, frame-name title, plugin latency, team roster).
+- **Remaining:** cross-surface input parity for the valid pairs (Phase 4, lower
+  priority). The determinism/consistency goal of #343 is otherwise MET.
+
+Everything below is kept for history.
 
 ## The goal (the contract)
 
