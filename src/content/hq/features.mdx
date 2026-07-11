@@ -1,8 +1,8 @@
 ---
 title: Feature Inventory
-updatedAt: 2026-07-07
+updatedAt: 2026-07-10
 updatedBy: Sara
-lastPr: 383
+lastPr: 235
 ---
 
 ## How to read this page
@@ -62,11 +62,12 @@ Plugin source lives in `ai-design-assistant`. Backend endpoints (`/api/plugin/*`
 | Feature | Roles | Status | Evidence |
 | --- | --- | --- | --- |
 | In-canvas frame scoring — now runs on runladder's **one canonical engine** (temp 0, content-addressed cache), streamed so the in-canvas reveal stays fast; unified in #343/PR #379 so the plugin score matches web/Skill instead of drifting at the old default temperature. The plugin-shape mapping keeps `rung`/`severity` AND `uplift`/`targetLevel` (#343), so Figma findings carry the forward signal and feed the dashboard "Potential score" box like web scores. Applies to scans made after this shipped; Figma scans persisted earlier lack the fields and still hide the box (re-score to populate). | Pro+ | Live (PR #379) | `src/app/api/plugin/analyze/stream/route.ts` (streaming), `src/app/api/plugin/analyze/route.ts` (non-streaming), `src/lib/scoring.ts` |
+| Plugin result screen redesigned to match the web score detail (#386, #392): tabbed **Findings / Style Guide / Copy** (sticky tab bar; Style Guide + Copy lazy-load on first open); findings cards, score card, and per-rung breakdown restyled to the web layout + tokens (square corners, dark card fills, eyebrow labels pulled out of cards); **per-frame selection memory** (re-selecting a scored frame re-displays its score instantly; button reads "Score" vs "Re-score this screen"; deselecting clears stale results); "Scoring..." button state; "More Tools" + "Analysis quality" sections. Plugin-side only, runladder backend unchanged. | Pro+ | Live (plugin PRs #233, #234, #235; frame-name title #232) | `drawbackwards/ai-design-assistant` `plugin/ui.html`, `plugin/code.js` |
 | Plugin token issuance | All signed-in | Live | `src/app/api/plugin/issue-token/route.ts` |
 | Plugin token verification | Plugin token | Live | `src/app/api/plugin/verify-token/route.ts` |
 | Score persistence from plugin (also runs the team style-compliance pass so plugin scores show Style Guide findings on the dashboard, #364) | Plugin token | Live | `src/app/api/plugin/persist-score/route.ts` |
 | Plugin metadata endpoint | Public | Live | `src/app/api/plugin/meta/route.ts` |
-| Plugin bundle (v1.0.8) | All | Live | `drawbackwards/ai-design-assistant`, version synced via `scripts/sync-skill-version.mjs` |
+| Plugin bundle (v1.13.0) | All | Live | `drawbackwards/ai-design-assistant`, version synced via `scripts/sync-skill-version.mjs` |
 | Free 5-lifetime cap inside plugin | Free | Live | Enforced server-side via shared `plans.ts` |
 | Marketplace listing demo flow | Public | Roadmap | Gates the relaunch (re-review restarted 2026-04-18 per memory) |
 | Batch scoring of a frame stack | Pro+ | Roadmap | Open question per Journeys |

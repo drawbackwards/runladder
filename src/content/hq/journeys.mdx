@@ -1,8 +1,8 @@
 ---
 title: User Journeys
-updatedAt: 2026-07-07
+updatedAt: 2026-07-10
 updatedBy: Sara
-lastPr: 384
+lastPr: 235
 ---
 
 ## How to read this page
@@ -72,7 +72,7 @@ See [Feature Inventory → Web app](/hq/features#web-app-runladdercom) for shipp
 
 ## Figma plugin: Live (in marketplace re-review per memory)
 
-The plugin source lives in `drawbackwards/ai-design-assistant`. Plugin backend endpoints live in `runladder` under `/api/plugin/*`. Current bundle version is 1.0.6 (synced via `scripts/sync-skill-version.mjs`).
+The plugin source lives in `drawbackwards/ai-design-assistant`. Plugin backend endpoints live in `runladder` under `/api/plugin/*`. Current bundle version is 1.13.0 (synced via `scripts/sync-skill-version.mjs`).
 
 ### Plugin first-run (Live, with caveats)
 
@@ -83,6 +83,7 @@ Key beats:
 - Plugin token is issued via `POST /api/plugin/issue-token` (Clerk session required), then pasted into the Figma plugin. The account page at `/settings` (#203) does **not** issue these tokens yet; issuance happens via the in-plugin auth flow.
 - Token is server-issued, single-user, scoped to plugin requests. Verified via `POST /api/plugin/verify-token`.
 - Score requests hit `/api/plugin/analyze`. Same scoring engine as the web app. Persisted via `POST /api/plugin/persist-score`.
+- Result screen mirrors the web score detail (#386, #392): the score reveals into a card, then tabbed **Findings / Style Guide / Copy** (Style Guide + Copy lazy-load), a per-rung breakdown, and "More Tools" (Accessibility, follow-up) + "Analysis quality" sections. Selecting a frame that was already scored re-displays its result instantly; selecting a fresh frame shows the default state; the button reads "Score" vs "Re-score this screen".
 - Free users hit the 5-lifetime cap inside the plugin same as on web.
 - The dashboard has a dedicated **`/dashboard/figma`** detail page (#273): hero, full-width pitch, and an install/manage panel. The sidebar `FigmaPromoCard` links here and shows live connection status (New vs Connected, version, update-available) from `/api/plugin/meta`.
 
