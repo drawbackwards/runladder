@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { getAdminEmail } from "@/lib/admin";
-import { isInternalOrg, orgMeta } from "@/lib/orgs";
+import { isInternalOrg, orgMeta, orgStatus, provisioningUserId } from "@/lib/orgs";
+import { redis, currentYearMonth } from "@/lib/redis";
+import { TEAM_MONTHLY_POOL } from "@/lib/plans";
 
 /**
- * Org lifecycle management (#190).
+ * Org lifecycle management (#190) + Team Detail read (#397).
  *
+ *   GET    /api/admin/clients/:orgId   — Team Detail: org info, member roster,
+ *                                        and usage-by-month for the workspace.
  *   PATCH  /api/admin/clients/:orgId   body { action }
  *     - "suspend" | "reactivate"      → toggle publicMetadata.status
  *     - "markInternal" | "unmarkInternal" → toggle publicMetadata.internal
@@ -18,6 +22,158 @@ import { isInternalOrg, orgMeta } from "@/lib/orgs";
 
 function unauthorized() {
   return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+}
+
+/** One persisted score entry from a member's history zset. */
+type RawScore = { score?: number; timestamp?: number };
+
+/** UTC "YYYY-MM" bucket for a score timestamp — same boundary as the counters. */
+function yearMonthOf(ts: number): string {
+  return currentYearMonth(new Date(ts));
+}
+
+type DetailMember = {
+  userId: string;
+  name: string | null;
+  email: string | null;
+  /** Clerk role, e.g. "org:admin" (Team Lead) or "org:member". */
+  role: string;
+  scoresThisMonth: number;
+};
+
+type MonthUsage = {
+  /** "YYYY-MM". */
+  month: string;
+  /** Pooled scoring calls across the workspace that month (all surfaces). */
+  scores: number;
+  /** Members with at least one scoring call that month. */
+  distinctActiveMembers: number;
+};
+
+/**
+ * GET — Team Detail (#397).
+ *
+ * Usage is reconstructed from each current member's durable score history
+ * (`user:{id}:scores`, no TTL), bucketed into UTC months. This is the same
+ * event a scoring call increments the monthly counter on, so the numbers line
+ * up with the pool meter on the clients list — but unlike the 40-day counter,
+ * the history retains full month-by-month totals for billing review.
+ *
+ * Attribution follows CURRENT membership (same limitation as the pool meter):
+ * a departed member's past scores are not counted toward the workspace.
+ */
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ orgId: string }> },
+) {
+  if (!(await getAdminEmail())) return unauthorized();
+
+  const { orgId } = await params;
+  const client = await clerkClient();
+
+  const org = await client.organizations.getOrganization({
+    organizationId: orgId,
+  });
+
+  const provisioner = provisioningUserId();
+  const memberships = await client.organizations.getOrganizationMembershipList({
+    organizationId: orgId,
+    limit: 100,
+  });
+
+  // Real members only — the hidden provisioning service account owns the org
+  // but is never a real teammate, so it's excluded from the roster and usage.
+  const members = memberships.data.filter(
+    (m) => m.publicUserData?.userId && m.publicUserData.userId !== provisioner,
+  );
+
+  const thisMonth = currentYearMonth();
+
+  // Pull every member's full score history once, in parallel.
+  const histories = await Promise.all(
+    members.map(async (m) => {
+      const userId = m.publicUserData!.userId!;
+      let entries: RawScore[] = [];
+      try {
+        const raw = await redis.zrange<unknown[]>(
+          `user:${userId}:scores`,
+          0,
+          -1,
+        );
+        entries = raw.map((e) =>
+          typeof e === "string" ? (JSON.parse(e) as RawScore) : (e as RawScore),
+        );
+      } catch {
+        entries = [];
+      }
+      return { userId, entries };
+    }),
+  );
+
+  // Roster (member row) + per-month rollup, in one pass over the histories.
+  const monthTotals = new Map<string, { scores: number; active: Set<string> }>();
+  const roster: DetailMember[] = members.map((m, i) => {
+    const userId = m.publicUserData!.userId!;
+    const { entries } = histories[i];
+    let scoresThisMonth = 0;
+
+    for (const e of entries) {
+      if (typeof e.timestamp !== "number") continue;
+      const ym = yearMonthOf(e.timestamp);
+      const bucket = monthTotals.get(ym) ?? { scores: 0, active: new Set() };
+      bucket.scores += 1;
+      bucket.active.add(userId);
+      monthTotals.set(ym, bucket);
+      if (ym === thisMonth) scoresThisMonth += 1;
+    }
+
+    const pd = m.publicUserData;
+    const name =
+      [pd?.firstName, pd?.lastName].filter(Boolean).join(" ") || null;
+    return {
+      userId,
+      name,
+      email: pd?.identifier ?? null,
+      role: m.role,
+      scoresThisMonth,
+    };
+  });
+
+  // Always surface the current month (even at zero) so it anchors the top.
+  if (!monthTotals.has(thisMonth)) {
+    monthTotals.set(thisMonth, { scores: 0, active: new Set() });
+  }
+
+  const usageByMonth: MonthUsage[] = Array.from(monthTotals.entries())
+    .map(([month, b]) => ({
+      month,
+      scores: b.scores,
+      distinctActiveMembers: b.active.size,
+    }))
+    // "YYYY-MM" sorts correctly as a string; newest first.
+    .sort((a, b) => (a.month < b.month ? 1 : a.month > b.month ? -1 : 0));
+
+  // Team Lead first, then members, then by name — mirrors the roster order
+  // used elsewhere in the team UI.
+  roster.sort((a, b) => {
+    const lead = (r: DetailMember) => (r.role === "org:admin" ? 0 : 1);
+    if (lead(a) !== lead(b)) return lead(a) - lead(b);
+    return (a.name ?? a.email ?? "").localeCompare(b.name ?? b.email ?? "");
+  });
+
+  return NextResponse.json({
+    org: {
+      id: org.id,
+      name: org.name,
+      internal: isInternalOrg(org),
+      status: orgStatus(org),
+      createdAt: org.createdAt,
+      teamLead: orgMeta(org).teamLead ?? null,
+    },
+    pool: TEAM_MONTHLY_POOL,
+    members: roster,
+    usageByMonth,
+  });
 }
 
 export async function PATCH(

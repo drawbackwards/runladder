@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Skeleton } from "@/components/Skeleton";
 
@@ -68,6 +69,7 @@ function fmtDate(ms: number | null | undefined) {
 
 export default function ManageClientsPage() {
   const { isSignedIn } = useAuth();
+  const router = useRouter();
   const [teamClients, setTeamClients] = useState<TeamClient[]>([]);
   const [proClients, setProClients] = useState<ProClient[]>([]);
   const [freeUsers, setFreeUsers] = useState<FreeUser[]>([]);
@@ -206,7 +208,8 @@ export default function ManageClientsPage() {
                     return (
                       <tr
                         key={c.id}
-                        className="border-b border-[#222] last:border-0 hover:bg-[#222]"
+                        onClick={() => router.push(`/admin/clients/${c.id}`)}
+                        className="border-b border-[#222] last:border-0 hover:bg-[#222] cursor-pointer"
                       >
                         <td className="p-3 text-foreground">
                           {c.name}
@@ -250,14 +253,15 @@ export default function ManageClientsPage() {
                             <span className="text-[10px] text-muted">Protected</span>
                           ) : (
                             <button
-                              onClick={() =>
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 patch(
                                   c.id,
                                   c.status === "suspended"
                                     ? "reactivate"
                                     : "suspend",
-                                )
-                              }
+                                );
+                              }}
                               disabled={busyOrg === c.id}
                               className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors disabled:opacity-40"
                             >
