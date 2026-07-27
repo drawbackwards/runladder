@@ -1,8 +1,8 @@
 ---
 title: Roles
-updatedAt: 2026-06-08
+updatedAt: 2026-07-27
 updatedBy: Sara
-lastPr: 323
+lastPr: 405
 ---
 
 ## End-user roles
@@ -27,8 +27,10 @@ These gate access to platform internals. Email-based allowlist defined in `src/l
 | Role | Allowlist | What it unlocks |
 | --- | --- | --- |
 | **Super Admin** | `SUPER_ADMIN_EMAILS` (hardcoded, Ward only) | Everything. Cannot be removed via UI. Editing requires PR + passphrase. |
-| **Admin** | `ADMIN_EMAILS` env (defaults: Michael, Jordan) | Full `/admin` access: user records, invite codes, evaluations, feedback, comps. Also sees `/hq`. |
-| **Team** | `TEAM_EMAILS` env (Chester, Sean) | `/hq` access only. No `/admin` powers. |
+| **Admin** | `ADMIN_EMAILS` env (currently the full Drawbackwards team: Ward, Jordan, Michael, Corie, Chester) | Full `/admin` access: user records, invite codes, evaluations, feedback, comps. Also sees `/hq`. |
+| **Team** | `TEAM_EMAILS` env (Sean; admins are merged in automatically) | `/hq` access only. No `/admin` powers. |
+
+**How `/admin` access actually works:** the *only* gate is `ADMIN_EMAILS`, matched against your Clerk **primary** email (`getAdminEmail` in `src/lib/admin.ts`). Being a **Team Lead** (`org:admin` on an org) is a separate, org-scoped role and does **not** grant `/admin` — the two are unrelated. Two gotchas: (1) if you're on the list but locked out, your Clerk *primary* email probably isn't your `@drawbackwards.com` address; (2) `ADMIN_EMAILS` is baked at build time, so a change only takes effect after the next prod deploy.
 
 ## Capability matrix
 
@@ -43,7 +45,7 @@ These gate access to platform internals. Email-based allowlist defined in `src/l
 | Pulse dashboard (in `ladder-beta`) | - | - | - | - | Yes | View | View |
 | Invite team members | - | - | - | Yes | - | - | Yes |
 | `/admin` console | - | - | - | - | - | Yes | Yes |
-| `/hq` team hub | - | - | - | - | - | Yes | Yes (Chester, Sean via TEAM_EMAILS) |
+| `/hq` team hub | - | - | - | - | - | Yes | Yes (Sean via TEAM_EMAILS) |
 | Manage SUPER_ADMIN_EMAILS | - | - | - | - | - | - | Yes |
 
 ## Adding a new role
