@@ -1,8 +1,8 @@
 ---
 title: Feature Inventory
-updatedAt: 2026-07-10
+updatedAt: 2026-07-27
 updatedBy: Sara
-lastPr: 393
+lastPr: 404
 ---
 
 ## How to read this page
@@ -67,7 +67,7 @@ Plugin source lives in `ai-design-assistant`. Backend endpoints (`/api/plugin/*`
 | Plugin token verification | Plugin token | Live | `src/app/api/plugin/verify-token/route.ts` |
 | Score persistence from plugin (also runs the team style-compliance pass so plugin scores show Style Guide findings on the dashboard, #364) | Plugin token | Live | `src/app/api/plugin/persist-score/route.ts` |
 | Plugin metadata endpoint | Public | Live | `src/app/api/plugin/meta/route.ts` |
-| Plugin bundle (v1.13.0) | All | Live | `drawbackwards/ai-design-assistant`, version synced via `scripts/sync-skill-version.mjs` |
+| Plugin bundle (v1.12.0) | All | Live | `drawbackwards/ai-design-assistant`, version synced via `scripts/sync-skill-version.mjs` |
 | Free 5-lifetime cap inside plugin | Free | Live | Enforced server-side via shared `plans.ts` |
 | Marketplace listing demo flow | Public | Roadmap | Gates the relaunch (re-review restarted 2026-04-18 per memory) |
 | Batch scoring of a frame stack | Pro+ | Roadmap | Open question per Journeys |
@@ -151,6 +151,7 @@ Gated by `ADMIN_EMAILS` env var. Defaults: Ward, Michael, Jordan.
 | Provision Team org + invite Team Lead as `org:admin` | Admin | Live (v0.5.5) | `src/app/api/admin/clients/route.ts` |
 | Org lifecycle: archive / restore (no hard delete — client data is never destroyed) | Admin | Live (#295) | `src/app/admin/(tabbed)/clients/page.tsx`. Underlying state is still the `suspended` flag (`/api/admin/clients/[orgId]` PATCH); the destructive DELETE path was removed. |
 | Pooled monthly usage column on the admin Clients list | Admin | Live (#297) | `src/app/api/admin/clients/route.ts` (`getTeamMonthlyTotal`), `src/app/admin/(tabbed)/clients/page.tsx` |
+| Team Detail: per-org member roster + usage-by-month (reconstructed from durable score history, `Overage` tag at ≥ pool); clients rows link through | Admin | Live (#397) | `src/app/admin/clients/[orgId]/page.tsx`, `src/app/api/admin/clients/[orgId]/route.ts` (GET) |
 | Internal-org protection (Drawbackwards never suspended/deleted) | Admin | Live (v0.5.5) | `src/lib/orgs.ts` `isInternalOrg` |
 | Admin-only "Admin" entry in Account menu (single row; lands on Clients tab) | Admin | Live | `src/components/UserMenu.tsx`, `src/app/api/admin/status/route.ts` |
 | Unified Admin shell with tabs (Clients / Evaluations / Feedback / Comps / Beta Codes) | Admin | Live (#231) | `src/app/admin/layout.tsx`, `src/components/Tabs.tsx` |

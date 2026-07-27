@@ -1,8 +1,8 @@
 ---
 title: User Journeys
-updatedAt: 2026-07-10
+updatedAt: 2026-07-27
 updatedBy: Sara
-lastPr: 393
+lastPr: 404
 ---
 
 ## How to read this page
@@ -46,6 +46,7 @@ Provisioning moved in-app. After a Drawbackwards Teams engagement closes, a plat
 2. We create a Clerk Organization owned by a hidden **provisioning service account** (`createdBy = PROVISIONING_USER_ID`), not the acting admin — so individual Drawbackwards admins never become members of (or get trapped in) a client org. The service account never logs in and is filtered out of the client's roster and member counts (`isProvisioningUser`). We then send the Team Lead an `org:admin` invitation (inviter is the service account). The org shows as **Pending** until the Team Lead accepts and signs in, at which point the Clerk membership webhook flips it to **Active**.
 3. Self-serve org creation is disabled — clients can no longer spin up their own orgs.
 4. Lifecycle: admins can **suspend/reactivate** an org when a contract pauses/ends (suspended orgs see a "team access paused" notice; members keep their tier for now) and **delete** test orgs (type-the-name to confirm). The internal **Drawbackwards** org is protected from both.
+5. Usage review (#397): clicking a team row opens **Team Detail** (`/admin/clients/[orgId]`) — member roster plus month-by-month pooled usage vs the 25,000 pool, with an **Overage** tag on months at/over pool. It's the manual month-end billing check; the pool is not auto-enforced (throttle + metered billing are post-MVP).
 
 ### Team Lead flow (Live, post-engagement)
 
@@ -72,7 +73,7 @@ See [Feature Inventory → Web app](/hq/features#web-app-runladdercom) for shipp
 
 ## Figma plugin: Live (in marketplace re-review per memory)
 
-The plugin source lives in `drawbackwards/ai-design-assistant`. Plugin backend endpoints live in `runladder` under `/api/plugin/*`. Current bundle version is 1.13.0 (synced via `scripts/sync-skill-version.mjs`).
+The plugin source lives in `drawbackwards/ai-design-assistant`. Plugin backend endpoints live in `runladder` under `/api/plugin/*`. Current bundle version is 1.12.0 (synced via `scripts/sync-skill-version.mjs`).
 
 ### Plugin first-run (Live, with caveats)
 
