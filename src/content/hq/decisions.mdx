@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-06-29
+updatedAt: 2026-07-28
 updatedBy: Sara
-lastPr: 376
+lastPr: 408
 ---
 
 ## How to use this page
@@ -10,6 +10,16 @@ lastPr: 376
 The why behind big choices. Read this before you push back on a feature, a price, or a roadmap call. Most decisions look arbitrary until you know the constraint that drove them. New entries go at the top with a date and one-line rule.
 
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
+
+---
+
+## Bonus plugin features are absorbed COGS, not pool usage; a score is a score (2026-07-28)
+
+**Context:** An audit of the Lumin Digital SOW flagged that the Figma plugin's "bonus" features (Improve Copy, Fix Accessibility) hit the Anthropic engine but weren't counted anywhere ([#396](https://github.com/drawbackwards/runladder/issues/396)). The SOW's literal wording ("each distinct scoring mode" is a billable scoring call) suggested counting them against the client's 25,000 pool. But those features aren't scores, they aren't in our pricing model, and they aren't explained anywhere in the UI — so counting them against the pool, or inflating the user-facing "scores this month" number with them, would confuse the client.
+
+**Rule (Chester + Michael):** From the user's perspective, **a score is a score, regardless of surface** — the user-facing count reflects actual Ladder scores only. Bonus features do **not** consume the client's pool and do **not** show up as user-facing usage. We **absorb** their cost as Drawbackwards COGS. What we needed instead was *internal* visibility into what a client costs us to run vs. what we bill them — so [#406](https://github.com/drawbackwards/runladder/issues/406) added per-client, per-month, per-category **token-cost** accounting (admin Team Detail, internal only, never client-facing). This is a deliberate, one-off deviation from the SOW's literal billing language; #396 was closed in favor of #406.
+
+**How to apply:** never wire a "bonus" (non-score) engine call into the pool counter or the user-facing scores count. Do route every LLM call through `recordTokenCost` so its spend lands in COGS (see [Architecture → Token-cost accounting](/hq/architecture)). What we bill each client is intentionally NOT in the app (Ward holds it, and it's custom per client), so the app shows cost only, not margin.
 
 ---
 
