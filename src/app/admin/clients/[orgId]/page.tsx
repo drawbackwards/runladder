@@ -332,12 +332,22 @@ export default function TeamDetailPage() {
                             )}
                             {Object.keys(u.costByCategory).length > 0 && (
                               <div className="hidden group-hover:block absolute left-0 top-full mt-1 z-10 min-w-[190px] border border-[#333] bg-[#1a1a1a] p-2 text-left normal-case tracking-normal shadow-lg">
-                                {Object.entries(u.costByCategory)
-                                  .sort((a, b) => b[1] - a[1])
-                                  .map(([cat, v]) => (
+                                {(() => {
+                                  // Score first (it's the default action), then
+                                  // the rest by cost desc, split by a divider.
+                                  const entries = Object.entries(u.costByCategory);
+                                  const score = entries.filter(([c]) => c === "score");
+                                  const rest = entries
+                                    .filter(([c]) => c !== "score")
+                                    .sort((a, b) => b[1] - a[1]);
+                                  return [...score, ...rest].map(([cat, v], i) => (
                                     <div
                                       key={cat}
-                                      className="flex items-center justify-between gap-4 py-0.5"
+                                      className={`flex items-center justify-between gap-4 py-0.5 ${
+                                        score.length > 0 && i === score.length
+                                          ? "mt-1 border-t border-[#333] pt-1.5"
+                                          : ""
+                                      }`}
                                     >
                                       <span className="text-muted font-sans">
                                         {COST_CATEGORY_LABELS[cat] ?? cat}
@@ -346,7 +356,8 @@ export default function TeamDetailPage() {
                                         {fmtUsd(v)}
                                       </span>
                                     </div>
-                                  ))}
+                                  ));
+                                })()}
                               </div>
                             )}
                           </span>

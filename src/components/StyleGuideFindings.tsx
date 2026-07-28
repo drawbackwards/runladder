@@ -73,13 +73,29 @@ export function StyleGuideFindings({
       )}
 
       {status === "compliant" && (
-        <div className={CARD}>
-          <p className="text-sm font-bold text-ladder-green">
-            Complies with the {teamLabel}
-          </p>
-          <p className="text-xs text-body leading-relaxed mt-2">
-            No copy issues found.
-          </p>
+        <div className="flex items-start gap-3 border border-ladder-green/40 bg-ladder-green/5 p-6">
+          <svg
+            viewBox="0 0 20 20"
+            className="w-5 h-5 shrink-0 mt-0.5 text-ladder-green"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <path
+              d="M4.5 10.5l3.5 3.5L15.5 6.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <div>
+            <p className="text-sm font-bold text-ladder-green">
+              Complies with the {teamLabel}
+            </p>
+            <p className="text-xs text-body leading-relaxed mt-1">
+              Never affects your score.
+            </p>
+          </div>
         </div>
       )}
 
