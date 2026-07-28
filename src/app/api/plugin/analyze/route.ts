@@ -45,7 +45,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { image, designType, mode = "improve" } = body;
+    // `userId` optional — attribute Anthropic token cost when the plugin sends it (#406).
+    const { image, designType, mode = "improve", userId } = body;
 
     if (mode !== "improve") {
       return NextResponse.json(
@@ -69,7 +70,11 @@ export async function POST(req: NextRequest) {
 
     // Trusted service-token caller scoring a signed-in designer's own frame —
     // skip the anonymous-upload moderation gate (keeps the score fast) (#343).
-    const result = await scoreImage(parsed, { applyAiLens, skipModeration: true });
+    const result = await scoreImage(parsed, {
+      applyAiLens,
+      skipModeration: true,
+      costUserId: typeof userId === "string" ? userId : null,
+    });
     if (isScoringError(result)) {
       return NextResponse.json(
         { error: result.error },

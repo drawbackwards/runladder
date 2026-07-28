@@ -18,6 +18,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { MediaType } from "./scoring";
 import { extractJsonObject } from "./json-extract";
 import { hasFrameText, type FrameText } from "./style-guide";
+import { recordTokenCost } from "./token-cost";
 
 /** Copy types the audit classifies each string as, then judges by its own rules. */
 export const COPY_TYPES = [
@@ -120,13 +121,16 @@ RULES:
  * Returns an empty result on an unparseable response so callers degrade
  * gracefully. At least one of image/frameText must be provided.
  */
-export async function auditCopy({
-  image,
-  frameText,
-}: {
-  image?: { mediaType: MediaType; base64Data: string } | null;
-  frameText?: FrameText | null;
-}): Promise<GeneralCopyResult> {
+export async function auditCopy(
+  {
+    image,
+    frameText,
+  }: {
+    image?: { mediaType: MediaType; base64Data: string } | null;
+    frameText?: FrameText | null;
+  },
+  opts: { costUserId?: string | null } = {},
+): Promise<GeneralCopyResult> {
   const hasText = hasFrameText(frameText);
   const empty: GeneralCopyResult = { summary: "", rewrites: [] };
   if (!image && !hasText) return empty;
@@ -158,6 +162,13 @@ export async function auditCopy({
     temperature: 0,
     messages: [{ role: "user", content }],
     system: COPY_SYSTEM,
+  });
+  // COGS (#406): Improve Copy general audit (Sonnet, plugin-only bonus feature).
+  void recordTokenCost({
+    userId: opts.costUserId,
+    category: "copy",
+    model: "claude-sonnet-4-6",
+    usage: response.usage,
   });
 
   const textBlock = response.content.find((b) => b.type === "text");

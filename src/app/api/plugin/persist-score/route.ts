@@ -127,6 +127,7 @@ export async function POST(req: NextRequest) {
               },
               rulesetWithResolutions(orgGuide.ruleset, orgGuide.conflicts),
               orgId,
+              userId,
             );
             styleGuide = {
               status: outcome.findings.length > 0 ? "issues" : "compliant",

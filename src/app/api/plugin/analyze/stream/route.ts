@@ -50,7 +50,9 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { image, designType } = body;
+  // `userId` is optional today (the plugin backend owns persistence/counting);
+  // when present we attribute Anthropic token cost to that user (#406 COGS).
+  const { image, designType, userId } = body;
   const parsed = parseImageDataUrl(image);
   if (!parsed) {
     return NextResponse.json(
@@ -125,6 +127,7 @@ export async function POST(req: NextRequest) {
         for await (const ev of scoreImageStream(parsed, {
           applyAiLens,
           skipModeration: true,
+          costUserId: typeof userId === "string" ? userId : null,
         })) {
           if (ev.kind === "error") {
             send("error", { message: ev.value, status: ev.status });
