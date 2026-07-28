@@ -39,7 +39,9 @@ export async function POST(
     const parsed = parseImageDataUrl(screen.imageData);
     if (!parsed) continue;
 
-    const result = await analyzeScreenForReport(parsed, evaluation.mode);
+    // Internal admin eval — attribute cost to the admin (never a client member,
+    // so it won't roll into any team's COGS total).
+    const result = await analyzeScreenForReport(parsed, evaluation.mode, admin);
     const idx = updatedScreens.findIndex((s) => s.id === screen.id);
     if (idx === -1) continue;
 

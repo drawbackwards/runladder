@@ -21,6 +21,7 @@ import {
 import { extractJsonObject } from "./json-extract";
 import { redis } from "./redis";
 import { CURRENT_ENGINE_VERSION } from "./app-version";
+import { recordTokenCost } from "./token-cost";
 import {
   analyzeStyleCompliance,
   hasFrameText,
@@ -256,6 +257,7 @@ async function runModeration(
   client: Anthropic,
   mediaType: MediaType,
   base64Data: string,
+  costUserId?: string | null,
 ): Promise<ScoringError | null> {
   try {
     const modCheck = await client.messages.create({
@@ -275,6 +277,13 @@ async function runModeration(
         },
       ],
       system: MODERATION_PROMPT,
+    });
+    // COGS (#406): moderation is a per-score Haiku overhead call.
+    void recordTokenCost({
+      userId: costUserId,
+      category: "overhead",
+      model: SCORING_MODEL,
+      usage: modCheck.usage,
     });
     const modText = modCheck.content.find((b) => b.type === "text");
     if (modText && modText.type === "text") {
@@ -344,6 +353,8 @@ export async function scoreImage(
      * callers must never set this; scoring is pinned to 0.
      */
     temperature?: number;
+    /** User to attribute Anthropic token cost to (#406 COGS). */
+    costUserId?: string | null;
   } = {},
 ): Promise<ScoreResult | ScoringError> {
   // Cap image size (~5MB base64)
@@ -367,7 +378,7 @@ export async function scoreImage(
   // Moderation gate — only on a cache MISS (a cached score already passed it),
   // and skipped for trusted service-token callers (see skipModeration).
   if (!cached && !opts.skipModeration) {
-    const modErr = await runModeration(client, mediaType, base64Data);
+    const modErr = await runModeration(client, mediaType, base64Data, opts.costUserId);
     if (modErr) return modErr;
   }
 
@@ -378,6 +389,7 @@ export async function scoreImage(
     ? analyzeStyleCompliance(
         { image: { mediaType, base64Data }, frameText: opts.styleFrameText },
         opts.styleRuleset,
+        { costUserId: opts.costUserId },
       )
         .then((outcome) => ({ ok: true as const, ...outcome }))
         .catch((e) => {
@@ -416,6 +428,13 @@ export async function scoreImage(
         },
       ],
       system,
+    });
+    // COGS (#406): the Ladder score itself (Haiku).
+    void recordTokenCost({
+      userId: opts.costUserId,
+      category: "score",
+      model: SCORING_MODEL,
+      usage: response.usage,
     });
 
     const textBlock = response.content.find((b) => b.type === "text");
@@ -507,6 +526,8 @@ export async function* scoreImageStream(
      * anonymous web stream leaves it unset and keeps the gate.
      */
     skipModeration?: boolean;
+    /** User to attribute Anthropic token cost to (#406 COGS). */
+    costUserId?: string | null;
   } = {},
 ): AsyncGenerator<ScoringStreamEvent> {
   if (base64Data.length > 7_000_000) {
@@ -530,6 +551,7 @@ export async function* scoreImageStream(
     ? analyzeStyleCompliance(
         { image: { mediaType, base64Data }, frameText: opts.styleFrameText },
         opts.styleRuleset,
+        { costUserId: opts.costUserId },
       )
         .then((outcome) => ({ ok: true as const, ...outcome }))
         .catch((e) => {
@@ -570,7 +592,7 @@ export async function* scoreImageStream(
    * for trusted service-token callers (see skipModeration) so the plugin's
    * in-canvas score isn't gated behind an extra round-trip. ── */
   if (!opts.skipModeration) {
-    const modErr = await runModeration(client, mediaType, base64Data);
+    const modErr = await runModeration(client, mediaType, base64Data, opts.costUserId);
     if (modErr) {
       yield { kind: "error", value: modErr.error, status: modErr.status };
       return;
@@ -656,6 +678,13 @@ export async function* scoreImageStream(
 
     /* ── Parse final ── */
     const final = await stream.finalMessage();
+    // COGS (#406): the Ladder score itself (Haiku).
+    void recordTokenCost({
+      userId: opts.costUserId,
+      category: "score",
+      model: SCORING_MODEL,
+      usage: final.usage,
+    });
     const textBlock = final.content.find((b) => b.type === "text");
     if (!textBlock || textBlock.type !== "text") {
       yield { kind: "error", value: "No response from scoring engine", status: 500 };

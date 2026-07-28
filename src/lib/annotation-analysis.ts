@@ -10,6 +10,7 @@
  */
 import Anthropic from "@anthropic-ai/sdk";
 import type { MediaType } from "./scoring";
+import { recordTokenCost } from "./token-cost";
 import { getLearningContext } from "./evaluation-learning";
 import type { LearningContext } from "./evaluation-learning";
 
@@ -103,6 +104,7 @@ const client = new Anthropic();
 export async function analyzeScreenForReport(
   { mediaType, base64Data }: { mediaType: MediaType; base64Data: string },
   mode: "sample" | "audit" = "sample",
+  costUserId?: string | null,
 ): Promise<AnnotationResult | { error: string }> {
   if (base64Data.length > 7_000_000) {
     return { error: "Image too large. Please use an image under 5MB." };
@@ -143,6 +145,12 @@ export async function analyzeScreenForReport(
           ],
         },
       ],
+    });
+    void recordTokenCost({
+      userId: costUserId,
+      category: "annotation",
+      model: "claude-sonnet-4-6",
+      usage: response.usage,
     });
 
     const textBlock = response.content.find((b) => b.type === "text");

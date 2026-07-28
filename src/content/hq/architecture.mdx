@@ -1,8 +1,8 @@
 ---
 title: Architecture
-updatedAt: 2026-07-08
+updatedAt: 2026-07-28
 updatedBy: Sara
-lastPr: 387
+lastPr: 406
 ---
 
 ## Deployment environments
@@ -67,6 +67,10 @@ This diagram shows the future-target architecture (one engine, thin clients). To
 **Billing.** Stripe. Subscriptions live in `runladder`. Pulse and the legacy Ladder engagement (Lumin Digital) bill outside of Stripe via Drawbackwards agency contracts.
 
 **Data.** Upstash Redis in `runladder` for scoring history and tier counters. Pulse uses Prisma + Postgres on Fly.io in `ladder-beta`. Postgres in `runladder` is planned but not scheduled.
+
+**Token-cost accounting (COGS, internal only).** Every Anthropic call in this repo routes its response `usage` through the single chokepoint `recordTokenCost(...)` in `src/lib/token-cost.ts`, which prices tokens per model and accumulates cost per **user, per month, per category** in the Redis hash `usage:cost:{userId}:{yyyymm}` (micro-USD, no TTL). Categories: `score`, `overhead` (moderation + transcription), `copy`, `a11y`, `style-guide`, `annotation`, `chat`, `feedback`. The admin Team Detail page ([#397](https://github.com/drawbackwards/runladder/issues/397)) sums current members' costs to show what a client costs us to run, with a per-category popover ([#406](https://github.com/drawbackwards/runladder/issues/406)). Months before this shipped have no token data, so they're shown as an **estimate** (score count × a per-score rate; score category only) and tagged "Estimated" in the UI. This number is **internal COGS only — never client-facing**, and it is intentionally decoupled from the user-facing "scores this month" count (bonus plugin features cost money but are not scores). Pricing rates live in `RATES` in `token-cost.ts`; update them when Anthropic pricing changes.
+
+> **RULE (unbreakable):** any new code path that makes an Anthropic/LLM call MUST call `recordTokenCost` with an appropriate category, or its spend is invisible to COGS. When you add a new category, add it to `CostCategory`, the category list above, and the popover labels in the Team Detail page. The Figma plugin's own direct Anthropic calls (a11y, chat, feedback in `ai-design-assistant/api/*`) write to the same shared `usage:cost:*` hash — keep both repos in sync.
 
 ## Versioning
 

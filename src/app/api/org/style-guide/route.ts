@@ -79,8 +79,8 @@ export async function POST(req: NextRequest) {
   let conflicts: StyleConflict[] = [];
   try {
     [ruleset, conflicts] = await Promise.all([
-      distillStyleGuide(pdfBase64),
-      detectStyleConflicts(pdfBase64).catch((e) => {
+      distillStyleGuide(pdfBase64, userId),
+      detectStyleConflicts(pdfBase64, userId).catch((e) => {
         console.warn("[style-guide] conflict detection failed:", e);
         return [] as StyleConflict[];
       }),

@@ -140,6 +140,7 @@ export async function POST(req: NextRequest) {
         : undefined,
       styleTeamName: styleGuide?.teamName,
       styleFrameText: frameText,
+      costUserId: userId,
     });
     if (isScoringError(result)) {
       return NextResponse.json(

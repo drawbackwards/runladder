@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
     // style matters. Each degrades on its own without failing the other.
     const [styleGuide, general] = await Promise.all([
       ruleset
-        ? analyzeStyleComplianceCached({ image: imageInput, frameText }, ruleset, orgId)
+        ? analyzeStyleComplianceCached({ image: imageInput, frameText }, ruleset, orgId, userId)
             .then(
               (outcome): StyleGuideResult => ({
                 status: outcome.findings.length > 0 ? "issues" : "compliant",
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
               };
             })
         : Promise.resolve(null),
-      auditCopy({ image: imageInput, frameText }).catch((e) => {
+      auditCopy({ image: imageInput, frameText }, { costUserId: userId }).catch((e) => {
         console.warn("[LADDER:WARN] plugin general copy pass failed:", e);
         return { summary: "", rewrites: [] };
       }),

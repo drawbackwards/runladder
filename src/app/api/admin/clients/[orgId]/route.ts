@@ -4,6 +4,7 @@ import { getAdminEmail } from "@/lib/admin";
 import { isInternalOrg, orgMeta, orgStatus, provisioningUserId } from "@/lib/orgs";
 import { redis, currentYearMonth } from "@/lib/redis";
 import { TEAM_MONTHLY_POOL } from "@/lib/plans";
+import { getMonthlyCost, estimateScoreCostMicroUsd } from "@/lib/token-cost";
 
 /**
  * Org lifecycle management (#190) + Team Detail read (#397).
@@ -48,6 +49,16 @@ type MonthUsage = {
   scores: number;
   /** Members with at least one scoring call that month. */
   distinctActiveMembers: number;
+  /** Internal COGS: Anthropic token cost this month, in micro-USD (#406). */
+  costMicroUsd: number;
+  /** Per-category cost breakdown for the popover, micro-USD. */
+  costByCategory: Record<string, number>;
+  /**
+   * True when costMicroUsd is an estimate (score-count × per-score rate) rather
+   * than recorded token usage — i.e. a month before cost instrumentation
+   * shipped. Estimated months cover the score category only; the UI tags them.
+   */
+  costEstimated: boolean;
 };
 
 /**
@@ -144,12 +155,55 @@ export async function GET(
     monthTotals.set(thisMonth, { scores: 0, active: new Set() });
   }
 
-  const usageByMonth: MonthUsage[] = Array.from(monthTotals.entries())
-    .map(([month, b]) => ({
-      month,
-      scores: b.scores,
-      distinctActiveMembers: b.active.size,
-    }))
+  const months = Array.from(monthTotals.keys());
+
+  // Actual recorded token cost per month = sum of every current member's cost
+  // hash for that month (#406). One read per (member, month); fine at team
+  // scale. A month with no recorded cost falls back to an estimate below.
+  const memberIds = members.map((m) => m.publicUserData!.userId!);
+  const costByMonth = new Map<string, { total: number; byCategory: Record<string, number> }>(
+    months.map((mo) => [mo, { total: 0, byCategory: {} }]),
+  );
+  await Promise.all(
+    memberIds.flatMap((userId) =>
+      months.map(async (mo) => {
+        const { total, byCategory } = await getMonthlyCost(userId, mo);
+        if (total <= 0) return;
+        const agg = costByMonth.get(mo)!;
+        agg.total += total;
+        for (const [cat, v] of Object.entries(byCategory)) {
+          agg.byCategory[cat] = (agg.byCategory[cat] ?? 0) + v;
+        }
+      }),
+    ),
+  );
+
+  const usageByMonth: MonthUsage[] = months
+    .map((month) => {
+      const b = monthTotals.get(month)!;
+      const actual = costByMonth.get(month)!;
+      // Recorded cost wins; otherwise estimate from the month's score count
+      // (score category only — see costEstimated).
+      if (actual.total > 0) {
+        return {
+          month,
+          scores: b.scores,
+          distinctActiveMembers: b.active.size,
+          costMicroUsd: actual.total,
+          costByCategory: actual.byCategory,
+          costEstimated: false,
+        };
+      }
+      const estimate = estimateScoreCostMicroUsd(b.scores);
+      return {
+        month,
+        scores: b.scores,
+        distinctActiveMembers: b.active.size,
+        costMicroUsd: estimate,
+        costByCategory: estimate > 0 ? { score: estimate } : {},
+        costEstimated: estimate > 0,
+      };
+    })
     // "YYYY-MM" sorts correctly as a string; newest first.
     .sort((a, b) => (a.month < b.month ? 1 : a.month > b.month ? -1 : 0));
 

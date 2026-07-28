@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import chromium from "@sparticuz/chromium-min";
 import puppeteer, { Page } from "puppeteer-core";
 import Anthropic from "@anthropic-ai/sdk";
+import { auth } from "@clerk/nextjs/server";
+import { recordTokenCost } from "@/lib/token-cost";
 
 export const maxDuration = 60;
 
@@ -115,6 +117,9 @@ async function dismissModalByAI(page: Page, action: string) {
 
 export async function POST(req: NextRequest) {
   let browser = null;
+  // Attribute the modal-detection helper call's token cost to the signed-in
+  // user when there is one (anonymous URL captures go unattributed) — #406 COGS.
+  const { userId: costUserId } = await auth();
 
   try {
     /* ── Bot detection: block known automation tools ── */
@@ -277,6 +282,12 @@ export async function POST(req: NextRequest) {
             { type: "text", text: "Is there a modal, popup, cookie banner, or overlay blocking the main page content? If yes, respond with JSON: {\"blocked\":true,\"action\":\"describe the button/link text to click to dismiss it\"}. If the page is clear, respond: {\"blocked\":false}. ONLY return JSON." },
           ],
         }],
+      });
+      void recordTokenCost({
+        userId: costUserId,
+        category: "overhead",
+        model: "claude-haiku-4-5-20251001",
+        usage: modalCheck.usage,
       });
       const modalText = modalCheck.content.find((b) => b.type === "text");
       if (modalText && modalText.type === "text") {

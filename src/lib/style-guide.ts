@@ -17,6 +17,10 @@ import { createHash } from "crypto";
 import type { MediaType } from "./scoring";
 import { extractJsonObject } from "./json-extract";
 import { redis } from "./redis";
+import { recordTokenCost } from "./token-cost";
+
+/** Model used for all style-guide passes (distill, conflicts, transcribe, compliance). */
+const STYLE_MODEL = "claude-sonnet-4-6";
 
 /**
  * One advisory copy/writing-style finding. Mirrors what the score result and
@@ -208,7 +212,10 @@ Output a tight, plain-text list of rules grouped under short headings (Tone, Ter
  * The PDF is sent natively to Claude (document block) — no PDF parser.
  * Returns the ruleset text, or null if the guide has no usable writing rules.
  */
-export async function distillStyleGuide(pdfBase64: string): Promise<string | null> {
+export async function distillStyleGuide(
+  pdfBase64: string,
+  costUserId?: string | null,
+): Promise<string | null> {
   const client = new Anthropic();
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
@@ -233,6 +240,12 @@ export async function distillStyleGuide(pdfBase64: string): Promise<string | nul
       },
     ],
     system: DISTILL_SYSTEM,
+  });
+  void recordTokenCost({
+    userId: costUserId,
+    category: "style-guide",
+    model: STYLE_MODEL,
+    usage: response.usage,
   });
 
   const textBlock = response.content.find((b) => b.type === "text");
@@ -265,7 +278,10 @@ If there are no genuine conflicts, return {"conflicts": []}.`;
  * Independent of distillation; best-effort — a failure returns []. Advisory
  * output shown on the team's Settings page so they can fix + re-upload the guide.
  */
-export async function detectStyleConflicts(pdfBase64: string): Promise<StyleConflict[]> {
+export async function detectStyleConflicts(
+  pdfBase64: string,
+  costUserId?: string | null,
+): Promise<StyleConflict[]> {
   // Cache by the PDF's exact bytes + the prompt, so re-uploading the SAME guide
   // always yields the SAME conflicts. Detection is an open-ended "find all
   // contradictions" task that isn't perfectly deterministic even at temperature
@@ -303,6 +319,12 @@ export async function detectStyleConflicts(pdfBase64: string): Promise<StyleConf
       },
     ],
     system: CONFLICT_SYSTEM,
+  });
+  void recordTokenCost({
+    userId: costUserId,
+    category: "style-guide",
+    model: STYLE_MODEL,
+    usage: response.usage,
   });
 
   const textBlock = response.content.find((b) => b.type === "text");
@@ -382,10 +404,13 @@ const TRANSCRIBE_SYSTEM = `You transcribe EVERY piece of visible text in a UI sc
  * still "inferred", not ground truth. Returns null on failure; the caller then
  * falls back to reading the image directly.
  */
-export async function transcribeScreenText(image: {
-  mediaType: MediaType;
-  base64Data: string;
-}): Promise<FrameText | null> {
+export async function transcribeScreenText(
+  image: {
+    mediaType: MediaType;
+    base64Data: string;
+  },
+  costUserId?: string | null,
+): Promise<FrameText | null> {
   const client = new Anthropic();
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
@@ -404,6 +429,13 @@ export async function transcribeScreenText(image: {
       },
     ],
     system: TRANSCRIBE_SYSTEM,
+  });
+  // COGS (#406): the image-transcription pre-pass is scoring overhead.
+  void recordTokenCost({
+    userId: costUserId,
+    category: "overhead",
+    model: STYLE_MODEL,
+    usage: response.usage,
   });
   const textBlock = response.content.find((b) => b.type === "text");
   if (!textBlock || textBlock.type !== "text") return null;
@@ -435,6 +467,7 @@ export async function analyzeStyleCompliance(
     frameText?: FrameText | null;
   },
   ruleset: string,
+  opts: { costUserId?: string | null } = {},
 ): Promise<StyleComplianceOutcome> {
   const hasText = hasFrameText(frameText);
   // textSource reflects whether we had GROUND-TRUTH text. An image we transcribe
@@ -450,7 +483,9 @@ export async function analyzeStyleCompliance(
   // is unavailable.
   let listing: FrameText | null = hasText ? frameText : null;
   if (!listing && image) {
-    const transcribed = await transcribeScreenText(image).catch(() => null);
+    const transcribed = await transcribeScreenText(image, opts.costUserId).catch(
+      () => null,
+    );
     if (hasFrameText(transcribed)) listing = transcribed;
   }
   const haveListing = hasFrameText(listing);
@@ -484,6 +519,12 @@ export async function analyzeStyleCompliance(
     temperature: 0,
     messages: [{ role: "user", content }],
     system: COMPLIANCE_SYSTEM,
+  });
+  void recordTokenCost({
+    userId: opts.costUserId,
+    category: "style-guide",
+    model: STYLE_MODEL,
+    usage: response.usage,
   });
 
   const textBlock = response.content.find((b) => b.type === "text");
@@ -567,9 +608,10 @@ export async function analyzeStyleComplianceCached(
   },
   ruleset: string,
   orgId: string | null,
+  costUserId?: string | null,
 ): Promise<StyleComplianceOutcome> {
   if (!orgId || !hasFrameText(input.frameText)) {
-    return analyzeStyleCompliance(input, ruleset);
+    return analyzeStyleCompliance(input, ruleset, { costUserId });
   }
   const key = styleCacheKey(orgId, ruleset, input.frameText);
   try {
@@ -578,7 +620,7 @@ export async function analyzeStyleComplianceCached(
   } catch {
     // cache read is best-effort
   }
-  const outcome = await analyzeStyleCompliance(input, ruleset);
+  const outcome = await analyzeStyleCompliance(input, ruleset, { costUserId });
   try {
     // 24h TTL; the key is content-addressed so it's safe to keep — a changed
     // guide or changed screen produces a different key, not a stale hit.

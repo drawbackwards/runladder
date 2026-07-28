@@ -147,6 +147,7 @@ export async function POST(req: NextRequest) {
             : undefined,
           styleTeamName: styleGuide?.teamName,
           styleFrameText: frameText,
+          costUserId: userId,
         })) {
           if (ev.kind === "error") {
             send("error", { message: ev.value, status: ev.status });

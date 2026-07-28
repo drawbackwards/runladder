@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await scoreImage(parsed);
+    const result = await scoreImage(parsed, { costUserId: userId });
     if (isScoringError(result)) {
       return NextResponse.json(
         { error: result.error },

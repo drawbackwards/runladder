@@ -35,7 +35,34 @@ type MonthUsage = {
   month: string;
   scores: number;
   distinctActiveMembers: number;
+  costMicroUsd: number;
+  costByCategory: Record<string, number>;
+  costEstimated: boolean;
 };
+
+/** Human labels for the cost-breakdown popover (keys from token-cost.ts). */
+const COST_CATEGORY_LABELS: Record<string, string> = {
+  score: "Score",
+  overhead: "Scoring overhead",
+  copy: "Improve Copy",
+  a11y: "Fix Accessibility",
+  "style-guide": "Style Guide",
+  annotation: "Annotation",
+  chat: "Chat",
+  feedback: "Feedback",
+};
+
+/** Micro-USD → "$1.23" (or "$0.0043" when small). Inlined to keep server-only
+ * token-cost.ts (which imports redis) out of this client bundle. */
+function fmtUsd(micro: number): string {
+  const usd = micro / 1_000_000;
+  if (usd === 0) return "$0.00";
+  if (usd < 0.01) return `$${usd.toFixed(4)}`;
+  return `$${usd.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
 
 type Detail = {
   org: OrgInfo;
@@ -246,22 +273,22 @@ export default function TeamDetailPage() {
             <table className="w-full text-xs table-fixed">
               <thead>
                 <tr className="border-b border-[#2a2a2a] text-muted uppercase tracking-widest text-[9px]">
-                  {/* Widths land on the Members grid (col 1 / 2 / 4) so the two
-                      tables line up: Month↔Name, Scores used↔Email, Distinct↔
-                      Scores this month. */}
+                  {/* Four equal columns, matching the Members table's grid so
+                      the two tables line up. Cost is internal COGS (#406). */}
                   <th className="text-left p-3 w-1/4">Month</th>
-                  <th className="text-left p-3 w-1/2">Scores used</th>
+                  <th className="text-left p-3 w-1/4">Scores used</th>
                   <th className="text-left p-3 w-1/4 whitespace-nowrap">
                     Active members
                   </th>
+                  <th className="text-left p-3 w-1/4">Cost</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <TableSkeleton cols={3} />
+                  <TableSkeleton cols={4} />
                 ) : (detail?.usageByMonth.length ?? 0) === 0 ? (
                   <tr>
-                    <td colSpan={3} className="p-6 text-center text-muted font-sans">
+                    <td colSpan={4} className="p-6 text-center text-muted font-sans">
                       No usage yet.
                     </td>
                   </tr>
@@ -292,6 +319,37 @@ export default function TeamDetailPage() {
                         </td>
                         <td className="p-3 text-left tabular-nums text-muted">
                           {u.distinctActiveMembers.toLocaleString()}
+                        </td>
+                        <td className="p-3 text-left tabular-nums">
+                          <span className="group relative inline-flex items-center gap-2">
+                            <span className="text-foreground">
+                              {fmtUsd(u.costMicroUsd)}
+                            </span>
+                            {u.costEstimated && (
+                              <span className="text-[9px] uppercase tracking-widest text-muted border border-[#333] bg-[#111] px-1.5 py-0.5">
+                                Estimated
+                              </span>
+                            )}
+                            {Object.keys(u.costByCategory).length > 0 && (
+                              <div className="hidden group-hover:block absolute left-0 top-full mt-1 z-10 min-w-[190px] border border-[#333] bg-[#1a1a1a] p-2 text-left normal-case tracking-normal shadow-lg">
+                                {Object.entries(u.costByCategory)
+                                  .sort((a, b) => b[1] - a[1])
+                                  .map(([cat, v]) => (
+                                    <div
+                                      key={cat}
+                                      className="flex items-center justify-between gap-4 py-0.5"
+                                    >
+                                      <span className="text-muted font-sans">
+                                        {COST_CATEGORY_LABELS[cat] ?? cat}
+                                      </span>
+                                      <span className="text-foreground tabular-nums">
+                                        {fmtUsd(v)}
+                                      </span>
+                                    </div>
+                                  ))}
+                              </div>
+                            )}
+                          </span>
                         </td>
                       </tr>
                     );
