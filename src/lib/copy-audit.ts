@@ -161,7 +161,10 @@ export async function auditCopy(
     // temperature 0 for consistency across re-runs (#362, #343).
     temperature: 0,
     messages: [{ role: "user", content }],
-    system: COPY_SYSTEM,
+    // Prompt caching (#394): COPY_SYSTEM is static and this Sonnet call runs on
+    // every Improve Copy — cache the system prompt (Sonnet floor is 1,024
+    // tokens; the screen's copy lives in `messages`, so the prefix is stable).
+    system: [{ type: "text", text: COPY_SYSTEM, cache_control: { type: "ephemeral" } }],
   });
   // COGS (#406): Improve Copy general audit (Sonnet, plugin-only bonus feature).
   void recordTokenCost({
@@ -170,6 +173,9 @@ export async function auditCopy(
     model: "claude-sonnet-4-6",
     usage: response.usage,
   });
+  if (process.env.LADDER_LOG_USAGE) {
+    console.log("[LADDER:USAGE] copy", JSON.stringify(response.usage));
+  }
 
   const textBlock = response.content.find((b) => b.type === "text");
   if (!textBlock || textBlock.type !== "text") return empty;

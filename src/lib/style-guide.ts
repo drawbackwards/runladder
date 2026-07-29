@@ -518,7 +518,12 @@ export async function analyzeStyleCompliance(
     // re-scans (#362, #343).
     temperature: 0,
     messages: [{ role: "user", content }],
-    system: COMPLIANCE_SYSTEM,
+    // Prompt caching (#394): COMPLIANCE_SYSTEM is static (the ruleset + screen
+    // text live in `messages`). DORMANT today — measured just under Sonnet's
+    // 1,024-token cache floor, so it doesn't cache yet; this marker auto-caches
+    // if the prompt grows past the floor. This is the most frequent Sonnet call
+    // (every score-with-style-guide + Improve Copy), so it's the best future win.
+    system: [{ type: "text", text: COMPLIANCE_SYSTEM, cache_control: { type: "ephemeral" } }],
   });
   void recordTokenCost({
     userId: opts.costUserId,
@@ -526,6 +531,9 @@ export async function analyzeStyleCompliance(
     model: STYLE_MODEL,
     usage: response.usage,
   });
+  if (process.env.LADDER_LOG_USAGE) {
+    console.log("[LADDER:USAGE] style-guide", JSON.stringify(response.usage));
+  }
 
   const textBlock = response.content.find((b) => b.type === "text");
   if (!textBlock || textBlock.type !== "text") return { findings: [], textSource };
