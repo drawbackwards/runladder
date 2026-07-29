@@ -436,6 +436,11 @@ export async function scoreImage(
       model: SCORING_MODEL,
       usage: response.usage,
     });
+    // Opt-in observability for the prompt-cache measurement (#394) and future
+    // cost debugging. Off in prod unless LADDER_LOG_USAGE is set.
+    if (process.env.LADDER_LOG_USAGE) {
+      console.log("[LADDER:USAGE] score", JSON.stringify(response.usage));
+    }
 
     const textBlock = response.content.find((b) => b.type === "text");
     if (!textBlock || textBlock.type !== "text") {
@@ -685,6 +690,9 @@ export async function* scoreImageStream(
       model: SCORING_MODEL,
       usage: final.usage,
     });
+    if (process.env.LADDER_LOG_USAGE) {
+      console.log("[LADDER:USAGE] score-stream", JSON.stringify(final.usage));
+    }
     const textBlock = final.content.find((b) => b.type === "text");
     if (!textBlock || textBlock.type !== "text") {
       yield { kind: "error", value: "No response from scoring engine", status: 500 };
