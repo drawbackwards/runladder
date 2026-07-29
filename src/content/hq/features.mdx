@@ -1,8 +1,8 @@
 ---
 title: Feature Inventory
-updatedAt: 2026-07-28
+updatedAt: 2026-07-29
 updatedBy: Sara
-lastPr: 407
+lastPr: 411
 ---
 
 ## How to read this page
@@ -153,6 +153,7 @@ Gated by `ADMIN_EMAILS` env var. Defaults: Ward, Michael, Jordan.
 | Pooled monthly usage column on the admin Clients list | Admin | Live (#297) | `src/app/api/admin/clients/route.ts` (`getTeamMonthlyTotal`), `src/app/admin/(tabbed)/clients/page.tsx` |
 | Team Detail: per-org member roster + usage-by-month (reconstructed from durable score history, `Overage` tag at ≥ pool); clients rows link through | Admin | Live (#397) | `src/app/admin/clients/[orgId]/page.tsx`, `src/app/api/admin/clients/[orgId]/route.ts` (GET) |
 | Team Detail token-cost (COGS) column: per-month Anthropic spend with per-category popover; `Estimated` tag for pre-instrumentation months. Internal only, never client-facing. All LLM calls route through `recordTokenCost` | Admin | Live (#406) | `src/lib/token-cost.ts`, `src/app/admin/clients/[orgId]/`; capture wired in `scoring.ts`, `style-guide.ts`, `copy-audit.ts`, `annotation-analysis.ts`, `screenshot` |
+| Team Detail per-surface usage: `Scores used` cell has a hover popover splitting the monthly total by surface (Web / Figma / Claude Skill), reconstructed from each score's `source`. A sibling `scans:{yyyymm}:by-surface` counter is written at persist time as the no-scan rollup primitive; the combined 25K pool meter is unchanged | Admin | Live (#401) | `src/app/admin/clients/[orgId]/`, `src/lib/surface.ts` (`surfaceFromSource`), `src/lib/scores.ts`, `src/lib/redis.ts` (`surfaceScansKey`) |
 | Internal-org protection (Drawbackwards never suspended/deleted) | Admin | Live (v0.5.5) | `src/lib/orgs.ts` `isInternalOrg` |
 | Admin-only "Admin" entry in Account menu (single row; lands on Clients tab) | Admin | Live | `src/components/UserMenu.tsx`, `src/app/api/admin/status/route.ts` |
 | Unified Admin shell with tabs (Clients / Evaluations / Feedback / Comps / Beta Codes) | Admin | Live (#231) | `src/app/admin/layout.tsx`, `src/components/Tabs.tsx` |

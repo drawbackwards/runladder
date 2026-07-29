@@ -2,7 +2,7 @@
 title: Architecture
 updatedAt: 2026-07-29
 updatedBy: Sara
-lastPr: 410
+lastPr: 411
 ---
 
 ## Deployment environments
@@ -67,6 +67,8 @@ This diagram shows the future-target architecture (one engine, thin clients). To
 **Billing.** Stripe. Subscriptions live in `runladder`. Pulse and the legacy Ladder engagement (Lumin Digital) bill outside of Stripe via Drawbackwards agency contracts.
 
 **Data.** Upstash Redis in `runladder` for scoring history and tier counters. Pulse uses Prisma + Postgres on Fly.io in `ladder-beta`. Postgres in `runladder` is planned but not scheduled.
+
+**Per-surface usage attribution ([#401](https://github.com/drawbackwards/runladder/issues/401)).** The combined monthly pool meter (`user:{id}:scans:{yyyymm}`, the 25K-cap counter) is unchanged. `persistScoreEntry` additionally increments a sibling hash `user:{id}:scans:{yyyymm}:by-surface` (fields: `web`/`figma`/`skill`, same 40-day TTL) via `surfaceFromSource(source)` — the cheap no-scan rollup primitive. The admin Team Detail surface popover reconstructs the split from each entry's durable `source` (so it has full history and always sums to the month's total); the counter starts clean at first real usage and is not UI-consumed yet.
 
 **Token-cost accounting (COGS, internal only).** Every Anthropic call in this repo routes its response `usage` through the single chokepoint `recordTokenCost(...)` in `src/lib/token-cost.ts`, which prices tokens per model and accumulates cost per **user, per month, per category** in the Redis hash `usage:cost:{userId}:{yyyymm}` (micro-USD, no TTL). Categories: `score`, `overhead` (moderation + transcription), `copy`, `a11y`, `style-guide`, `annotation`, `chat`, `feedback`. The admin Team Detail page ([#397](https://github.com/drawbackwards/runladder/issues/397)) sums current members' costs to show what a client costs us to run, with a per-category popover ([#406](https://github.com/drawbackwards/runladder/issues/406)). Months before this shipped have no token data, so they're shown as an **estimate** (score count × a per-score rate; score category only) and tagged "Estimated" in the UI. This number is **internal COGS only — never client-facing**, and it is intentionally decoupled from the user-facing "scores this month" count (bonus plugin features cost money but are not scores). Pricing rates live in `RATES` in `token-cost.ts`; update them when Anthropic pricing changes.
 

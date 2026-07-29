@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { Skeleton } from "@/components/Skeleton";
+import { USAGE_SURFACES, USAGE_SURFACE_LABEL, type UsageSurface } from "@/lib/surface";
 
 /**
  * Team Detail (#397) — admin drill-in for one Team workspace. Shows the
@@ -34,6 +35,7 @@ type Member = {
 type MonthUsage = {
   month: string;
   scores: number;
+  scoresBySurface: Record<UsageSurface, number>;
   distinctActiveMembers: number;
   costMicroUsd: number;
   costByCategory: Record<string, number>;
@@ -309,19 +311,43 @@ export default function TeamDetailPage() {
                           )}
                         </td>
                         <td className="p-3 text-left tabular-nums whitespace-nowrap">
-                          <span className={over ? "text-ladder-orange" : "text-muted"}>
-                            {u.scores.toLocaleString()}
-                          </span>
-                          <span className="text-[#444]">
-                            {" "}
-                            / {pool.toLocaleString()}
+                          {/* Combined total is the pool number (unchanged). On
+                              hover, break it down by surface (#401) — same
+                              popover affordance as the Cost cell. */}
+                          <span className="group relative inline-flex items-center cursor-help">
+                            <span className={over ? "text-ladder-orange" : "text-muted"}>
+                              {u.scores.toLocaleString()}
+                            </span>
+                            <span className="text-[#444]">
+                              {" "}
+                              / {pool.toLocaleString()}
+                            </span>
+                            {u.scores > 0 && (
+                              <div className="hidden group-hover:block absolute left-0 top-full mt-1 z-10 min-w-[190px] border border-[#333] bg-[#1a1a1a] p-3 text-left normal-case tracking-normal shadow-lg">
+                                {USAGE_SURFACES.filter((s) => (u.scoresBySurface[s] ?? 0) > 0)
+                                  .sort((a, b) => (u.scoresBySurface[b] ?? 0) - (u.scoresBySurface[a] ?? 0))
+                                  .map((s) => (
+                                    <div
+                                      key={s}
+                                      className="flex items-center justify-between gap-4 py-1"
+                                    >
+                                      <span className="text-muted font-sans">
+                                        {USAGE_SURFACE_LABEL[s]}
+                                      </span>
+                                      <span className="text-foreground tabular-nums">
+                                        {(u.scoresBySurface[s] ?? 0).toLocaleString()}
+                                      </span>
+                                    </div>
+                                  ))}
+                              </div>
+                            )}
                           </span>
                         </td>
                         <td className="p-3 text-left tabular-nums text-muted">
                           {u.distinctActiveMembers.toLocaleString()}
                         </td>
                         <td className="p-3 text-left tabular-nums">
-                          <span className="group relative inline-flex items-center gap-2">
+                          <span className="group relative inline-flex items-center gap-2 cursor-help">
                             <span className="text-foreground">
                               {fmtUsd(u.costMicroUsd)}
                             </span>
@@ -331,7 +357,7 @@ export default function TeamDetailPage() {
                               </span>
                             )}
                             {Object.keys(u.costByCategory).length > 0 && (
-                              <div className="hidden group-hover:block absolute left-0 top-full mt-1 z-10 min-w-[190px] border border-[#333] bg-[#1a1a1a] p-2 text-left normal-case tracking-normal shadow-lg">
+                              <div className="hidden group-hover:block absolute left-0 top-full mt-1 z-10 min-w-[190px] border border-[#333] bg-[#1a1a1a] p-3 text-left normal-case tracking-normal shadow-lg">
                                 {(() => {
                                   // Score first (it's the default action), then
                                   // the rest by cost desc, split by a divider.
@@ -343,9 +369,9 @@ export default function TeamDetailPage() {
                                   return [...score, ...rest].map(([cat, v], i) => (
                                     <div
                                       key={cat}
-                                      className={`flex items-center justify-between gap-4 py-0.5 ${
+                                      className={`flex items-center justify-between gap-4 py-1 ${
                                         score.length > 0 && i === score.length
-                                          ? "mt-1 border-t border-[#333] pt-1.5"
+                                          ? "mt-1 border-t border-[#333] pt-2"
                                           : ""
                                       }`}
                                     >

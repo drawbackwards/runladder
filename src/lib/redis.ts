@@ -47,6 +47,23 @@ export function monthlyScansKey(userId: string, yyyymm: string): string {
   return `user:${userId}:scans:${yyyymm}`;
 }
 
+/**
+ * Per-user, per-month SURFACE breakdown counter (#401). A Redis HASH whose
+ * fields are canonical surfaces ("web" | "figma" | "skill") and whose values
+ * are that surface's scan count for the month. Sibling to `monthlyScansKey`
+ * with the same 40-day TTL; the combined pool meter stays `monthlyScansKey`
+ * and is never touched by this key, so the 25K cap math is unaffected.
+ *
+ * Written at persist time as the cheap no-scan rollup primitive. The admin
+ * Team Detail view does NOT read it yet — it reconstructs full-history surface
+ * splits from the durable score zset (which retains all months). This counter
+ * exists for future no-scan consumers (dashboard, a usage API) and starts
+ * clean at first real usage, so there is no backfill for historical months.
+ */
+export function surfaceScansKey(userId: string, yyyymm: string): string {
+  return `user:${userId}:scans:${yyyymm}:by-surface`;
+}
+
 /** Current "YYYY-MM" string in UTC. Single helper so every caller uses the same boundary. */
 export function currentYearMonth(date: Date = new Date()): string {
   const y = date.getUTCFullYear();

@@ -2,8 +2,10 @@ import {
   redis,
   lifetimeScansKey,
   monthlyScansKey,
+  surfaceScansKey,
   currentYearMonth,
 } from "@/lib/redis";
+import { surfaceFromSource } from "@/lib/surface";
 import { maybeAlertCapCrossed, ANY_TIER_CAP_THRESHOLD } from "@/lib/usage";
 
 /**
@@ -146,6 +148,13 @@ export async function persistScoreEntry(
   const monthlyKey = monthlyScansKey(userId, yyyymm);
   const newMonthlyCount = await redis.incr(monthlyKey);
 
+  // Per-surface breakdown counter (#401) — a sibling HASH to the pool meter,
+  // NOT a replacement. The combined `monthlyKey` above is still the single
+  // source for the 25K cap; this only records which surface each score came
+  // from so a rollup can answer "web vs Figma vs Skill" without scanning the
+  // raw history. Same 40-day TTL so it lives exactly as long as the meter.
+  const surfaceKey = surfaceScansKey(userId, yyyymm);
+
   const ops: Promise<unknown>[] = [
     redis.zadd(SCORE_HISTORY_KEY(userId), {
       score: entry.timestamp,
@@ -154,6 +163,8 @@ export async function persistScoreEntry(
     redis.incr(lifetimeScansKey(userId)),
     // Forty-day TTL: month length (max 31) + 9-day buffer for late reads.
     redis.expire(monthlyKey, 60 * 60 * 24 * 40),
+    redis.hincrby(surfaceKey, surfaceFromSource(entry.source), 1),
+    redis.expire(surfaceKey, 60 * 60 * 24 * 40),
     redis.set(LASTSCORE_KEY(userId, screenKey), {
       score: entry.score,
       ts: entry.timestamp,
