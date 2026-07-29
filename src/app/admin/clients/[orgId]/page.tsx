@@ -47,7 +47,7 @@ const COST_CATEGORY_LABELS: Record<string, string> = {
   score: "Score",
   overhead: "Scoring overhead",
   copy: "Improve Copy",
-  a11y: "Fix Accessibility",
+  a11y: "Accessibility",
   "style-guide": "Style Guide",
   annotation: "Annotation",
   chat: "Chat",
