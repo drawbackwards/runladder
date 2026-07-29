@@ -5,6 +5,7 @@ import { isInternalOrg, orgMeta, orgStatus, provisioningUserId } from "@/lib/org
 import { redis, currentYearMonth } from "@/lib/redis";
 import { TEAM_MONTHLY_POOL } from "@/lib/plans";
 import { getMonthlyCost, estimateScoreCostMicroUsd } from "@/lib/token-cost";
+import { surfaceFromSource, USAGE_SURFACES, type UsageSurface } from "@/lib/surface";
 
 /**
  * Org lifecycle management (#190) + Team Detail read (#397).
@@ -26,7 +27,15 @@ function unauthorized() {
 }
 
 /** One persisted score entry from a member's history zset. */
-type RawScore = { score?: number; timestamp?: number };
+type RawScore = { score?: number; timestamp?: number; source?: string };
+
+/** Empty per-surface tally (#401), all canonical surfaces at zero. */
+function emptyBySurface(): Record<UsageSurface, number> {
+  return USAGE_SURFACES.reduce(
+    (acc, s) => ({ ...acc, [s]: 0 }),
+    {} as Record<UsageSurface, number>,
+  );
+}
 
 /** UTC "YYYY-MM" bucket for a score timestamp — same boundary as the counters. */
 function yearMonthOf(ts: number): string {
@@ -47,6 +56,11 @@ type MonthUsage = {
   month: string;
   /** Pooled scoring calls across the workspace that month (all surfaces). */
   scores: number;
+  /**
+   * Surface split of `scores` (#401) — web / figma / skill counts. Reconstructed
+   * from each entry's persisted `source`, so it always sums to `scores`.
+   */
+  scoresBySurface: Record<UsageSurface, number>;
   /** Members with at least one scoring call that month. */
   distinctActiveMembers: number;
   /** Internal COGS: Anthropic token cost this month, in micro-USD (#406). */
@@ -122,7 +136,10 @@ export async function GET(
   );
 
   // Roster (member row) + per-month rollup, in one pass over the histories.
-  const monthTotals = new Map<string, { scores: number; active: Set<string> }>();
+  const monthTotals = new Map<
+    string,
+    { scores: number; active: Set<string>; bySurface: Record<UsageSurface, number> }
+  >();
   const roster: DetailMember[] = members.map((m, i) => {
     const userId = m.publicUserData!.userId!;
     const { entries } = histories[i];
@@ -131,9 +148,11 @@ export async function GET(
     for (const e of entries) {
       if (typeof e.timestamp !== "number") continue;
       const ym = yearMonthOf(e.timestamp);
-      const bucket = monthTotals.get(ym) ?? { scores: 0, active: new Set() };
+      const bucket =
+        monthTotals.get(ym) ?? { scores: 0, active: new Set(), bySurface: emptyBySurface() };
       bucket.scores += 1;
       bucket.active.add(userId);
+      bucket.bySurface[surfaceFromSource(e.source)] += 1;
       monthTotals.set(ym, bucket);
       if (ym === thisMonth) scoresThisMonth += 1;
     }
@@ -152,7 +171,7 @@ export async function GET(
 
   // Always surface the current month (even at zero) so it anchors the top.
   if (!monthTotals.has(thisMonth)) {
-    monthTotals.set(thisMonth, { scores: 0, active: new Set() });
+    monthTotals.set(thisMonth, { scores: 0, active: new Set(), bySurface: emptyBySurface() });
   }
 
   const months = Array.from(monthTotals.keys());
@@ -188,6 +207,7 @@ export async function GET(
         return {
           month,
           scores: b.scores,
+          scoresBySurface: b.bySurface,
           distinctActiveMembers: b.active.size,
           costMicroUsd: actual.total,
           costByCategory: actual.byCategory,
@@ -198,6 +218,7 @@ export async function GET(
       return {
         month,
         scores: b.scores,
+        scoresBySurface: b.bySurface,
         distinctActiveMembers: b.active.size,
         costMicroUsd: estimate,
         costByCategory: estimate > 0 ? { score: estimate } : {},
