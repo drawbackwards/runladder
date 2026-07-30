@@ -90,6 +90,8 @@ const PROTECTED_ROUTES = [
   "src/app/api/admin/clients/[orgId]/route.ts",
   "src/app/api/admin/clients/route.ts",
   "src/app/api/admin/comps/route.ts",
+  "src/app/api/admin/email-preview/route.ts",
+  "src/app/api/admin/email-test/route.ts",
   "src/app/api/admin/debug-log/route.ts",
   "src/app/api/admin/evaluations/[id]/analyze/route.ts",
   "src/app/api/admin/evaluations/[id]/route.ts",
@@ -185,6 +187,10 @@ describe("auth gate: /api/admin/*", () => {
     expectAllMethodsRejectAnon(
       "@/app/api/admin/evaluations/[id]/analyze/route",
     ));
+  it("email-preview", () =>
+    expectAllMethodsRejectAnon("@/app/api/admin/email-preview/route"));
+  it("email-test", () =>
+    expectAllMethodsRejectAnon("@/app/api/admin/email-test/route"));
   it("feedback", () =>
     expectAllMethodsRejectAnon("@/app/api/admin/feedback/route"));
   it("invites", () =>

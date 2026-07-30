@@ -6,7 +6,7 @@ import {
   currentYearMonth,
 } from "@/lib/redis";
 import { surfaceFromSource } from "@/lib/surface";
-import { maybeAlertCapCrossed, ANY_TIER_CAP_THRESHOLD } from "@/lib/usage";
+import { maybeAlertCapCrossed, maybeAlertPoolCrossed, ANY_TIER_CAP_THRESHOLD } from "@/lib/usage";
 
 /**
  * Single source of truth for persisting a Ladder score to a user's
@@ -207,6 +207,14 @@ export async function persistScoreEntry(
       console.error("[LADDER:CAP-ALERT] background failure:", err);
     });
   }
+
+  // Workspace pool-crossing alert (#402). Fire-and-forget; self-gates to the
+  // team tier, so non-team scores cost only one cheap subscription read. Not
+  // gated on the individual's count — the pool can cross while any one member
+  // is low.
+  maybeAlertPoolCrossed(userId).catch((err) => {
+    console.error("[LADDER:POOL-ALERT] background failure:", err);
+  });
 
   // Update bestScore only if the new score beats the current best.
   const currentBestRaw = await redis.hget<number | string>(
