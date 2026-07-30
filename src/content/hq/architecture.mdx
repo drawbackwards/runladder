@@ -2,7 +2,7 @@
 title: Architecture
 updatedAt: 2026-07-30
 updatedBy: Sara
-lastPr: 415
+lastPr: 418
 ---
 
 ## Deployment environments
@@ -99,10 +99,10 @@ These constants are what runtime code reads. **`package.json`'s `version` field 
 
 **Plugin release sequence — steps 2 and 3 MUST be coordinated, or the update banner misfires:**
 
-1. In the plugin PR: bump `PLUGIN_VERSION` in `plugin/ui.html` and add a changelog entry. (Merging this alone is safe — it changes nothing live until published *and* the server value is bumped.)
+1. In the plugin PR: bump `PLUGIN_VERSION` in `plugin/ui.html` and add a changelog entry. **Bump for EVERY republish, even a one-line fix** — a republish without a version bump makes the marketplace release notes inconsistent (two "Version N" entries mapping to the same semver, or a blank note). Patch bump for small fixes, minor for features. (Merging this alone is safe — it changes nothing live until published *and* the server value is bumped.)
 2. Publish the new build to the Figma marketplace. **The release note MUST lead with our semver, in this exact format:** `vX.Y.Z — <one-line summary>` (e.g. `v1.13.0 — Redesigned result screen, ask-a-question follow-up chat, Check Accessibility.`). Figma assigns its own sequential "Version N" publish counter that we can't set or read at runtime, so the semver in the note is the ONLY thing that maps a marketplace entry to our version + changelog. Always use this format; never publish a blank or ad-hoc note.
 3. Set runladder's `CURRENT_PLUGIN_VERSION` to the same value and deploy runladder — **at the same time as step 2**.
 
-**Anchor:** Figma marketplace "Version 15" (published 2026-07-30) is our `v1.13.0` — the first publish where the marketplace note and our semver are reconciled. Earlier Figma versions (1–14) predate this convention and have no reliable semver mapping.
+**Anchor:** Figma marketplace "Version 15" (published 2026-07-30) is our `v1.13.0` — the first publish where the marketplace note and our semver are reconciled. Figma "Version 16" is `v1.13.1` (the #416 frame-ID fix). Earlier Figma versions (1–14) predate this convention and have no reliable semver mapping.
 
 If the server value is bumped before the marketplace has the build, installed users get nagged toward a build they can't download. If the marketplace is ahead of the server, new installs get a backwards "downgrade" nag. So 2 and 3 travel together.
