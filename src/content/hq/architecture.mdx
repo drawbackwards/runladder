@@ -1,8 +1,8 @@
 ---
 title: Architecture
-updatedAt: 2026-07-29
+updatedAt: 2026-07-30
 updatedBy: Sara
-lastPr: 411
+lastPr: 414
 ---
 
 ## Deployment environments
@@ -94,3 +94,13 @@ These constants are what runtime code reads. **`package.json`'s `version` field 
 4. The same `X.Y.Z` is the version label you put in the Features inventory row and any Decisions/Journeys reference, so a reader can trace a feature → version → changelog → PR in one hop.
 
 `ladder-beta` and `ladder` versions live in their own repos and follow their own bump cadence. Their version stamps are not yet visible from `/hq`. Tracking is roadmap.
+
+**Figma plugin — a two-value model (installed vs latest).** The plugin is static HTML with no build step, so its version lives in ONE constant, `PLUGIN_VERSION`, in `ai-design-assistant/plugin/ui.html` — the footer label and the `X-Ladder-Plugin-Version` header both derive from it. Bump ONLY there; never edit a version literal elsewhere in that file (the changelog list is the exception — it's a human-authored log whose top entry should match the release). runladder's `CURRENT_PLUGIN_VERSION` (`src/lib/plugin-version.ts`) is a **separate value on purpose**: it is the "latest available" version the in-plugin update banner compares the installed `PLUGIN_VERSION` against. The two are equal in steady state and differ only in the window between publishing a build and users updating. (Before [#414](https://github.com/drawbackwards/runladder/issues/414) the version was copy-pasted across five hand-edited spots and the displayed version silently drifted from the functional one — hence the single source.)
+
+**Plugin release sequence — steps 2 and 3 MUST be coordinated, or the update banner misfires:**
+
+1. In the plugin PR: bump `PLUGIN_VERSION` in `plugin/ui.html` and add a changelog entry. (Merging this alone is safe — it changes nothing live until published *and* the server value is bumped.)
+2. Publish the new build to the Figma marketplace.
+3. Set runladder's `CURRENT_PLUGIN_VERSION` to the same value and deploy runladder — **at the same time as step 2**.
+
+If the server value is bumped before the marketplace has the build, installed users get nagged toward a build they can't download. If the marketplace is ahead of the server, new installs get a backwards "downgrade" nag. So 2 and 3 travel together.
