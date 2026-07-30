@@ -9,9 +9,11 @@
  * same number — no per-call-site arithmetic drift.
  */
 import { redis, lifetimeScansKey, monthlyScansKey, currentYearMonth } from "@/lib/redis";
-import { monthlyScoreCapForTier, PRO_MONTHLY_LIMIT } from "@/lib/plans";
+import { monthlyScoreCapForTier, PRO_MONTHLY_LIMIT, TEAM_MONTHLY_POOL } from "@/lib/plans";
 import { getUserSubscription } from "@/lib/tier";
 import { clerkClient } from "@clerk/nextjs/server";
+import { isProvisioningUser, orgMeta } from "@/lib/orgs";
+import { renderPoolAlert, sendEmail, OPS_EMAIL } from "@/lib/email";
 
 /**
  * Days remaining in the current UTC month, inclusive of today.
@@ -85,6 +87,12 @@ export async function getTeamMonthlyByUser(
 export const ANY_TIER_CAP_THRESHOLD = PRO_MONTHLY_LIMIT;
 
 /**
+ * Workspace pool-alert thresholds as FRACTIONS of the team pool (#402).
+ * Percentages, not hard numbers, so a future pool change needs no code edit.
+ */
+export const POOL_ALERT_THRESHOLDS = [0.8, 1.0] as const;
+
+/**
  * Sends a one-time email alert to hello@drawbackwards.com when a paid
  * user crosses their tier's monthly soft cap for the first time in
  * the current month.
@@ -116,6 +124,10 @@ export async function maybeAlertCapCrossed(
 
   const sub = await getUserSubscription(userId);
   const tier = sub.tier;
+  // Team members are covered by the workspace POOL alert (#402), not a
+  // per-user alert — a single designer's personal count is meaningless when
+  // the pool is shared. Suppress the individual alert for the team tier.
+  if (tier === "team") return;
   const cap = monthlyScoreCapForTier(tier);
   if (cap === null) return;
   if (newMonthlyCount <= cap) return;
@@ -183,5 +195,86 @@ export async function maybeAlertCapCrossed(
     console.error("[LADDER:CAP-ALERT] send failed:", err);
     // Note: we don't unset the flag — better to under-alert than spam
     // on transient send failures. Next month we'll alert fresh.
+  }
+}
+
+/**
+ * Workspace pool-level cap alert (#402).
+ *
+ * Fires once per (workspace, threshold, month) when a Team workspace's COMBINED
+ * monthly usage crosses a POOL_ALERT_THRESHOLD (80%, then 100%), independent of
+ * any single member's count. Emails the Team Lead (client-facing) and internal
+ * ops. Called fire-and-forget from persistScoreEntry on every score; self-gates
+ * to the team tier so non-team scores cost only one cheap subscription read.
+ *
+ * The pool total is the same sum the dashboard computes on read — we just run
+ * it at write time to catch the crossing in real time.
+ */
+export async function maybeAlertPoolCrossed(userId: string): Promise<void> {
+  // Cheap gate: only team-tier users can contribute to a workspace pool.
+  const sub = await getUserSubscription(userId);
+  if (sub.tier !== "team") return;
+
+  const clerk = await clerkClient();
+
+  // Resolve the scorer's workspace.
+  const userOrgs = await clerk.users.getOrganizationMembershipList({ userId });
+  const orgId = userOrgs.data[0]?.organization?.id;
+  if (!orgId) return;
+
+  const yyyymm = currentYearMonth();
+
+  // Current members (excluding the hidden provisioning account), then the
+  // combined pool usage — same math the team dashboard does on read.
+  const memberships = await clerk.organizations.getOrganizationMembershipList({
+    organizationId: orgId,
+    limit: 100,
+  });
+  const memberIds = memberships.data
+    .map((m) => m.publicUserData?.userId)
+    .filter((id): id is string => !!id && !isProvisioningUser(id));
+  const used = await getTeamMonthlyTotal(memberIds, yyyymm);
+  const pool = TEAM_MONTHLY_POOL;
+  const fraction = used / pool;
+
+  // Highest crossed threshold wins. Claim its per-month flag with SET NX; if we
+  // get it, this is the first crossing of that level this month → alert. If the
+  // flag already exists (already alerted at this level or higher), stop.
+  const descending = [...POOL_ALERT_THRESHOLDS].sort((a, b) => b - a);
+  const crossed = descending.find((t) => fraction >= t);
+  if (crossed === undefined) return;
+
+  const pct = Math.round(crossed * 100);
+  const flagKey = `org:${orgId}:pool_alert:${yyyymm}:${pct}`;
+  const claimed = await redis.set(flagKey, "1", { nx: true, ex: 60 * 60 * 24 * 40 });
+  if (claimed === null) return; // already alerted at this level this month
+
+  // Resolve org name + team lead for the client-facing email.
+  const org = await clerk.organizations.getOrganization({ organizationId: orgId });
+  const teamName = org.name || "Your team";
+  const lead = orgMeta(org).teamLead;
+  const daysToReset = daysUntilMonthEnd();
+
+  const base = {
+    threshold: pct,
+    teamName,
+    used,
+    total: pool,
+    daysToReset,
+    orgId,
+  } as const;
+
+  // Internal ops — always.
+  const internal = renderPoolAlert({ ...base, audience: "internal" });
+  await sendEmail({ to: OPS_EMAIL, subject: internal.subject, html: internal.html });
+
+  // Team Lead — when we have their email on the org metadata.
+  if (lead?.email) {
+    const leadMail = renderPoolAlert({
+      ...base,
+      audience: "lead",
+      leadFirstName: lead.firstName ?? null,
+    });
+    await sendEmail({ to: lead.email, subject: leadMail.subject, html: leadMail.html });
   }
 }
