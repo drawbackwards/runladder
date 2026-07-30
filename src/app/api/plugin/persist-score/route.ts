@@ -162,6 +162,9 @@ export async function POST(req: NextRequest) {
       score: score.score,
       label: score.label,
       screenName: score.screenName,
+      // Stable Figma node ID → distinguishes same-named frames in the
+      // screen-match key so distinct frames don't produce a false uplift (#416).
+      frameId: score.frameId,
       summary: score.summary,
       next: score.next,
       findings: score.findings,
