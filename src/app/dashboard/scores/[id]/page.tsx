@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getScoreColor, getLevelColor, getLevel, getNextLevel, getGapToNext, getRungLevel, computePotentialScore } from "@/lib/ladder";
 import { privateScopeLabel, isTeamScope } from "@/lib/score-scope";
+import { surfaceParts } from "@/lib/surface";
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
 import { ScoreBar } from "@/components/ScoreBar";
@@ -225,7 +226,21 @@ export default function ScoreDetailPage() {
           {/* Right: score panel */}
           <div className="border border-[#333] bg-[#1e1e1e] p-8 flex flex-col">
             <span className="text-[10px] text-muted uppercase tracking-widest mb-2">Screen Score</span>
-            <p className="text-sm text-foreground font-sans mb-6">{data.screenName}</p>
+            {/* Strip the "(Figma)" / "(Skill)" suffix and render the surface as a
+                tag, matching the dashboard history chip (#299) instead of inline text. */}
+            {(() => {
+              const { name, surface } = surfaceParts(data.screenName);
+              return (
+                <div className="flex items-center gap-2 mb-6">
+                  <p className="text-sm text-foreground font-sans">{name}</p>
+                  {surface && (
+                    <span className="text-[8px] text-[#888] uppercase tracking-widest border border-[#3a3a3a] px-1.5 py-0.5 flex-shrink-0">
+                      {surface}
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
 
             <div className="flex-1 flex flex-col items-start justify-center">
               <span className="font-mono font-bold text-[4rem] leading-none tabular-nums text-foreground">

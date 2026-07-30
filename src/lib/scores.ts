@@ -49,6 +49,12 @@ export type ScoreEntryInput = {
    */
   styleGuide?: unknown;
   source: string;
+  /**
+   * Stable frame/node ID from the origin surface (Figma), when available. Used
+   * ONLY for the screen-match key so same-named-but-distinct frames don't
+   * collide (#416). Never rendered. Absent for web/Skill.
+   */
+  frameId?: string | null;
   thumbnail?: string;
   isPublic?: boolean;
   timestamp: number;
@@ -88,10 +94,25 @@ const LEADERBOARD_SCANS = "leaderboard:global:scans";
  * "/login" track separately even if their normalized names collide —
  * different journeys, different deltas.
  */
-export function screenKeyFor(source: string, screenName: string | undefined): string {
+export function screenKeyFor(
+  source: string,
+  screenName: string | undefined,
+  frameId?: string | null,
+): string {
   const src = (source || "unknown").toLowerCase().trim();
-  // Strip the "(Figma)" / "(Skill)" surface suffix if a caller already added one,
-  // since the source prefix already encodes that.
+  // When a stable frame/node ID is available (Figma), key on it instead of the
+  // name — designers often leave multiple distinct frames with the SAME name
+  // (e.g. two states of one screen), and a name-only key would treat them as
+  // re-scores of one screen and invent a bogus uplift (#416). The frame ID is
+  // stable across edits, so re-scoring the same (edited) frame still compares
+  // to its own prior score.
+  const fid = (frameId || "").trim();
+  if (fid) {
+    return `${src}::id:${fid.replace(/[^a-zA-Z0-9:_-]+/g, "-").slice(0, 120)}`;
+  }
+  // No frame ID (web URLs, Skill, older plugin builds): fall back to the
+  // normalized name. Strip the "(Figma)" / "(Skill)" surface suffix if a caller
+  // already added one, since the source prefix already encodes that.
   const cleaned = (screenName || "untitled")
     .replace(/\s*\((figma|skill|web|claude|pulse)\)\s*$/i, "")
     .toLowerCase()
@@ -111,7 +132,7 @@ export async function persistScoreEntry(
   userId: string,
   input: ScoreEntryInput,
 ): Promise<StoredScoreEntry> {
-  const screenKey = screenKeyFor(input.source, input.screenName);
+  const screenKey = screenKeyFor(input.source, input.screenName, input.frameId);
 
   // Look up the previous score for the same screen (if any) before writing.
   const prev = await redis.get<{ score: number; ts: number; id: string }>(
