@@ -15,6 +15,7 @@ export function Footer() {
               <li><Link href="/score" className="hover:text-foreground transition-colors">Score a screen</Link></li>
               <li><Link href="/framework" className="hover:text-foreground transition-colors">Framework</Link></li>
               <li><Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
+              <li><a href="mailto:hello@drawbackwards.com?subject=Ladder%20support" className="hover:text-foreground transition-colors">Support</a></li>
             </ul>
           </div>
           <div>
