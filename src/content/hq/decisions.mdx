@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-07-28
+updatedAt: 2026-07-30
 updatedBy: Sara
-lastPr: 408
+lastPr: 426
 ---
 
 ## How to use this page
@@ -12,6 +12,18 @@ The why behind big choices. Read this before you push back on a feature, a price
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
 
 ---
+
+## Team seats are NOT capped — allow overage, have a sales conversation (2026-07-30)
+
+**Rule:** don't cap Team membership or enforce the SOW's "5 designers + 1 lead." Let clients add as many designers as they want; when they exceed the contract, that's a sales conversation, not a block. Crucially, **do not show "seats remaining" anywhere in the UI** — a visible limit would discourage clients from adding designers, and Ward wants them adding ~a dozen. Seat usage is monitored manually via the admin Team Detail roster ([#397](https://github.com/drawbackwards/runladder/issues/397)); the built seat-cap/buy-seats work ([#296](https://github.com/drawbackwards/runladder/issues/296)) was closed and discarded. **Constraint to watch:** Clerk's free-plan 20-member-per-org cap ([#254](https://github.com/drawbackwards/runladder/issues/254)) becomes the real ceiling — not urgent (no client is near 19 designers yet), addressed by the Clerk paid upgrade ([#425](https://github.com/drawbackwards/runladder/issues/425)).
+
+## Design System Compliance supports Figma design systems only (for now) (2026-07-30)
+
+**Rule:** the Q4 Design System Compliance feature ([#400](https://github.com/drawbackwards/runladder/issues/400)) ingests the client's **Figma** library/variables/components and diffs a scored frame against them — Figma only for the initial build. The earlier tiered proposal (brand-guideline PDF + tokens-file ingestion) is dropped; revisit other sources later. Open question, unresolved: whether compliance affects the numeric score or is advisory-only — ties to the SOW §2.4 wording ("scoring is calibrated to reflect them"); the standing principle is that user-provided guidelines must never move the Ladder score, so advisory-only is the likely answer, pending confirmation before the SOW is signed.
+
+## Ladder learns from customer screens via industry-anonymized, categorized findings (2026-07-30)
+
+**Rule:** the "de-identified aggregate" in the contract-termination lifecycle ([#398](https://github.com/drawbackwards/runladder/issues/398)) is how Ladder improves over time — customer screens teach the engine, but customer-specific data is stripped. **Anonymize by industry** and **categorize findings** so they can be applied to future scans. This is the same learning system as [#422](https://github.com/drawbackwards/runladder/issues/422) (structure/categorize scoring data for later insights) — design them together.
 
 ## Bonus plugin features are absorbed COGS, not pool usage; a score is a score (2026-07-28)
 
