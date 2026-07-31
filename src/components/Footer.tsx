@@ -15,6 +15,7 @@ export function Footer() {
               <li><Link href="/score" className="hover:text-foreground transition-colors">Score a screen</Link></li>
               <li><Link href="/framework" className="hover:text-foreground transition-colors">Framework</Link></li>
               <li><Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
+              <li><a href="mailto:hello@drawbackwards.com?subject=Ladder%20support" className="hover:text-foreground transition-colors">Support</a></li>
             </ul>
           </div>
           <div>
@@ -42,7 +43,6 @@ export function Footer() {
               Company
             </h4>
             <ul className="space-y-3 text-sm text-body">
-              <li><a href="mailto:hello@drawbackwards.com?subject=Ladder%20support" className="hover:text-foreground transition-colors">Contact support</a></li>
               <li><a href="https://drawbackwards.com" className="hover:text-foreground transition-colors">Drawbackwards</a></li>
               <li><Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link></li>
               <li><Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link></li>
