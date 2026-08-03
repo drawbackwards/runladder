@@ -119,6 +119,14 @@ export async function POST(req: NextRequest) {
     // style-compliance pass. Absent for raw image uploads → best-effort.
     frameText,
   } = body;
+  // SHA-256 of the original uploaded file (#430): keys the score cache on
+  // the file the user picked, not the browser's canvas re-encode of it.
+  // Strictly validated; anything malformed is ignored (legacy keying).
+  const originalDigest =
+    typeof body.originalDigest === "string" &&
+    /^[a-f0-9]{64}$/i.test(body.originalDigest)
+      ? body.originalDigest.toLowerCase()
+      : null;
   const sessionType: "design" | "evaluation" =
     rawSessionType === "evaluation" ? "evaluation" : "design";
 
@@ -148,6 +156,7 @@ export async function POST(req: NextRequest) {
           styleTeamName: styleGuide?.teamName,
           styleFrameText: frameText,
           costUserId: userId,
+          cacheSeed: originalDigest,
         })) {
           if (ev.kind === "error") {
             send("error", { message: ev.value, status: ev.status });

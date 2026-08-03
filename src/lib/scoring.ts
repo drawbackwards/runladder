@@ -170,16 +170,49 @@ type CachedScore = Pick<
 
 /**
  * Content-addressed score cache key: hashes the model + the exact system prompt
- * (which encodes applyAiLens + the framework) + the image bytes. A given
+ * (which encodes applyAiLens + the framework) + the image identity. A given
  * screenshot always maps to the same score; any change to the prompt, the
  * model, or the image produces a fresh key, so there are no stale scores.
+ *
+ * Image identity (#430): when the caller supplies `cacheSeed` (the web
+ * client's SHA-256 of the ORIGINAL uploaded file), the key uses that instead
+ * of the received bytes. The web client re-encodes big uploads through a
+ * canvas before sending, and canvas output can change across browser builds —
+ * keying on the original file makes "same file, same score" browser-proof.
+ * Callers without a seed (plugin, Skill, URL screenshots) key on the exact
+ * received bytes, as before.
  */
-function scoreCacheKey(system: string, base64Data: string): string {
+function scoreCacheKey(
+  system: string,
+  base64Data: string,
+  cacheSeed?: string | null,
+): string {
+  const basis = cacheSeed ? `od:${cacheSeed}` : base64Data;
   const hash = createHash("sha256")
-    .update(`${CURRENT_ENGINE_VERSION}\n${SCORING_MODEL}\n${system}\n${base64Data}`)
+    .update(`${CURRENT_ENGINE_VERSION}\n${SCORING_MODEL}\n${system}\n${basis}`)
     .digest("hex")
     .slice(0, 40);
   return `score:cache:${hash}`;
+}
+
+/**
+ * Cache lookup with the #430 read-through migration: seeded (original-file)
+ * keys are new, so on a seeded miss we also check the legacy bytes-keyed
+ * entry and copy it forward. Without this, introducing the seed would itself
+ * re-key every cached web score and cause exactly the silent one-time
+ * re-derivation the seed exists to prevent.
+ */
+async function getCachedScoreWithMigration(
+  system: string,
+  base64Data: string,
+  cacheSeed: string | null | undefined,
+  cacheKey: string,
+): Promise<CachedScore | null> {
+  const cached = await getCachedScore(cacheKey);
+  if (cached || !cacheSeed) return cached;
+  const legacy = await getCachedScore(scoreCacheKey(system, base64Data));
+  if (legacy) await setCachedScore(cacheKey, legacy);
+  return legacy;
 }
 
 async function getCachedScore(key: string): Promise<CachedScore | null> {
@@ -355,6 +388,16 @@ export async function scoreImage(
     temperature?: number;
     /** User to attribute Anthropic token cost to (#406 COGS). */
     costUserId?: string | null;
+    /**
+     * SHA-256 (hex) of the ORIGINAL uploaded file, computed client-side
+     * before the canvas resize (#430). Used only to build the cache key so
+     * "same file, same score" survives browser re-encodes. Trust note: a
+     * client could send a digest that doesn't match its image and seed the
+     * cache for that digest with a mismatched score — accepted risk: it
+     * requires an authenticated caller who already has the victim's exact
+     * file, and the cache holds derived scores, nothing sensitive.
+     */
+    cacheSeed?: string | null;
   } = {},
 ): Promise<ScoreResult | ScoringError> {
   // Cap image size (~5MB base64)
@@ -372,8 +415,10 @@ export async function scoreImage(
   // returns an identical score on every scan (#210/#343) instead of drifting
   // with the model's run-to-run variance.
   const system = buildLadderPrompt(opts);
-  const cacheKey = scoreCacheKey(system, base64Data);
-  const cached = opts.bypassCache ? null : await getCachedScore(cacheKey);
+  const cacheKey = scoreCacheKey(system, base64Data, opts.cacheSeed);
+  const cached = opts.bypassCache
+    ? null
+    : await getCachedScoreWithMigration(system, base64Data, opts.cacheSeed, cacheKey);
 
   // Moderation gate — only on a cache MISS (a cached score already passed it),
   // and skipped for trusted service-token callers (see skipModeration).
@@ -533,6 +578,9 @@ export async function* scoreImageStream(
     skipModeration?: boolean;
     /** User to attribute Anthropic token cost to (#406 COGS). */
     costUserId?: string | null;
+    /** SHA-256 of the original uploaded file for browser-proof cache keying
+     * (#430) — see the scoreScreen doc comment for the trust note. */
+    cacheSeed?: string | null;
   } = {},
 ): AsyncGenerator<ScoringStreamEvent> {
   if (base64Data.length > 7_000_000) {
@@ -547,8 +595,13 @@ export async function* scoreImageStream(
   const client = new Anthropic();
 
   const system = buildLadderPrompt(opts);
-  const cacheKey = scoreCacheKey(system, base64Data);
-  const cached = await getCachedScore(cacheKey);
+  const cacheKey = scoreCacheKey(system, base64Data, opts.cacheSeed);
+  const cached = await getCachedScoreWithMigration(
+    system,
+    base64Data,
+    opts.cacheSeed,
+    cacheKey,
+  );
 
   // Team style-guide compliance pass, in parallel. Attached to the final result
   // on hit or miss (it depends on the org's current ruleset; never feeds the score).

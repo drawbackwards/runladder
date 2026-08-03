@@ -23,6 +23,7 @@ set):
 | --- | --- |
 | `user:{id}:scores` (zset) | Full score entries: screen names, findings text, summaries, style-guide results, base64 thumbnails |
 | `user:{id}:lastscore:{screenKey}` | Last score per screen (uplift lookup) |
+| `user:{id}:screens:{srcSlug}` | Screen-lineage sets for the #430 tiebreak |
 | `user:{id}:stats`, `user:{id}:lifetime_scans_used` | Aggregate stats/counters |
 | `user:{id}:scans:{yyyy-mm}`(`:by-surface`), `user:{id}:cap_alert:*` | Usage counters (40d TTL, self-expire) |
 | `usage:cost:{id}:{yyyy-mm}` | COGS counters |
@@ -47,10 +48,17 @@ reachable by re-presenting the exact image. We treat it as de-identified by
 construction, but it is listed here so legal review can confirm. A sweep of
 old-engine keys on engine bumps is the eventual cleanup path (#343 note).
 
-**Backups:** we run no backups of our own. Upstash/Vercel manage the KV
-infrastructure backups; those are the "backups made in the ordinary course"
-under SOW 7.4. Open item for Ward (only he has Upstash console access):
-confirm the Upstash backup retention window and record it here.
+**Backups (verified 2026-08-03, Upstash console for `runladder-prod`):**
+there are none. Daily Backup is OFF and no manual backups exist, so **no
+"ordinary course backups" (SOW 7.4) exist that could retain Customer Content
+past the 30-day deletion window** — the clause currently has nothing it
+applies to. Only Upstash's internal durability/replication (not a
+user-restorable archive) sits under the data. Console path: Vercel →
+Storage → store → "Open in Upstash" (the databases are Vercel Marketplace
+resources; see /hq/architecture). NOTE: if the team later enables Daily
+Backup or Upstash "Prod Pack" (recommended operationally — zero restorable
+backups on prod is its own risk), this section and the legal review must be
+updated with the actual retention window at that time.
 
 ## 2. The de-identified learning store (#422)
 
