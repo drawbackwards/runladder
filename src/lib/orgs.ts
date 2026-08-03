@@ -12,7 +12,7 @@
  *      even before the flag has been set.
  */
 
-export type OrgStatus = "pending" | "active" | "suspended";
+export type OrgStatus = "pending" | "active" | "suspended" | "terminated";
 
 export type TeamLeadMeta = {
   firstName?: string;
@@ -43,6 +43,17 @@ export type OrgPublicMetadata = {
   suspendedAt?: number;
   suspendedBy?: string;
   styleGuide?: StyleGuideMeta;
+  /**
+   * Client industry (e.g. "fintech"), the ONLY client-linked dimension the
+   * de-identified learning store keeps (#422). Set in /admin/clients/[orgId].
+   */
+  industry?: string;
+  /** Contract-termination lifecycle (#398). terminatedAt starts the 30-day
+   * purge clock; purgedAt is stamped once the cron has de-identified and
+   * deleted the org's Customer Content. */
+  terminatedAt?: number;
+  terminatedBy?: string;
+  purgedAt?: number;
 };
 
 /** Minimal org shape these helpers need — satisfied by a Clerk Organization. */
@@ -75,7 +86,9 @@ export function isInternalOrg(org: OrgLike): boolean {
  */
 export function orgStatus(org: OrgLike): OrgStatus {
   const s = orgMeta(org).status;
-  return s === "suspended" || s === "pending" ? s : "active";
+  return s === "suspended" || s === "pending" || s === "terminated"
+    ? s
+    : "active";
 }
 
 /**

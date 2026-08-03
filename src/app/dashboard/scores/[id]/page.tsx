@@ -15,6 +15,10 @@ import {
   StyleGuideFindings,
   type StyleGuideResultView,
 } from "@/components/StyleGuideFindings";
+import {
+  DesignSystemCompliance,
+  type DesignSystemResultView,
+} from "@/components/DesignSystemCompliance";
 // ScoreAnnotations removed from the score detail flow in v0.4.1.
 // The redline / evaluation feature lives as its own surface
 // (separate page, separate entry point) per the ROADMAP. Component
@@ -42,6 +46,8 @@ type ScoreDetail = {
   rungs?: RungScores;
   /** Advisory team style-guide outcome. Never affects the score. */
   styleGuide?: StyleGuideResultView;
+  /** Advisory Design System Compliance outcome (#400). Never affects the score. */
+  designSystem?: DesignSystemResultView;
   source: string;
   thumbnail?: string;
   isPublic: boolean;
@@ -400,7 +406,10 @@ export default function ScoreDetailPage() {
           </div>
         )}
 
-        {/* Team style-guide compliance — advisory, never affects the score. */}
+        {/* Design System Compliance (#400) — advisory, never affects the score. */}
+        <DesignSystemCompliance designSystem={data.designSystem} />
+
+        {/* Team writing style-guide compliance — advisory, never affects the score. */}
         <StyleGuideFindings styleGuide={data.styleGuide} />
 
         {/* No detailed data message for older scores */}

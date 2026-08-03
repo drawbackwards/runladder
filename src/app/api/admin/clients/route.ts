@@ -7,6 +7,7 @@ import {
   orgStatus,
   provisioningUserId,
 } from "@/lib/orgs";
+import { isValidIndustry } from "@/lib/industry-registry";
 import { TEAM_MONTHLY_POOL, type Tier } from "@/lib/plans";
 import { getTeamMonthlyTotal } from "@/lib/usage";
 
@@ -182,6 +183,7 @@ export async function POST(req: NextRequest) {
     typeof body.leadEmail === "string"
       ? body.leadEmail.trim().toLowerCase()
       : "";
+  const industry = typeof body.industry === "string" ? body.industry : "";
 
   if (!orgName) {
     return NextResponse.json(
@@ -198,6 +200,16 @@ export async function POST(req: NextRequest) {
   if (!leadEmail || !leadEmail.includes("@")) {
     return NextResponse.json(
       { error: "A valid Team Lead email is required." },
+      { status: 400 },
+    );
+  }
+  // Required at provisioning so it's never missed (#422) — industry labels
+  // the client's de-identified learning data and can't be backfilled after
+  // a termination purge. Dropdown-only (base list + admin-added registry
+  // entries): unknown values are rejected.
+  if (!(await isValidIndustry(industry))) {
+    return NextResponse.json(
+      { error: "Select an industry from the list." },
       { status: 400 },
     );
   }
@@ -221,6 +233,7 @@ export async function POST(req: NextRequest) {
       },
       provisionedBy: adminEmail,
       provisionedAt: Date.now(),
+      industry,
     },
   });
 

@@ -1,8 +1,8 @@
 ---
 title: Glossary
-updatedAt: 2026-06-08
+updatedAt: 2026-08-03
 updatedBy: Sara
-lastPr: 322
+lastPr: 432
 ---
 
 ## Why this exists
@@ -72,6 +72,11 @@ How a saved score is exposed. The public/private toggle on the scan screen drive
 | **MSA** | Master Service Agreement. The standing contract with a Team customer. |
 | **SOW** | Statement of Work. The specific scope under an MSA. |
 | **The pool** | The shared score allowance on a Team or Pulse engagement (25,000 pooled on Team, custom on Pulse). |
+| **Learning store** | The de-identified aggregate Ladder keeps forever to improve scoring (SOW 6.4, #422). One-way projection of each score: categorical/numeric facts by industry + month, no ids, text, or pixels. `learn:*` in Redis; `src/lib/learning.ts`. |
+| **Terminated** | Org lifecycle status past `suspended`: the contract ended and the 30-day purge clock is running (#398). After 30 days, the org's Customer Content is projected into the learning store and deleted. |
+| **Writing Style Guide** | The Teams copy-compliance feature: uploaded PDF guide, advisory findings on scanned copy. Always the full three-word name — never bare "Style Guide" — to distinguish it from Design System Compliance (#400). |
+| **Design System Compliance** | The Teams drift-detection feature (#400): the Figma plugin diffs a scored frame against the design-system libraries enabled in that file (detached instances, rebuilt components, off-library colors/text styles). Deterministic, advisory, never affects the score. UI label: "Design System." |
+| **Drift** | A layer that deviates from the team's design-system library — detached, rebuilt by hand, or using hardcoded values where a library token/style exists. |
 
 ## Don't say
 

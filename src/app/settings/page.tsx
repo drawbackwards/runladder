@@ -39,7 +39,9 @@ const BTN_GHOST =
 
 export default function SettingsPage() {
   const { isLoaded, isSignedIn } = useUser();
-  const [tab, setTab] = useState<"profile" | "style-guide">("profile");
+  const [tab, setTab] = useState<
+    "profile" | "design-system" | "style-guide"
+  >("profile");
 
   if (!isLoaded) return null;
   if (!isSignedIn) return <RedirectToSignIn />;
@@ -50,7 +52,7 @@ export default function SettingsPage() {
         <div className="mb-8">
           <h1 className="text-xl text-foreground font-sans">Settings</h1>
           <p className="text-xs text-muted font-sans mt-1">
-            Your account, sign-in, and team style guide.
+            Your account, sign-in, design system, and writing style guide.
           </p>
         </div>
 
@@ -60,8 +62,16 @@ export default function SettingsPage() {
             active={tab === "profile"}
             onClick={() => setTab("profile")}
           />
+          {/* "Design System" and "Writing Style Guide" are deliberately two
+              tabs with distinct names so the two compliance features are never
+              confused (#400). */}
           <TabButton
-            label="Style Guide"
+            label="Design System"
+            active={tab === "design-system"}
+            onClick={() => setTab("design-system")}
+          />
+          <TabButton
+            label="Writing Style Guide"
             active={tab === "style-guide"}
             onClick={() => setTab("style-guide")}
           />
@@ -73,6 +83,8 @@ export default function SettingsPage() {
             <GoogleCard />
             <DangerCard />
           </div>
+        ) : tab === "design-system" ? (
+          <DesignSystemCard />
         ) : (
           <StyleGuideCard />
         )}
@@ -463,9 +475,104 @@ type StyleGuideStatus = {
 };
 
 /**
- * Team style guide upload/manage (Settings → Style Guide tab). Drives entirely
- * off GET /api/org/style-guide, which reports tier + whether this user can
- * manage. Non-team users see an upsell; non-lead members see read-only status.
+ * Design System Compliance (#400) — Settings → Design System tab. v1 is
+ * zero-config: the Figma plugin diffs each scored frame against the libraries
+ * enabled in that file, so this tab only explains the feature. The planned
+ * library-connect flow (whole-library checks, server-side snapshot) will be
+ * managed here when it lands. Reuses GET /api/org/style-guide purely for the
+ * tier + role gate — same Team-plan gating as the writing style guide.
+ */
+function DesignSystemCard() {
+  const [status, setStatus] = useState<StyleGuideStatus | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/org/style-guide")
+      .then((res) => {
+        if (!res.ok) throw new Error("Couldn't load design-system status.");
+        return res.json();
+      })
+      .then((j) => setStatus(j as StyleGuideStatus))
+      .catch((e) =>
+        setErr(e instanceof Error ? e.message : "Failed to load."),
+      );
+  }, []);
+
+  if (err) {
+    return (
+      <div className={CARD}>
+        <p className="text-sm text-ladder-red font-sans">{err}</p>
+      </div>
+    );
+  }
+
+  if (!status) {
+    return (
+      <div className={CARD}>
+        <p className="text-sm text-muted font-sans">Loading…</p>
+      </div>
+    );
+  }
+
+  // Not on the Team plan → upsell, mirroring the writing style guide tab.
+  if (status.tier !== "team") {
+    return (
+      <div className={CARD}>
+        <p className={LABEL}>Design System</p>
+        <h2 className="text-base font-sans text-foreground mt-2 mb-2">
+          A Team-plan feature
+        </h2>
+        <p className="text-sm text-muted font-sans leading-relaxed">
+          Ladder checks every frame your team scores in Figma against your
+          design-system libraries and flags drift — detached instances, rebuilt
+          components, hardcoded colors, and off-library text styles. It&apos;s
+          part of the Ladder Team plan.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={CARD}>
+      <p className={LABEL}>Design System</p>
+      <div className="mt-3 grid gap-8 md:grid-cols-2">
+        {/* Left — what it does */}
+        <div>
+          <p className="text-sm text-muted font-sans leading-relaxed">
+            When your team scores a frame in the Figma plugin, Ladder diffs it
+            against the design-system libraries enabled in that file and flags
+            drift: instances detached from the library, components rebuilt by
+            hand, hardcoded colors where a library token exists, and text that
+            isn&apos;t using a library text style.
+          </p>
+          <p className="text-sm text-muted font-sans leading-relaxed mt-3">
+            Findings appear in the plugin&apos;s Design System tab and on the
+            score&apos;s dashboard page. Advisory only — drift never affects
+            the Ladder score.
+          </p>
+        </div>
+        {/* Right — how it's configured (it isn't, yet) */}
+        <div>
+          <p className="text-sm text-foreground font-sans leading-relaxed">
+            No setup needed. Ladder automatically checks against whatever
+            libraries are enabled in the scored file.
+          </p>
+          <p className="text-sm text-muted font-sans leading-relaxed mt-3">
+            Coming soon: connect your team&apos;s Figma library here for
+            whole-library checks, even in files where it isn&apos;t enabled.
+            {!status.canManage && " Your team lead will manage this."}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Team style guide upload/manage (Settings → Writing Style Guide tab). Drives
+ * entirely off GET /api/org/style-guide, which reports tier + whether this
+ * user can manage. Non-team users see an upsell; non-lead members see
+ * read-only status.
  */
 function StyleGuideCard() {
   const [status, setStatus] = useState<StyleGuideStatus | null>(null);
@@ -552,7 +659,7 @@ function StyleGuideCard() {
   if (status.tier !== "team") {
     return (
       <div className={CARD}>
-        <p className={LABEL}>Style Guide</p>
+        <p className={LABEL}>Writing Style Guide</p>
         <h2 className="text-base font-sans text-foreground mt-2 mb-2">
           A Team-plan feature
         </h2>
@@ -681,7 +788,7 @@ function StyleGuideCard() {
           (left) and, when the guide has conflicts, the gold ambiguities heading
           (right) are each left-aligned at the top of their own column. */}
       <div className="grid gap-8 md:grid-cols-2">
-        <p className={LABEL}>Team Style Guide</p>
+        <p className={LABEL}>Team Writing Style Guide</p>
         {hasConflicts && (
           <p className="text-[9px] text-[#d4af37] uppercase tracking-widest font-semibold">
             {conflicts.length} ambiguit{conflicts.length === 1 ? "y" : "ies"} in

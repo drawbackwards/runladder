@@ -157,6 +157,32 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    /* ── Design System Compliance (#400) ──────────────────────────────────
+     * Computed entirely in the plugin sandbox (deterministic diff against the
+     * libraries enabled in the scored file) and attached by the caller — the
+     * server cannot derive it, so unlike the style pass there is no server-side
+     * fallback. Advisory only: it NEVER affects the numeric score. Cap the
+     * findings list here so a runaway payload can't bloat the score history
+     * (the dashboard loads a user's entire history per render). */
+    const MAX_DS_FINDINGS = 50;
+    let designSystem = score.designSystem as
+      | { findings?: unknown[]; [k: string]: unknown }
+      | undefined;
+    let dsDiag = "absent";
+    if (designSystem && typeof designSystem === "object") {
+      if (Array.isArray(designSystem.findings)) {
+        designSystem = {
+          ...designSystem,
+          findings: designSystem.findings.slice(0, MAX_DS_FINDINGS),
+        };
+      }
+      dsDiag = typeof designSystem.status === "string"
+        ? `preset-${designSystem.status}`
+        : "preset-unshaped";
+    } else {
+      designSystem = undefined;
+    }
+
     const stored = await persistScoreEntry(userId, {
       id: score.id,
       score: score.score,
@@ -170,6 +196,7 @@ export async function POST(req: NextRequest) {
       findings: score.findings,
       rungs: score.rungs,
       styleGuide,
+      designSystem,
       source: score.source || "figma",
       thumbnail,
       isPublic: !!score.isPublic,
@@ -197,6 +224,7 @@ export async function POST(req: NextRequest) {
           thumbnail: thumbnailDiag,
           thumbnailLength: thumbnail ? thumbnail.length : 0,
           styleGuide: styleDiag,
+          designSystem: dsDiag,
           ok: true,
         }),
       );

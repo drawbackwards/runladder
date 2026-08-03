@@ -33,7 +33,7 @@ type TeamClient = {
   id: string;
   name: string;
   membersCount: number;
-  status: "pending" | "active" | "suspended";
+  status: "pending" | "active" | "suspended" | "terminated";
   internal: boolean;
   teamLead: { firstName?: string; lastName?: string; email?: string } | null;
   createdAt: number;
@@ -240,7 +240,9 @@ export default function ManageClientsPage() {
                         </td>
                         <td className="p-3">
                           {c.status === "suspended" ? (
-                            <span className="text-ladder-orange">Archived</span>
+                            <span className="text-ladder-orange">Paused</span>
+                          ) : c.status === "terminated" ? (
+                            <span className="text-ladder-red">Terminated</span>
                           ) : c.status === "pending" ? (
                             <span className="text-ladder-yellow">Pending</span>
                           ) : (
@@ -250,22 +252,35 @@ export default function ManageClientsPage() {
                         <td className="p-3 text-muted">{fmtDate(c.createdAt)}</td>
                         <td className="p-3 text-left whitespace-nowrap">
                           {c.internal ? (
-                            <span className="text-[10px] text-muted">Protected</span>
+                            <span
+                              className="text-[10px] text-muted"
+                              title="The internal Drawbackwards org can't be paused or terminated."
+                            >
+                              —
+                            </span>
                           ) : (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 patch(
                                   c.id,
-                                  c.status === "suspended"
+                                  c.status === "suspended" ||
+                                    c.status === "terminated"
                                     ? "reactivate"
                                     : "suspend",
                                 );
                               }}
                               disabled={busyOrg === c.id}
                               className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors disabled:opacity-40"
+                              title={
+                                c.status === "suspended" || c.status === "terminated"
+                                  ? "Restore access. Also cancels a pending termination purge clock."
+                                  : "Pause access. Reversible, keeps all data — does not start the contract-termination clock."
+                              }
                             >
-                              {c.status === "suspended" ? "Restore" : "Archive"}
+                              {c.status === "suspended" || c.status === "terminated"
+                                ? "Restore"
+                                : "Pause"}
                             </button>
                           )}
                         </td>

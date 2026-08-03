@@ -14,6 +14,7 @@ import {
   type DailyActivity,
 } from "@/components/ActivityHeatmap";
 import { Avatar } from "@/components/Avatar";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ReviewRequestsPanel } from "@/components/reviews/ReviewRequestsPanel";
 import {
   ReviewsIntro,
@@ -361,6 +362,7 @@ function MemberRow({
   isAdmin,
   isSelf,
   windowDays,
+  onPromote,
   onArchive,
   onDelete,
 }: {
@@ -368,6 +370,7 @@ function MemberRow({
   isAdmin: boolean;
   isSelf: boolean;
   windowDays: number;
+  onPromote: () => void;
   onArchive: () => void;
   onDelete: () => void;
 }) {
@@ -387,9 +390,10 @@ function MemberRow({
       ? `/dashboard/team/members/${member.userId}`
       : null;
 
-  // Team Leads get Archive/Delete actions on every row but their own. Those
-  // fade in on hover; the score stats + drill arrow fade out in lockstep so
-  // the actions never overlap the numbers (#303). Rows without actions keep
+  // Team Leads get Make Lead/Archive/Delete actions on every row but their
+  // own. Those fade in on hover (vertically centered); the score stats,
+  // activity heatmap, and drill arrow fade out in lockstep so the actions
+  // never overlap or compete with the data (#303). Rows without actions keep
   // their stats visible on hover.
   const showActions = isAdmin && !isSelf && !!member.userId;
   const fadeOnHover = showActions
@@ -450,7 +454,7 @@ function MemberRow({
       </div>
 
       {member.activity.length > 0 && (
-        <div className="hidden md:block flex-shrink-0" title={`Design sessions, last ${windowDays} days`}>
+        <div className={`hidden md:block flex-shrink-0 ${fadeOnHover}`} title={`Design sessions, last ${windowDays} days`}>
           <ActivityHeatmap
             activity={member.activity}
             cellWidth={12}
@@ -496,7 +500,11 @@ function MemberRow({
       {drillHref ? (
         <Link
           href={drillHref}
-          className="block hover:bg-[#1f1f1f] transition-colors"
+          // Hover bg keys off the row group (the <li>), not the link itself —
+          // the action links are an absolutely-positioned sibling overlay, so
+          // a link-scoped :hover would drop the bg the moment the pointer
+          // reaches them.
+          className="block group-hover:bg-[#1f1f1f] transition-colors"
         >
           {Body}
         </Link>
@@ -504,7 +512,20 @@ function MemberRow({
         Body
       )}
       {isAdmin && !isSelf && member.userId && (
-        <div className="absolute top-4 right-12 z-10 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute inset-y-0 right-12 z-10 flex items-center gap-6 opacity-0 group-hover:opacity-100 transition-opacity">
+          {member.role !== "org:admin" && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onPromote();
+              }}
+              className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+              title="Promote to Team Lead. They gain full team management access."
+            >
+              Make Lead
+            </button>
+          )}
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -729,6 +750,17 @@ export default function TeamPage() {
   const [teamLoading, setTeamLoading] = useState(false);
   const [teamTab, setTeamTab] = useState<"members" | "reviews">("members");
 
+  // Branded confirm (ConfirmDialog) for the member-row actions — one pending
+  // action at a time; `action` runs on confirm with the busy state held.
+  const [pendingConfirm, setPendingConfirm] = useState<{
+    title: string;
+    body: string;
+    confirmLabel: string;
+    destructive?: boolean;
+    action: () => Promise<void>;
+  } | null>(null);
+  const [confirmBusy, setConfirmBusy] = useState(false);
+
   // Dev "view as" override (no-op in production builds). Team fixtures apply
   // only on the Team plan; Free/Pro previews show the no-team state.
   const viewAs = useViewAs();
@@ -802,13 +834,16 @@ export default function TeamPage() {
     );
   }
 
-  // Suspended orgs (contract paused/ended) show a notice instead of the
-  // dashboard. Lifecycle status is set by admins via /admin/clients (#190).
-  // Members keep their tier for now — comp-revocation on suspend is deferred.
+  // Suspended/terminated orgs (contract paused/ended) show a notice instead
+  // of the dashboard. Lifecycle status is set by admins via /admin/clients
+  // (#190, #398). Members keep their tier for now — comp-revocation on
+  // suspend is deferred.
+  const lifecycleStatus = (
+    organization?.publicMetadata as { status?: string } | undefined
+  )?.status;
   if (
     !teamViewAs &&
-    (organization?.publicMetadata as { status?: string } | undefined)?.status ===
-      "suspended"
+    (lifecycleStatus === "suspended" || lifecycleStatus === "terminated")
   ) {
     return (
       <div className="pt-20 font-mono">
@@ -896,62 +931,81 @@ export default function TeamPage() {
     }
   }
 
-  async function handleArchive(member: TeamMember) {
+  function handlePromote(member: TeamMember) {
     if (teamViewAs) return; // fixtures — no real mutations in preview
     if (!member.userId) return;
+    const userId = member.userId;
     const name =
       [member.firstName, member.lastName].filter(Boolean).join(" ") ||
       member.email ||
       "this member";
-    if (
-      !confirm(
-        `Archive ${name}?\n\nThey'll lose access to the team, but their work stays counted in team metrics. You can fully delete them later if needed.`,
-      )
-    ) {
-      return;
-    }
-    try {
-      const res = await fetch(
-        `/api/dashboard/team/members/${member.userId}/archive`,
-        { method: "POST" },
-      );
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        throw new Error(j.error || `Archive failed (${res.status})`);
-      }
-      await Promise.all([memberships?.revalidate?.(), refreshTeamData()]);
-    } catch (e) {
-      console.error("[archive]", e);
-    }
+    setPendingConfirm({
+      title: `Promote ${name} to Team Lead?`,
+      body: "They'll get full team management access: inviting and removing members, member detail, and the team pool.",
+      confirmLabel: "Promote",
+      action: async () => {
+        const res = await fetch(
+          `/api/dashboard/team/members/${userId}/promote`,
+          { method: "POST" },
+        );
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}));
+          throw new Error(j.error || `Promote failed (${res.status})`);
+        }
+        await Promise.all([memberships?.revalidate?.(), refreshTeamData()]);
+      },
+    });
   }
 
-  async function handleDelete(args: {
+  function handleArchive(member: TeamMember) {
+    if (teamViewAs) return; // fixtures — no real mutations in preview
+    if (!member.userId) return;
+    const userId = member.userId;
+    const name =
+      [member.firstName, member.lastName].filter(Boolean).join(" ") ||
+      member.email ||
+      "this member";
+    setPendingConfirm({
+      title: `Archive ${name}?`,
+      body: "They'll lose access to the team, but their work stays counted in team metrics. You can fully delete them later if needed.",
+      confirmLabel: "Archive",
+      action: async () => {
+        const res = await fetch(
+          `/api/dashboard/team/members/${userId}/archive`,
+          { method: "POST" },
+        );
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}));
+          throw new Error(j.error || `Archive failed (${res.status})`);
+        }
+        await Promise.all([memberships?.revalidate?.(), refreshTeamData()]);
+      },
+    });
+  }
+
+  function handleDelete(args: {
     userId: string;
     displayName: string;
     fromArchived: boolean;
   }) {
     if (teamViewAs) return; // fixtures — no real mutations in preview
-    const verb = args.fromArchived ? "scrub" : "delete";
-    if (
-      !confirm(
-        `${verb === "scrub" ? "Permanently scrub" : "Remove"} ${args.displayName} from this team?\n\nTheir work will be removed from team metrics. This cannot be undone.`,
-      )
-    ) {
-      return;
-    }
-    try {
-      const res = await fetch(
-        `/api/dashboard/team/members/${args.userId}/delete`,
-        { method: "POST" },
-      );
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        throw new Error(j.error || `Delete failed (${res.status})`);
-      }
-      await Promise.all([memberships?.revalidate?.(), refreshTeamData()]);
-    } catch (e) {
-      console.error("[delete]", e);
-    }
+    setPendingConfirm({
+      title: `${args.fromArchived ? "Permanently scrub" : "Remove"} ${args.displayName} from this team?`,
+      body: "Their work will be removed from team metrics. This cannot be undone.",
+      confirmLabel: "Remove",
+      destructive: true,
+      action: async () => {
+        const res = await fetch(
+          `/api/dashboard/team/members/${args.userId}/delete`,
+          { method: "POST" },
+        );
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}));
+          throw new Error(j.error || `Delete failed (${res.status})`);
+        }
+        await Promise.all([memberships?.revalidate?.(), refreshTeamData()]);
+      },
+    });
   }
 
   return (
@@ -1074,6 +1128,7 @@ export default function TeamPage() {
                     isAdmin={isAdmin}
                     isSelf={!!m.userId && m.userId === selfUserId}
                     windowDays={activityWindowDays}
+                    onPromote={() => handlePromote(m)}
                     onArchive={() => handleArchive(m)}
                     onDelete={() =>
                       m.userId &&
@@ -1171,6 +1226,33 @@ export default function TeamPage() {
         )}
             </>
           ))}
+
+        <ConfirmDialog
+          open={!!pendingConfirm}
+          title={pendingConfirm?.title ?? ""}
+          body={pendingConfirm?.body}
+          confirmLabel={pendingConfirm?.confirmLabel}
+          destructive={pendingConfirm?.destructive}
+          busy={confirmBusy}
+          onConfirm={async () => {
+            if (!pendingConfirm || confirmBusy) return;
+            setConfirmBusy(true);
+            try {
+              await pendingConfirm.action();
+              setPendingConfirm(null);
+            } catch (e) {
+              // Surface in the page's existing error banner and close — a
+              // failed action shouldn't strand the user in the dialog.
+              setTeamErr(e instanceof Error ? e.message : "Action failed");
+              setPendingConfirm(null);
+            } finally {
+              setConfirmBusy(false);
+            }
+          }}
+          onCancel={() => {
+            if (!confirmBusy) setPendingConfirm(null);
+          }}
+        />
       </div>
     </div>
   );
