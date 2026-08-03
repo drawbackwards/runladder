@@ -6,6 +6,8 @@ export const redis = Redis.fromEnv();
   Redis key schema:
   - votes:{slug}                       Hash { total: float, count: int }
   - user:{userId}:scores               Sorted set (timestamp as score, JSON payload as member)
+  - user:{userId}:screens:{srcSlug}    Set of screenKeys scored under one source — the #430
+                                       lineage tiebreak (see persistScoreEntry in scores.ts)
   - user:{userId}:lifetime_scans_used  Integer counter, never resets — drives the free-tier cap
   - user:{userId}:scans:{yyyy-mm}      Integer counter with ~40-day TTL — drives the Pro/Team
                                        usage meter and the team-pool aggregation in

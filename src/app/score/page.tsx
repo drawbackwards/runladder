@@ -177,6 +177,27 @@ function ShareButtons({ score, label, summary }: { score: number; label: string;
 }
 
 /* ── Resize image for scoring API (keep under Vercel body limit) ── */
+/**
+ * SHA-256 (hex) of the ORIGINAL image data URL, computed before the canvas
+ * resize (#430). The server keys the score cache on this, so an identical
+ * file returns its cached score forever — even after a browser update
+ * changes the canvas encoder's output bytes. Best-effort: null (legacy
+ * bytes keying) if WebCrypto is unavailable.
+ */
+async function digestForScoring(dataUrl: string): Promise<string | null> {
+  try {
+    const buf = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(dataUrl),
+    );
+    return Array.from(new Uint8Array(buf))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  } catch {
+    return null;
+  }
+}
+
 function resizeForScoring(dataUrl: string, maxDim = 1600): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image();
@@ -553,10 +574,12 @@ export default function ScorePage() {
     }, 2200);
 
     try {
-      // Resize for API and generate thumbnail
-      const [scoringImage, thumb] = await Promise.all([
+      // Resize for API, generate thumbnail, and fingerprint the ORIGINAL
+      // (pre-resize) image for browser-proof cache keying (#430).
+      const [scoringImage, thumb, originalDigest] = await Promise.all([
         resizeForScoring(imageToScore),
         generateThumbnail(imageToScore),
+        digestForScoring(imageToScore),
       ]);
 
       const res = await fetch("/api/score/stream", {
@@ -564,6 +587,7 @@ export default function ScorePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           image: scoringImage,
+          originalDigest,
           source: fileName || "Upload",
           isPublic,
           thumbnail: thumb,

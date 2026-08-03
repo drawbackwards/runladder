@@ -90,6 +90,11 @@ export type UserStats = {
 const SCORE_HISTORY_KEY = (userId: string) => `user:${userId}:scores`;
 const LASTSCORE_KEY = (userId: string, screenKey: string) =>
   `user:${userId}:lastscore:${screenKey}`;
+/** Set of screenKeys this user has scored under one source (#430) — powers
+ * the lineage tiebreak. Grows by one member per distinct screen name, so it
+ * stays tiny; deleted with the user's other keys on a termination purge. */
+const LINEAGES_KEY = (userId: string, srcSlug: string) =>
+  `user:${userId}:screens:${srcSlug}`;
 const STATS_KEY = (userId: string) => `user:${userId}:stats`;
 const LEADERBOARD_AVG = "leaderboard:global:avg";
 const LEADERBOARD_SCANS = "leaderboard:global:scans";
@@ -139,12 +144,39 @@ export async function persistScoreEntry(
   userId: string,
   input: ScoreEntryInput,
 ): Promise<StoredScoreEntry> {
-  const screenKey = screenKeyFor(input.source, input.screenName, input.frameId);
+  let screenKey = screenKeyFor(input.source, input.screenName, input.frameId);
+  const hasFrameId = !!(input.frameId || "").trim();
+  const srcSlug = (input.source || "unknown").toLowerCase().trim();
 
   // Look up the previous score for the same screen (if any) before writing.
-  const prev = await redis.get<{ score: number; ts: number; id: string }>(
+  let prev = await redis.get<{ score: number; ts: number; id: string }>(
     LASTSCORE_KEY(userId, screenKey),
   );
+
+  // Lineage tiebreak (#430). Without a stable frame ID, the key's name half
+  // is MODEL-authored — a scan that phrases the screen name differently
+  // would fork a parallel lineage and break the uplift chain. If this key is
+  // new but this user has exactly ONE existing lineage under the same source
+  // (for uploads, the filename), continue that lineage instead of forking.
+  // Generic sources with several lineages keep today's behavior — never
+  // guess between candidates. Best-effort: any Redis hiccup falls through to
+  // the computed key.
+  if (!prev && !hasFrameId) {
+    try {
+      const lineages = await redis.smembers(LINEAGES_KEY(userId, srcSlug));
+      const candidates = [...new Set((lineages ?? []).map(String))].filter(
+        (k) => k !== screenKey,
+      );
+      if (candidates.length === 1) {
+        screenKey = candidates[0];
+        prev = await redis.get<{ score: number; ts: number; id: string }>(
+          LASTSCORE_KEY(userId, screenKey),
+        );
+      }
+    } catch {
+      // fall through to the computed key
+    }
+  }
   const previousScore =
     prev && typeof prev.score === "number" ? prev.score : null;
   const uplift =
@@ -198,6 +230,11 @@ export async function persistScoreEntry(
       ts: entry.timestamp,
       id: entry.id,
     }),
+    // Register this lineage for the #430 tiebreak (frameId sources have a
+    // stable identity already and don't need it).
+    ...(hasFrameId
+      ? []
+      : [redis.sadd(LINEAGES_KEY(userId, srcSlug), screenKey)]),
     redis.hincrby(STATS_KEY(userId), "totalScans", 1),
     // Multiply by 10 + integer-store so we can recover via integer math without floats.
     redis.hincrby(STATS_KEY(userId), "sumScoresX10", Math.round(entry.score * 10)),

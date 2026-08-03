@@ -117,6 +117,13 @@ export async function POST(req: NextRequest) {
       // style-compliance pass. Absent for raw image uploads → best-effort.
       frameText,
     } = body;
+    // SHA-256 of the original uploaded file (#430) — browser-proof cache
+    // keying; malformed values are ignored (legacy bytes keying).
+    const originalDigest =
+      typeof body.originalDigest === "string" &&
+      /^[a-f0-9]{64}$/i.test(body.originalDigest)
+        ? body.originalDigest.toLowerCase()
+        : null;
     // Default to "design" when caller doesn't specify, but accept "evaluation"
     // when the user has explicitly picked an audit/research session.
     const sessionType: "design" | "evaluation" =
@@ -141,6 +148,7 @@ export async function POST(req: NextRequest) {
       styleTeamName: styleGuide?.teamName,
       styleFrameText: frameText,
       costUserId: userId,
+      cacheSeed: originalDigest,
     });
     if (isScoringError(result)) {
       return NextResponse.json(

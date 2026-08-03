@@ -140,6 +140,7 @@ export async function purgeUserContent(
   const scanned = (
     await Promise.all([
       scanKeys(`user:${userId}:lastscore:*`),
+      scanKeys(`user:${userId}:screens:*`),
       scanKeys(`user:${userId}:scans:*`),
       scanKeys(`user:${userId}:cap_alert:*`),
       scanKeys(`usage:cost:${userId}:*`),
