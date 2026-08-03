@@ -1,8 +1,8 @@
 ---
 title: API Protocols
-updatedAt: 2026-07-06
+updatedAt: 2026-07-31
 updatedBy: Sara
-lastPr: 379
+lastPr: 400
 ---
 
 ## Two surfaces, one to come
@@ -36,7 +36,7 @@ All endpoints below are real routes in this repo. Find them under `src/app/api/`
 | `/api/plugin/analyze/stream` | POST | Service token | Streaming score for the Figma plugin — wraps `scoreImageStream` (temp 0, cached); SSE events score / label / screenName / complete / error. The plugin's in-canvas score now runs on this one canonical engine (#343). |
 | `/api/plugin/analyze/copy` | POST | Service token | Improve Copy. Returns `{ styleGuide, general }` — style compliance (same engine as the web score) + a separate general copy audit (#362). |
 | `/api/plugin/meta` | GET | Public | Plugin metadata (version, etc.). |
-| `/api/plugin/persist-score` | POST | Service token | Save a plugin-originated score (server-to-server). |
+| `/api/plugin/persist-score` | POST | Service token | Save a plugin-originated score (server-to-server). Body may include `score.designSystem` — the plugin-computed Design System Compliance advisory payload (#400): `{ status: "compliant" \| "issues" \| "no-library" \| "unavailable", library: { names, collections, colorVariables }, findings: [{ check, node, detail, expected?, actual?, confidence }] }`, findings capped at 50 server-side. Advisory only — never affects the numeric score. |
 | `/api/plugin/feedback` | POST | Service token | Forward Figma in-canvas score feedback into the central admin store (#330). |
 | `/api/stripe/checkout` | POST | Clerk session | Pro upgrade Stripe checkout session. |
 | `/api/stripe/portal` | POST | Clerk session | Stripe customer portal. |

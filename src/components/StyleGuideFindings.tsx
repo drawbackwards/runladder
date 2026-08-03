@@ -39,7 +39,9 @@ export function StyleGuideFindings({
 
   const { status, findings } = styleGuide;
   const team = styleGuide.teamName?.trim();
-  const teamLabel = team ? `${team} style guide` : "your team's style guide";
+  const teamLabel = team
+    ? `${team} writing style guide`
+    : "your team's writing style guide";
 
   const subtext =
     status === "issues"
@@ -56,8 +58,9 @@ export function StyleGuideFindings({
     <div className="space-y-1 mt-10">
       {/* Heading — outside any box, matching the Findings section. */}
       <div className="flex items-center gap-3 mb-6">
+        {/* "Writing" disambiguates from the Design System section (#400). */}
         <span className="text-[10px] text-muted uppercase tracking-widest">
-          Style guide
+          Writing style guide
         </span>
         <span className="text-[10px] text-[#444]">{subtext}</span>
       </div>

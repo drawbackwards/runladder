@@ -7,6 +7,7 @@ import {
 } from "@/lib/redis";
 import { surfaceFromSource } from "@/lib/surface";
 import { maybeAlertCapCrossed, maybeAlertPoolCrossed, ANY_TIER_CAP_THRESHOLD } from "@/lib/usage";
+import { captureLearningForScore } from "@/lib/learning";
 
 /**
  * Single source of truth for persisting a Ladder score to a user's
@@ -48,6 +49,12 @@ export type ScoreEntryInput = {
    * Stored so the dashboard score detail can re-render it. Never affects the score.
    */
   styleGuide?: unknown;
+  /**
+   * Advisory Design System Compliance outcome (#400), computed in the Figma
+   * plugin sandbox from the libraries enabled in the scored file. Stored so
+   * the dashboard score detail can re-render it. Never affects the score.
+   */
+  designSystem?: unknown;
   source: string;
   /**
    * Stable frame/node ID from the origin surface (Figma), when available. Used
@@ -214,6 +221,13 @@ export async function persistScoreEntry(
   // is low.
   maybeAlertPoolCrossed(userId).catch((err) => {
     console.error("[LADDER:POOL-ALERT] background failure:", err);
+  });
+
+  // De-identified learning capture (#422). Fire-and-forget — the projection
+  // keeps categorical/numeric facts only (see src/lib/learning.ts) and must
+  // never block or fail a score persist.
+  captureLearningForScore(userId, entry).catch((err) => {
+    console.error("[LADDER:LEARNING] background failure:", err);
   });
 
   // Update bestScore only if the new score beats the current best.

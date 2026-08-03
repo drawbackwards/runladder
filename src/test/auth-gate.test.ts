@@ -97,6 +97,7 @@ const PROTECTED_ROUTES = [
   "src/app/api/admin/evaluations/[id]/route.ts",
   "src/app/api/admin/evaluations/route.ts",
   "src/app/api/admin/feedback/route.ts",
+  "src/app/api/admin/industries/route.ts",
   "src/app/api/admin/invites/route.ts",
   "src/app/api/admin/persist-log/route.ts",
   "src/app/api/admin/users/route.ts",
@@ -104,6 +105,7 @@ const PROTECTED_ROUTES = [
   "src/app/api/dashboard/team/invitations/[id]/reinvite/route.ts",
   "src/app/api/dashboard/team/members/[userId]/archive/route.ts",
   "src/app/api/dashboard/team/members/[userId]/delete/route.ts",
+  "src/app/api/dashboard/team/members/[userId]/promote/route.ts",
   "src/app/api/dashboard/team/members/[userId]/route.ts",
   "src/app/api/dashboard/team/route.ts",
 ];
@@ -193,6 +195,8 @@ describe("auth gate: /api/admin/*", () => {
     expectAllMethodsRejectAnon("@/app/api/admin/email-test/route"));
   it("feedback", () =>
     expectAllMethodsRejectAnon("@/app/api/admin/feedback/route"));
+  it("industries", () =>
+    expectAllMethodsRejectAnon("@/app/api/admin/industries/route"));
   it("invites", () =>
     expectAllMethodsRejectAnon("@/app/api/admin/invites/route"));
   it("persist-log", () =>
@@ -222,6 +226,21 @@ describe("auth gate: /api/dashboard/team/*", () => {
     expectAllMethodsRejectAnon(
       "@/app/api/dashboard/team/members/[userId]/delete/route",
     ));
+  it("members/[userId]/promote", () =>
+    expectAllMethodsRejectAnon(
+      "@/app/api/dashboard/team/members/[userId]/promote/route",
+    ));
+});
+
+// Cron routes live outside the scanned roots (the meta-test below only walks
+// /api/admin and /api/dashboard/team) but carry the same contract: reject
+// anonymous callers. The lifecycle cron fails closed when CRON_SECRET is
+// unset, which is exactly the state under test here.
+describe("auth gate: /api/cron/*", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("data-lifecycle", () =>
+    expectAllMethodsRejectAnon("@/app/api/cron/data-lifecycle/route"));
 });
 
 // ─── Meta-test: ensure manifest covers every route on disk ───────────────────

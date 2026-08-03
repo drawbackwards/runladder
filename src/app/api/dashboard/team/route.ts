@@ -231,9 +231,9 @@ export async function GET() {
   const org = await client.organizations.getOrganization({
     organizationId: orgId,
   });
-  if (
-    (org.publicMetadata as { status?: string } | null)?.status === "suspended"
-  ) {
+  const orgLifecycleStatus = (org.publicMetadata as { status?: string } | null)
+    ?.status;
+  if (orgLifecycleStatus === "suspended" || orgLifecycleStatus === "terminated") {
     return NextResponse.json({ error: "Team suspended" }, { status: 403 });
   }
 

@@ -29,6 +29,7 @@ export type CostCategory =
   | "copy" // Improve Copy (plugin) — Sonnet
   | "a11y" // Fix Accessibility (plugin) — Sonnet
   | "style-guide" // team style-guide compliance + ambiguity — Sonnet
+  | "design-system" // Design System Compliance (#400) — deterministic in v1, so $0; reserved for future model-assisted checks
   | "annotation" // annotation calibration — Sonnet
   | "chat" // plugin "Ask follow-up" chat
   | "feedback"; // plugin feedback processing
@@ -39,6 +40,7 @@ export const COST_CATEGORIES: readonly CostCategory[] = [
   "copy",
   "a11y",
   "style-guide",
+  "design-system",
   "annotation",
   "chat",
   "feedback",

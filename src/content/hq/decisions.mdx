@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-07-30
+updatedAt: 2026-07-31
 updatedBy: Sara
-lastPr: 426
+lastPr: 400
 ---
 
 ## How to use this page
@@ -13,13 +13,33 @@ If you want to challenge a decision, file an issue in GitHub with the proposed c
 
 ---
 
+## The learning-store industry taxonomy is locked; slugs never change, categories are add-only (2026-07-31)
+
+**Rule:** the 16-category client-industry list in `src/lib/industries.ts` is approved for launch (Chester + Michael, Slack, 2026-07-31). Industry is the only client-linked dimension in the de-identified learning store ([#422](https://github.com/drawbackwards/runladder/issues/422)), stamped into records at capture/purge time — records can never be re-bucketed afterwards, so the taxonomy is deliberately conservative. It is intentionally NOT the Top 100's category list (those are product categories, this is what business a client is in); where the two overlap, the vocabulary stays aligned (Fintech, E-commerce, Healthcare).
+
+**How to change it:**
+- **Add a category:** self-serve — "Add new industry" in the admin dropdowns (Add Team Client form, Team Detail → Scoring Data). Additions are slugified, deduped, and converge onto near-matches ("Fintech" lands on Fintech & Banking, never a parallel bucket). Durable additions should graduate into the `INDUSTRIES` list in code with the SAME slug.
+- **Reword a label:** edit the `label` in `src/lib/industries.ts` — labels are display-only and always safe to change.
+- **Never rename or delete a slug** (`value`): the aggregate keys off it, and renaming forks the data. Retiring a mistaken slug is a deliberate code + Redis operation with a data migration, not a UI action.
+- Reserved buckets `internal` (Drawbackwards dogfood data) and `unknown` (no-org individuals) are capture-time defaults, never pickable or addable. Making internal scores industry-attributable is [#429](https://github.com/drawbackwards/runladder/issues/429).
+
+## Design System Compliance is advisory-only; v1 auto-reads enabled libraries; two distinctly-named compliance tabs (2026-07-31)
+
+**Rule 1 — advisory-only, resolved:** Design System Compliance ([#400](https://github.com/drawbackwards/runladder/issues/400)) NEVER affects the Ladder score, same invariant as the Writing Style Guide (see the blockquote in [Architecture → Shared services](/hq/architecture)). This resolves the open question in the 2026-07-30 entry below. Chester flagged the SOW §2.4 wording ("scoring is calibrated to reflect them") to Ward; the SOW is with the client awaiting signature and no revision is expected — the product behavior stands regardless: client-provided guidelines must never move the number, because the score's value is its consistency across everyone.
+
+**Rule 2 — v1 ingestion is zero-setup ("Option A"):** the plugin diffs a scored frame against the libraries **enabled in that file**, read in the sandbox at scan time. Chosen over an explicit library-connect flow because it works on ANY Figma plan (many prospects are not on Enterprise; Figma's Variables REST API is Enterprise-only), requires no tokens or settings UI, and inherently tolerates incomplete libraries. The connect flow ("Option B") is the designed enhancement, not the default — both produce the same "library snapshot" artifact, so the diff engine carries over unchanged. Full tier analysis + the seven-candidate drift-check list (v1 ships 3 + 1 stretch) are recorded on [#400](https://github.com/drawbackwards/runladder/issues/400).
+
+**Rule 3 — naming:** the two compliance features are always presented as two distinctly-named surfaces — **"Design System"** and **"Writing Style Guide"** (settings tabs, plugin result tabs, score-detail sections) — so nobody confuses copy compliance with design-token compliance. The bare label "Style Guide" is retired.
+
+**Rule 4 — surface scope:** detection runs ONLY in the Figma plugin (drift facts are properties of Figma layers; a screenshot-based guess would violate the confidence-labeling rule). Findings persist with the score so the web dashboard displays them. Tighter than the Writing Style Guide's all-surface best-effort model, deliberately.
+
 ## Team seats are NOT capped — allow overage, have a sales conversation (2026-07-30)
 
 **Rule:** don't cap Team membership or enforce the SOW's "5 designers + 1 lead." Let clients add as many designers as they want; when they exceed the contract, that's a sales conversation, not a block. Crucially, **do not show "seats remaining" anywhere in the UI** — a visible limit would discourage clients from adding designers, and Ward wants them adding ~a dozen. Seat usage is monitored manually via the admin Team Detail roster ([#397](https://github.com/drawbackwards/runladder/issues/397)); the built seat-cap/buy-seats work ([#296](https://github.com/drawbackwards/runladder/issues/296)) was closed and discarded. **Constraint to watch:** Clerk's free-plan 20-member-per-org cap ([#254](https://github.com/drawbackwards/runladder/issues/254)) becomes the real ceiling — not urgent (no client is near 19 designers yet), addressed by the Clerk paid upgrade ([#425](https://github.com/drawbackwards/runladder/issues/425)).
 
 ## Design System Compliance supports Figma design systems only (for now) (2026-07-30)
 
-**Rule:** the Q4 Design System Compliance feature ([#400](https://github.com/drawbackwards/runladder/issues/400)) ingests the client's **Figma** library/variables/components and diffs a scored frame against them — Figma only for the initial build. The earlier tiered proposal (brand-guideline PDF + tokens-file ingestion) is dropped; revisit other sources later. Open question, unresolved: whether compliance affects the numeric score or is advisory-only — ties to the SOW §2.4 wording ("scoring is calibrated to reflect them"); the standing principle is that user-provided guidelines must never move the Ladder score, so advisory-only is the likely answer, pending confirmation before the SOW is signed.
+**Rule:** the Q4 Design System Compliance feature ([#400](https://github.com/drawbackwards/runladder/issues/400)) ingests the client's **Figma** library/variables/components and diffs a scored frame against them — Figma only for the initial build. The earlier tiered proposal (brand-guideline PDF + tokens-file ingestion) is dropped; revisit other sources later. The score-impact question raised here was **resolved 2026-07-31: advisory-only** — see the entry above.
 
 ## Ladder learns from customer screens via industry-anonymized, categorized findings (2026-07-30)
 

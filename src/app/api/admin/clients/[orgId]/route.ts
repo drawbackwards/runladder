@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { getAdminEmail } from "@/lib/admin";
 import { isInternalOrg, orgMeta, orgStatus, provisioningUserId } from "@/lib/orgs";
+import { purgeOrgContent } from "@/lib/data-lifecycle";
+import { isValidIndustry } from "@/lib/industry-registry";
 import { redis, currentYearMonth } from "@/lib/redis";
 import { TEAM_MONTHLY_POOL } from "@/lib/plans";
 import { getMonthlyCost, estimateScoreCostMicroUsd } from "@/lib/token-cost";
@@ -14,9 +16,15 @@ import { surfaceFromSource, USAGE_SURFACES, type UsageSurface } from "@/lib/surf
  *                                        and usage-by-month for the workspace.
  *   PATCH  /api/admin/clients/:orgId   body { action }
  *     - "suspend" | "reactivate"      → toggle publicMetadata.status
+ *       (reactivate also clears a termination, cancelling the purge clock)
+ *     - "terminate"                   → status "terminated" + terminatedAt;
+ *       starts the 30-day #398 purge clock (see /api/cron/data-lifecycle)
+ *     - "setIndustry" body { industry } → publicMetadata.industry (#422)
  *     - "markInternal" | "unmarkInternal" → toggle publicMetadata.internal
  *   DELETE /api/admin/clients/:orgId   body { confirmName }
  *     - hard-deletes the org; confirmName must match the org name exactly.
+ *       Cascades: purges all member content first (#398) unless the org was
+ *       already purged.
  *
  * The internal (Drawbackwards) org can never be suspended or deleted.
  * Gated by getAdminEmail().
@@ -244,6 +252,9 @@ export async function GET(
       status: orgStatus(org),
       createdAt: org.createdAt,
       teamLead: orgMeta(org).teamLead ?? null,
+      industry: orgMeta(org).industry ?? null,
+      terminatedAt: orgMeta(org).terminatedAt ?? null,
+      purgedAt: orgMeta(org).purgedAt ?? null,
     },
     pool: TEAM_MONTHLY_POOL,
     members: roster,
@@ -283,12 +294,71 @@ export async function PATCH(
         status: suspend ? "suspended" : "active",
         suspendedAt: suspend ? Date.now() : undefined,
         suspendedBy: suspend ? adminEmail : undefined,
+        // Reactivating cancels a pending termination purge clock (#398).
+        terminatedAt: suspend ? existing.terminatedAt : undefined,
+        terminatedBy: suspend ? existing.terminatedBy : undefined,
       },
     });
     return NextResponse.json({
       ok: true,
       status: (updated.publicMetadata as { status?: string })?.status ?? "active",
     });
+  }
+
+  if (action === "terminate") {
+    if (internal) {
+      return NextResponse.json(
+        { error: "The internal Drawbackwards org cannot be terminated." },
+        { status: 403 },
+      );
+    }
+    if (existing.purgedAt) {
+      return NextResponse.json(
+        { error: "This org's content was already purged." },
+        { status: 400 },
+      );
+    }
+    // Idempotent: re-terminating keeps the original clock start.
+    const terminatedAt = existing.terminatedAt ?? Date.now();
+    await client.organizations.updateOrganization(orgId, {
+      publicMetadata: {
+        ...existing,
+        status: "terminated",
+        terminatedAt,
+        terminatedBy: existing.terminatedBy ?? adminEmail,
+      },
+    });
+    return NextResponse.json({ ok: true, status: "terminated", terminatedAt });
+  }
+
+  if (action === "setIndustry") {
+    const industry = body.industry;
+    if (typeof industry !== "string" || !(await isValidIndustry(industry))) {
+      return NextResponse.json(
+        { error: "Select an industry from the list." },
+        { status: 400 },
+      );
+    }
+    await client.organizations.updateOrganization(orgId, {
+      publicMetadata: { ...existing, industry },
+    });
+    // Bust each member's 24h industry-lookup cache so new scores pick up the
+    // change immediately instead of after the cache expires (#422).
+    try {
+      const memberships =
+        await client.organizations.getOrganizationMembershipList({
+          organizationId: orgId,
+          limit: 100,
+        });
+      const ctxKeys = memberships.data
+        .map((m) => m.publicUserData?.userId)
+        .filter((id): id is string => !!id)
+        .map((id) => `learn:ctx:${id}`);
+      if (ctxKeys.length) await redis.del(...ctxKeys);
+    } catch (e) {
+      console.error("[setIndustry] ctx-cache bust failed:", e);
+    }
+    return NextResponse.json({ ok: true, industry });
   }
 
   if (action === "markInternal" || action === "unmarkInternal") {
@@ -339,6 +409,13 @@ export async function DELETE(
       { error: "Confirmation name does not match the organization name." },
       { status: 400 },
     );
+  }
+
+  // Cascade (#398): de-identify + delete all member/org Customer Content
+  // BEFORE the org record goes away, so deletion can no longer strand
+  // per-user score data. Skipped when a termination purge already ran.
+  if (!orgMeta(org).purgedAt) {
+    await purgeOrgContent(orgId);
   }
 
   // Deleting the org cascades organizationMembership.deleted webhooks, which

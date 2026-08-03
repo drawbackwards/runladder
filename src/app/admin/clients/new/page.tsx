@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { IndustrySelect } from "@/components/admin/IndustrySelect";
 
 /**
  * Add Client — provisions a Team org and invites the Team Lead as org:admin.
@@ -18,6 +19,7 @@ export default function AddClientPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [industry, setIndustry] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -26,6 +28,10 @@ export default function AddClientPage() {
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (busy) return;
+    if (!industry) {
+      setErr("Select an industry.");
+      return;
+    }
     setBusy(true);
     setErr(null);
     try {
@@ -37,6 +43,7 @@ export default function AddClientPage() {
           leadFirstName: firstName.trim(),
           leadLastName: lastName.trim(),
           leadEmail: email.trim(),
+          industry,
         }),
       });
       const j = await res.json().catch(() => ({}));
@@ -81,7 +88,7 @@ export default function AddClientPage() {
                 value={orgName}
                 onChange={(e) => setOrgName(e.target.value)}
                 placeholder="Acme Inc."
-                className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
+                className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-ladder-green placeholder:text-[#555] font-sans"
               />
             </div>
             <div>
@@ -93,7 +100,7 @@ export default function AddClientPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="lead@acme.com"
-                className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
+                className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-ladder-green placeholder:text-[#555] font-sans"
               />
             </div>
             <div>
@@ -104,7 +111,7 @@ export default function AddClientPage() {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="Jane"
-                className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
+                className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-ladder-green placeholder:text-[#555] font-sans"
               />
             </div>
             <div>
@@ -115,7 +122,25 @@ export default function AddClientPage() {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Doe"
-                className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-muted placeholder:text-[#555] font-sans"
+                className="w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-ladder-green placeholder:text-[#555] font-sans"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="client-industry"
+                className="block text-[10px] uppercase tracking-widest text-muted mb-1"
+              >
+                Industry
+              </label>
+              <IndustrySelect
+                id="client-industry"
+                value={industry}
+                onChange={setIndustry}
+                selectClassName={`w-full bg-[#111] border border-[#333] text-sm px-2.5 py-1.5 focus:outline-none focus:border-ladder-green font-sans ${
+                  industry ? "text-foreground" : "text-[#555]"
+                }`}
+                chevronClassName="right-2.5"
+                inputClassName="w-64 bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-ladder-green placeholder:text-[#555] font-sans"
               />
             </div>
           </div>
