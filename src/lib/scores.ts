@@ -137,6 +137,27 @@ export function screenKeyFor(
 }
 
 /**
+ * True when two screenKeys' name halves plausibly describe the SAME screen
+ * with different phrasing (#430 follow-up). The lineage tiebreak must catch
+ * naming wobble ("hyper-shipment-tracking-detail" vs "hyper-shipment-detail")
+ * WITHOUT merging a genuinely different screen a lazy designer exported
+ * under a reused filename ("settings-page"). Rule: token-set Jaccard ≥ 0.5.
+ */
+export function screenNamesSimilar(keyA: string, keyB: string): boolean {
+  const tokens = (key: string): Set<string> => {
+    const name = key.includes("::") ? key.slice(key.indexOf("::") + 2) : key;
+    return new Set(name.split("-").filter(Boolean));
+  };
+  const a = tokens(keyA);
+  const b = tokens(keyB);
+  if (a.size === 0 || b.size === 0) return false;
+  let shared = 0;
+  for (const t of a) if (b.has(t)) shared++;
+  const union = a.size + b.size - shared;
+  return shared / union >= 0.5;
+}
+
+/**
  * Persist a single score entry. Returns the enriched entry that ended up
  * in the user's history (with uplift + previousScore filled in).
  */
@@ -157,15 +178,16 @@ export async function persistScoreEntry(
   // is MODEL-authored — a scan that phrases the screen name differently
   // would fork a parallel lineage and break the uplift chain. If this key is
   // new but this user has exactly ONE existing lineage under the same source
-  // (for uploads, the filename), continue that lineage instead of forking.
-  // Generic sources with several lineages keep today's behavior — never
-  // guess between candidates. Best-effort: any Redis hiccup falls through to
-  // the computed key.
+  // (for uploads, the filename) AND its name plausibly describes the same
+  // screen (screenNamesSimilar — so a different screen exported under a
+  // reused filename starts its own lineage instead of merging), continue
+  // that lineage. Several candidates: never guess. Best-effort: any Redis
+  // hiccup falls through to the computed key.
   if (!prev && !hasFrameId) {
     try {
       const lineages = await redis.smembers(LINEAGES_KEY(userId, srcSlug));
       const candidates = [...new Set((lineages ?? []).map(String))].filter(
-        (k) => k !== screenKey,
+        (k) => k !== screenKey && screenNamesSimilar(k, screenKey),
       );
       if (candidates.length === 1) {
         screenKey = candidates[0];
