@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { screenKeyFor } from "./scores";
+import { screenKeyFor, screenNamesSimilar } from "./scores";
 
 /**
  * screenKeyFor is the canonical "same screen across time" identifier.
@@ -76,5 +76,47 @@ describe("screenKeyFor — same screen on multiple scans", () => {
 
   it("whitespace / case variations resolve to the same key", () => {
     expect(screenKeyFor("web", "Login")).toBe(screenKeyFor("web", "  LOGIN  "));
+  });
+});
+
+describe("screenNamesSimilar — the #430 lineage-tiebreak gate", () => {
+  // The tiebreak must catch MODEL NAMING WOBBLE for the same screen while
+  // refusing to merge a genuinely different screen that a lazy designer
+  // exported under a reused filename. Both failure modes corrupt uplift:
+  // a false fork loses the chain, a false merge invents a bogus delta.
+
+  it("accepts the observed real-world wobble (same screen, shorter phrasing)", () => {
+    expect(
+      screenNamesSimilar(
+        "hyper-tracking-dark.png::hyper-shipment-tracking-detail",
+        "hyper-tracking-dark.png::hyper-shipment-detail",
+      ),
+    ).toBe(true);
+  });
+
+  it("rejects a different screen under a reused filename", () => {
+    expect(
+      screenNamesSimilar(
+        "hyper-tracking-dark.png::hyper-shipment-tracking-detail",
+        "hyper-tracking-dark.png::settings-page",
+      ),
+    ).toBe(false);
+  });
+
+  it("accepts identical names and a contained shorter name", () => {
+    expect(screenNamesSimilar("web::checkout", "web::checkout")).toBe(true);
+    expect(screenNamesSimilar("web::checkout-flow", "web::checkout")).toBe(true);
+  });
+
+  it("rejects when overlap is below half the combined vocabulary", () => {
+    // one shared token out of four distinct → 0.25, well under the bar
+    expect(
+      screenNamesSimilar("web::checkout-payment-step", "web::checkout-history"),
+    ).toBe(false);
+  });
+
+  it("never matches on empty name halves", () => {
+    expect(screenNamesSimilar("web::", "web::checkout")).toBe(false);
+    expect(screenNamesSimilar("web::", "web::")).toBe(false);
   });
 });
