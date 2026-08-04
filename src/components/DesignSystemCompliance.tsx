@@ -15,6 +15,8 @@
  */
 export type DesignSystemResultView = {
   status: "compliant" | "issues" | "no-library" | "unavailable";
+  /** Findings found before any cap — the honest count when the list is trimmed. */
+  total?: number;
   /** The enabled libraries the frame was diffed against. */
   library?: {
     names: string[];
@@ -64,35 +66,24 @@ export function DesignSystemCompliance({
   const libLabel =
     libNames.length > 0 ? libNames.join(", ") : "your design system";
 
+  const total = designSystem.total ?? findings.length;
   const subtext =
     status === "issues"
-      ? `${findings.length} ${findings.length === 1 ? "issue" : "issues"} · doesn't affect your score`
+      ? `${total} ${total === 1 ? "issue" : "issues"} • doesn't affect your score${
+          total > findings.length ? ` • showing first ${findings.length}` : ""
+        }`
       : "doesn't affect your score";
-
-  // Estimate caveat: exact findings are facts (unbound-but-matching values,
-  // detached instances); near-match color findings are estimates. Shown only
-  // when an estimate is actually present.
-  const hasEstimates =
-    status === "issues" && findings.some((f) => f.confidence === "inferred");
 
   return (
     <div className="space-y-1 mt-10">
-      {/* Heading — outside any box, matching the Findings section. */}
+      {/* Heading — outside any box, matching the Findings section. Per-finding
+          "Estimate" pills carry the confidence labeling (no aggregate box). */}
       <div className="flex items-center gap-3 mb-6">
         <span className="text-[10px] text-muted uppercase tracking-widest">
           Design system
         </span>
         <span className="text-[10px] text-[#444]">{subtext}</span>
       </div>
-
-      {hasEstimates && (
-        <div className="border border-[#b8860b]/50 bg-[#b8860b]/10 px-4 py-3 mb-3">
-          <p className="text-xs text-[#e3c46b] leading-relaxed">
-            Findings marked as estimates are near-matches to a library token,
-            not exact facts. Exact findings come straight from the layer data.
-          </p>
-        </div>
-      )}
 
       {status === "compliant" && (
         <div className="flex items-start gap-3 border border-ladder-green/40 bg-ladder-green/5 p-6">

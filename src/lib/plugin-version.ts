@@ -18,3 +18,25 @@
  * full plugin release sequence.
  */
 export const CURRENT_PLUGIN_VERSION = "1.13.1";
+
+/**
+ * True when `latest` is a STRICTLY newer dotted version than `installed`.
+ * Use this — never `!==` — for "Update available" banners: a dev/canary build
+ * reporting a version AHEAD of the published one must not trigger a backwards
+ * "v1.14.0 → v1.13.1" nag (#400 testing surfaced exactly that on prod).
+ */
+export function isNewerVersion(
+  latest: string | null | undefined,
+  installed: string | null | undefined,
+): boolean {
+  if (!latest || !installed) return false;
+  const a = latest.split(".").map((n) => parseInt(n, 10));
+  const b = installed.split(".").map((n) => parseInt(n, 10));
+  const len = Math.max(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    const x = Number.isFinite(a[i]) ? a[i] : 0;
+    const y = Number.isFinite(b[i]) ? b[i] : 0;
+    if (x !== y) return x > y;
+  }
+  return false;
+}

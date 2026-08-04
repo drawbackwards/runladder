@@ -107,6 +107,15 @@ Same as all Drawbackwards repos:
 - Branch naming: `ward/<feature>` or `claude/<feature>`
 - Create from latest main, push with `-u`, PR with `gh pr create`
 
+### Release stamping (GitHub Project "Released" view)
+
+A prod deploy is not finished until every ticket it shipped has its **Release Date** stamped on the org **"Ladder" GitHub Project** (project 5). Setting the date drops the ticket off the active board into Michael's **Released** view, so each push to prod has a recorded manifest.
+
+- Shipped tickets = issues closed by the PRs merged since the previous deploy.
+- Find the ticket's project item id: `gh project item-list 5 --owner drawbackwards --format json`
+- Stamp it: `gh project item-edit --project-id PVT_kwDOABgh_c4BT3ZK --field-id PVTF_lADOABgh_c4BT3ZKzhZm80k --id <item-id> --date <deploy-date>`
+- Sara does this automatically as part of the ship flow, alongside closing issues.
+
 ## Code Style
 
 - TypeScript strict mode

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { isNewerVersion } from "@/lib/plugin-version";
 import Link from "next/link";
 import { Skeleton } from "@/components/Skeleton";
 
@@ -47,9 +48,7 @@ export function FigmaPromoCard() {
 
   const connected = !!meta?.hasUsed;
   const updateAvailable =
-    !!meta?.installedVersion &&
-    !!meta?.currentVersion &&
-    meta.installedVersion !== meta.currentVersion;
+    isNewerVersion(meta?.currentVersion, meta?.installedVersion);
 
   return (
     <Link

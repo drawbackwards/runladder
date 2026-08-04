@@ -13,6 +13,10 @@ If you want to challenge a decision, file an issue in GitHub with the proposed c
 
 ---
 
+## Releases are tracked on the GitHub Project "Released" view; Release Date is stamped at deploy (2026-07-31)
+
+**Rule:** the org **"Ladder" GitHub Project** (project 5) has a **Release Date** field (Michael, 2026-07-30): setting it drops a ticket off the active board into the **Released** view, giving each push to prod a recorded manifest. Process: when a prod deploy goes out, stamp Release Date = deploy date on every ticket that deploy shipped (issues closed by PRs merged since the prior deploy). Sara stamps automatically during the ship flow, alongside the existing close-issues-as-we-ship habit; commands are in CLAUDE.md → Git Workflow → Release stamping. Backfill: the ~51 tickets already Done before the view existed get stamped with the date of the first prod deploy after 2026-07-31, per Michael.
+
 ## The learning-store industry taxonomy is locked; slugs never change, categories are add-only (2026-07-31)
 
 **Rule:** the 16-category client-industry list in `src/lib/industries.ts` is approved for launch (Chester + Michael, Slack, 2026-07-31). Industry is the only client-linked dimension in the de-identified learning store ([#422](https://github.com/drawbackwards/runladder/issues/422)), stamped into records at capture/purge time — records can never be re-bucketed afterwards, so the taxonomy is deliberately conservative. It is intentionally NOT the Top 100's category list (those are product categories, this is what business a client is in); where the two overlap, the vocabulary stays aligned (Fintech, E-commerce, Healthcare).

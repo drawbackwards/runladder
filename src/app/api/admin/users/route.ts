@@ -11,6 +11,9 @@ type UserRecord = {
   joinedAt: string | null;
   lastLoginAt: string | null;
   inviteCode: string | null;
+  /** Legacy plugin XP, passed through from the plugin backend. Never
+   * rendered anywhere; XP UI is hidden pending the badges/milestones
+   * strategy (#282 → #437). */
   xp: number;
   usageThisMonth: number;
   company?: string | null;
