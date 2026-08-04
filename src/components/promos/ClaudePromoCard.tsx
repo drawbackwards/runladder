@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { isNewerVersion } from "@/lib/plugin-version";
 import Link from "next/link";
 import { Skeleton } from "@/components/Skeleton";
 
@@ -50,9 +51,7 @@ export function ClaudePromoCard() {
 
   const connected = !!meta?.hasToken && !!meta?.lastUsedAt;
   const updateAvailable =
-    !!meta?.installedVersion &&
-    !!meta?.currentVersion &&
-    meta.installedVersion !== meta.currentVersion;
+    isNewerVersion(meta?.currentVersion, meta?.installedVersion);
 
   return (
     <Link

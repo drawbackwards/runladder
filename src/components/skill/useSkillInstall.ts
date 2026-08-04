@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { isNewerVersion } from "@/lib/plugin-version";
 
 type Meta = {
   hasToken: boolean;
@@ -90,9 +91,7 @@ export function useSkillInstall() {
   const version = meta?.currentVersion;
   const connected = !!meta?.hasToken && !!meta?.lastUsedAt;
   const updateAvailable =
-    !!meta?.installedVersion &&
-    !!meta?.currentVersion &&
-    meta.installedVersion !== meta.currentVersion;
+    isNewerVersion(meta?.currentVersion, meta?.installedVersion);
   const command = rawToken && version ? buildCommand(rawToken, version) : null;
 
   function copyCommand() {

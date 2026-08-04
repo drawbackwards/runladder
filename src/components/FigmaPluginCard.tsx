@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { isNewerVersion } from "@/lib/plugin-version";
 
 const FIGMA_PLUGIN_URL = "https://www.figma.com/community/plugin/1615455485903292828";
 
@@ -53,9 +54,7 @@ export function FigmaPluginCard() {
 
   const version = meta?.currentVersion;
   const updateAvailable =
-    !!meta?.installedVersion &&
-    !!meta?.currentVersion &&
-    meta.installedVersion !== meta.currentVersion;
+    isNewerVersion(meta?.currentVersion, meta?.installedVersion);
 
   const showNewPill = !meta?.hasUsed;
   const showConnectedPill = !!meta?.hasUsed;

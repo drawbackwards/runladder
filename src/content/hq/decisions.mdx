@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-08-03
+updatedAt: 2026-08-04
 updatedBy: Sara
-lastPr: 432
+lastPr: 438
 ---
 
 ## How to use this page
@@ -12,6 +12,10 @@ The why behind big choices. Read this before you push back on a feature, a price
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
 
 ---
+
+## Releases are tracked on the GitHub Project "Released" view; Release Date is stamped at deploy (2026-07-31)
+
+**Rule:** the org **"Ladder" GitHub Project** (project 5) has a **Release Date** field (Michael, 2026-07-30): setting it drops a ticket off the active board into the **Released** view, giving each push to prod a recorded manifest. Process: when a prod deploy goes out, stamp Release Date = deploy date on every ticket that deploy shipped (issues closed by PRs merged since the prior deploy). Sara stamps automatically during the ship flow, alongside the existing close-issues-as-we-ship habit; commands are in CLAUDE.md → Git Workflow → Release stamping. Backfill: the ~51 tickets already Done before the view existed get stamped with the date of the first prod deploy after 2026-07-31, per Michael.
 
 ## The learning-store industry taxonomy is locked; slugs never change, categories are add-only (2026-07-31)
 

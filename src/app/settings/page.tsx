@@ -525,8 +525,8 @@ function DesignSystemCard() {
         <p className="text-sm text-muted font-sans leading-relaxed">
           Ladder checks every frame your team scores in Figma against your
           design-system libraries and flags drift — detached instances, rebuilt
-          components, hardcoded colors, and off-library text styles. It&apos;s
-          part of the Ladder Team plan.
+          components, colors that don&apos;t come from the library, and
+          off-library text styles. It&apos;s part of the Ladder Team plan.
         </p>
       </div>
     );
@@ -542,8 +542,9 @@ function DesignSystemCard() {
             When your team scores a frame in the Figma plugin, Ladder diffs it
             against the design-system libraries enabled in that file and flags
             drift: instances detached from the library, components rebuilt by
-            hand, hardcoded colors where a library token exists, and text that
-            isn&apos;t using a library text style.
+            hand, colors that don&apos;t come from the library (raw values,
+            local styles, local variables), and text that isn&apos;t using a
+            library text style.
           </p>
           <p className="text-sm text-muted font-sans leading-relaxed mt-3">
             Findings appear in the plugin&apos;s Design System tab and on the
