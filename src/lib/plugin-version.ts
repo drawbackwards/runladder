@@ -17,7 +17,7 @@
  * get a backwards "downgrade" nag). See /hq/architecture → Versioning for the
  * full plugin release sequence.
  */
-export const CURRENT_PLUGIN_VERSION = "1.14.0";
+export const CURRENT_PLUGIN_VERSION = "1.14.1";
 
 /**
  * True when `latest` is a STRICTLY newer dotted version than `installed`.

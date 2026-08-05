@@ -98,11 +98,11 @@ export function FigmaPluginCard() {
 
         {updateAvailable && (
           <div className="mt-4 border border-ladder-green/30 bg-ladder-green/5 px-3 py-2.5 flex items-center justify-between gap-3 flex-wrap">
-            <span className="text-[11px] text-muted font-sans">
+            <span className="text-[11px] text-ladder-green font-sans">
               Update available:{" "}
-              <span className="font-mono text-foreground">v{meta.installedVersion}</span>
+              <span className="font-mono">v{meta.installedVersion}</span>
               {" → "}
-              <span className="font-mono text-foreground">v{meta.currentVersion}</span>
+              <span className="font-mono">v{meta.currentVersion}</span>
             </span>
             <a
               href={FIGMA_PLUGIN_URL}
