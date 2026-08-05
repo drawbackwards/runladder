@@ -1,8 +1,8 @@
 ---
 title: Feature Inventory
-updatedAt: 2026-08-04
+updatedAt: 2026-08-05
 updatedBy: Sara
-lastPr: 439
+lastPr: 440
 ---
 
 ## How to read this page
@@ -70,7 +70,7 @@ Plugin source lives in `ai-design-assistant`. Backend endpoints (`/api/plugin/*`
 | Plugin token verification | Plugin token | Live | `src/app/api/plugin/verify-token/route.ts` |
 | Score persistence from plugin (also runs the team style-compliance pass so plugin scores show Writing Style Guide findings on the dashboard, #364; accepts the plugin-computed `designSystem` advisory payload, capped at 50 findings, #400) | Plugin token | Live | `src/app/api/plugin/persist-score/route.ts` |
 | Plugin metadata endpoint | Public | Live | `src/app/api/plugin/meta/route.ts` |
-| Plugin bundle (v1.14.0, published 2026-08-04) | All | Live | `drawbackwards/ai-design-assistant` `plugin/ui.html` (`PLUGIN_VERSION`, single source); latest-available mirrored in `src/lib/plugin-version.ts` per the two-value model (#414) |
+| Plugin bundle (v1.14.1, published 2026-08-05) | All | Live | `drawbackwards/ai-design-assistant` `plugin/ui.html` (`PLUGIN_VERSION`, single source); latest-available mirrored in `src/lib/plugin-version.ts` per the two-value model (#414) |
 | Free 5-lifetime cap inside plugin | Free | Live | Enforced server-side via shared `plans.ts` |
 | Marketplace listing demo flow | Public | Roadmap | Gates the relaunch (re-review restarted 2026-04-18 per memory) |
 | Batch scoring of a frame stack | Pro+ | Roadmap | Open question per Journeys |
