@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { redis, lifetimeScansKey } from "@/lib/redis";
+import { redis, lifetimeScansKey, zrangeAllChunked } from "@/lib/redis";
 import { FREE_LIFETIME_LIMIT, isPaidTier } from "@/lib/plans";
 import { getUserSubscription, grantComp } from "@/lib/tier";
 import { getUserStats } from "@/lib/scores";
@@ -81,7 +81,7 @@ export async function GET() {
   }
 
   const [scores, used, sub, stats] = await Promise.all([
-    redis.zrange(`user:${userId}:scores`, 0, -1, { rev: true }),
+    zrangeAllChunked(`user:${userId}:scores`, { rev: true }),
     redis.get<number>(lifetimeScansKey(userId)),
     getUserSubscription(userId),
     getUserStats(userId),

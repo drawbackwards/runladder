@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { redis } from "@/lib/redis";
+import { redis, zrangeAllChunked } from "@/lib/redis";
 
 /**
  * Soft-delete a score the signed-in user owns.
@@ -35,7 +35,7 @@ export async function DELETE(req: NextRequest) {
   }
 
   const key = `user:${userId}:scores`;
-  const entries = (await redis.zrange(key, 0, -1)) as Array<string | object>;
+  const entries = (await zrangeAllChunked(key)) as Array<string | object>;
 
   for (const entry of entries) {
     const str = typeof entry === "string" ? entry : JSON.stringify(entry);

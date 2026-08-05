@@ -103,11 +103,12 @@ export function DesignSystemCompliance({
           </svg>
           <div>
             <p className="text-sm font-bold text-ladder-green">
-              No drift from {libLabel}
+              Matches {libLabel}
             </p>
             <p className="text-xs text-body leading-relaxed mt-1">
               Every layer we checked uses the library&apos;s components,
-              tokens, and styles. Never affects your score.
+              tokens, and styles. Design system issues do not affect your
+              score.
             </p>
           </div>
         </div>

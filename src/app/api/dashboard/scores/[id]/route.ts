@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { redis } from "@/lib/redis";
+import { redis, zrangeAllChunked } from "@/lib/redis";
 
 export async function GET(
   req: Request,
@@ -50,9 +50,7 @@ export async function GET(
     ownerId = memberParam;
   }
 
-  const scores = await redis.zrange(`user:${ownerId}:scores`, 0, -1, {
-    rev: true,
-  });
+  const scores = await zrangeAllChunked(`user:${ownerId}:scores`, { rev: true });
 
   for (const entry of scores as string[]) {
     try {

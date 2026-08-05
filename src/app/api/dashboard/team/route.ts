@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { redis } from "@/lib/redis";
+import { zrangeByScoreAllChunked } from "@/lib/redis";
 import { getUserStats, type UserStats } from "@/lib/scores";
 import { RUNG_NAMES, type RungName } from "@/lib/ladder";
 import { listArchivedMembers } from "@/lib/team-archives";
@@ -74,11 +74,10 @@ async function readRecentScores(
   userId: string,
   sinceTs: number,
 ): Promise<RawScore[]> {
-  const raw = await redis.zrange(
+  const raw = await zrangeByScoreAllChunked(
     `user:${userId}:scores`,
     sinceTs,
     "+inf",
-    { byScore: true },
   );
   return (raw as Array<string | RawScore>)
     .map((entry) => {
