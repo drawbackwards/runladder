@@ -4,7 +4,7 @@ import { getAdminEmail } from "@/lib/admin";
 import { isInternalOrg, orgMeta, orgStatus, provisioningUserId } from "@/lib/orgs";
 import { purgeOrgContent } from "@/lib/data-lifecycle";
 import { isValidIndustry } from "@/lib/industry-registry";
-import { redis, currentYearMonth } from "@/lib/redis";
+import { redis, currentYearMonth, zrangeAllChunked } from "@/lib/redis";
 import { TEAM_MONTHLY_POOL } from "@/lib/plans";
 import { getMonthlyCost, estimateScoreCostMicroUsd } from "@/lib/token-cost";
 import { surfaceFromSource, USAGE_SURFACES, type UsageSurface } from "@/lib/surface";
@@ -128,10 +128,8 @@ export async function GET(
       const userId = m.publicUserData!.userId!;
       let entries: RawScore[] = [];
       try {
-        const raw = await redis.zrange<unknown[]>(
+        const raw = await zrangeAllChunked<unknown>(
           `user:${userId}:scores`,
-          0,
-          -1,
         );
         entries = raw.map((e) =>
           typeof e === "string" ? (JSON.parse(e) as RawScore) : (e as RawScore),

@@ -536,20 +536,34 @@ function DesignSystemCard() {
     <div className={CARD}>
       <p className={LABEL}>Design System</p>
       <div className="mt-3 grid gap-8 md:grid-cols-2">
-        {/* Left — what it does */}
+        {/* Left — what it does + exactly what gets checked */}
         <div>
           <p className="text-sm text-muted font-sans leading-relaxed">
-            When your team scores a frame in the Figma plugin, Ladder diffs it
-            against the design-system libraries enabled in that file and flags
-            drift: instances detached from the library, components rebuilt by
-            hand, colors that don&apos;t come from the library (raw values,
-            local styles, local variables), and text that isn&apos;t using a
-            library text style.
+            When your team scores a frame in the Figma plugin, Ladder checks
+            it against the design-system libraries enabled in that file. What
+            we check:
           </p>
+          <ul className="mt-4 space-y-3">
+            {[
+              ["Color", "Fills and strokes must come from a library token or style. Raw values, local styles, and local variables are flagged."],
+              ["Typography", "Text must use a library text style."],
+              ["Detached instances", "Components that were detached from the library."],
+              ["Rebuilt components", "Local copies of components that should come from the library."],
+            ].map(([name, desc]) => (
+              <li key={name}>
+                <p className="text-sm font-sans font-semibold text-foreground">
+                  {name}
+                </p>
+                <p className="text-sm text-muted font-sans leading-relaxed mt-0.5">
+                  {desc}
+                </p>
+              </li>
+            ))}
+          </ul>
           <p className="text-sm text-muted font-sans leading-relaxed mt-3">
             Findings appear in the plugin&apos;s Design System tab and on the
-            score&apos;s dashboard page. Advisory only — drift never affects
-            the Ladder score.
+            score&apos;s dashboard page. Design system issues never affect the
+            Ladder score.
           </p>
         </div>
         {/* Right — how it's configured (it isn't, yet) */}

@@ -72,3 +72,52 @@ export function currentYearMonth(date: Date = new Date()): string {
   const m = String(date.getUTCMonth() + 1).padStart(2, "0");
   return `${y}-${m}`;
 }
+
+/**
+ * Read an ENTIRE sorted set in fixed-size slices instead of one ZRANGE 0 -1.
+ *
+ * Upstash rejects any single request whose payload exceeds 10MB. Score-history
+ * entries carry base64 thumbnails, so one active user's full history crossed
+ * that ceiling on 2026-08-05 and every full-history read 500'd (the dashboard
+ * "all my scores are gone" incident). Chunks of 10 keep each response far
+ * below the limit regardless of history length. Slices are fetched
+ * sequentially on purpose — parallel reads could be coalesced back into one
+ * oversized pipeline response by SDK auto-pipelining.
+ *
+ * Element order matches the equivalent single-shot call ({ rev: true } for
+ * newest-first). The real fix is moving thumbnails out of the entries; this
+ * makes every reader safe in the meantime.
+ */
+const ZRANGE_CHUNK = 10;
+
+export async function zrangeAllChunked<T = unknown>(
+  key: string,
+  opts?: { rev?: boolean },
+): Promise<T[]> {
+  const out: T[] = [];
+  for (let start = 0; ; start += ZRANGE_CHUNK) {
+    const slice = (await (opts?.rev
+      ? redis.zrange(key, start, start + ZRANGE_CHUNK - 1, { rev: true })
+      : redis.zrange(key, start, start + ZRANGE_CHUNK - 1))) as T[];
+    out.push(...slice);
+    if (slice.length < ZRANGE_CHUNK) return out;
+  }
+}
+
+/** Chunked variant of ZRANGE ... BYSCORE (ascending), same rationale as above. */
+export async function zrangeByScoreAllChunked<T = unknown>(
+  key: string,
+  min: number | "-inf" | "+inf",
+  max: number | "-inf" | "+inf",
+): Promise<T[]> {
+  const out: T[] = [];
+  for (let offset = 0; ; offset += ZRANGE_CHUNK) {
+    const slice = (await redis.zrange(key, min, max, {
+      byScore: true,
+      offset,
+      count: ZRANGE_CHUNK,
+    })) as T[];
+    out.push(...slice);
+    if (slice.length < ZRANGE_CHUNK) return out;
+  }
+}

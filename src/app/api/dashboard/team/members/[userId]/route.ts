@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { redis } from "@/lib/redis";
+import { zrangeAllChunked } from "@/lib/redis";
 import { getUserStats } from "@/lib/scores";
 
 /**
@@ -163,7 +163,7 @@ export async function GET(
 
   const [stats, raw] = await Promise.all([
     getUserStats(targetUserId),
-    redis.zrange(`user:${targetUserId}:scores`, 0, -1, { rev: true }),
+    zrangeAllChunked(`user:${targetUserId}:scores`, { rev: true }),
   ]);
 
   const scores: RawScore[] = (raw as Array<string | RawScore>)

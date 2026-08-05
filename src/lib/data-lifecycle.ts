@@ -1,6 +1,6 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { del as blobDel } from "@vercel/blob";
-import { redis } from "@/lib/redis";
+import { redis, zrangeAllChunked } from "@/lib/redis";
 import { listArchivedMembers } from "@/lib/team-archives";
 import { isProvisioningUser, orgMeta } from "@/lib/orgs";
 import {
@@ -62,10 +62,8 @@ async function delKeys(keys: string[]): Promise<number> {
 
 /** Read a user's full score history as parsed entries. */
 async function readScoreHistory(userId: string): Promise<StoredScoreEntry[]> {
-  const raw = await redis.zrange<(StoredScoreEntry | string)[]>(
+  const raw = await zrangeAllChunked<StoredScoreEntry | string>(
     `user:${userId}:scores`,
-    0,
-    -1,
   );
   const entries: StoredScoreEntry[] = [];
   for (const item of raw ?? []) {
