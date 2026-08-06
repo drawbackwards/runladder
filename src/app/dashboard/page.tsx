@@ -674,6 +674,7 @@ export default function DashboardPage() {
                               <img
                                 src={entry.thumbnail}
                                 alt=""
+                                loading="lazy"
                                 className="w-full h-full object-cover object-top"
                               />
                             </div>

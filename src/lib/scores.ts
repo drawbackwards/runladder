@@ -8,6 +8,7 @@ import {
 import { surfaceFromSource } from "@/lib/surface";
 import { maybeAlertCapCrossed, maybeAlertPoolCrossed, ANY_TIER_CAP_THRESHOLD } from "@/lib/usage";
 import { captureLearningForScore } from "@/lib/learning";
+import { uploadScoreThumbnail } from "@/lib/thumbnail";
 
 /**
  * Single source of truth for persisting a Ladder score to a user's
@@ -62,6 +63,13 @@ export type ScoreEntryInput = {
    * collide (#416). Never rendered. Absent for web/Skill.
    */
   frameId?: string | null;
+  /**
+   * Transport-only screenshot thumbnail as a `data:image/...;base64,...` URL.
+   * NEVER stored inline in the history zset (#442): `persistScoreEntry`
+   * offloads it to Vercel Blob and records only a pointer key + `hasThumbnail`
+   * on the stored entry. Kept on the *input* because that's what every writer
+   * already produces via `makeThumbnail`.
+   */
   thumbnail?: string;
   isPublic?: boolean;
   timestamp: number;
@@ -69,9 +77,16 @@ export type ScoreEntryInput = {
   sessionType?: SessionType;
 };
 
-export type StoredScoreEntry = Omit<ScoreEntryInput, "sessionType"> & {
+export type StoredScoreEntry = Omit<ScoreEntryInput, "sessionType" | "thumbnail"> & {
   /** Always present on stored entries (the persist step fills in the default). */
   sessionType: SessionType;
+  /**
+   * True when this score has an externalized thumbnail in Vercel Blob, resolved
+   * via the `user:{id}:thumb:{scoreId}` pointer key and served through
+   * `/api/dashboard/scores/[id]/thumbnail` (#442). The bytes are NOT in this
+   * entry. Absent/false means no screenshot was captured.
+   */
+  hasThumbnail?: boolean;
   /** Canonical identifier for "the same screen, scored across time". */
   screenKey: string;
   /** Score from the most recent prior scan of the same screen, or null if first time. */
@@ -87,7 +102,40 @@ export type UserStats = {
   lastScoreAt: number | null;
 };
 
+/** Build the auth-gated proxy URL for a score's externalized thumbnail (#442).
+ * Pass `memberId` when a Team Lead is viewing a member's score so the proxy
+ * authorizes the same `?member=` way the score-detail route does. */
+export function scoreThumbnailUrl(
+  scoreId: string,
+  memberId?: string | null,
+): string {
+  const base = `/api/dashboard/scores/${scoreId}/thumbnail`;
+  return memberId ? `${base}?member=${encodeURIComponent(memberId)}` : base;
+}
+
+/**
+ * Normalize a parsed history entry's `thumbnail` field for a client reader.
+ * Migrated entries (#442) carry `hasThumbnail` and no inline bytes → we hand
+ * back the proxy URL. Legacy entries still carrying an inline `data:` URL are
+ * returned untouched (the read-through until the backfill runs). No-thumbnail
+ * entries are unchanged. `<img src>` works with either an URL or a data URL.
+ */
+export function withThumbnailUrl<
+  T extends { id?: string; hasThumbnail?: boolean; thumbnail?: string },
+>(entry: T, memberId?: string | null): T {
+  if (entry.hasThumbnail && entry.id) {
+    return { ...entry, thumbnail: scoreThumbnailUrl(entry.id, memberId) };
+  }
+  return entry;
+}
+
 const SCORE_HISTORY_KEY = (userId: string) => `user:${userId}:scores`;
+/** Pointer key: score id -> Vercel Blob URL of its externalized thumbnail
+ * (#442). Tiny string, no TTL (scores are permanent, #343). Lives under the
+ * `user:{id}:*` namespace so the termination purge sweeps it with everything
+ * else; the purge additionally deletes the referenced blob. */
+export const SCORE_THUMB_KEY = (userId: string, scoreId: string) =>
+  `user:${userId}:thumb:${scoreId}`;
 const LASTSCORE_KEY = (userId: string, screenKey: string) =>
   `user:${userId}:lastscore:${screenKey}`;
 /** Set of screenKeys this user has scored under one source (#430) — powers
@@ -206,12 +254,24 @@ export async function persistScoreEntry(
       ? Math.round((input.score - previousScore) * 10) / 10
       : null;
 
+  // Externalize the screenshot thumbnail (#442). Writers hand us a data URL;
+  // we offload the bytes to Vercel Blob and store only a pointer key + a
+  // boolean on the entry, so the history zset never carries image weight. The
+  // upload must finish before the zadd (its success decides `hasThumbnail`),
+  // but the pointer-key write folds into the batch below. Best-effort: a
+  // failed upload degrades to "no thumbnail" and never blocks the score.
+  const { thumbnail: inlineThumbnail, ...inputSansThumb } = input;
+  const thumbBlobUrl = inlineThumbnail
+    ? await uploadScoreThumbnail(userId, input.id, inlineThumbnail)
+    : null;
+
   const entry: StoredScoreEntry = {
-    ...input,
+    ...inputSansThumb,
     sessionType: input.sessionType ?? "design",
     screenKey,
     previousScore,
     uplift,
+    hasThumbnail: !!thumbBlobUrl,
   };
 
   // Aggregate stats. We update via HINCRBY/HSET so concurrent scores don't
@@ -242,6 +302,11 @@ export async function persistScoreEntry(
       score: entry.timestamp,
       member: JSON.stringify(entry),
     }),
+    // Thumbnail pointer: score id -> blob URL (#442). Only when the upload
+    // above succeeded; readers/purge key off the same `user:{id}:thumb:*`.
+    ...(thumbBlobUrl
+      ? [redis.set(SCORE_THUMB_KEY(userId, input.id), thumbBlobUrl)]
+      : []),
     redis.incr(lifetimeScansKey(userId)),
     // Forty-day TTL: month length (max 31) + 9-day buffer for late reads.
     redis.expire(monthlyKey, 60 * 60 * 24 * 40),

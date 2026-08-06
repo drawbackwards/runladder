@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-08-05
+updatedAt: 2026-08-06
 updatedBy: Sara
-lastPr: 440
+lastPr: 446
 ---
 
 ## How to use this page
@@ -12,6 +12,12 @@ The why behind big choices. Read this before you push back on a feature, a price
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
 
 ---
+
+## Score thumbnails live in Vercel Blob, never inline in the score-history zset (2026-08-06)
+
+**Rule:** a screenshot thumbnail is stored as a **private** Vercel Blob with only a pointer key in Redis, never embedded in the `user:{id}:scores` entry (Michael, 2026-08-06; [#442](https://github.com/drawbackwards/runladder/issues/442)). **Why:** entries glued the base64 image inline, so history payload scaled with image weight, not score count — one active account crossed Upstash's 10MB request ceiling and 500'd the whole dashboard on 2026-08-05. Every full-history reader (dashboard, team/admin rollups, the lifecycle purge) paid to move images most of them discard.
+
+**Why Blob over per-score Redis keys (the alternative Chester floated):** images don't belong in our hot datastore — Blob is purpose-built and cheap, and it yields a real per-thumbnail URL, which is the foundation the dashboard needs to paginate + lazy-load the score list ([#391](https://github.com/drawbackwards/runladder/issues/391), phase 2). Private access + an auth-gated proxy route (`/api/dashboard/scores/[id]/thumbnail`, same `resolveScoreOwner` gate as the score detail) preserve the existing privacy model: a paid user's screenshot is never at a guessable public URL. Pagination/lazy-load is deliberately a **fast-follow**, not part of the outage fix, to keep the cure small and shippable for the Lumin contract.
 
 ## Releases are tracked on the GitHub Project "Released" view; Release Date is stamped at deploy (2026-07-31)
 

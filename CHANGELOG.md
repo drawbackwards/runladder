@@ -6,6 +6,16 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.24 / api 1.5.0 (2026-08-06)
+
+**Score thumbnails moved out of the history record into Vercel Blob (#442).**
+
+- Each score in a user's history (`user:{id}:scores`) embedded its screenshot as an inline base64 JPEG, so reading a full history transferred every image — even for callers that only need numbers (team average, admin rollups). One active account's history crossed Upstash's 10MB per-request ceiling on 2026-08-05 and 500'd the dashboard (#441 chunked the reads as a tourniquet; this is the cure). Thumbnails now live in a **private** Vercel Blob (`score-thumbs/{userId}/{scoreId}`); the entry keeps only a pointer key (`user:{id}:thumb:{scoreId}`) and `hasThumbnail`. `persistScoreEntry` is the single choke point, so all five write paths (web, stream, Skill, plugin, anon-claim) externalize with no per-route change.
+- New endpoint **`GET /api/dashboard/scores/[id]/thumbnail`** streams the bytes through an auth gate (owner, or a Team Lead via `?member=`), so a private screenshot is never at a public blob URL. Dashboard/detail/member responses now return `thumbnail` as this proxy URL; not-yet-migrated entries are read through with their inline image until the backfill runs.
+- Also: the termination purge now deletes externalized thumbnail blobs; the admin-feedback route's last un-chunked full-history read was swapped to the chunked helper (same latent 10MB bomb); dashboard + team-member list images gained `loading="lazy"`. Migration: `scripts/backfill-score-thumbnails.mjs` (idempotent; `--dry-run` / `--user=` for a staged rollout).
+
+---
+
 ## app 0.5.23 / api 1.4.0 (2026-07-08)
 
 **Scores are now permanent per engine version (removed the 30-day cache TTL) (#343).**

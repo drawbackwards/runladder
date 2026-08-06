@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clerkClient } from "@clerk/nextjs/server";
 import { getAdminEmail } from "@/lib/admin";
-import { redis } from "@/lib/redis";
+import { redis, zrangeAllChunked } from "@/lib/redis";
 import { CURRENT_API_VERSION } from "@/lib/app-version";
 import {
   FEEDBACK_INDEX_KEY,
@@ -119,12 +119,11 @@ export async function GET(req: NextRequest) {
       }
 
       try {
-        const scores = (await redis.zrange(
-          `user:${fb.userId}:scores`,
-          0,
-          -1,
-          { rev: true },
-        )) as Array<string | ScoreSnapshot>;
+        // Chunked read (#441/#442): a heavy user's full history can exceed
+        // Upstash's 10MB request ceiling — the same bomb the dashboard hit.
+        const scores = (await zrangeAllChunked(`user:${fb.userId}:scores`, {
+          rev: true,
+        })) as Array<string | ScoreSnapshot>;
         for (const entry of scores) {
           let parsed: ScoreSnapshot | null = null;
           if (typeof entry === "string") {

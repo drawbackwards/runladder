@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { zrangeAllChunked } from "@/lib/redis";
-import { getUserStats } from "@/lib/scores";
+import { getUserStats, withThumbnailUrl } from "@/lib/scores";
 
 /**
  * Team member detail — manager-only drill-in for a single team member.
@@ -29,6 +29,9 @@ type RawScore = {
   summary?: string;
   source?: string;
   thumbnail?: string;
+  /** True when the thumbnail is externalized to Blob (#442); the API rewrites
+   * `thumbnail` to the auth-gated proxy URL before returning. */
+  hasThumbnail?: boolean;
   isPublic?: boolean;
   timestamp?: number;
   uplift?: number | null;
@@ -226,7 +229,9 @@ export async function GET(
      */
     design: {
       stats: statsFromScores(designLive),
-      scores: designScores,
+      // Externalized thumbnails (#442) → proxy URLs carrying `?member=` so the
+      // Team Lead's image requests authorize as a member view.
+      scores: designScores.map((s) => withThumbnailUrl(s, targetUserId)),
       activity: bucketActivity(designInWindow, ACTIVITY_WINDOW_DAYS),
     },
     /**
@@ -235,7 +240,7 @@ export async function GET(
      */
     evaluation: {
       stats: statsFromScores(evaluationLive),
-      scores: evaluationScores,
+      scores: evaluationScores.map((s) => withThumbnailUrl(s, targetUserId)),
       activity: bucketActivity(evaluationInWindow, ACTIVITY_WINDOW_DAYS),
     },
     activityWindowDays: ACTIVITY_WINDOW_DAYS,
