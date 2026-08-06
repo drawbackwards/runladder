@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { screenKeyFor, screenNamesSimilar } from "./scores";
+import {
+  screenKeyFor,
+  screenNamesSimilar,
+  scoreThumbnailUrl,
+  withThumbnailUrl,
+} from "./scores";
 
 /**
  * screenKeyFor is the canonical "same screen across time" identifier.
@@ -118,5 +123,63 @@ describe("screenNamesSimilar — the #430 lineage-tiebreak gate", () => {
   it("never matches on empty name halves", () => {
     expect(screenNamesSimilar("web::", "web::checkout")).toBe(false);
     expect(screenNamesSimilar("web::", "web::")).toBe(false);
+  });
+});
+
+/**
+ * #442 thumbnail externalization. Thumbnails now live in Vercel Blob and are
+ * served through an auth-gated proxy; these two helpers decide the URL a
+ * reader hands the client, and the read-through that keeps not-yet-migrated
+ * entries working. A regression here either 404s every dashboard image or
+ * (worse) leaks a private thumbnail via the wrong member param.
+ */
+describe("scoreThumbnailUrl", () => {
+  it("builds the owner-view proxy path with no member param", () => {
+    expect(scoreThumbnailUrl("1699999999999-ab12cd")).toBe(
+      "/api/dashboard/scores/1699999999999-ab12cd/thumbnail",
+    );
+  });
+
+  it("appends an encoded member param for Team-Lead views", () => {
+    expect(scoreThumbnailUrl("s1", "user_abc")).toBe(
+      "/api/dashboard/scores/s1/thumbnail?member=user_abc",
+    );
+  });
+});
+
+describe("withThumbnailUrl", () => {
+  it("rewrites a migrated entry's thumbnail to the proxy URL", () => {
+    const entry: { id: string; hasThumbnail?: boolean; thumbnail?: string } = {
+      id: "s1",
+      hasThumbnail: true,
+    };
+    expect(withThumbnailUrl(entry).thumbnail).toBe(
+      "/api/dashboard/scores/s1/thumbnail",
+    );
+  });
+
+  it("threads the member param through for a Team-Lead read", () => {
+    const entry: { id: string; hasThumbnail?: boolean; thumbnail?: string } = {
+      id: "s1",
+      hasThumbnail: true,
+    };
+    expect(withThumbnailUrl(entry, "user_x").thumbnail).toBe(
+      "/api/dashboard/scores/s1/thumbnail?member=user_x",
+    );
+  });
+
+  it("leaves a legacy inline data URL untouched (read-through pre-backfill)", () => {
+    const legacy = { id: "s1", thumbnail: "data:image/jpeg;base64,AAAA" };
+    expect(withThumbnailUrl(legacy)).toEqual(legacy);
+  });
+
+  it("does not invent a URL when there is no thumbnail", () => {
+    const bare = { id: "s1" };
+    expect(withThumbnailUrl(bare)).toEqual(bare);
+  });
+
+  it("guards against a flagged entry with no id (never builds a bad URL)", () => {
+    const noId = { hasThumbnail: true };
+    expect(withThumbnailUrl(noId)).toEqual(noId);
   });
 });

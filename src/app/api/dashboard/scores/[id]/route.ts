@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { auth, clerkClient } from "@clerk/nextjs/server";
-import { redis, zrangeAllChunked } from "@/lib/redis";
+import { auth } from "@clerk/nextjs/server";
+import { zrangeAllChunked } from "@/lib/redis";
+import { resolveScoreOwner } from "@/lib/score-access";
+import { withThumbnailUrl } from "@/lib/scores";
 
 export async function GET(
   req: Request,
@@ -15,42 +17,16 @@ export async function GET(
   const { id } = await params;
 
   // A Team Lead can open a score belonging to a member of their team from the
-  // designer detail page (#300). When `?member=<userId>` is present and isn't
-  // the requester, authorize exactly like the member-detail endpoint: the
-  // requester must be org:admin and the member must be in their active org.
-  const memberParam = new URL(req.url).searchParams.get("member");
-  const isTeamLeadView = !!memberParam && memberParam !== userId;
-  let ownerId = userId;
-
-  if (isTeamLeadView) {
-    if (!orgId) {
-      return NextResponse.json({ error: "No active team" }, { status: 404 });
-    }
-    if (orgRole !== "org:admin") {
-      return NextResponse.json(
-        { error: "Team Lead access required" },
-        { status: 403 }
-      );
-    }
-    const client = await clerkClient();
-    const memberships =
-      await client.organizations.getOrganizationMembershipList({
-        organizationId: orgId,
-        limit: 100,
-      });
-    const inOrg = memberships.data.some(
-      (m) => m.publicUserData?.userId === memberParam
-    );
-    if (!inOrg) {
-      return NextResponse.json(
-        { error: "Member not found in this team" },
-        { status: 404 }
-      );
-    }
-    ownerId = memberParam;
+  // designer detail page (#300), via `?member=<userId>`. Shared resolver keeps
+  // this identical to the thumbnail route's access rules.
+  const owner = await resolveScoreOwner(req, { userId, orgId, orgRole });
+  if (!owner.ok) {
+    return NextResponse.json({ error: owner.error }, { status: owner.status });
   }
 
-  const scores = await zrangeAllChunked(`user:${ownerId}:scores`, { rev: true });
+  const scores = await zrangeAllChunked(`user:${owner.ownerId}:scores`, {
+    rev: true,
+  });
 
   for (const entry of scores as string[]) {
     try {
@@ -59,10 +35,14 @@ export async function GET(
       // Soft-deleted scores are invisible to the owner, but a Team Lead keeps
       // the audit trail (mirrors the member-detail endpoint), so they may open
       // a deleted score's detail.
-      if (parsed.deletedAt && !isTeamLeadView) {
+      if (parsed.deletedAt && !owner.isTeamLeadView) {
         return NextResponse.json({ error: "Score not found" }, { status: 404 });
       }
-      return NextResponse.json(parsed);
+      // Externalized thumbnail (#442) → proxy URL, preserving the member param
+      // for Team-Lead views so the image request authorizes the same way.
+      return NextResponse.json(
+        withThumbnailUrl(parsed, owner.isTeamLeadView ? owner.ownerId : null),
+      );
     } catch {
       continue;
     }

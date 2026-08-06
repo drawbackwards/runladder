@@ -147,7 +147,26 @@ export async function purgeUserContent(
     ])
   ).flat();
 
-  const keysDeleted = await delKeys([...fixed, ...scanned]);
+  // Externalized score thumbnails (#442): the pointer keys hold the Blob URLs.
+  // Delete the referenced blobs before dropping the keys — same obligation as
+  // the org style-guide blob below. mget is chunked so a heavy account (the
+  // exact profile that motivated #442) can't blow the request ceiling.
+  const thumbPointerKeys = await scanKeys(`user:${userId}:thumb:*`);
+  for (let i = 0; i < thumbPointerKeys.length; i += 100) {
+    const slice = thumbPointerKeys.slice(i, i + 100);
+    const urls = await redis.mget<(string | null)[]>(...slice);
+    await Promise.all(
+      (urls || []).map((u) =>
+        u
+          ? blobDel(u).catch((e) =>
+              console.error(`[LIFECYCLE] thumb blob delete failed for ${userId}:`, e),
+            )
+          : undefined,
+      ),
+    );
+  }
+
+  const keysDeleted = await delKeys([...fixed, ...scanned, ...thumbPointerKeys]);
   await Promise.all([
     redis.zrem("leaderboard:global:avg", userId),
     redis.zrem("leaderboard:global:scans", userId),

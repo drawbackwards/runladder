@@ -3,7 +3,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { redis, lifetimeScansKey, zrangeAllChunked } from "@/lib/redis";
 import { FREE_LIFETIME_LIMIT, isPaidTier } from "@/lib/plans";
 import { getUserSubscription, grantComp } from "@/lib/tier";
-import { getUserStats } from "@/lib/scores";
+import { getUserStats, withThumbnailUrl } from "@/lib/scores";
 import { isInternalOrg } from "@/lib/orgs";
 
 export async function GET() {
@@ -102,7 +102,12 @@ export async function GET() {
     // trail, but the score's owner should never see them on their own
     // dashboard. /api/dashboard/scores DELETE flips deletedAt; this is
     // the read-side filter.
-    .filter((s: { deletedAt?: number } | null) => s && !s.deletedAt);
+    .filter((s: { deletedAt?: number } | null) => s && !s.deletedAt)
+    // Resolve each thumbnail to its auth-gated proxy URL (#442) — the bytes
+    // are no longer inline. This is the user's own dashboard, so no member param.
+    .map((s: { id: string; hasThumbnail?: boolean; thumbnail?: string }) =>
+      withThumbnailUrl(s),
+    );
 
   return NextResponse.json({
     scores: parsedScores,

@@ -40,7 +40,7 @@ const CUSTOMER_ENTRY: StoredScoreEntry = {
   styleGuide: { status: "checked", findings: [{ text: "Lumin voice rule" }] },
   source: "figma",
   frameId: "1234:5678",
-  thumbnail: "data:image/jpeg;base64,AAAA",
+  hasThumbnail: true,
   isPublic: false,
   timestamp: Date.UTC(2026, 6, 15, 13, 37, 42),
   sessionType: "design",
