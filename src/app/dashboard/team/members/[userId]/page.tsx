@@ -6,6 +6,7 @@ import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
 import { surfaceParts } from "@/lib/surface";
+import { useInfiniteWindow } from "@/hooks/use-infinite-window";
 import { SHOW_EVALUATIONS_AND_REVIEWS } from "@/lib/feature-flags";
 import {
   ActivityHeatmap,
@@ -280,6 +281,15 @@ export default function TeamMemberDetailPage() {
       cancelled = true;
     };
   }, [isSignedIn, userId]);
+
+  // Window the active tab's list (#454, reuses #448's hook). Derived before the
+  // early returns below so the hook is always called in the same order.
+  const activeScores =
+    (tab === "design" ? data?.design?.scores : data?.evaluation?.scores) ?? [];
+  const { visibleCount, sentinelRef, hasMore } = useInfiniteWindow(
+    activeScores.length,
+    30,
+  );
 
   if (!isLoaded) return null;
   if (!isSignedIn) return <RedirectToSignIn />;
@@ -561,9 +571,11 @@ export default function TeamMemberDetailPage() {
           </div>
         ) : (
           <div className="space-y-1.5">
-            {bucket.scores.map((entry) => (
+            {bucket.scores.slice(0, visibleCount).map((entry) => (
               <ScoreRow key={entry.id} entry={entry} memberUserId={userId ?? ""} />
             ))}
+            {/* Reveal the next page as this scrolls into view (#454). */}
+            {hasMore && <div ref={sentinelRef} aria-hidden className="h-1" />}
           </div>
         )}
       </div>
