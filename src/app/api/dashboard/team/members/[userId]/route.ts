@@ -230,8 +230,9 @@ export async function GET(
     design: {
       stats: statsFromScores(designLive),
       // Externalized thumbnails (#442) → proxy URLs carrying `?member=` so the
-      // Team Lead's image requests authorize as a member view.
-      scores: designScores.map((s) => withThumbnailUrl(s, targetUserId)),
+      // Team Lead's image requests authorize as a member view. Small list
+      // variant (#448) since these render as list rows.
+      scores: designScores.map((s) => withThumbnailUrl(s, targetUserId, "sm")),
       activity: bucketActivity(designInWindow, ACTIVITY_WINDOW_DAYS),
     },
     /**
@@ -240,7 +241,7 @@ export async function GET(
      */
     evaluation: {
       stats: statsFromScores(evaluationLive),
-      scores: evaluationScores.map((s) => withThumbnailUrl(s, targetUserId)),
+      scores: evaluationScores.map((s) => withThumbnailUrl(s, targetUserId, "sm")),
       activity: bucketActivity(evaluationInWindow, ACTIVITY_WINDOW_DAYS),
     },
     activityWindowDays: ACTIVITY_WINDOW_DAYS,

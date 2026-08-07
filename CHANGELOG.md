@@ -6,6 +6,14 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.25 / api 1.5.1 (2026-08-07)
+
+**Dashboard score list: windowed render + small list thumbnails (#448, follow-up to #442).**
+
+- The dashboard rendered the entire score history at once, and each 48px list row loaded the full 1400px thumbnail. Now the list renders ~30 rows and reveals more as you scroll (IntersectionObserver, via the new `useInfiniteWindow` hook), and list rows request a small resized variant — `GET /api/dashboard/scores/[id]/thumbnail?size=sm` (~96px, resized on read with sharp, cached hard per variant, backfill-free). Score-detail views keep the full-resolution image. The full score array stays client-side so the activity heatmap's timezone-correct daily buckets are unaffected; server-side pagination is deferred until scale needs it.
+
+---
+
 ## app 0.5.24 / api 1.5.0 (2026-08-06)
 
 **Score thumbnails moved out of the history record into Vercel Blob (#442).**

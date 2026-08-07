@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth, useUser, RedirectToSignIn } from "@clerk/nextjs";
 import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
+import { useInfiniteWindow } from "@/hooks/use-infinite-window";
 import Link from "next/link";
 import { getScoreColor } from "@/lib/ladder";
 import { privateScopeLabel, isTeamScope } from "@/lib/score-scope";
@@ -537,14 +538,23 @@ export default function DashboardPage() {
     }
   }
 
+  // Derive the score list + render window BEFORE the early returns below, so
+  // the windowing hook is always called in the same order (React hooks rule).
+  // The full array is retained for the activity heatmap; only the rendered
+  // slice is windowed (#448).
+  const effectiveData = viewAs ? viewAsDashboardData(viewAs) : data;
+  const scores = effectiveData?.scores ?? [];
+  const { visibleCount, sentinelRef, hasMore } = useInfiniteWindow(
+    scores.length,
+    30,
+  );
+
   if (!isLoaded) return null;
   if (!isSignedIn) return <RedirectToSignIn />;
 
   // Dev "view as" override (no-op in production builds): when set, render the
   // selected role's fixtures instead of the fetched data.
-  const effectiveData = viewAs ? viewAsDashboardData(viewAs) : data;
   const showLoading = viewAs ? false : loading;
-  const scores = effectiveData?.scores ?? [];
   const stats = effectiveData?.stats ?? {
     totalScans: 0,
     avgScore: null,
@@ -652,7 +662,7 @@ export default function DashboardPage() {
                   </span>
                 </div>
                 <div className="space-y-1.5">
-                  {scores.map((entry) => (
+                  {scores.slice(0, visibleCount).map((entry) => (
                     <div
                       key={entry.id}
                       className="border border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1f1f1f] hover:border-[#3a3a3a] transition-colors group relative flex items-stretch"
@@ -734,6 +744,10 @@ export default function DashboardPage() {
                     </div>
                   ))}
                 </div>
+                {/* Reveal the next page as this scrolls into view (#448). */}
+                {hasMore && (
+                  <div ref={sentinelRef} aria-hidden className="h-1" />
+                )}
               </>
             )}
           </main>
