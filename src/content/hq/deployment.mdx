@@ -44,7 +44,7 @@ Production is deployed by the **`Deploy Production` GitHub Action** (`.github/wo
 - If no one approves, prod stays exactly as it is. That is the whole point.
 - Who can approve: the reviewers configured on the `production` Environment (currently Michael and Ward).
 
-The Action authenticates to Vercel with a `VERCEL_TOKEN` secret (token deploys, not git deploys) plus `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` repo variables, and runs `vercel pull → vercel build --prod → vercel deploy --prebuilt --prod`.
+The Action authenticates to Vercel with a `VERCEL_TOKEN` secret (a **team-scoped** token for the Drawbackwards team — a project-scoped token can't read the settings `vercel` needs) plus `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` repo variables, and runs a single `vercel deploy --prod`. It deploys **without** `--prebuilt` on purpose: several prod env vars (the Redis/KV credentials) are marked **Sensitive**, so a build running in CI can't read them and would crash at page-data collection on `Redis.fromEnv()`. Letting Vercel build server-side gives the build the real environment, exactly like a native git deploy.
 
 ## Ship steps after a production deploy
 
