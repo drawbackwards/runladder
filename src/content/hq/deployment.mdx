@@ -1,0 +1,57 @@
+---
+title: Deployment
+updatedAt: 2026-08-07
+updatedBy: Sara
+lastPr: 447
+---
+
+## How this product gets deployed
+
+Read this before you ship anything. It is the single source of truth for how code reaches users, and it replaces the older (inaccurate) notes that said production was a manual `vercel --prod`.
+
+`runladder` is one Next.js codebase in one Vercel project. It reaches users through three environment types, and **production is gated behind a human approval** so a merge can never silently ship to real users.
+
+## Environments
+
+| Environment | URL | How it deploys | Clerk / Redis |
+| --- | --- | --- | --- |
+| **Preview** | per-branch Vercel URL | Automatic on every branch push (the PR preview) | Dev instances |
+| **Dev / QA** | `dev.runladder.com` | Automatic on every merge to `main` | Dev instances |
+| **Production** | `app.runladder.com` (+ `runladder.com`, `www.runladder.com`) | **Gated GitHub Action — requires a human "Approve deployment" click** | Prod instances |
+
+Dev and prod use **separate Upstash Redis instances** and separate Clerk instances. A consequence that matters: **a data migration must be run once per environment** — running it against dev does not touch prod (see Ship steps).
+
+## The flow, start to finish
+
+```
+feature branch
+  → open PR          (Preview deploy auto-builds; CI runs: `next build` = vitest + build + prompt-leak)
+  → merge to main    (auto-deploys to dev.runladder.com only)
+  → QA on dev
+  → the "Deploy Production" workflow is waiting for approval in GitHub
+  → a reviewer clicks "Approve deployment"
+  → prod ships to app.runladder.com
+```
+
+**The only required merge gate** is the `next build` check (branch protection on `main`). Self-merge is allowed; there is no required human PR reviewer. CodeQL "Analyze" checks are **not** required (a Python analyzer runs on this JS repo and often fails — ignore it).
+
+## The production gate (how you approve a prod deploy)
+
+Production is deployed by the **`Deploy Production` GitHub Action** (`.github/workflows/deploy-prod.yml`), never by Vercel's git integration (that auto-prod is turned off) and never by a raw local `vercel --prod`.
+
+- Every merge to `main` starts the workflow. Its deploy job targets the **`production` GitHub Environment**, which has **required reviewers**, so the job pauses at **"Waiting for approval."**
+- To ship: open the run under the repo's **Actions** tab (or the PR's checks) and click **Review deployments → Approve and deploy**. Prod ships only then.
+- If no one approves, prod stays exactly as it is. That is the whole point.
+- Who can approve: the reviewers configured on the `production` Environment (currently Michael and Ward).
+
+The Action authenticates to Vercel with a `VERCEL_TOKEN` secret (token deploys, not git deploys) plus `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` repo variables, and runs `vercel pull → vercel build --prod → vercel deploy --prebuilt --prod`.
+
+## Ship steps after a production deploy
+
+1. **Run any data migration against prod.** Prod Redis is a separate instance, so a migration verified on dev must be re-run for prod. Prod Redis credentials are marked *Sensitive* in Vercel and are **not** returned by `vercel env pull`, so a one-off migration runs either through a protected admin route (executing inside the prod runtime) or with credentials pulled from the Upstash console — never by casually copying prod tokens around.
+2. **Stamp the Release Date** on every shipped issue in the GitHub Project "Ladder" (project 5), which moves it into the Released view. See `CLAUDE.md → Release stamping`.
+3. **Post the `/hq` verification handshake** (per `CLAUDE.md`).
+
+## History / why it's built this way
+
+The two-environment model (#249, 2026-06-17) always *intended* production to be an explicit, gated promotion. In practice the Vercel project was left auto-deploying prod on every merge to `main`, and the docs wrongly described prod as a manual `vercel --prod`. On 2026-08-06 a merge (#446) silently shipped prod, which surfaced the gap. #447 makes the config match the original intent with an explicit approval gate. See the Decisions log entry "Production deploys are gated by a required-reviewer GitHub Environment (2026-08-07)."

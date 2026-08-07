@@ -1,0 +1,62 @@
+name: Deploy Production
+
+# Gated production deploy (#447). A merge to `main` no longer ships prod on its
+# own — Vercel's automatic production deploy is turned off, so this workflow is
+# the ONLY path to app.runladder.com. The job targets the `production` GitHub
+# Environment, which has required reviewers, so it pauses at "Waiting for
+# approval" until a human clicks Approve. Dev/preview auto-deploys are
+# unaffected (they come from Vercel's git integration, not this workflow).
+#
+# Requires:
+#   - repo secret   VERCEL_TOKEN         (Vercel access token, drawbackwards team)
+#   - repo variable VERCEL_ORG_ID        (team_ZxwLE02EPXoMwh3eShEupnX8)
+#   - repo variable VERCEL_PROJECT_ID    (prj_gZyYA3lQF5C59QvDfwA2BTEscjVt)
+#   - a `production` Environment with required reviewers (the approval gate)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# Never let two prod deploys race; do not cancel one that's mid-flight.
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to production
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # This is the gate: GitHub pauses here for a required-reviewer approval
+    # before any step runs.
+    environment:
+      name: production
+      url: https://app.runladder.com
+    env:
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+
+      - name: Pull Vercel production environment
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build (production)
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy prebuilt to production
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}

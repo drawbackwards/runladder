@@ -26,6 +26,11 @@ export const HQ_SECTIONS: HqSection[] = [
     intent: "Shared engine, shared auth, shared billing. The system in one diagram.",
   },
   {
+    slug: "deployment",
+    title: "Deployment",
+    intent: "How code reaches users: preview, dev, and the gated production approval flow.",
+  },
+  {
     slug: "journeys",
     title: "User Journeys",
     intent: "Sign up, score, upgrade flows for each surface (web, plugin, Skill).",
