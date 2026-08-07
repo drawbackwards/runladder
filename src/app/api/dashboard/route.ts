@@ -104,9 +104,11 @@ export async function GET() {
     // the read-side filter.
     .filter((s: { deletedAt?: number } | null) => s && !s.deletedAt)
     // Resolve each thumbnail to its auth-gated proxy URL (#442) — the bytes
-    // are no longer inline. This is the user's own dashboard, so no member param.
+    // are no longer inline. This is the user's own dashboard, so no member
+    // param. Request the small list variant (#448): rows render at ~48px, so
+    // the proxy serves a resized image instead of the full 1400px blob.
     .map((s: { id: string; hasThumbnail?: boolean; thumbnail?: string }) =>
-      withThumbnailUrl(s),
+      withThumbnailUrl(s, null, "sm"),
     );
 
   return NextResponse.json({

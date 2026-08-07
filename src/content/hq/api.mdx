@@ -1,8 +1,8 @@
 ---
 title: API Protocols
-updatedAt: 2026-08-06
+updatedAt: 2026-08-07
 updatedBy: Sara
-lastPr: 446
+lastPr: 453
 ---
 
 ## Two surfaces, one to come
@@ -24,7 +24,7 @@ All endpoints below are real routes in this repo. Find them under `src/app/api/`
 | `/api/dashboard` | GET | Clerk session | Personal dashboard data. |
 | `/api/dashboard/scores` | GET | Clerk session | User's score history. Each entry's `thumbnail` is a proxy URL (below), not inline bytes (#442). |
 | `/api/dashboard/scores/[id]` | GET | Clerk session | Individual score detail. Owner by default; a Team Lead can pass `?member=<userId>` to read a score owned by a member of their active org (authorized as `org:admin` + member-in-org, mirroring the member-detail endpoint). Team Leads also receive soft-deleted scores for audit (#300). |
-| `/api/dashboard/scores/[id]/thumbnail` | GET | Clerk session | Auth-gated proxy for a score's screenshot, externalized to a private Vercel Blob (#442). Streams the image bytes; reachable by exactly the same people as the score itself (owner, or a Team Lead via `?member=<userId>` — shared `resolveScoreOwner`). |
+| `/api/dashboard/scores/[id]/thumbnail` | GET | Clerk session | Auth-gated proxy for a score's screenshot, externalized to a private Vercel Blob (#442). Streams the image bytes; reachable by exactly the same people as the score itself (owner, or a Team Lead via `?member=<userId>` — shared `resolveScoreOwner`). Optional `?size=sm` returns a small (~96px) variant resized on read for list rows (#448); omit for the full-resolution detail image. |
 | `/api/dashboard/scores/[id]/annotations` | GET, POST | Clerk session | Reviews pin annotations. |
 | `/api/dashboard/team` | GET | Clerk Org (team) | Team dashboard data. |
 | `/api/org/style-guide` | POST, GET, DELETE | Clerk Org (Team plan; writes require team lead) | Manage a team's writing style guide. POST (multipart PDF) distills a ruleset (Sonnet, native PDF) → Redis and stores the PDF in Vercel Blob; GET returns status; DELETE removes it. |

@@ -145,6 +145,18 @@ describe("scoreThumbnailUrl", () => {
       "/api/dashboard/scores/s1/thumbnail?member=user_abc",
     );
   });
+
+  it("appends the small-variant size param for list rows (#448)", () => {
+    expect(scoreThumbnailUrl("s1", null, "sm")).toBe(
+      "/api/dashboard/scores/s1/thumbnail?size=sm",
+    );
+  });
+
+  it("composes member + size params together", () => {
+    expect(scoreThumbnailUrl("s1", "user_abc", "sm")).toBe(
+      "/api/dashboard/scores/s1/thumbnail?member=user_abc&size=sm",
+    );
+  });
 });
 
 describe("withThumbnailUrl", () => {
@@ -165,6 +177,16 @@ describe("withThumbnailUrl", () => {
     };
     expect(withThumbnailUrl(entry, "user_x").thumbnail).toBe(
       "/api/dashboard/scores/s1/thumbnail?member=user_x",
+    );
+  });
+
+  it("threads the small-variant size param through for list rows (#448)", () => {
+    const entry: { id: string; hasThumbnail?: boolean; thumbnail?: string } = {
+      id: "s1",
+      hasThumbnail: true,
+    };
+    expect(withThumbnailUrl(entry, null, "sm").thumbnail).toBe(
+      "/api/dashboard/scores/s1/thumbnail?size=sm",
     );
   });
 

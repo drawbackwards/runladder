@@ -104,13 +104,20 @@ export type UserStats = {
 
 /** Build the auth-gated proxy URL for a score's externalized thumbnail (#442).
  * Pass `memberId` when a Team Lead is viewing a member's score so the proxy
- * authorizes the same `?member=` way the score-detail route does. */
+ * authorizes the same `?member=` way the score-detail route does. Pass
+ * `size: "sm"` for list rows (#448) so the route serves a small resized
+ * variant instead of the full 1400px image. */
 export function scoreThumbnailUrl(
   scoreId: string,
   memberId?: string | null,
+  size?: "sm",
 ): string {
   const base = `/api/dashboard/scores/${scoreId}/thumbnail`;
-  return memberId ? `${base}?member=${encodeURIComponent(memberId)}` : base;
+  const params = new URLSearchParams();
+  if (memberId) params.set("member", memberId);
+  if (size) params.set("size", size);
+  const qs = params.toString();
+  return qs ? `${base}?${qs}` : base;
 }
 
 /**
@@ -122,9 +129,9 @@ export function scoreThumbnailUrl(
  */
 export function withThumbnailUrl<
   T extends { id?: string; hasThumbnail?: boolean; thumbnail?: string },
->(entry: T, memberId?: string | null): T {
+>(entry: T, memberId?: string | null, size?: "sm"): T {
   if (entry.hasThumbnail && entry.id) {
-    return { ...entry, thumbnail: scoreThumbnailUrl(entry.id, memberId) };
+    return { ...entry, thumbnail: scoreThumbnailUrl(entry.id, memberId, size) };
   }
   return entry;
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { get } from "@vercel/blob";
+import sharp from "sharp";
 import { redis } from "@/lib/redis";
 import { SCORE_THUMB_KEY } from "@/lib/scores";
 import { resolveScoreOwner } from "@/lib/score-access";
@@ -42,12 +43,48 @@ export async function GET(
     return NextResponse.json({ error: "Thumbnail unavailable" }, { status: 502 });
   }
 
+  // A given score id's thumbnail never changes, so it's safe to cache hard
+  // per-user. `private` keeps it out of shared caches (Team-Lead views). The
+  // `?size` variant caches as a distinct URL, so the resize below runs at most
+  // once per viewer per score.
+  const cache = "private, max-age=86400, immutable";
+
+  // #448: list rows render at ~48px but the stored blob is up to 1400px. When
+  // the caller asks for the small variant, resize on read (backfill-free) so
+  // the dashboard list doesn't download full-size images. Detail views omit
+  // `size` and keep the full-resolution blob.
+  const size = new URL(req.url).searchParams.get("size");
+  if (size === "sm") {
+    try {
+      const input = Buffer.from(await new Response(result.stream).arrayBuffer());
+      const small = await sharp(input)
+        .rotate()
+        .resize({ width: 96, height: 96, fit: "inside", withoutEnlargement: true })
+        .jpeg({ quality: 72, mozjpeg: true })
+        .toBuffer();
+      return new NextResponse(new Uint8Array(small), {
+        headers: { "Content-Type": "image/jpeg", "Cache-Control": cache },
+      });
+    } catch {
+      // Resize failed — fall back to a fresh full-size fetch so the row still
+      // shows an image rather than a broken one.
+      const full = await get(blobUrl, { access: "private" });
+      if (full && full.statusCode === 200) {
+        return new NextResponse(full.stream, {
+          headers: {
+            "Content-Type": full.headers.get("content-type") || "image/jpeg",
+            "Cache-Control": cache,
+          },
+        });
+      }
+      return NextResponse.json({ error: "Thumbnail unavailable" }, { status: 502 });
+    }
+  }
+
   return new NextResponse(result.stream, {
     headers: {
       "Content-Type": result.headers.get("content-type") || "image/jpeg",
-      // A given score id's thumbnail never changes, so it's safe to cache hard
-      // per-user. `private` keeps it out of shared caches (Team-Lead views).
-      "Cache-Control": "private, max-age=86400, immutable",
+      "Cache-Control": cache,
     },
   });
 }
