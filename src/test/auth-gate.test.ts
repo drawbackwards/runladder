@@ -87,6 +87,7 @@ vi.mock("@/lib/redis", () => ({
  */
 const PROTECTED_ROUTES = [
   // /api/admin/*
+  "src/app/api/admin/backfill-thumbnails/route.ts",
   "src/app/api/admin/clients/[orgId]/route.ts",
   "src/app/api/admin/clients/route.ts",
   "src/app/api/admin/comps/route.ts",
@@ -174,6 +175,8 @@ async function expectAllMethodsRejectAnon(importPath: string): Promise<void> {
 describe("auth gate: /api/admin/*", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("backfill-thumbnails", () =>
+    expectAllMethodsRejectAnon("@/app/api/admin/backfill-thumbnails/route"));
   it("clients", () =>
     expectAllMethodsRejectAnon("@/app/api/admin/clients/route"));
   it("clients/[orgId]", () =>
