@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-08-06
+updatedAt: 2026-08-07
 updatedBy: Sara
-lastPr: 446
+lastPr: 447
 ---
 
 ## How to use this page
@@ -12,6 +12,12 @@ The why behind big choices. Read this before you push back on a feature, a price
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
 
 ---
+
+## Production deploys are gated by a required-reviewer GitHub Environment (2026-08-07)
+
+**Rule:** production ships only through the `Deploy Production` GitHub Action, which pauses on a `production` GitHub Environment with **required reviewers** — a human clicks **Approve deployment** before anything reaches `app.runladder.com` (Michael, 2026-08-07; [#447](https://github.com/drawbackwards/runladder/issues/447)). Vercel's automatic production deploy from `main` is turned off; a merge to `main` still auto-deploys **dev** only. Full mechanics on the [Deployment](/hq/deployment) page.
+
+**Why:** the two-environment decision below (#249) always intended production to be an explicit promotion, but the Vercel project was left auto-deploying prod on every merge to `main`, and the docs wrongly called prod a manual `vercel --prod`. On 2026-08-06 a merge ([#446](https://github.com/drawbackwards/runladder/issues/446)) silently shipped prod — safe that time, but unacceptable as paying customers (Lumin) arrive. A required-reviewer Environment gives an explicit, auditable approval button in GitHub rather than trusting that no one merges without remembering to gate. Chosen over a dedicated `production` branch because the approval button is clearer than a branch merge and leaves an approval record.
 
 ## Score thumbnails live in Vercel Blob, never inline in the score-history zset (2026-08-06)
 
@@ -97,7 +103,7 @@ If you want to challenge a decision, file an issue in GitHub with the proposed c
 
 ## Two-environment deployment: dev.runladder.com + app.runladder.com (2026-06-17)
 
-**Rule:** The platform runs two environments: `dev.runladder.com` (QA, auto-deploys from `main`) and `app.runladder.com` (production, explicit manual promotion). Marketing and content pages stay at `runladder.com`. Shipped in [#249](https://github.com/drawbackwards/runladder/issues/249).
+**Rule:** The platform runs two environments: `dev.runladder.com` (QA, auto-deploys from `main`) and `app.runladder.com` (production, gated approval — see the 2026-08-07 entry above). Marketing and content pages stay at `runladder.com`. Shipped in [#249](https://github.com/drawbackwards/runladder/issues/249).
 
 **Domain roles:**
 
@@ -107,7 +113,7 @@ If you want to challenge a decision, file an issue in GitHub with the proposed c
 | `app.runladder.com` | Production app (authenticated users, scoring, dashboard, login) |
 | `dev.runladder.com` | Dev/QA environment — auto-deploys from `main`, uses dev Clerk + dev Redis, safe to break |
 
-**Deploy flow:** `feature branch → PR → CI (next build) → merge to main → auto-deploys to dev.runladder.com → QA → explicit `vercel --prod --force` to app.runladder.com`
+**Deploy flow:** `feature branch → PR → CI (next build) → merge to main → auto-deploys to dev.runladder.com → QA → approve the "Deploy Production" workflow → app.runladder.com` (the approval gate, #447)
 
 **Environment variable split:**
 
