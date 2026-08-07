@@ -39,7 +39,7 @@ feature branch
 
 Production is deployed by the **`Deploy Production` GitHub Action** (`.github/workflows/deploy-prod.yml`), never by Vercel's git integration (that auto-prod is turned off) and never by a raw local `vercel --prod`.
 
-- Every merge to `main` starts the workflow. Its deploy job targets the **`production` GitHub Environment**, which has **required reviewers**, so the job pauses at **"Waiting for approval."**
+- Every merge to `main` starts the workflow. Its deploy job targets the **`production-gate` GitHub Environment** (a dedicated environment — *not* Vercel's integration-managed `Production`, which must stay unprotected so Vercel can report its own deploy status), which has **required reviewers**, so the job pauses at **"Waiting for approval."**
 - To ship: open the run under the repo's **Actions** tab (or the PR's checks) and click **Review deployments → Approve and deploy**. Prod ships only then.
 - If no one approves, prod stays exactly as it is. That is the whole point.
 - Who can approve: the reviewers configured on the `production` Environment (currently Michael and Ward).

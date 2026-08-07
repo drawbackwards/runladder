@@ -2,16 +2,20 @@ name: Deploy Production
 
 # Gated production deploy (#447). A merge to `main` no longer ships prod on its
 # own — Vercel's automatic production deploy is turned off, so this workflow is
-# the ONLY path to app.runladder.com. The job targets the `production` GitHub
-# Environment, which has required reviewers, so it pauses at "Waiting for
+# the ONLY path to app.runladder.com. The job targets the `production-gate`
+# GitHub Environment, which has required reviewers, so it pauses at "Waiting for
 # approval" until a human clicks Approve. Dev/preview auto-deploys are
 # unaffected (they come from Vercel's git integration, not this workflow).
+#
+# NOTE: the gate uses a DEDICATED environment (`production-gate`), NOT Vercel's
+# integration-managed `Production` environment — protecting that one would block
+# Vercel's own deployment status reporting.
 #
 # Requires:
 #   - repo secret   VERCEL_TOKEN         (Vercel access token, drawbackwards team)
 #   - repo variable VERCEL_ORG_ID        (team_ZxwLE02EPXoMwh3eShEupnX8)
 #   - repo variable VERCEL_PROJECT_ID    (prj_gZyYA3lQF5C59QvDfwA2BTEscjVt)
-#   - a `production` Environment with required reviewers (the approval gate)
+#   - a `production-gate` Environment with required reviewers (the approval gate)
 
 on:
   push:
@@ -31,7 +35,7 @@ jobs:
     # This is the gate: GitHub pauses here for a required-reviewer approval
     # before any step runs.
     environment:
-      name: production
+      name: production-gate
       url: https://app.runladder.com
     env:
       VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
