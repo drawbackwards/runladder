@@ -54,6 +54,14 @@ The Action authenticates to Vercel with a `VERCEL_TOKEN` secret (a **team-scoped
 2. **Stamp the Release Date** on every shipped issue in the GitHub Project "Ladder" (project 5), which moves it into the Released view. See `CLAUDE.md → Release stamping`.
 3. **Post the `/hq` verification handshake** (per `CLAUDE.md`).
 
+## Backups
+
+Production data lives in **Upstash Redis** (`runladder-prod`, pay-as-you-go, `us-east-1`). **Daily Backup is enabled** (2026-08-10, #434) via the Upstash console → the DB → **Backups** tab. It keeps the **single latest** snapshot, overwriting the previous day's — so backups never accumulate — at ~**$0.25/GB-month**, which is trivial since #442 moved thumbnails to Blob and the Redis dataset is small. Before or after any risky data operation (e.g. a migration), take a **manual** snapshot: Backups → **Backup & Export** → *Backup* (not *Export*, which ships to your own external storage).
+
+**Restore:** from the Backups tab. ⚠️ A restore **deletes all existing data in the target DB first**, then restores — it is a deliberate recovery action, not a merge. `runladder-dev` is a separate instance; back it up independently if ever needed.
+
+Longer retention (more than the latest day) requires Upstash's paid **Prod Pack**; not enabled. The 1-day rotation is insurance against accidental loss/corruption, not a long-term archive.
+
 ## History / why it's built this way
 
 The two-environment model (#249, 2026-06-17) always *intended* production to be an explicit, gated promotion. In practice the Vercel project was left auto-deploying prod on every merge to `main`, and the docs wrongly described prod as a manual `vercel --prod`. On 2026-08-06 a merge (#446) silently shipped prod, which surfaced the gap. #447 makes the config match the original intent with an explicit approval gate. See the Decisions log entry "Production deploys are gated by a required-reviewer GitHub Environment (2026-08-07)."
