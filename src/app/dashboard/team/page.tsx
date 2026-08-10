@@ -8,7 +8,11 @@ import {
   RedirectToSignIn,
 } from "@clerk/nextjs";
 import Link from "next/link";
-import { getScoreColor } from "@/lib/ladder";
+import {
+  getLevelForScore,
+  getScoreColor,
+  RUNG_DISPLAY_ORDER,
+} from "@/lib/ladder";
 import {
   ActivityHeatmap,
   type DailyActivity,
@@ -219,91 +223,208 @@ function SuspendedPanel() {
   );
 }
 
-function StatPill({
-  label,
-  value,
-  color,
+/**
+ * Advice shown when a given rung is the team's weakest. This turns the bare
+ * "weakest rung" stat into a coaching prompt. Copy stays on the Ladder voice:
+ * direct, no fluff, pointed at the next action.
+ */
+const RUNG_COACHING: Record<string, string> = {
+  functional:
+    "Users are fighting the basics. Hunt down broken states, dead ends, and errors first — nothing above this rung counts until the product simply works.",
+  usable:
+    "Tasks get done, but they cost effort. Trim steps, sharpen labels, and clear friction from the core path so people stop having to think.",
+  comfortable:
+    "Comfortable is the modern minimum, and it's where the team is slipping. Tighten spacing, states, and copy until the core flow feels effortless.",
+  delightful:
+    "The basics are handled — the gap now is delight. Anticipate needs and add the small, polished moments people notice and want to share.",
+  meaningful:
+    "The top rung is the hardest to reach. Find the one thing that would make this product genuinely irreplaceable, and pour the team's energy there.",
+};
+
+/**
+ * Big monochrome hero for the team's average score. Scale carries the weight —
+ * the number is large, the score itself stays uncolored (per brand: scores are
+ * monochrome). The level label gives the number meaning without a color code.
+ */
+function TeamAvgHero({
+  teamAvg,
+  totalScores,
+  windowDays,
 }: {
-  label: string;
-  value: string;
-  color?: string;
+  teamAvg: number | null;
+  totalScores: number;
+  windowDays: number;
 }) {
+  const level = teamAvg !== null ? getLevelForScore(teamAvg) : null;
   return (
-    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-      <p className="text-[9px] text-muted uppercase tracking-widest mb-2">
-        {label}
-      </p>
-      <p
-        className="text-2xl font-bold tabular-nums"
-        style={{ color: color ?? "var(--foreground)" }}
-      >
-        {value}
+    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6">
+      <div className="flex items-baseline justify-between mb-4">
+        <SectionLabel>Team average</SectionLabel>
+        <span className="text-[10px] text-muted">
+          Design sessions · last {windowDays} days
+        </span>
+      </div>
+      <div className="flex items-end gap-4">
+        <p className="text-6xl leading-none font-bold tabular-nums text-foreground">
+          {teamAvg !== null ? teamAvg.toFixed(1) : "—"}
+        </p>
+        <div className="pb-1">
+          {level && (
+            <p className="text-sm text-foreground font-sans">{level.label}</p>
+          )}
+          <p className="text-[11px] text-muted font-mono">out of 5.0</p>
+        </div>
+      </div>
+      <p className="mt-4 text-[11px] text-muted font-mono">
+        {totalScores} team scan{totalScores !== 1 ? "s" : ""} in this window
       </p>
     </div>
   );
 }
 
-function InsightsPanel({ insights }: { insights: Insights }) {
-  const { totalScores, teamAvg, weakestRung, strongestRung, windowDays } =
-    insights;
+/**
+ * Elevates "your team's weakest rung" into an advice card. Reuses the product's
+ * amber advisory treatment (same family as the score-detail best-effort notes),
+ * which is the one accent — besides green — the brand allows.
+ */
+function CoachingCallout({
+  weakestRung,
+}: {
+  weakestRung: { rung: string; avg: number } | null;
+}) {
+  if (!weakestRung) return null;
+  const advice = RUNG_COACHING[weakestRung.rung] ?? "";
+  return (
+    <div className="border border-amber-500/30 bg-amber-500/[0.06] p-5">
+      <p className="text-[10px] uppercase tracking-widest text-amber-400/90 font-semibold mb-2">
+        Coaching focus
+      </p>
+      <p className="text-sm text-foreground font-sans leading-relaxed">
+        Your team&apos;s weakest rung is{" "}
+        <span className="font-semibold">{capitalize(weakestRung.rung)}</span>{" "}
+        <span className="text-muted tabular-nums">
+          ({weakestRung.avg.toFixed(1)})
+        </span>
+        . {advice}
+      </p>
+    </div>
+  );
+}
 
-  if (totalScores === 0) {
-    return (
-      <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6 mb-6">
-        <p className="text-sm text-muted font-sans">
-          No design-session scores from your team in the last {windowDays} days.
-          Once members score their own work in Figma (or pick the Design Session
-          option on /score), performance insights show up here.
-        </p>
+/**
+ * Monochrome five-rung breakdown. Bars are scaled to the 1–5 range and stay
+ * foreground-gray so no score is color-coded. The one exception is the weakest
+ * rung, which borrows the amber advisory accent to tie it to the coaching card.
+ */
+function RungBreakdown({
+  rungAverages,
+  weakestRung,
+  strongestRung,
+}: {
+  rungAverages: RungAverage[];
+  weakestRung: { rung: string } | null;
+  strongestRung: { rung: string } | null;
+}) {
+  const byRung = new Map(rungAverages.map((r) => [r.rung, r]));
+  return (
+    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6">
+      <SectionLabel className="mb-4">Rung breakdown</SectionLabel>
+      <div className="space-y-4">
+        {RUNG_DISPLAY_ORDER.map((rung) => {
+          const r = byRung.get(rung);
+          const avg = r?.avg ?? null;
+          const pct = avg !== null ? (avg / 5) * 100 : 0;
+          const isWeak = weakestRung?.rung === rung;
+          const isStrong = strongestRung?.rung === rung;
+          return (
+            <div key={rung}>
+              <div className="flex items-baseline justify-between mb-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-foreground font-sans">
+                    {capitalize(rung)}
+                  </span>
+                  {isWeak && (
+                    <span className="text-[9px] uppercase tracking-widest text-amber-400/90 border border-amber-500/40 px-1.5 py-0.5">
+                      Focus here
+                    </span>
+                  )}
+                  {isStrong && !isWeak && (
+                    <span className="text-[9px] uppercase tracking-widest text-muted border border-[#2a2a2a] px-1.5 py-0.5">
+                      Strongest
+                    </span>
+                  )}
+                </div>
+                <span className="text-sm font-bold tabular-nums text-foreground">
+                  {avg !== null ? avg.toFixed(1) : "—"}
+                </span>
+              </div>
+              <div className="h-2 bg-[#0e0e0e]">
+                <div
+                  className={`h-full transition-all ${isWeak ? "bg-amber-400/80" : "bg-foreground/70"}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+/**
+ * The whole Performance tab body for a Team Lead: a two-column layout with the
+ * average hero, coaching callout, and rung breakdown on the left, and the team
+ * pool in a sidebar on the right. Falls back to an empty-state on the left when
+ * the team has no scores yet, but still shows the pool.
+ */
+function PerformancePanel({
+  insights,
+  pool,
+}: {
+  insights: Insights;
+  pool: TeamPool;
+}) {
+  const {
+    totalScores,
+    teamAvg,
+    rungAverages,
+    weakestRung,
+    strongestRung,
+    windowDays,
+  } = insights;
 
   return (
-    <div className="mb-6">
-      <div className="flex items-baseline justify-between mb-3">
-        <SectionLabel>Team performance</SectionLabel>
-        <span className="text-[10px] text-muted">
-          Design sessions, last {windowDays} days
-        </span>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <div className="lg:col-span-2 space-y-6">
+        {totalScores === 0 ? (
+          <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6">
+            <p className="text-sm text-muted font-sans">
+              No design-session scores from your team in the last {windowDays}{" "}
+              days. Once members score their own work in Figma (or pick the
+              Design Session option on /score), performance insights show up
+              here.
+            </p>
+          </div>
+        ) : (
+          <>
+            <TeamAvgHero
+              teamAvg={teamAvg}
+              totalScores={totalScores}
+              windowDays={windowDays}
+            />
+            <CoachingCallout weakestRung={weakestRung} />
+            <RungBreakdown
+              rungAverages={rungAverages}
+              weakestRung={weakestRung}
+              strongestRung={strongestRung}
+            />
+          </>
+        )}
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-        <StatPill label="Team scans" value={String(totalScores)} />
-        <StatPill
-          label="Team avg"
-          value={teamAvg !== null ? teamAvg.toFixed(1) : "—"}
-          color={teamAvg !== null ? getScoreColor(teamAvg) : undefined}
-        />
-        <StatPill
-          label="Strongest rung"
-          value={
-            strongestRung
-              ? `${capitalize(strongestRung.rung)} ${strongestRung.avg.toFixed(1)}`
-              : "—"
-          }
-          color={
-            strongestRung ? getScoreColor(strongestRung.avg) : undefined
-          }
-        />
-        <StatPill
-          label="Weakest rung"
-          value={
-            weakestRung
-              ? `${capitalize(weakestRung.rung)} ${weakestRung.avg.toFixed(1)}`
-              : "—"
-          }
-          color={weakestRung ? getScoreColor(weakestRung.avg) : undefined}
-        />
+      <div className="space-y-6">
+        <TeamPoolMeter pool={pool} />
       </div>
-      {weakestRung && (
-        <p className="mt-3 text-xs text-muted font-sans">
-          Your team&apos;s weakest rung is{" "}
-          <span className="text-foreground">
-            {capitalize(weakestRung.rung)}
-          </span>
-          . Designers typically miss this — coach toward it first.
-        </p>
-      )}
     </div>
   );
 }
@@ -325,16 +446,18 @@ function TeamPoolMeter({ pool }: { pool: TeamPool }) {
     <section>
       <SectionLabel className="mb-3">Team pool</SectionLabel>
       <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
-        <div className="flex items-baseline justify-between gap-3 mb-4">
-          <p className="text-xs text-muted font-sans">
-            <span className="tabular-nums">{used.toLocaleString()}</span> of{" "}
-            {limit.toLocaleString()} scores this month
+        <div className="flex items-end justify-between gap-3 mb-1">
+          <p className="text-4xl leading-none font-bold tabular-nums text-foreground">
+            {used.toLocaleString()}
           </p>
-          <span className="text-[10px] text-muted font-mono">
+          <span className="text-[10px] text-muted font-mono pb-1">
             Resets in {daysUntilReset}d
           </span>
         </div>
-        <div className="h-1.5 bg-[#0e0e0e]">
+        <p className="text-[11px] text-muted font-mono mb-4">
+          of {limit.toLocaleString()} scores this month
+        </p>
+        <div className="h-2 bg-[#0e0e0e]">
           <div
             className={`h-full ${barClass} transition-all`}
             style={{ width: `${pct}%` }}
@@ -1037,9 +1160,15 @@ export default function TeamPage() {
           </div>
           <Link
             href="/dashboard"
-            className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+            className="group inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted hover:text-ladder-green transition-colors border border-[#2a2a2a] hover:border-ladder-green/40 px-3 py-2"
           >
             Personal dashboard
+            <span
+              aria-hidden
+              className="transition-transform group-hover:translate-x-0.5"
+            >
+              →
+            </span>
           </Link>
         </div>
 
@@ -1108,16 +1237,12 @@ export default function TeamPage() {
           (teamLoadingEff && !teamDataEff ? (
             <TeamSkeleton isAdmin={isAdmin} />
           ) : isAdmin ? (
-            <>
-              {teamDataEff?.insights && (
-                <InsightsPanel insights={teamDataEff.insights} />
-              )}
-              {teamDataEff?.pool && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                  <TeamPoolMeter pool={teamDataEff.pool} />
-                </div>
-              )}
-            </>
+            teamDataEff?.insights && teamDataEff?.pool ? (
+              <PerformancePanel
+                insights={teamDataEff.insights}
+                pool={teamDataEff.pool}
+              />
+            ) : null
           ) : (
             <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-10 text-center">
               <p className="text-sm text-foreground font-sans mb-1">
@@ -1136,7 +1261,7 @@ export default function TeamPage() {
           ) : (
             <>
               {isAdmin && (
-                <div className="mb-6">
+                <div className="mb-6 flex justify-end">
                   <button
                     type="button"
                     onClick={() => setInviteOpen(true)}
