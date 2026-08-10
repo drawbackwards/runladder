@@ -68,11 +68,15 @@ export default function RootLayout({
         variables: {
           colorPrimary: "#6AC89B",
           colorBackground: "#111111",
-          colorText: "#e5e5e5",
-          colorTextSecondary: "#777777",
-          colorTextOnPrimaryBackground: "#111111",
-          colorInputBackground: "#1a1a1a",
-          colorInputText: "#e5e5e5",
+          // Clerk renamed these appearance variables in v7.7 (#456 dep bump):
+          // colorText→colorForeground, colorTextSecondary→colorMutedForeground,
+          // colorTextOnPrimaryBackground→colorPrimaryForeground,
+          // colorInputBackground→colorInput, colorInputText→colorInputForeground.
+          colorForeground: "#e5e5e5",
+          colorMutedForeground: "#777777",
+          colorPrimaryForeground: "#111111",
+          colorInput: "#1a1a1a",
+          colorInputForeground: "#e5e5e5",
           colorNeutral: "#e5e5e5",
           colorDanger: "#ef4444",
           fontFamily: "var(--font-inter), Inter, sans-serif",

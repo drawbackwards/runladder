@@ -1,12 +1,13 @@
 export const authAppearance = {
   variables: {
     colorPrimary: "#6AC89B",
-    colorTextOnPrimaryBackground: "#1a1a1a",
+    // Clerk v7.7 renamed these appearance variables (#456 dep bump).
+    colorPrimaryForeground: "#1a1a1a",
     colorBackground: "transparent",
-    colorInputBackground: "#2a2a2a",
-    colorInputText: "#ffffff",
-    colorText: "#ffffff",
-    colorTextSecondary: "#B8B8B8",
+    colorInput: "#2a2a2a",
+    colorInputForeground: "#ffffff",
+    colorForeground: "#ffffff",
+    colorMutedForeground: "#B8B8B8",
     colorNeutral: "#ffffff",
     colorDanger: "#ef4444",
     borderRadius: "0.75rem",
