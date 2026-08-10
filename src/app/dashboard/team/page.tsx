@@ -447,44 +447,42 @@ function TeamPoolMeter({ pool }: { pool: TeamPool }) {
   const barClass = atCap ? "bg-amber-400" : "bg-ladder-green";
 
   return (
-    <section>
-      <SectionLabel className="mb-3">Team pool</SectionLabel>
-      <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
-        <div className="flex items-end justify-between gap-3 mb-1">
-          <p className="text-4xl leading-none font-bold tabular-nums text-foreground">
-            {used.toLocaleString()}
-          </p>
-          <span className="text-[10px] text-muted font-mono pb-1">
-            Resets in {daysUntilReset}d
-          </span>
-        </div>
-        <p className="text-[11px] text-muted font-mono mb-4">
-          of {limit.toLocaleString()} scores this month
-        </p>
-        <div className="h-2 bg-[#0e0e0e]">
-          <div
-            className={`h-full ${barClass} transition-all`}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        {atCap ? (
-          <p className="text-[11px] text-muted mt-3">
-            Pool limit reached — you&apos;re in a grace period.{" "}
-            <a
-              href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20more%20capacity"
-              className="text-ladder-green hover:underline"
-            >
-              Reach out to add capacity
-            </a>
-            .
-          </p>
-        ) : showGraceNote ? (
-          <p className="text-[10px] text-muted mt-2 font-mono">
-            Includes a short grace period past your pool.
-          </p>
-        ) : null}
+    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6">
+      <div className="flex items-baseline justify-between mb-4">
+        <SectionLabel>Team pool</SectionLabel>
+        <span className="text-[10px] text-muted font-mono">
+          Resets in {daysUntilReset}d
+        </span>
       </div>
-    </section>
+      <p className="text-4xl leading-none font-bold tabular-nums text-foreground">
+        {used.toLocaleString()}
+      </p>
+      <p className="mt-2 text-[11px] text-muted font-mono mb-4">
+        of {limit.toLocaleString()} scores this month
+      </p>
+      <div className="h-2 bg-[#0e0e0e]">
+        <div
+          className={`h-full ${barClass} transition-all`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      {atCap ? (
+        <p className="text-[11px] text-muted mt-3">
+          Pool limit reached — you&apos;re in a grace period.{" "}
+          <a
+            href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20more%20capacity"
+            className="text-ladder-green hover:underline"
+          >
+            Reach out to add capacity
+          </a>
+          .
+        </p>
+      ) : showGraceNote ? (
+        <p className="text-[10px] text-muted mt-2 font-mono">
+          Includes a short grace period past your pool.
+        </p>
+      ) : null}
+    </div>
   );
 }
 
