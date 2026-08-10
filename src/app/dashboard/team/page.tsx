@@ -394,10 +394,21 @@ function PerformancePanel({
     windowDays,
   } = insights;
 
+  const hasScores = totalScores > 0;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
       <div className="lg:col-span-2 space-y-6">
-        {totalScores === 0 ? (
+        {hasScores ? (
+          <>
+            <CoachingCallout weakestRung={weakestRung} />
+            <RungBreakdown
+              rungAverages={rungAverages}
+              weakestRung={weakestRung}
+              strongestRung={strongestRung}
+            />
+          </>
+        ) : (
           <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6">
             <p className="text-sm text-muted font-sans">
               No design-session scores from your team in the last {windowDays}{" "}
@@ -406,23 +417,16 @@ function PerformancePanel({
               here.
             </p>
           </div>
-        ) : (
-          <>
-            <TeamAvgHero
-              teamAvg={teamAvg}
-              totalScores={totalScores}
-              windowDays={windowDays}
-            />
-            <CoachingCallout weakestRung={weakestRung} />
-            <RungBreakdown
-              rungAverages={rungAverages}
-              weakestRung={weakestRung}
-              strongestRung={strongestRung}
-            />
-          </>
         )}
       </div>
       <div className="space-y-6">
+        {hasScores && (
+          <TeamAvgHero
+            teamAvg={teamAvg}
+            totalScores={totalScores}
+            windowDays={windowDays}
+          />
+        )}
         <TeamPoolMeter pool={pool} />
       </div>
     </div>
