@@ -246,24 +246,11 @@ const RUNG_COACHING: Record<string, string> = {
  * the number is large, the score itself stays uncolored (per brand: scores are
  * monochrome). The level label gives the number meaning without a color code.
  */
-function TeamAvgHero({
-  teamAvg,
-  totalScores,
-  windowDays,
-}: {
-  teamAvg: number | null;
-  totalScores: number;
-  windowDays: number;
-}) {
+function TeamAvgHero({ teamAvg }: { teamAvg: number | null }) {
   const level = teamAvg !== null ? getLevelForScore(teamAvg) : null;
   return (
     <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6">
-      <div className="flex items-baseline justify-between mb-4">
-        <SectionLabel>Team average</SectionLabel>
-        <span className="text-[10px] text-muted">
-          Design sessions · last {windowDays} days
-        </span>
-      </div>
+      <SectionLabel className="mb-4">Team average</SectionLabel>
       <div className="flex items-end gap-4">
         <p className="text-6xl leading-none font-bold tabular-nums text-foreground">
           {teamAvg !== null ? teamAvg.toFixed(1) : "—"}
@@ -275,9 +262,33 @@ function TeamAvgHero({
           <p className="text-[11px] text-muted font-mono">out of 5.0</p>
         </div>
       </div>
-      <p className="mt-4 text-[11px] text-muted font-mono">
-        {totalScores} team scan{totalScores !== 1 ? "s" : ""} in this window
+    </div>
+  );
+}
+
+/**
+ * A single big-number stat card for the Performance sidebar. Mono number with a
+ * label above and an optional sublabel below — no color, per brand. Each card
+ * owns exactly one metric so the rail stops repeating the same timeframe.
+ */
+function StatCard({
+  label,
+  value,
+  sublabel,
+}: {
+  label: string;
+  value: string;
+  sublabel?: string;
+}) {
+  return (
+    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6">
+      <SectionLabel className="mb-3">{label}</SectionLabel>
+      <p className="text-4xl leading-none font-bold tabular-nums text-foreground">
+        {value}
       </p>
+      {sublabel && (
+        <p className="mt-2 text-[11px] text-muted font-mono">{sublabel}</p>
+      )}
     </div>
   );
 }
@@ -374,16 +385,20 @@ function RungBreakdown({
 
 /**
  * The whole Performance tab body for a Team Lead: a two-column layout with the
- * average hero, coaching callout, and rung breakdown on the left, and the team
- * pool in a sidebar on the right. Falls back to an empty-state on the left when
- * the team has no scores yet, but still shows the pool.
+ * coaching callout and rung breakdown on the left, and a big-number stat rail
+ * (average, scans, members, pool) on the right. Falls back to an empty-state on
+ * the left when the team has no scores yet, but the stat rail still renders.
  */
 function PerformancePanel({
   insights,
   pool,
+  memberCount,
+  activeCount,
 }: {
   insights: Insights;
   pool: TeamPool;
+  memberCount: number;
+  activeCount: number;
 }) {
   const {
     totalScores,
@@ -420,13 +435,21 @@ function PerformancePanel({
         )}
       </div>
       <div className="space-y-6">
-        {hasScores && (
-          <TeamAvgHero
-            teamAvg={teamAvg}
-            totalScores={totalScores}
-            windowDays={windowDays}
+        {hasScores && <TeamAvgHero teamAvg={teamAvg} />}
+        <div className="grid grid-cols-2 gap-6">
+          <StatCard
+            label="Team scans"
+            value={String(totalScores)}
+            sublabel={`Last ${windowDays} days`}
           />
-        )}
+          <StatCard
+            label="Members"
+            value={String(memberCount)}
+            sublabel={
+              activeCount > 0 ? `${activeCount} scored recently` : "on this team"
+            }
+          />
+        </div>
         <TeamPoolMeter pool={pool} />
       </div>
     </div>
@@ -1243,6 +1266,10 @@ export default function TeamPage() {
               <PerformancePanel
                 insights={teamDataEff.insights}
                 pool={teamDataEff.pool}
+                memberCount={memberList.length}
+                activeCount={
+                  memberList.filter((m) => (m.recentScans ?? 0) > 0).length
+                }
               />
             ) : null
           ) : (
