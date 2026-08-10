@@ -6,6 +6,12 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.26 / api 1.5.1 (2026-08-10)
+
+**Security: patch dependency CVEs (#456).** Bumped `@clerk/nextjs` (7.0.8 → 7.7.1, clears a **critical** middleware route-protection bypass + a high org/billing authorization bypass), `next` (16.1.7 → 16.3.0, Server Components DoS), `sharp` (0.34 → 0.35.3, libvips image CVEs — reachable since we resize untrusted uploads), and `mermaid`; a non-breaking `npm audit fix` cleared the remaining safe transitive advisories (22 → 2; the last 2 need breaking major bumps and are deferred). The Clerk bump renamed its appearance variables (`colorText→colorForeground`, etc.), updated in `layout.tsx` + `clerkAuthAppearance.ts` with identical colors, no visual change. `@anthropic-ai/sdk` deliberately deferred (moderate, breaking jump, wraps the scoring engine).
+
+---
+
 ## app 0.5.25 / api 1.5.1 (2026-08-07)
 
 **Dashboard score list: windowed render + small list thumbnails (#448, follow-up to #442).**
