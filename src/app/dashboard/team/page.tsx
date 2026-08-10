@@ -25,6 +25,10 @@ import { TabButton } from "@/components/Tabs";
 import { SHOW_EVALUATIONS_AND_REVIEWS } from "@/lib/feature-flags";
 import { SectionLabel } from "@/components/SectionLabel";
 import { Skeleton } from "@/components/Skeleton";
+import {
+  DesignSystemCard,
+  StyleGuideCard,
+} from "@/components/team/OrgConfigCards";
 import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
 import { useViewAs } from "@/lib/dev/view-as";
 import { viewAsTeamData } from "@/lib/dev/dashboard-fixtures";
@@ -748,7 +752,10 @@ export default function TeamPage() {
   const [teamData, setTeamData] = useState<TeamData | null>(null);
   const [teamErr, setTeamErr] = useState<string | null>(null);
   const [teamLoading, setTeamLoading] = useState(false);
-  const [teamTab, setTeamTab] = useState<"members" | "reviews">("members");
+  const [teamTab, setTeamTab] = useState<
+    "performance" | "members" | "design-system" | "style-guide" | "reviews"
+  >("members");
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   // Branded confirm (ConfirmDialog) for the member-row actions — one pending
   // action at a time; `action` runs on confirm with the busy state held.
@@ -1044,9 +1051,24 @@ export default function TeamPage() {
 
         <div className="border-b border-[#2a2a2a] flex items-center gap-2 mb-8 overflow-x-auto">
           <TabButton
-            label="Team"
+            label="Performance"
+            active={teamTab === "performance"}
+            onClick={() => setTeamTab("performance")}
+          />
+          <TabButton
+            label="Members"
             active={teamTab === "members"}
             onClick={() => setTeamTab("members")}
+          />
+          <TabButton
+            label="Design System"
+            active={teamTab === "design-system"}
+            onClick={() => setTeamTab("design-system")}
+          />
+          <TabButton
+            label="Writing Style Guide"
+            active={teamTab === "style-guide"}
+            onClick={() => setTeamTab("style-guide")}
           />
           {/* Reviews hidden for launch (#302). */}
           {SHOW_EVALUATIONS_AND_REVIEWS && (
@@ -1081,25 +1103,49 @@ export default function TeamPage() {
             </div>
           ))}
 
-        {/* Members tab — default view for everyone. */}
+        {/* Performance tab — team metrics; lead-only content. */}
+        {teamTab === "performance" &&
+          (teamLoadingEff && !teamDataEff ? (
+            <TeamSkeleton isAdmin={isAdmin} />
+          ) : isAdmin ? (
+            <>
+              {teamDataEff?.insights && (
+                <InsightsPanel insights={teamDataEff.insights} />
+              )}
+              {teamDataEff?.pool && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                  <TeamPoolMeter pool={teamDataEff.pool} />
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-10 text-center">
+              <p className="text-sm text-foreground font-sans mb-1">
+                Team performance
+              </p>
+              <p className="text-xs text-muted font-sans max-w-sm mx-auto leading-relaxed">
+                Your Team Lead sees team insights and usage here.
+              </p>
+            </div>
+          ))}
+
+        {/* Members tab. */}
         {teamTab === "members" &&
           (teamLoadingEff && memberList.length === 0 ? (
             <TeamSkeleton isAdmin={isAdmin} />
           ) : (
             <>
-        {isAdmin && teamDataEff?.insights && (
-          <InsightsPanel insights={teamDataEff.insights} />
-        )}
-
-        {isAdmin && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 items-start">
-            {teamDataEff?.pool && <TeamPoolMeter pool={teamDataEff.pool} />}
-            <section>
-              <SectionLabel className="mb-3">Invite a designer</SectionLabel>
-              <InviteForm onInvite={handleInvite} />
-            </section>
-          </div>
-        )}
+              {isAdmin && (
+                <div className="mb-6">
+                  <button
+                    type="button"
+                    onClick={() => setInviteOpen(true)}
+                    className="text-[11px] uppercase tracking-widest font-semibold text-[#1a1a1a] bg-ladder-green px-4 py-2.5 hover:bg-ladder-green-light transition-colors"
+                  >
+                    Invite designer
+                  </button>
+                </div>
+              )}
 
         <section className="mb-10">
           <div className="flex items-baseline justify-between mb-3">
@@ -1226,6 +1272,39 @@ export default function TeamPage() {
         )}
             </>
           ))}
+
+        {/* Design System tab — team-wide config, relocated from Settings (#444). */}
+        {teamTab === "design-system" && <DesignSystemCard />}
+
+        {/* Writing Style Guide tab — team-wide config, relocated from Settings (#444). */}
+        {teamTab === "style-guide" && <StyleGuideCard />}
+
+        {/* Invite modal (Team Leads) — opened from the Members tab. */}
+        {inviteOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+            onClick={() => setInviteOpen(false)}
+          >
+            <div className="w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+              <div className="mb-3 flex items-center justify-between">
+                <SectionLabel>Invite a designer</SectionLabel>
+                <button
+                  type="button"
+                  onClick={() => setInviteOpen(false)}
+                  className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+              <InviteForm
+                onInvite={async (email) => {
+                  await handleInvite(email);
+                  setInviteOpen(false);
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         <ConfirmDialog
           open={!!pendingConfirm}

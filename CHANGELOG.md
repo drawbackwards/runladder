@@ -12,6 +12,15 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.27 / api 1.5.1 (2026-08-10)
+
+**Team page reorg + team config moved off personal Settings (#444).**
+
+- The **Design System** and **Writing Style Guide** configs are team-wide but lived in personal **Settings**; they now live on the **Team page** (`/dashboard/team`) as their own tabs, visible to all team members with upload/manage gated to Team Leads (already enforced server-side). Settings is now just account + sign-in.
+- While there, the overloaded "Team" tab was split: **Performance** (team insights + pool meter) and **Members** (the roster). The always-on invite form became an **Invite designer** button that opens a modal. New Team page tabs: Performance · Members · Design System · Writing Style Guide. No API or permission changes.
+
+---
+
 ## app 0.5.25 / api 1.5.1 (2026-08-07)
 
 **Dashboard score list: windowed render + small list thumbnails (#448, follow-up to #442).**
