@@ -1,6 +1,13 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import {
+  FormEvent,
+  type MouseEvent as ReactMouseEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   useAuth,
   useOrganization,
@@ -8,7 +15,11 @@ import {
   RedirectToSignIn,
 } from "@clerk/nextjs";
 import Link from "next/link";
-import { getScoreColor } from "@/lib/ladder";
+import {
+  getLevelForScore,
+  getScoreColor,
+  RUNG_DISPLAY_ORDER,
+} from "@/lib/ladder";
 import {
   ActivityHeatmap,
   type DailyActivity,
@@ -25,6 +36,10 @@ import { TabButton } from "@/components/Tabs";
 import { SHOW_EVALUATIONS_AND_REVIEWS } from "@/lib/feature-flags";
 import { SectionLabel } from "@/components/SectionLabel";
 import { Skeleton } from "@/components/Skeleton";
+import {
+  DesignSystemCard,
+  StyleGuideCard,
+} from "@/components/team/OrgConfigCards";
 import { useEnsureActiveOrg } from "@/hooks/use-ensure-active-org";
 import { useViewAs } from "@/lib/dev/view-as";
 import { viewAsTeamData } from "@/lib/dev/dashboard-fixtures";
@@ -215,91 +230,235 @@ function SuspendedPanel() {
   );
 }
 
-function StatPill({
+/**
+ * Advice shown when a given rung is the team's weakest. This turns the bare
+ * "weakest rung" stat into a coaching prompt. Copy stays on the Ladder voice:
+ * direct, no fluff, pointed at the next action.
+ */
+const RUNG_COACHING: Record<string, string> = {
+  functional:
+    "Users are fighting the basics. Hunt down broken states, dead ends, and errors first — nothing above this rung counts until the product simply works.",
+  usable:
+    "Tasks get done, but they cost effort. Trim steps, sharpen labels, and clear friction from the core path so people stop having to think.",
+  comfortable:
+    "Comfortable is the modern minimum, and it's where the team is slipping. Tighten spacing, states, and copy until the core flow feels effortless.",
+  delightful:
+    "The basics are handled — the gap now is delight. Anticipate needs and add the small, polished moments people notice and want to share.",
+  meaningful:
+    "The top rung is the hardest to reach. Find the one thing that would make this product genuinely irreplaceable, and pour the team's energy there.",
+};
+
+/**
+ * Big monochrome hero for the team's average score. Scale carries the weight —
+ * the number is large, the score itself stays uncolored (per brand: scores are
+ * monochrome). The level label gives the number meaning without a color code.
+ */
+function TeamAvgHero({ teamAvg }: { teamAvg: number | null }) {
+  const level = teamAvg !== null ? getLevelForScore(teamAvg) : null;
+  return (
+    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6">
+      <SectionLabel className="mb-4">Team average</SectionLabel>
+      <div className="flex items-end gap-4">
+        <p className="text-6xl leading-none font-bold tabular-nums text-foreground">
+          {teamAvg !== null ? teamAvg.toFixed(1) : "—"}
+        </p>
+        <div className="pb-1">
+          {level && (
+            <p className="text-sm text-foreground font-sans">{level.label}</p>
+          )}
+          <p className="text-[11px] text-muted font-mono">out of 5.0</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * A single big-number stat card for the Performance sidebar. Mono number with a
+ * label above and an optional sublabel below — no color, per brand. Each card
+ * owns exactly one metric so the rail stops repeating the same timeframe.
+ */
+function StatCard({
   label,
   value,
-  color,
+  sublabel,
 }: {
   label: string;
   value: string;
-  color?: string;
+  sublabel?: string;
 }) {
   return (
-    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-      <p className="text-[9px] text-muted uppercase tracking-widest mb-2">
-        {label}
-      </p>
-      <p
-        className="text-2xl font-bold tabular-nums"
-        style={{ color: color ?? "var(--foreground)" }}
-      >
+    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6">
+      <SectionLabel className="mb-3">{label}</SectionLabel>
+      <p className="text-4xl leading-none font-bold tabular-nums text-foreground">
         {value}
+      </p>
+      {sublabel && (
+        <p className="mt-2 text-[11px] text-muted font-mono">{sublabel}</p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Elevates "your team's weakest rung" into an advice card. Reuses the product's
+ * amber advisory treatment (same family as the score-detail best-effort notes),
+ * which is the one accent — besides green — the brand allows.
+ */
+function CoachingCallout({
+  weakestRung,
+}: {
+  weakestRung: { rung: string; avg: number } | null;
+}) {
+  if (!weakestRung) return null;
+  const advice = RUNG_COACHING[weakestRung.rung] ?? "";
+  return (
+    <div className="border border-amber-500/30 bg-amber-500/[0.06] p-5">
+      <p className="text-[10px] uppercase tracking-widest text-amber-400/90 font-semibold mb-2">
+        Coaching focus
+      </p>
+      <p className="text-sm text-foreground font-sans leading-relaxed">
+        Your team&apos;s weakest rung is{" "}
+        <span className="font-semibold">{capitalize(weakestRung.rung)}</span>{" "}
+        <span className="text-muted tabular-nums">
+          ({weakestRung.avg.toFixed(1)})
+        </span>
+        . {advice}
       </p>
     </div>
   );
 }
 
-function InsightsPanel({ insights }: { insights: Insights }) {
-  const { totalScores, teamAvg, weakestRung, strongestRung, windowDays } =
-    insights;
-
-  if (totalScores === 0) {
-    return (
-      <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6 mb-6">
-        <p className="text-sm text-muted font-sans">
-          No design-session scores from your team in the last {windowDays} days.
-          Once members score their own work in Figma (or pick the Design Session
-          option on /score), performance insights show up here.
-        </p>
+/**
+ * Monochrome five-rung breakdown. Bars are scaled to the 1–5 range and stay
+ * foreground-gray so no score is color-coded. The one exception is the weakest
+ * rung, which borrows the amber advisory accent to tie it to the coaching card.
+ */
+function RungBreakdown({
+  rungAverages,
+  weakestRung,
+  strongestRung,
+}: {
+  rungAverages: RungAverage[];
+  weakestRung: { rung: string } | null;
+  strongestRung: { rung: string } | null;
+}) {
+  const byRung = new Map(rungAverages.map((r) => [r.rung, r]));
+  return (
+    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6">
+      <SectionLabel className="mb-4">Rung breakdown</SectionLabel>
+      <div className="space-y-4">
+        {RUNG_DISPLAY_ORDER.map((rung) => {
+          const r = byRung.get(rung);
+          const avg = r?.avg ?? null;
+          const pct = avg !== null ? (avg / 5) * 100 : 0;
+          const isWeak = weakestRung?.rung === rung;
+          const isStrong = strongestRung?.rung === rung;
+          return (
+            <div key={rung}>
+              <div className="flex items-baseline justify-between mb-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-foreground font-sans">
+                    {capitalize(rung)}
+                  </span>
+                  {isWeak && (
+                    <span className="text-[9px] uppercase tracking-widest text-amber-400/90 border border-amber-500/40 px-1.5 py-0.5">
+                      Focus here
+                    </span>
+                  )}
+                  {isStrong && !isWeak && (
+                    <span className="text-[9px] uppercase tracking-widest text-muted border border-[#2a2a2a] px-1.5 py-0.5">
+                      Strongest
+                    </span>
+                  )}
+                </div>
+                <span className="text-sm font-bold tabular-nums text-foreground">
+                  {avg !== null ? avg.toFixed(1) : "—"}
+                </span>
+              </div>
+              <div className="h-2 bg-[#0e0e0e]">
+                <div
+                  className={`h-full transition-all ${isWeak ? "bg-amber-400/80" : "bg-foreground/70"}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+/**
+ * The whole Performance tab body for a Team Lead: a two-column layout with the
+ * coaching callout and rung breakdown on the left, and a big-number stat rail
+ * (average, scans, members, pool) on the right. Falls back to an empty-state on
+ * the left when the team has no scores yet, but the stat rail still renders.
+ */
+function PerformancePanel({
+  insights,
+  pool,
+  memberCount,
+  activeCount,
+}: {
+  insights: Insights;
+  pool: TeamPool;
+  memberCount: number;
+  activeCount: number;
+}) {
+  const {
+    totalScores,
+    teamAvg,
+    rungAverages,
+    weakestRung,
+    strongestRung,
+    windowDays,
+  } = insights;
+
+  const hasScores = totalScores > 0;
 
   return (
-    <div className="mb-6">
-      <div className="flex items-baseline justify-between mb-3">
-        <SectionLabel>Team performance</SectionLabel>
-        <span className="text-[10px] text-muted">
-          Design sessions, last {windowDays} days
-        </span>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <div className="lg:col-span-2 space-y-6">
+        {hasScores ? (
+          <>
+            <CoachingCallout weakestRung={weakestRung} />
+            <RungBreakdown
+              rungAverages={rungAverages}
+              weakestRung={weakestRung}
+              strongestRung={strongestRung}
+            />
+          </>
+        ) : (
+          <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6">
+            <p className="text-sm text-muted font-sans">
+              No design-session scores from your team in the last {windowDays}{" "}
+              days. Once members score their own work in Figma (or pick the
+              Design Session option on /score), performance insights show up
+              here.
+            </p>
+          </div>
+        )}
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-        <StatPill label="Team scans" value={String(totalScores)} />
-        <StatPill
-          label="Team avg"
-          value={teamAvg !== null ? teamAvg.toFixed(1) : "—"}
-          color={teamAvg !== null ? getScoreColor(teamAvg) : undefined}
-        />
-        <StatPill
-          label="Strongest rung"
-          value={
-            strongestRung
-              ? `${capitalize(strongestRung.rung)} ${strongestRung.avg.toFixed(1)}`
-              : "—"
-          }
-          color={
-            strongestRung ? getScoreColor(strongestRung.avg) : undefined
-          }
-        />
-        <StatPill
-          label="Weakest rung"
-          value={
-            weakestRung
-              ? `${capitalize(weakestRung.rung)} ${weakestRung.avg.toFixed(1)}`
-              : "—"
-          }
-          color={weakestRung ? getScoreColor(weakestRung.avg) : undefined}
-        />
+      <div className="space-y-6">
+        {hasScores && <TeamAvgHero teamAvg={teamAvg} />}
+        <div className="grid grid-cols-2 gap-6">
+          <StatCard
+            label="Team scans"
+            value={String(totalScores)}
+            sublabel={`Last ${windowDays} days`}
+          />
+          <StatCard
+            label="Members"
+            value={String(memberCount)}
+            sublabel={
+              activeCount > 0 ? `${activeCount} scored recently` : "on this team"
+            }
+          />
+        </div>
+        <TeamPoolMeter pool={pool} />
       </div>
-      {weakestRung && (
-        <p className="mt-3 text-xs text-muted font-sans">
-          Your team&apos;s weakest rung is{" "}
-          <span className="text-foreground">
-            {capitalize(weakestRung.rung)}
-          </span>
-          . Designers typically miss this — coach toward it first.
-        </p>
-      )}
     </div>
   );
 }
@@ -318,42 +477,146 @@ function TeamPoolMeter({ pool }: { pool: TeamPool }) {
   const barClass = atCap ? "bg-amber-400" : "bg-ladder-green";
 
   return (
-    <section>
-      <SectionLabel className="mb-3">Team pool</SectionLabel>
-      <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-5">
-        <div className="flex items-baseline justify-between gap-3 mb-4">
-          <p className="text-xs text-muted font-sans">
-            <span className="tabular-nums">{used.toLocaleString()}</span> of{" "}
-            {limit.toLocaleString()} scores this month
-          </p>
-          <span className="text-[10px] text-muted font-mono">
-            Resets in {daysUntilReset}d
-          </span>
-        </div>
-        <div className="h-1.5 bg-[#0e0e0e]">
-          <div
-            className={`h-full ${barClass} transition-all`}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        {atCap ? (
-          <p className="text-[11px] text-muted mt-3">
-            Pool limit reached — you&apos;re in a grace period.{" "}
-            <a
-              href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20more%20capacity"
-              className="text-ladder-green hover:underline"
-            >
-              Reach out to add capacity
-            </a>
-            .
-          </p>
-        ) : showGraceNote ? (
-          <p className="text-[10px] text-muted mt-2 font-mono">
-            Includes a short grace period past your pool.
-          </p>
-        ) : null}
+    <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-6">
+      <div className="flex items-baseline justify-between mb-4">
+        <SectionLabel>Team pool</SectionLabel>
+        <span className="text-[10px] text-muted font-mono">
+          Resets in {daysUntilReset}d
+        </span>
       </div>
-    </section>
+      <p className="text-4xl leading-none font-bold tabular-nums text-foreground">
+        {used.toLocaleString()}
+      </p>
+      <p className="mt-2 text-[11px] text-muted font-mono mb-4">
+        of {limit.toLocaleString()} scores this month
+      </p>
+      <div className="h-2 bg-[#0e0e0e]">
+        <div
+          className={`h-full ${barClass} transition-all`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      {atCap ? (
+        <p className="text-[11px] text-muted mt-3">
+          Pool limit reached — you&apos;re in a grace period.{" "}
+          <a
+            href="mailto:hello@drawbackwards.com?subject=Ladder%20Team%20more%20capacity"
+            className="text-ladder-green hover:underline"
+          >
+            Reach out to add capacity
+          </a>
+          .
+        </p>
+      ) : showGraceNote ? (
+        <p className="text-[10px] text-muted mt-2 font-mono">
+          Includes a short grace period past your pool.
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * The per-member "more actions" menu (Make Lead / Archive / Remove). Lives in a
+ * kebab so the management actions no longer appear as free-floating links that
+ * compete with the row's own click-to-open-member-detail target on hover (#444
+ * follow-up). Closes on outside click or Escape; each action stops propagation
+ * so it never triggers the row's drill link.
+ */
+function MemberActionsMenu({
+  canPromote,
+  onPromote,
+  onArchive,
+  onDelete,
+}: {
+  canPromote: boolean;
+  onPromote: () => void;
+  onArchive: () => void;
+  onDelete: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDocClick(e: globalThis.MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  function run(fn: () => void) {
+    return (e: ReactMouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setOpen(false);
+      fn();
+    };
+  }
+
+  const item =
+    "w-full text-left px-3 py-2 text-xs font-sans text-muted hover:bg-[#242424] transition-colors";
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        aria-label="Member actions"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen((o) => !o);
+        }}
+        className={`h-8 w-8 flex items-center justify-center text-muted hover:text-foreground hover:bg-[#2a2a2a] transition-colors ${
+          open ? "text-foreground bg-[#2a2a2a]" : ""
+        }`}
+      >
+        <span className="text-lg leading-none">⋯</span>
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full mt-1 z-30 min-w-[180px] border border-[#333] bg-[#1a1a1a] py-1 shadow-lg"
+        >
+          {canPromote && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={run(onPromote)}
+              className={`${item} hover:text-foreground`}
+            >
+              Make Team Lead
+            </button>
+          )}
+          <button
+            type="button"
+            role="menuitem"
+            onClick={run(onArchive)}
+            className={`${item} hover:text-foreground`}
+          >
+            Archive
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={run(onDelete)}
+            className={`${item} hover:text-ladder-red`}
+          >
+            Remove from team
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -390,18 +653,19 @@ function MemberRow({
       ? `/dashboard/team/members/${member.userId}`
       : null;
 
-  // Team Leads get Make Lead/Archive/Delete actions on every row but their
-  // own. Those fade in on hover (vertically centered); the score stats,
-  // activity heatmap, and drill arrow fade out in lockstep so the actions
-  // never overlap or compete with the data (#303). Rows without actions keep
-  // their stats visible on hover.
+  // Team Leads get Make Lead/Archive/Remove actions on every row but their own.
+  // Those live in a kebab menu on the right (MemberActionsMenu) so they no
+  // longer swap in over the stats on hover — the data stays put and the drill
+  // arrow stays visible, so it's always clear the row itself opens the member.
+  // We just reserve extra right padding for the kebab when it's present.
   const showActions = isAdmin && !isSelf && !!member.userId;
-  const fadeOnHover = showActions
-    ? "group-hover:opacity-0 transition-opacity"
-    : "";
 
   const Body = (
-    <div className="px-4 py-4 flex items-center gap-5">
+    <div
+      className={`pl-4 py-4 flex items-center gap-5 ${
+        showActions ? "pr-16" : "pr-4"
+      }`}
+    >
       <Avatar
         imageUrl={member.imageUrl}
         hasImage={member.hasImage}
@@ -454,7 +718,7 @@ function MemberRow({
       </div>
 
       {member.activity.length > 0 && (
-        <div className={`hidden md:block flex-shrink-0 ${fadeOnHover}`} title={`Design sessions, last ${windowDays} days`}>
+        <div className="hidden md:block flex-shrink-0" title={`Design sessions, last ${windowDays} days`}>
           <ActivityHeatmap
             activity={member.activity}
             cellWidth={12}
@@ -465,7 +729,7 @@ function MemberRow({
         </div>
       )}
 
-      <div className={`flex items-start gap-5 flex-shrink-0 ${fadeOnHover}`}>
+      <div className="flex items-start gap-5 flex-shrink-0">
         <div className="text-right min-w-[48px]">
           <p
             className="text-xl font-bold tabular-nums leading-none"
@@ -488,7 +752,7 @@ function MemberRow({
       </div>
 
       {drillHref && (
-        <span className={`text-muted group-hover:text-foreground transition-colors text-base flex-shrink-0 ${fadeOnHover}`}>
+        <span className="text-muted group-hover:text-foreground transition-colors text-base flex-shrink-0">
           →
         </span>
       )}
@@ -511,43 +775,14 @@ function MemberRow({
       ) : (
         Body
       )}
-      {isAdmin && !isSelf && member.userId && (
-        <div className="absolute inset-y-0 right-12 z-10 flex items-center gap-6 opacity-0 group-hover:opacity-100 transition-opacity">
-          {member.role !== "org:admin" && (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onPromote();
-              }}
-              className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
-              title="Promote to Team Lead. They gain full team management access."
-            >
-              Make Lead
-            </button>
-          )}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onArchive();
-            }}
-            className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
-            title="Soft remove. Their work stays in team metrics."
-          >
-            Archive
-          </button>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors"
-            title="Hard remove. Their work is dropped from team metrics."
-          >
-            Remove from team
-          </button>
+      {showActions && (
+        <div className="absolute inset-y-0 right-3 z-10 flex items-center">
+          <MemberActionsMenu
+            canPromote={member.role !== "org:admin"}
+            onPromote={onPromote}
+            onArchive={onArchive}
+            onDelete={onDelete}
+          />
         </div>
       )}
     </li>
@@ -748,7 +983,10 @@ export default function TeamPage() {
   const [teamData, setTeamData] = useState<TeamData | null>(null);
   const [teamErr, setTeamErr] = useState<string | null>(null);
   const [teamLoading, setTeamLoading] = useState(false);
-  const [teamTab, setTeamTab] = useState<"members" | "reviews">("members");
+  const [teamTab, setTeamTab] = useState<
+    "performance" | "members" | "design-system" | "style-guide" | "reviews"
+  >("performance");
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   // Branded confirm (ConfirmDialog) for the member-row actions — one pending
   // action at a time; `action` runs on confirm with the busy state held.
@@ -1016,7 +1254,7 @@ export default function TeamPage() {
             <h1 className="text-xl text-foreground font-sans">
               {orgName}
             </h1>
-            <p className="text-xs text-muted font-sans mt-1">
+            <div className="text-xs text-muted font-sans mt-1">
               {teamLoadingEff && memberList.length === 0 ? (
                 <Skeleton className="h-3 w-32 inline-block align-middle" />
               ) : (
@@ -1026,13 +1264,19 @@ export default function TeamPage() {
                     ` · ${inviteList.length} pending invite${inviteList.length !== 1 ? "s" : ""}`}
                 </>
               )}
-            </p>
+            </div>
           </div>
           <Link
             href="/dashboard"
-            className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+            className="group inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted hover:text-ladder-green transition-colors border border-[#2a2a2a] hover:border-ladder-green/40 px-3 py-2"
           >
             Personal dashboard
+            <span
+              aria-hidden
+              className="transition-transform group-hover:translate-x-0.5"
+            >
+              →
+            </span>
           </Link>
         </div>
 
@@ -1044,9 +1288,24 @@ export default function TeamPage() {
 
         <div className="border-b border-[#2a2a2a] flex items-center gap-2 mb-8 overflow-x-auto">
           <TabButton
-            label="Team"
+            label="Performance"
+            active={teamTab === "performance"}
+            onClick={() => setTeamTab("performance")}
+          />
+          <TabButton
+            label="Members"
             active={teamTab === "members"}
             onClick={() => setTeamTab("members")}
+          />
+          <TabButton
+            label="Design System"
+            active={teamTab === "design-system"}
+            onClick={() => setTeamTab("design-system")}
+          />
+          <TabButton
+            label="Writing Style Guide"
+            active={teamTab === "style-guide"}
+            onClick={() => setTeamTab("style-guide")}
           />
           {/* Reviews hidden for launch (#302). */}
           {SHOW_EVALUATIONS_AND_REVIEWS && (
@@ -1081,25 +1340,49 @@ export default function TeamPage() {
             </div>
           ))}
 
-        {/* Members tab — default view for everyone. */}
+        {/* Performance tab — team metrics; lead-only content. */}
+        {teamTab === "performance" &&
+          (teamLoadingEff && !teamDataEff ? (
+            <TeamSkeleton isAdmin={isAdmin} />
+          ) : isAdmin ? (
+            teamDataEff?.insights && teamDataEff?.pool ? (
+              <PerformancePanel
+                insights={teamDataEff.insights}
+                pool={teamDataEff.pool}
+                memberCount={memberList.length}
+                activeCount={
+                  memberList.filter((m) => (m.recentScans ?? 0) > 0).length
+                }
+              />
+            ) : null
+          ) : (
+            <div className="border border-[#2a2a2a] bg-[#1a1a1a] p-10 text-center">
+              <p className="text-sm text-foreground font-sans mb-1">
+                Team performance
+              </p>
+              <p className="text-xs text-muted font-sans max-w-sm mx-auto leading-relaxed">
+                Your Team Lead sees team insights and usage here.
+              </p>
+            </div>
+          ))}
+
+        {/* Members tab. */}
         {teamTab === "members" &&
           (teamLoadingEff && memberList.length === 0 ? (
             <TeamSkeleton isAdmin={isAdmin} />
           ) : (
             <>
-        {isAdmin && teamDataEff?.insights && (
-          <InsightsPanel insights={teamDataEff.insights} />
-        )}
-
-        {isAdmin && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 items-start">
-            {teamDataEff?.pool && <TeamPoolMeter pool={teamDataEff.pool} />}
-            <section>
-              <SectionLabel className="mb-3">Invite a designer</SectionLabel>
-              <InviteForm onInvite={handleInvite} />
-            </section>
-          </div>
-        )}
+              {isAdmin && (
+                <div className="mb-6 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setInviteOpen(true)}
+                    className="text-[11px] uppercase tracking-widest font-semibold text-ladder-green border border-ladder-green/40 px-4 py-2.5 hover:bg-ladder-green/10 hover:border-ladder-green/70 transition-colors"
+                  >
+                    Invite designer
+                  </button>
+                </div>
+              )}
 
         <section className="mb-10">
           <div className="flex items-baseline justify-between mb-3">
@@ -1226,6 +1509,39 @@ export default function TeamPage() {
         )}
             </>
           ))}
+
+        {/* Design System tab — team-wide config, relocated from Settings (#444). */}
+        {teamTab === "design-system" && <DesignSystemCard />}
+
+        {/* Writing Style Guide tab — team-wide config, relocated from Settings (#444). */}
+        {teamTab === "style-guide" && <StyleGuideCard />}
+
+        {/* Invite modal (Team Leads) — opened from the Members tab. */}
+        {inviteOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+            onClick={() => setInviteOpen(false)}
+          >
+            <div className="w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+              <div className="mb-3 flex items-center justify-between">
+                <SectionLabel>Invite a designer</SectionLabel>
+                <button
+                  type="button"
+                  onClick={() => setInviteOpen(false)}
+                  className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+              <InviteForm
+                onInvite={async (email) => {
+                  await handleInvite(email);
+                  setInviteOpen(false);
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         <ConfirmDialog
           open={!!pendingConfirm}
