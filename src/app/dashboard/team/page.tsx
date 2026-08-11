@@ -1,6 +1,13 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import {
+  FormEvent,
+  type MouseEvent as ReactMouseEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   useAuth,
   useOrganization,
@@ -509,6 +516,110 @@ function TeamPoolMeter({ pool }: { pool: TeamPool }) {
   );
 }
 
+/**
+ * The per-member "more actions" menu (Make Lead / Archive / Remove). Lives in a
+ * kebab so the management actions no longer appear as free-floating links that
+ * compete with the row's own click-to-open-member-detail target on hover (#444
+ * follow-up). Closes on outside click or Escape; each action stops propagation
+ * so it never triggers the row's drill link.
+ */
+function MemberActionsMenu({
+  canPromote,
+  onPromote,
+  onArchive,
+  onDelete,
+}: {
+  canPromote: boolean;
+  onPromote: () => void;
+  onArchive: () => void;
+  onDelete: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDocClick(e: globalThis.MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  function run(fn: () => void) {
+    return (e: ReactMouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setOpen(false);
+      fn();
+    };
+  }
+
+  const item =
+    "w-full text-left px-3 py-2 text-xs font-sans text-muted hover:bg-[#242424] transition-colors";
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        aria-label="Member actions"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen((o) => !o);
+        }}
+        className={`h-8 w-8 flex items-center justify-center text-muted hover:text-foreground hover:bg-[#2a2a2a] transition-colors ${
+          open ? "text-foreground bg-[#2a2a2a]" : ""
+        }`}
+      >
+        <span className="text-lg leading-none">⋯</span>
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full mt-1 z-30 min-w-[180px] border border-[#333] bg-[#1a1a1a] py-1 shadow-lg"
+        >
+          {canPromote && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={run(onPromote)}
+              className={`${item} hover:text-foreground`}
+            >
+              Make Team Lead
+            </button>
+          )}
+          <button
+            type="button"
+            role="menuitem"
+            onClick={run(onArchive)}
+            className={`${item} hover:text-foreground`}
+          >
+            Archive
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={run(onDelete)}
+            className={`${item} hover:text-ladder-red`}
+          >
+            Remove from team
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MemberRow({
   member,
   isAdmin,
@@ -542,18 +653,19 @@ function MemberRow({
       ? `/dashboard/team/members/${member.userId}`
       : null;
 
-  // Team Leads get Make Lead/Archive/Delete actions on every row but their
-  // own. Those fade in on hover (vertically centered); the score stats,
-  // activity heatmap, and drill arrow fade out in lockstep so the actions
-  // never overlap or compete with the data (#303). Rows without actions keep
-  // their stats visible on hover.
+  // Team Leads get Make Lead/Archive/Remove actions on every row but their own.
+  // Those live in a kebab menu on the right (MemberActionsMenu) so they no
+  // longer swap in over the stats on hover — the data stays put and the drill
+  // arrow stays visible, so it's always clear the row itself opens the member.
+  // We just reserve extra right padding for the kebab when it's present.
   const showActions = isAdmin && !isSelf && !!member.userId;
-  const fadeOnHover = showActions
-    ? "group-hover:opacity-0 transition-opacity"
-    : "";
 
   const Body = (
-    <div className="px-4 py-4 flex items-center gap-5">
+    <div
+      className={`pl-4 py-4 flex items-center gap-5 ${
+        showActions ? "pr-16" : "pr-4"
+      }`}
+    >
       <Avatar
         imageUrl={member.imageUrl}
         hasImage={member.hasImage}
@@ -606,7 +718,7 @@ function MemberRow({
       </div>
 
       {member.activity.length > 0 && (
-        <div className={`hidden md:block flex-shrink-0 ${fadeOnHover}`} title={`Design sessions, last ${windowDays} days`}>
+        <div className="hidden md:block flex-shrink-0" title={`Design sessions, last ${windowDays} days`}>
           <ActivityHeatmap
             activity={member.activity}
             cellWidth={12}
@@ -617,7 +729,7 @@ function MemberRow({
         </div>
       )}
 
-      <div className={`flex items-start gap-5 flex-shrink-0 ${fadeOnHover}`}>
+      <div className="flex items-start gap-5 flex-shrink-0">
         <div className="text-right min-w-[48px]">
           <p
             className="text-xl font-bold tabular-nums leading-none"
@@ -640,7 +752,7 @@ function MemberRow({
       </div>
 
       {drillHref && (
-        <span className={`text-muted group-hover:text-foreground transition-colors text-base flex-shrink-0 ${fadeOnHover}`}>
+        <span className="text-muted group-hover:text-foreground transition-colors text-base flex-shrink-0">
           →
         </span>
       )}
@@ -663,43 +775,14 @@ function MemberRow({
       ) : (
         Body
       )}
-      {isAdmin && !isSelf && member.userId && (
-        <div className="absolute inset-y-0 right-12 z-10 flex items-center gap-6 opacity-0 group-hover:opacity-100 transition-opacity">
-          {member.role !== "org:admin" && (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onPromote();
-              }}
-              className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
-              title="Promote to Team Lead. They gain full team management access."
-            >
-              Make Lead
-            </button>
-          )}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onArchive();
-            }}
-            className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
-            title="Soft remove. Their work stays in team metrics."
-          >
-            Archive
-          </button>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="text-[10px] uppercase tracking-widest text-muted hover:text-ladder-red transition-colors"
-            title="Hard remove. Their work is dropped from team metrics."
-          >
-            Remove from team
-          </button>
+      {showActions && (
+        <div className="absolute inset-y-0 right-3 z-10 flex items-center">
+          <MemberActionsMenu
+            canPromote={member.role !== "org:admin"}
+            onPromote={onPromote}
+            onArchive={onArchive}
+            onDelete={onDelete}
+          />
         </div>
       )}
     </li>
@@ -1294,7 +1377,7 @@ export default function TeamPage() {
                   <button
                     type="button"
                     onClick={() => setInviteOpen(true)}
-                    className="text-[11px] uppercase tracking-widest font-semibold text-[#1a1a1a] bg-ladder-green px-4 py-2.5 hover:bg-ladder-green-light transition-colors"
+                    className="text-[11px] uppercase tracking-widest font-semibold text-ladder-green border border-ladder-green/40 px-4 py-2.5 hover:bg-ladder-green/10 hover:border-ladder-green/70 transition-colors"
                   >
                     Invite designer
                   </button>

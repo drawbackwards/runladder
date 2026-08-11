@@ -88,52 +88,70 @@ export function DesignSystemCard() {
     );
   }
 
+  const checks: [string, string][] = [
+    [
+      "Color",
+      "Fills and strokes must come from a library token or style. Raw values, local styles, and local variables are flagged.",
+    ],
+    ["Typography", "Text must use a library text style."],
+    [
+      "Detached instances",
+      "Components that were detached from the library.",
+    ],
+    [
+      "Rebuilt components",
+      "Local copies of components that should come from the library.",
+    ],
+  ];
+
   return (
     <div className={CARD}>
       <p className={LABEL}>Design System</p>
-      <div className="mt-3 grid gap-8 md:grid-cols-2">
-        {/* Left — what it does + exactly what gets checked */}
-        <div>
-          <p className="text-sm text-muted font-sans leading-relaxed">
-            When your team scores a frame in the Figma plugin, Ladder checks
-            it against the design-system libraries enabled in that file. What
-            we check:
-          </p>
-          <ul className="mt-4 space-y-3">
-            {[
-              ["Color", "Fills and strokes must come from a library token or style. Raw values, local styles, and local variables are flagged."],
-              ["Typography", "Text must use a library text style."],
-              ["Detached instances", "Components that were detached from the library."],
-              ["Rebuilt components", "Local copies of components that should come from the library."],
-            ].map(([name, desc]) => (
-              <li key={name}>
-                <p className="text-sm font-sans font-semibold text-foreground">
-                  {name}
-                </p>
-                <p className="text-sm text-muted font-sans leading-relaxed mt-0.5">
-                  {desc}
-                </p>
-              </li>
-            ))}
-          </ul>
-          <p className="text-sm text-muted font-sans leading-relaxed mt-3">
-            Findings appear in the plugin&apos;s Design System tab and on the
-            score&apos;s dashboard page. Design system issues never affect the
-            Ladder score.
-          </p>
-        </div>
-        {/* Right — how it's configured (it isn't, yet) */}
-        <div>
-          <p className="text-sm text-foreground font-sans leading-relaxed">
-            No setup needed. Ladder automatically checks against whatever
-            libraries are enabled in the scored file.
-          </p>
-          <p className="text-sm text-muted font-sans leading-relaxed mt-3">
-            Coming soon: connect your team&apos;s Figma library here for
-            whole-library checks, even in files where it isn&apos;t enabled.
-            {!status.canManage && " Your team lead will manage this."}
+      <h3 className="text-lg font-sans font-semibold text-foreground mt-2">
+        Automatic design-system checks
+      </h3>
+      <p className="text-sm text-muted font-sans leading-relaxed mt-2 max-w-2xl">
+        When your team scores a frame in the Figma plugin, Ladder checks it
+        against the design-system libraries enabled in that file. Findings appear
+        in the plugin&apos;s Design System tab and on the score&apos;s dashboard
+        page — they never affect the Ladder score.
+      </p>
+
+      <p className="text-[9px] text-muted uppercase tracking-widest font-semibold mt-6 mb-3">
+        What we check
+      </p>
+      <div className="grid gap-px border border-[#333] bg-[#333] sm:grid-cols-2">
+        {checks.map(([name, desc]) => (
+          <div key={name} className="bg-[#181818] p-4 flex gap-3">
+            <span className="mt-[7px] h-1.5 w-1.5 bg-ladder-green flex-shrink-0" />
+            <div>
+              <p className="text-sm font-sans font-semibold text-foreground">
+                {name}
+              </p>
+              <p className="text-xs text-muted font-sans leading-relaxed mt-1">
+                {desc}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6 border border-[#333] bg-[#111] p-4">
+        <div className="flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-ladder-green flex-shrink-0" />
+          <p className="text-sm font-sans font-semibold text-foreground">
+            No setup needed
           </p>
         </div>
+        <p className="text-sm text-muted font-sans leading-relaxed mt-2">
+          Ladder automatically checks against whatever libraries are enabled in
+          the scored file.
+        </p>
+        <p className="text-xs text-muted/80 font-sans leading-relaxed mt-2">
+          Coming soon: connect your team&apos;s Figma library here for
+          whole-library checks, even in files where it isn&apos;t enabled.
+          {!status.canManage && " Your team lead will manage this."}
+        </p>
       </div>
     </div>
   );
@@ -352,61 +370,92 @@ export function StyleGuideCard() {
     </div>
   );
 
+  // A compact, always-true description of the feature. In the results view it
+  // sits at the bottom as a reference footer; the findings do the talking.
+  const explainer = (
+    <p className="text-xs text-muted font-sans leading-relaxed">
+      Ladder reads your guide and flags on-screen copy that doesn&apos;t comply,
+      with a suggested fix, on the web score and in the Figma plugin&apos;s
+      Improve Copy. It never changes your Ladder score — style compliance is
+      advisory only.
+    </p>
+  );
+
   return (
     <div className={CARD}>
-      {/* Heading row mirrors the content grid below, so "Team Style Guide"
-          (left) and, when the guide has conflicts, the gold ambiguities heading
-          (right) are each left-aligned at the top of their own column. */}
-      <div className="grid gap-8 md:grid-cols-2">
+      {/* Header row: title, plus the ambiguities count on the right when the
+          uploaded guide has internal conflicts. */}
+      <div className="flex items-baseline justify-between gap-4 flex-wrap">
         <p className={LABEL}>Team Writing Style Guide</p>
         {hasConflicts && (
           <p className="text-[9px] text-[#d4af37] uppercase tracking-widest font-semibold">
-            {conflicts.length} ambiguit{conflicts.length === 1 ? "y" : "ies"} in
-            your guide
+            {conflicts.length} ambiguit{conflicts.length === 1 ? "y" : "ies"}{" "}
+            found
           </p>
         )}
       </div>
-      <div className="mt-3 grid gap-8 md:grid-cols-2">
-        {/* Left — what it does / doesn't do */}
-        <div>
-          <p className="text-sm text-muted font-sans leading-relaxed">
+
+      {status.present ? (
+        /* Results view — the uploaded guide leads as a header, then the findings
+           flow beneath it as one story (the file box no longer splits them). */
+        <div className="mt-4 space-y-4">
+          {fileBox}
+          {statusMessages}
+          {hasConflicts ? (
+            <div>
+              {ambiguitiesHeader}
+              {conflictBoxes}
+            </div>
+          ) : (
+            <div className="border border-[#333] bg-[#111] p-4">
+              <p className="text-sm text-foreground font-sans">
+                No conflicting direction found in your guide.
+              </p>
+              <p className="text-xs text-muted font-sans mt-1 leading-relaxed">
+                Ladder checks copy against it on every web score and in the Figma
+                plugin.
+              </p>
+            </div>
+          )}
+          <div className="border-t border-[#333] pt-4">{explainer}</div>
+        </div>
+      ) : (
+        /* Direction view — no guide yet, so the explainer gets the weight and
+           the upload is the one clear call to action. */
+        <div className="mt-2">
+          <h3 className="text-lg font-sans font-semibold text-foreground">
+            Score copy against your style guide
+          </h3>
+          <p className="text-sm text-muted font-sans leading-relaxed mt-2 max-w-2xl">
             Upload a PDF of your team&apos;s writing style guide. Ladder reads it
             and flags on-screen copy that doesn&apos;t comply, with a suggested
             fix, on the web score and in the Figma plugin&apos;s Improve Copy.
           </p>
-          <p className="text-[9px] text-muted uppercase tracking-widest font-semibold mt-4">
-            Does
-          </p>
-          <p className="text-sm text-muted font-sans mt-1 leading-relaxed">
-            Point out wording, terminology, tone, and formatting that breaks your
-            guide.
-          </p>
-          <p className="text-[9px] text-muted uppercase tracking-widest font-semibold mt-3">
-            Does Not
-          </p>
-          <p className="text-sm text-muted font-sans mt-1 leading-relaxed">
-            Change your Ladder score. Style compliance is advisory only.
-          </p>
+          <div className="grid gap-4 sm:grid-cols-2 mt-5">
+            <div className="border border-[#333] bg-[#111] p-4">
+              <p className="text-[9px] text-ladder-green uppercase tracking-widest font-semibold">
+                Does
+              </p>
+              <p className="text-sm text-muted font-sans mt-1.5 leading-relaxed">
+                Point out wording, terminology, tone, and formatting that breaks
+                your guide.
+              </p>
+            </div>
+            <div className="border border-[#333] bg-[#111] p-4">
+              <p className="text-[9px] text-muted uppercase tracking-widest font-semibold">
+                Does not
+              </p>
+              <p className="text-sm text-muted font-sans mt-1.5 leading-relaxed">
+                Change your Ladder score. Style compliance is advisory only.
+              </p>
+            </div>
+          </div>
+          <div className="mt-5">
+            {uploadOrEmpty}
+            {statusMessages}
+          </div>
         </div>
-
-        {/* Right — upload + controls. When the guide has conflicts, the alert
-            (heading + description) leads, then the file box, then the details. */}
-        <div>
-          {hasConflicts ? (
-            <>
-              {ambiguitiesHeader}
-              <div className="mt-4">{fileBox}</div>
-              {statusMessages}
-              {conflictBoxes}
-            </>
-          ) : (
-            <>
-              {status.present ? fileBox : uploadOrEmpty}
-              {statusMessages}
-            </>
-          )}
-        </div>
-      </div>
+      )}
 
       <ConfirmDialog
         open={confirmOpen}
