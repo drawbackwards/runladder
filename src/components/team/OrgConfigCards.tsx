@@ -314,7 +314,7 @@ export function StyleGuideCard() {
     </div>
   );
 
-  const uploadOrEmpty = status.canManage ? (
+  const uploadButton = (
     <label className={`${BTN_PRIMARY} cursor-pointer inline-block`}>
       {busy ? "Uploading…" : "Upload PDF"}
       <input
@@ -325,10 +325,6 @@ export function StyleGuideCard() {
         onChange={handleUpload}
       />
     </label>
-  ) : (
-    <p className="text-sm text-muted font-sans">
-      No style guide uploaded yet. Your team lead manages this.
-    </p>
   );
 
   const statusMessages = (
@@ -396,47 +392,72 @@ export function StyleGuideCard() {
         changes your Ladder score. Style compliance is advisory only.
       </p>
 
-      {status.present ? (
-        /* Results view: the uploaded file, then a high-level note about the
-           guide, then the labelled findings (the actual assessment). */
-        <div className="mt-6 space-y-4">
-          {fileBox}
-          {statusMessages}
-          {hasConflicts && ambiguitiesHeader}
-          <div>
-            <div className="flex items-baseline justify-between gap-3 mb-3">
-              <p className="text-[9px] text-muted uppercase tracking-widest font-semibold">
-                Findings
-              </p>
-              {hasConflicts && (
-                <span className="text-[9px] text-[#d4af37] uppercase tracking-widest font-semibold">
-                  {conflicts.length} ambiguit
-                  {conflicts.length === 1 ? "y" : "ies"} found
-                </span>
-              )}
-            </div>
-            {hasConflicts ? (
-              conflictBoxes
+      {/* Section 1 — the guide itself. Handles both the empty state (prompt to
+          upload) and the uploaded state (file + the overarching note), so the
+          top-level note reads as part of the guide, not a finding. */}
+      <section className="mt-8">
+        <h4 className="text-base font-sans font-semibold text-foreground mb-3">
+          Your guide
+        </h4>
+        {status.present ? (
+          <div className="space-y-3">
+            {fileBox}
+            {hasConflicts && ambiguitiesHeader}
+            {statusMessages}
+          </div>
+        ) : (
+          <div className="border border-[#333] bg-[#111] p-5">
+            <p className="text-sm text-foreground font-sans mb-1">
+              No guide uploaded yet
+            </p>
+            {status.canManage ? (
+              <>
+                <p className="text-sm text-muted font-sans leading-relaxed mb-4 max-w-xl">
+                  Upload a PDF of your team&apos;s writing style guide to start
+                  checking copy against it.
+                </p>
+                {uploadButton}
+              </>
             ) : (
-              <div className="border border-[#333] bg-[#111] p-4">
-                <p className="text-sm text-foreground font-sans">
-                  No conflicting direction found in your guide.
-                </p>
-                <p className="text-xs text-muted font-sans mt-1 leading-relaxed">
-                  Ladder checks copy against it on every web score and in the
-                  Figma plugin.
-                </p>
-              </div>
+              <p className="text-sm text-muted font-sans leading-relaxed max-w-xl">
+                Your team lead manages this and hasn&apos;t uploaded one yet.
+              </p>
+            )}
+            {statusMessages}
+          </div>
+        )}
+      </section>
+
+      {/* Section 2 — the findings. Only once a guide exists. Sits behind a clear
+          divider with its own section header so it reads as separate from the
+          guide above. */}
+      {status.present && (
+        <section className="mt-10 border-t border-[#2a2a2a] pt-8">
+          <div className="flex items-baseline justify-between gap-3 mb-4">
+            <h4 className="text-base font-sans font-semibold text-foreground">
+              Findings
+            </h4>
+            {hasConflicts && (
+              <span className="text-[9px] text-[#d4af37] uppercase tracking-widest font-semibold">
+                {conflicts.length} ambiguit
+                {conflicts.length === 1 ? "y" : "ies"} found
+              </span>
             )}
           </div>
-        </div>
-      ) : (
-        /* Direction view: no guide yet, so the header carries the explanation
-           and the upload is the one clear call to action. */
-        <div className="mt-6">
-          {uploadOrEmpty}
-          {statusMessages}
-        </div>
+          {hasConflicts ? (
+            conflictBoxes
+          ) : (
+            <div className="border border-[#333] bg-[#111] p-4">
+              <p className="text-sm text-foreground font-sans">
+                No conflicting direction found in your guide.
+              </p>
+              <p className="text-xs text-muted font-sans mt-1 leading-relaxed">
+                Ladder checks copy against it on every web score and in the Figma
+                plugin.
+              </p>
+            </div>
+          )}
+        </section>
       )}
 
       <ConfirmDialog
