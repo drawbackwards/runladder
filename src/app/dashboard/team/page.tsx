@@ -1254,7 +1254,7 @@ export default function TeamPage() {
             <h1 className="text-xl text-foreground font-sans">
               {orgName}
             </h1>
-            <p className="text-xs text-muted font-sans mt-1">
+            <div className="text-xs text-muted font-sans mt-1">
               {teamLoadingEff && memberList.length === 0 ? (
                 <Skeleton className="h-3 w-32 inline-block align-middle" />
               ) : (
@@ -1264,7 +1264,7 @@ export default function TeamPage() {
                     ` · ${inviteList.length} pending invite${inviteList.length !== 1 ? "s" : ""}`}
                 </>
               )}
-            </p>
+            </div>
           </div>
           <Link
             href="/dashboard"
