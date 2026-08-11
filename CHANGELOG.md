@@ -6,6 +6,15 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.28 / api 1.5.1 (2026-08-11)
+
+**Security: clear the last two deferred audit items from #456 (#459, #460).** `npm audit` is now at **0 vulnerabilities**.
+
+- **`@anthropic-ai/sdk` 0.79 → 0.116 (#459)** clears the moderate Memory Tool advisory (a feature we don't use). The upgrade needed no code changes: every call site uses only the stable Messages API (`messages.create`, `messages.stream`, `Anthropic.MessageParam`). Verified with `tsc`, a full `next build`, the unit suite, and a runtime smoke test (image `messages.create` + `messages.stream` against the live API) so the scoring engine is unaffected.
+- **`picomatch` bumped to a patched 2.3.2 (#460)** via a scoped `micromatch` override, clearing the high-severity glob advisory. It's a build/dev-time-only transitive dependency (bundlers, the file-watcher); the patch stays in the 2.x line, so no breaking major bump.
+
+---
+
 ## app 0.5.27 / api 1.5.1 (2026-08-10)
 
 **Team page reorg, team config moved off personal Settings, and a full Team-page visual pass (#444).**
