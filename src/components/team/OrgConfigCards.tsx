@@ -435,7 +435,7 @@ export function StyleGuideCard() {
         <section className="mt-10 border-t border-[#2a2a2a] pt-8">
           <div className="flex items-baseline justify-between gap-3 mb-4">
             <h4 className="text-base font-sans font-semibold text-foreground">
-              Findings
+              Ladder Analysis Results
             </h4>
             {hasConflicts && (
               <span className="text-[9px] text-[#d4af37] uppercase tracking-widest font-semibold">
