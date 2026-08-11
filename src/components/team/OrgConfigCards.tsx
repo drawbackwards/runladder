@@ -348,9 +348,9 @@ export function StyleGuideCard() {
     </>
   );
 
-  // When the guide has internal conflicts, the right column leads with this gold
-  // description box (the heading sits in the top row, aligned with "Team Style
-  // Guide"), then the file box, then the conflict detail boxes.
+  // High-level note shown directly under the uploaded file when the guide has
+  // internal conflicts. It frames how Ladder resolves them; the individual
+  // findings live in the labelled Findings section below it.
   const ambiguitiesHeader = (
     <div className="border border-[#b8860b]/50 bg-[#b8860b]/10 p-4">
       <p className="text-sm text-[#e3c46b] font-sans leading-relaxed">
@@ -362,7 +362,7 @@ export function StyleGuideCard() {
   );
 
   const conflictBoxes = (
-    <div className="mt-4 space-y-3">
+    <div className="space-y-3">
       {conflicts.map((c, i) => (
         <div key={i} className="border border-[#b8860b]/50 bg-[#b8860b]/10 p-4">
           <p className="text-sm text-[#e3c46b] font-sans font-semibold">
@@ -392,20 +392,24 @@ export function StyleGuideCard() {
       <p className="text-sm text-muted font-sans leading-relaxed mt-2 max-w-2xl">
         Ladder reads your guide and flags on-screen copy that doesn&apos;t
         comply, with a suggested fix, on the web score and in the Figma
-        plugin&apos;s Improve Copy. It never changes your Ladder score. Style
-        compliance is advisory only.
+        plugin&apos;s Improve Copy.
+      </p>
+      <p className="text-sm text-muted font-sans leading-relaxed mt-2 max-w-2xl">
+        <span className="text-foreground font-semibold">Note:</span> It never
+        changes your Ladder score. Style compliance is advisory only.
       </p>
 
       {status.present ? (
-        /* Results view: the uploaded guide leads as a header, then a titled
-           feedback section flows beneath it as one story. */
+        /* Results view: the uploaded file, then a high-level note about the
+           guide, then the labelled findings (the actual assessment). */
         <div className="mt-6 space-y-4">
           {fileBox}
           {statusMessages}
+          {hasConflicts && ambiguitiesHeader}
           <div>
             <div className="flex items-baseline justify-between gap-3 mb-3">
               <p className="text-[9px] text-muted uppercase tracking-widest font-semibold">
-                How Ladder reads your guide
+                Findings
               </p>
               {hasConflicts && (
                 <span className="text-[9px] text-[#d4af37] uppercase tracking-widest font-semibold">
@@ -415,10 +419,7 @@ export function StyleGuideCard() {
               )}
             </div>
             {hasConflicts ? (
-              <>
-                {ambiguitiesHeader}
-                {conflictBoxes}
-              </>
+              conflictBoxes
             ) : (
               <div className="border border-[#333] bg-[#111] p-4">
                 <p className="text-sm text-foreground font-sans">
