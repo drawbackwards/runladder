@@ -117,6 +117,16 @@ export function DesignSystemCard() {
         page. They never affect the Ladder score.
       </p>
 
+      {/* Setup status: a lightweight line (no bullet) that sits above the checks
+          to reassure there's nothing to configure. */}
+      <p className="text-sm font-sans font-semibold text-foreground mt-6">
+        No setup needed
+      </p>
+      <p className="text-sm text-muted font-sans leading-relaxed mt-1.5">
+        Ladder automatically checks against whatever libraries are enabled in the
+        scored file.
+      </p>
+
       <p className="text-[9px] text-muted uppercase tracking-widest font-semibold mt-6 mb-3">
         What we check
       </p>
@@ -135,19 +145,6 @@ export function DesignSystemCard() {
           </div>
         ))}
       </div>
-
-      {/* Setup status: a lightweight inline line, deliberately not card-like so
-          it doesn't read as another "what we check" row. */}
-      <div className="mt-6 flex items-center gap-2">
-        <span className="h-1.5 w-1.5 rounded-full bg-ladder-green flex-shrink-0" />
-        <p className="text-sm font-sans font-semibold text-foreground">
-          No setup needed
-        </p>
-      </div>
-      <p className="text-sm text-muted font-sans leading-relaxed mt-1.5">
-        Ladder automatically checks against whatever libraries are enabled in the
-        scored file.
-      </p>
 
       {/* Coming-soon promo: badged green callout so the roadmap item reads as a
           highlight instead of a downplayed aside. */}
