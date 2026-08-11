@@ -6,18 +6,21 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
-## app 0.5.26 / api 1.5.1 (2026-08-10)
+## app 0.5.27 / api 1.5.1 (2026-08-10)
 
-**Security: patch dependency CVEs (#456).** Bumped `@clerk/nextjs` (7.0.8 → 7.7.1, clears a **critical** middleware route-protection bypass + a high org/billing authorization bypass), `next` (16.1.7 → 16.3.0, Server Components DoS), `sharp` (0.34 → 0.35.3, libvips image CVEs — reachable since we resize untrusted uploads), and `mermaid`; a non-breaking `npm audit fix` cleared the remaining safe transitive advisories (22 → 2; the last 2 need breaking major bumps and are deferred). The Clerk bump renamed its appearance variables (`colorText→colorForeground`, etc.), updated in `layout.tsx` + `clerkAuthAppearance.ts` with identical colors, no visual change. `@anthropic-ai/sdk` deliberately deferred (moderate, breaking jump, wraps the scoring engine).
+**Team page reorg, team config moved off personal Settings, and a full Team-page visual pass (#444).**
+
+- The **Design System** and **Writing Style Guide** configs are team-wide but lived in personal **Settings**; they now live on the **Team page** (`/dashboard/team`) as their own tabs, visible to all team members with upload/manage gated to Team Leads (already enforced server-side). Settings is now just account + sign-in.
+- The overloaded "Team" tab was split into **Performance** and **Members**. Team page tabs are now Performance · Members · Design System · Writing Style Guide, and the page lands on Performance. The always-on invite form became an **Invite designer** button that opens a modal. No API or permission changes.
+- **Performance** was redesigned on the monochrome palette (green accent + amber advisory only, scores stay uncolored): a large Team-average hero with its Ladder level, a "Coaching focus" amber callout that turns the weakest rung into advice, a five-rung breakdown chart, and a right-hand stat rail (Team average, Team scans, Members, Team pool) built from distinct big-number cards.
+- **Members** rows moved their Make Lead / Archive / Remove actions into a kebab menu (they no longer swap in over the stats on hover), and the Invite button is now an outline rather than a solid fill.
+- The **Design System** and **Writing Style Guide** cards were rebuilt for hierarchy: real headings, a scannable checks grid, a badged "Coming soon" promo, and a two-section (guide + "Ladder Analysis Results") layout for the style guide with a proper empty state. Em-dashes removed from the copy.
 
 ---
 
-## app 0.5.27 / api 1.5.1 (2026-08-10)
+## app 0.5.26 / api 1.5.1 (2026-08-10)
 
-**Team page reorg + team config moved off personal Settings (#444).**
-
-- The **Design System** and **Writing Style Guide** configs are team-wide but lived in personal **Settings**; they now live on the **Team page** (`/dashboard/team`) as their own tabs, visible to all team members with upload/manage gated to Team Leads (already enforced server-side). Settings is now just account + sign-in.
-- While there, the overloaded "Team" tab was split: **Performance** (team insights + pool meter) and **Members** (the roster). The always-on invite form became an **Invite designer** button that opens a modal. New Team page tabs: Performance · Members · Design System · Writing Style Guide. No API or permission changes.
+**Security: patch dependency CVEs (#456).** Bumped `@clerk/nextjs` (7.0.8 → 7.7.1, clears a **critical** middleware route-protection bypass + a high org/billing authorization bypass), `next` (16.1.7 → 16.3.0, Server Components DoS), `sharp` (0.34 → 0.35.3, libvips image CVEs — reachable since we resize untrusted uploads), and `mermaid`; a non-breaking `npm audit fix` cleared the remaining safe transitive advisories (22 → 2; the last 2 need breaking major bumps and are deferred). The Clerk bump renamed its appearance variables (`colorText→colorForeground`, etc.), updated in `layout.tsx` + `clerkAuthAppearance.ts` with identical colors, no visual change. `@anthropic-ai/sdk` deliberately deferred (moderate, breaking jump, wraps the scoring engine).
 
 ---
 
