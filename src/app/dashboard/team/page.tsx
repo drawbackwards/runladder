@@ -985,7 +985,7 @@ export default function TeamPage() {
   const [teamLoading, setTeamLoading] = useState(false);
   const [teamTab, setTeamTab] = useState<
     "performance" | "members" | "design-system" | "style-guide" | "reviews"
-  >("members");
+  >("performance");
   const [inviteOpen, setInviteOpen] = useState(false);
 
   // Branded confirm (ConfirmDialog) for the member-row actions — one pending
