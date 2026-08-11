@@ -4,7 +4,7 @@ import { useState, useEffect, type ChangeEvent } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 /**
- * Team-wide config surfaces — the Design System and Writing Style Guide cards.
+ * Team-wide config surfaces: the Design System and Writing Style Guide cards.
  * Relocated from personal Settings to the Team page (#444) because they're
  * team-scoped, not personal: everyone on a team scores against the same design
  * system and style guide. Both self-fetch `GET /api/org/style-guide` and gate
@@ -32,11 +32,11 @@ type StyleGuideStatus = {
 };
 
 /**
- * Design System Compliance (#400) — v1 is zero-config: the Figma plugin diffs
+ * Design System Compliance (#400): v1 is zero-config. The Figma plugin diffs
  * each scored frame against the libraries enabled in that file, so this card
  * only explains the feature. The planned library-connect flow (#461 Phase 2)
  * will be managed here when it lands. Reuses GET /api/org/style-guide purely
- * for the tier + role gate — same Team-plan gating as the writing style guide.
+ * for the tier + role gate, same Team-plan gating as the writing style guide.
  */
 export function DesignSystemCard() {
   const [status, setStatus] = useState<StyleGuideStatus | null>(null);
@@ -80,7 +80,7 @@ export function DesignSystemCard() {
         </h2>
         <p className="text-sm text-muted font-sans leading-relaxed">
           Ladder checks every frame your team scores in Figma against your
-          design-system libraries and flags drift — detached instances, rebuilt
+          design-system libraries and flags drift: detached instances, rebuilt
           components, colors that don&apos;t come from the library, and
           off-library text styles. It&apos;s part of the Ladder Team plan.
         </p>
@@ -114,7 +114,7 @@ export function DesignSystemCard() {
         When your team scores a frame in the Figma plugin, Ladder checks it
         against the design-system libraries enabled in that file. Findings appear
         in the plugin&apos;s Design System tab and on the score&apos;s dashboard
-        page — they never affect the Ladder score.
+        page. They never affect the Ladder score.
       </p>
 
       <p className="text-[9px] text-muted uppercase tracking-widest font-semibold mt-6 mb-3">
@@ -136,20 +136,31 @@ export function DesignSystemCard() {
         ))}
       </div>
 
-      <div className="mt-6 border border-[#333] bg-[#111] p-4">
-        <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-ladder-green flex-shrink-0" />
-          <p className="text-sm font-sans font-semibold text-foreground">
-            No setup needed
-          </p>
-        </div>
-        <p className="text-sm text-muted font-sans leading-relaxed mt-2">
-          Ladder automatically checks against whatever libraries are enabled in
-          the scored file.
+      {/* Setup status: a lightweight inline line, deliberately not card-like so
+          it doesn't read as another "what we check" row. */}
+      <div className="mt-6 flex items-center gap-2">
+        <span className="h-1.5 w-1.5 rounded-full bg-ladder-green flex-shrink-0" />
+        <p className="text-sm font-sans font-semibold text-foreground">
+          No setup needed
         </p>
-        <p className="text-xs text-muted/80 font-sans leading-relaxed mt-2">
-          Coming soon: connect your team&apos;s Figma library here for
-          whole-library checks, even in files where it isn&apos;t enabled.
+      </div>
+      <p className="text-sm text-muted font-sans leading-relaxed mt-1.5">
+        Ladder automatically checks against whatever libraries are enabled in the
+        scored file.
+      </p>
+
+      {/* Coming-soon promo: badged green callout so the roadmap item reads as a
+          highlight instead of a downplayed aside. */}
+      <div className="mt-5 border border-ladder-green/30 bg-ladder-green/[0.06] p-4">
+        <span className="inline-block text-[9px] text-ladder-green uppercase tracking-widest font-semibold border border-ladder-green/40 px-2 py-0.5">
+          Coming soon
+        </span>
+        <p className="text-sm font-sans font-semibold text-foreground mt-2.5">
+          Connect your team&apos;s Figma library
+        </p>
+        <p className="text-sm text-muted font-sans leading-relaxed mt-1">
+          Run whole-library checks even in files where the library isn&apos;t
+          enabled.
           {!status.canManage && " Your team lead will manage this."}
         </p>
       </div>
@@ -253,7 +264,7 @@ export function StyleGuideCard() {
         </h2>
         <p className="text-sm text-muted font-sans leading-relaxed">
           Upload your team&apos;s writing style guide and Ladder flags copy that
-          deviates from it on every scan — in the web app and the Figma plugin.
+          deviates from it on every scan, in the web app and the Figma plugin.
           It&apos;s part of the Ladder Team plan.
         </p>
       </div>
@@ -370,90 +381,63 @@ export function StyleGuideCard() {
     </div>
   );
 
-  // A compact, always-true description of the feature. In the results view it
-  // sits at the bottom as a reference footer; the findings do the talking.
-  const explainer = (
-    <p className="text-xs text-muted font-sans leading-relaxed">
-      Ladder reads your guide and flags on-screen copy that doesn&apos;t comply,
-      with a suggested fix, on the web score and in the Figma plugin&apos;s
-      Improve Copy. It never changes your Ladder score — style compliance is
-      advisory only.
-    </p>
-  );
-
   return (
     <div className={CARD}>
-      {/* Header row: title, plus the ambiguities count on the right when the
-          uploaded guide has internal conflicts. */}
-      <div className="flex items-baseline justify-between gap-4 flex-wrap">
-        <p className={LABEL}>Team Writing Style Guide</p>
-        {hasConflicts && (
-          <p className="text-[9px] text-[#d4af37] uppercase tracking-widest font-semibold">
-            {conflicts.length} ambiguit{conflicts.length === 1 ? "y" : "ies"}{" "}
-            found
-          </p>
-        )}
-      </div>
+      {/* Header, shared by both states: label, heading, and the full-size intro
+          (promoted out of the old footer). */}
+      <p className={LABEL}>Team Writing Style Guide</p>
+      <h3 className="text-lg font-sans font-semibold text-foreground mt-2">
+        Score copy against your style guide
+      </h3>
+      <p className="text-sm text-muted font-sans leading-relaxed mt-2 max-w-2xl">
+        Ladder reads your guide and flags on-screen copy that doesn&apos;t
+        comply, with a suggested fix, on the web score and in the Figma
+        plugin&apos;s Improve Copy. It never changes your Ladder score. Style
+        compliance is advisory only.
+      </p>
 
       {status.present ? (
-        /* Results view — the uploaded guide leads as a header, then the findings
-           flow beneath it as one story (the file box no longer splits them). */
-        <div className="mt-4 space-y-4">
+        /* Results view: the uploaded guide leads as a header, then a titled
+           feedback section flows beneath it as one story. */
+        <div className="mt-6 space-y-4">
           {fileBox}
           {statusMessages}
-          {hasConflicts ? (
-            <div>
-              {ambiguitiesHeader}
-              {conflictBoxes}
-            </div>
-          ) : (
-            <div className="border border-[#333] bg-[#111] p-4">
-              <p className="text-sm text-foreground font-sans">
-                No conflicting direction found in your guide.
+          <div>
+            <div className="flex items-baseline justify-between gap-3 mb-3">
+              <p className="text-[9px] text-muted uppercase tracking-widest font-semibold">
+                How Ladder reads your guide
               </p>
-              <p className="text-xs text-muted font-sans mt-1 leading-relaxed">
-                Ladder checks copy against it on every web score and in the Figma
-                plugin.
-              </p>
+              {hasConflicts && (
+                <span className="text-[9px] text-[#d4af37] uppercase tracking-widest font-semibold">
+                  {conflicts.length} ambiguit
+                  {conflicts.length === 1 ? "y" : "ies"} found
+                </span>
+              )}
             </div>
-          )}
-          <div className="border-t border-[#333] pt-4">{explainer}</div>
+            {hasConflicts ? (
+              <>
+                {ambiguitiesHeader}
+                {conflictBoxes}
+              </>
+            ) : (
+              <div className="border border-[#333] bg-[#111] p-4">
+                <p className="text-sm text-foreground font-sans">
+                  No conflicting direction found in your guide.
+                </p>
+                <p className="text-xs text-muted font-sans mt-1 leading-relaxed">
+                  Ladder checks copy against it on every web score and in the
+                  Figma plugin.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       ) : (
-        /* Direction view — no guide yet, so the explainer gets the weight and
-           the upload is the one clear call to action. */
-        <div className="mt-2">
-          <h3 className="text-lg font-sans font-semibold text-foreground">
-            Score copy against your style guide
-          </h3>
-          <p className="text-sm text-muted font-sans leading-relaxed mt-2 max-w-2xl">
-            Upload a PDF of your team&apos;s writing style guide. Ladder reads it
-            and flags on-screen copy that doesn&apos;t comply, with a suggested
-            fix, on the web score and in the Figma plugin&apos;s Improve Copy.
-          </p>
-          <div className="grid gap-4 sm:grid-cols-2 mt-5">
-            <div className="border border-[#333] bg-[#111] p-4">
-              <p className="text-[9px] text-ladder-green uppercase tracking-widest font-semibold">
-                Does
-              </p>
-              <p className="text-sm text-muted font-sans mt-1.5 leading-relaxed">
-                Point out wording, terminology, tone, and formatting that breaks
-                your guide.
-              </p>
-            </div>
-            <div className="border border-[#333] bg-[#111] p-4">
-              <p className="text-[9px] text-muted uppercase tracking-widest font-semibold">
-                Does not
-              </p>
-              <p className="text-sm text-muted font-sans mt-1.5 leading-relaxed">
-                Change your Ladder score. Style compliance is advisory only.
-              </p>
-            </div>
-          </div>
-          <div className="mt-5">
-            {uploadOrEmpty}
-            {statusMessages}
-          </div>
+        /* Direction view: no guide yet, so the header carries the explanation
+           and the upload is the one clear call to action. */
+        <div className="mt-6">
+          {uploadOrEmpty}
+          {statusMessages}
         </div>
       )}
 
