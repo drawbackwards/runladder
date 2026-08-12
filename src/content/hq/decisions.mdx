@@ -1,8 +1,8 @@
 ---
 title: Decisions Log
-updatedAt: 2026-08-07
+updatedAt: 2026-08-11
 updatedBy: Sara
-lastPr: 447
+lastPr: 464
 ---
 
 ## How to use this page
@@ -12,6 +12,16 @@ The why behind big choices. Read this before you push back on a feature, a price
 If you want to challenge a decision, file an issue in GitHub with the proposed change and link the entry. We update entries when the world changes, never silently.
 
 ---
+
+## Clerk stays on Free until a paying prospect; upgrade path is Pro, then the B2B add-on (2026-08-11)
+
+**Rule:** stay on Clerk's **Free** plan for now. Upgrade to **Pro ($25/mo, or $20/mo billed annually)** at the **first paying prospect**, specifically right before we send Clerk invite or verification emails to a real prospect or provision the first client (Michael, 2026-08-11; [#255](https://github.com/drawbackwards/runladder/issues/255)). Pro is the tier that unlocks custom email templates and removes Clerk branding, which fixes the off-brand Invitation and Verification-code emails ([#256](https://github.com/drawbackwards/runladder/issues/256)). Add the **B2B Authentication add-on (about $85/mo billed annually; 100 organizations included, then $1/org/mo)** only when a client actually needs it: more than 20 members in one org, verified or restricted domains, or custom roles beyond `org:admin` / `org:member`. That add-on removes the free plan's 20-member-per-org cap ([#254](https://github.com/drawbackwards/runladder/issues/254)), which is the ceiling behind the "seats are not capped" decision below.
+
+**Why:** the only Clerk limit that is an active problem today is the off-brand emails, and nothing paying is on the platform yet, so there is no reason to pay before a real prospect sees them. Pro alone fixes that for $25/mo. The bigger B2B features (unlimited membership, verified domains, custom roles) each require the ~$85/mo add-on, and none are needed until a specific client triggers them, so they stay event-gated rather than pre-paid. Business ($300/mo) buys nothing we need. Clerk restructured plans in Feb 2026, folding the old "Enhanced Authentication" add-on into Pro, which is why custom email templates now sit in the $25 tier rather than a separate purchase.
+
+**Owner:** Ward holds the Clerk account and billing. Michael runs day-to-day operations but is an employee, so account ownership should sit with a principal; this is reassignable later, since the Clerk account owner and payment method are just settings.
+
+**How to apply:** when the first prospect provisioning is scheduled, Ward upgrades to Pro in Clerk billing. Add the B2B add-on the first time a client crosses 20 designers or needs domain or role features.
 
 ## Production deploys are gated by a required-reviewer GitHub Environment (2026-08-07)
 
