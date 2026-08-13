@@ -1,11 +1,33 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// learning.ts imports Clerk + Redis for the storage half; the projection
-// under test here is pure. Stub both so the import stays hermetic.
+// learning.ts imports Clerk + Redis for the storage half. The projection tests
+// below are pure; the capture tests drive the storage half through these spies.
+const { redisMock, isValidIndustryMock, getUserTierMock } = vi.hoisted(() => ({
+  redisMock: {
+    get: vi.fn(),
+    set: vi.fn(async () => "OK"),
+    sismember: vi.fn(async () => 0),
+    sadd: vi.fn(async () => 1),
+    rpush: vi.fn(async () => 1),
+    hincrby: vi.fn(async () => 1),
+    smembers: vi.fn(async () => []),
+    del: vi.fn(async () => 1),
+  },
+  isValidIndustryMock: vi.fn(async () => true),
+  getUserTierMock: vi.fn(async () => "free"),
+}));
 vi.mock("@clerk/nextjs/server", () => ({ clerkClient: vi.fn() }));
-vi.mock("@/lib/redis", () => ({ redis: {} }));
+vi.mock("@/lib/redis", () => ({ redis: redisMock }));
+vi.mock("@/lib/industry-registry", () => ({
+  isValidIndustry: isValidIndustryMock,
+}));
+vi.mock("@/lib/tier", () => ({ getUserTier: getUserTierMock }));
 
-import { learningRecordFromScore, normalizeIndustry } from "./learning";
+import {
+  captureLearningForScore,
+  learningRecordFromScore,
+  normalizeIndustry,
+} from "./learning";
 import type { StoredScoreEntry } from "./scores";
 
 /**
@@ -120,6 +142,79 @@ describe("learningRecordFromScore — de-identification", () => {
     );
     expect(rec.rungs).toEqual({ functional: 2.5 });
     expect(JSON.stringify(rec)).not.toContain("customer text");
+  });
+});
+
+describe("captureLearningForScore — per-score industry (#429)", () => {
+  const entry: StoredScoreEntry = {
+    id: "score_x",
+    score: 3.0,
+    label: "Comfortable",
+    source: "web",
+    timestamp: Date.UTC(2026, 7, 1),
+    sessionType: "design",
+    screenKey: "k",
+    previousScore: null,
+    uplift: null,
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    redisMock.sismember.mockResolvedValue(0);
+    redisMock.get.mockResolvedValue(null);
+    isValidIndustryMock.mockResolvedValue(true);
+  });
+
+  it("defers (writes no record) for a multi-industry account with an untagged score", async () => {
+    // MODE cache says multi-industry, so isMultiIndustryUser resolves true
+    // without a Clerk call.
+    redisMock.get.mockImplementation(async (k: string) =>
+      k.includes("mode") ? { multi: true } : null,
+    );
+    await captureLearningForScore("user_1", { ...entry, industry: undefined });
+    expect(redisMock.rpush).not.toHaveBeenCalled();
+    expect(redisMock.sadd).not.toHaveBeenCalledWith(
+      "learn:captured:user_1",
+      expect.anything(),
+    );
+  });
+
+  it("records with the score's own industry when it is tagged", async () => {
+    redisMock.get.mockImplementation(async (k: string) =>
+      k.includes("mode") ? { multi: true } : null,
+    );
+    await captureLearningForScore("user_1", {
+      ...entry,
+      industry: "fintech-banking",
+    });
+    expect(redisMock.rpush).toHaveBeenCalled();
+    expect(redisMock.sadd).toHaveBeenCalledWith(
+      "learn:captured:user_1",
+      "score_x",
+    );
+    const recordJson = String(redisMock.rpush.mock.calls[0][1]);
+    expect(recordJson).toContain("fintech-banking");
+  });
+
+  it("is idempotent: an already-captured score is not recorded again", async () => {
+    redisMock.sismember.mockResolvedValue(1);
+    await captureLearningForScore("user_1", {
+      ...entry,
+      industry: "fintech-banking",
+    });
+    expect(redisMock.rpush).not.toHaveBeenCalled();
+  });
+
+  it("single-industry account uses the org industry (not deferred)", async () => {
+    redisMock.get.mockImplementation(async (k: string) => {
+      if (k.includes("mode")) return { multi: false };
+      if (k.includes("ctx")) return { industry: "saas-b2b" };
+      return null;
+    });
+    await captureLearningForScore("user_1", { ...entry, industry: undefined });
+    expect(redisMock.rpush).toHaveBeenCalled();
+    const recordJson = String(redisMock.rpush.mock.calls[0][1]);
+    expect(recordJson).toContain("saas-b2b");
   });
 });
 

@@ -340,19 +340,20 @@ export async function PATCH(
     await client.organizations.updateOrganization(orgId, {
       publicMetadata: { ...existing, industry },
     });
-    // Bust each member's 24h industry-lookup cache so new scores pick up the
-    // change immediately instead of after the cache expires (#422).
+    // Bust each member's 24h industry-lookup and industry-mode caches so new
+    // scores pick up the change immediately instead of after the cache expires
+    // (#422, #429).
     try {
       const memberships =
         await client.organizations.getOrganizationMembershipList({
           organizationId: orgId,
           limit: 100,
         });
-      const ctxKeys = memberships.data
+      const cacheKeys = memberships.data
         .map((m) => m.publicUserData?.userId)
         .filter((id): id is string => !!id)
-        .map((id) => `learn:ctx:${id}`);
-      if (ctxKeys.length) await redis.del(...ctxKeys);
+        .flatMap((id) => [`learn:ctx:${id}`, `learn:mode:${id}`]);
+      if (cacheKeys.length) await redis.del(...cacheKeys);
     } catch (e) {
       console.error("[setIndustry] ctx-cache bust failed:", e);
     }

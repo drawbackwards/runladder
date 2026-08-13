@@ -1,7 +1,9 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { redis } from "@/lib/redis";
 import { surfaceFromSource } from "@/lib/surface";
-import { isInternalOrg, orgMeta } from "@/lib/orgs";
+import { isInternalOrg, isMultiIndustryOrg, orgMeta } from "@/lib/orgs";
+import { isValidIndustry } from "@/lib/industry-registry";
+import { getUserTier } from "@/lib/tier";
 import { CURRENT_ENGINE_VERSION } from "@/lib/app-version";
 import type { StoredScoreEntry } from "@/lib/scores";
 
@@ -61,6 +63,7 @@ const AGG_RUNGS_KEY = (industry: string) => `learn:agg:${industry}:rungs`;
 const INDUSTRIES_KEY = "learn:industries";
 const CAPTURED_KEY = (userId: string) => `learn:captured:${userId}`;
 const CTX_KEY = (userId: string) => `learn:ctx:${userId}`;
+const MODE_KEY = (userId: string) => `learn:mode:${userId}`;
 
 export function normalizeIndustry(raw: unknown): string {
   const s = typeof raw === "string" ? raw.trim().toLowerCase() : "";
@@ -217,15 +220,81 @@ export async function industryForUser(userId: string): Promise<string> {
 }
 
 /**
+ * Whether a user's account tags industry per score (#429) rather than
+ * inheriting one fixed org industry. True for agencies/consultancies
+ * (industryMode "multiple"), the internal Drawbackwards org, and individual
+ * paid (Pro) accounts with no org (freelancers work across industries). Cached
+ * 24h under MODE_KEY, busted alongside CTX_KEY when the account changes.
+ */
+export async function isMultiIndustryUser(userId: string): Promise<boolean> {
+  try {
+    const cached = await redis.get<{ multi: boolean }>(MODE_KEY(userId));
+    if (cached && typeof cached.multi === "boolean") return cached.multi;
+  } catch {
+    // cache is best-effort
+  }
+  let multi = false;
+  try {
+    const client = await clerkClient();
+    const memberships = await client.users.getOrganizationMembershipList({
+      userId,
+      limit: 10,
+    });
+    if (memberships.data.length === 0) {
+      // No org: individual. Paid (Pro) individuals are treated as agencies.
+      multi = (await getUserTier(userId)) === "pro";
+    } else {
+      for (const m of memberships.data) {
+        if (isMultiIndustryOrg(m.organization)) {
+          multi = true;
+          break;
+        }
+      }
+    }
+  } catch {
+    // Clerk hiccup — default to single-industry (safe: keeps today's behavior)
+    multi = false;
+  }
+  try {
+    await redis.set(MODE_KEY(userId), { multi }, { ex: 60 * 60 * 24 });
+  } catch {
+    // cache is best-effort
+  }
+  return multi;
+}
+
+/**
  * Live capture for a just-persisted score. Fire-and-forget from
- * persistScoreEntry — must never throw into the scoring path.
- * Marks the score id captured so a later termination backfill skips it.
+ * persistScoreEntry — must never throw into the scoring path. Also called from
+ * the tag endpoint when a score is tagged. Idempotent: a score contributes to
+ * the aggregate exactly once, so calling it twice (score time then tag time) is
+ * safe. Marks the score id captured so a later termination backfill skips it.
+ *
+ * Industry resolution (#429):
+ *   1. the score's own tag, when set (multi-industry accounts) — validated;
+ *   2. else, for a multi-industry account, DEFER — do not stamp a placeholder,
+ *      since records are immutable and could never be re-bucketed once tagged;
+ *   3. else the org-level industry (single-industry accounts, unchanged).
  */
 export async function captureLearningForScore(
   userId: string,
   entry: StoredScoreEntry,
 ): Promise<void> {
-  const industry = await industryForUser(userId);
+  try {
+    if (await redis.sismember(CAPTURED_KEY(userId), entry.id)) return;
+  } catch {
+    // best-effort dedupe; fall through rather than drop the capture
+  }
+
+  let industry: string;
+  if (entry.industry && (await isValidIndustry(entry.industry))) {
+    industry = entry.industry;
+  } else if (await isMultiIndustryUser(userId)) {
+    return; // defer until the score is tagged (see rule 2 above)
+  } else {
+    industry = await industryForUser(userId);
+  }
+
   await recordLearning(learningRecordFromScore(entry, industry));
   await redis.sadd(CAPTURED_KEY(userId), entry.id);
 }
@@ -251,7 +320,12 @@ export async function backfillLearningForUser(
   let written = 0;
   for (const entry of entries) {
     if (entry.id && captured.has(entry.id)) continue;
-    await recordLearning(learningRecordFromScore(entry, industry));
+    // Prefer the score's own industry tag when present (#429); fall back to the
+    // org-level industry the caller resolved (which is "unknown" for a
+    // multi-industry account, the correct bucket for anything still untagged).
+    await recordLearning(
+      learningRecordFromScore(entry, entry.industry || industry),
+    );
     written++;
   }
   return written;
