@@ -149,7 +149,7 @@ export function ScoreTags({
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const card = `border border-[#333] bg-[#1e1e1e] p-5 mt-8 mb-10 ${className}`;
+  const card = `border border-[#333] bg-[#1e1e1e] p-5 ${className}`;
 
   useEffect(() => {
     if (!canTag) return;

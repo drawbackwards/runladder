@@ -259,6 +259,18 @@ export default function ScoreDetailPage() {
                 <span className="text-[#333] text-sm">No preview</span>
               </div>
             )}
+
+            {/* Per-score tags (#429) sit directly under the image, in the image
+                column, so they fill that space instead of a full-width band
+                below the hero. Renders nothing when there's nothing to show. */}
+            <ScoreTags
+              scoreId={data.id}
+              canTag={canTag}
+              inheritedIndustry={inheritedIndustry}
+              initialIndustry={data.industry ?? null}
+              initialTags={data.tags ?? []}
+              className="mt-6"
+            />
           </div>
 
           {/* Right: score panel */}
@@ -331,19 +343,6 @@ export default function ScoreDetailPage() {
             </p>
           </div>
         </div>
-
-        {/* Per-score tags (#429). Renders nothing for accounts without tagging
-            or an inherited industry, so no empty gap. */}
-        <ScoreTags
-          scoreId={data.id}
-          canTag={canTag}
-          inheritedIndustry={inheritedIndustry}
-          initialIndustry={data.industry ?? null}
-          initialTags={data.tags ?? []}
-          // Constrain to the image column (the score panel is 320px + gap-8),
-          // so the card sits under the image, not full width.
-          className="md:mr-[352px]"
-        />
 
         {/* Rung breakdown */}
         {data.rungs && (
