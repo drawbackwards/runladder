@@ -1,28 +1,115 @@
 "use client";
 
-import { useEffect, useState, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import { INDUSTRIES, industryLabel } from "@/lib/industries";
 
 type IndustryOption = { value: string; label: string; custom?: boolean };
 
-const CARD = "border border-[#333] bg-[#1e1e1e] p-5 mt-8 mb-10";
 const FIELD_LABEL =
   "text-[9px] uppercase tracking-widest text-muted whitespace-nowrap";
-const SELECT =
-  "appearance-none pr-9 bg-[#111] border border-[#2a2a2a] text-sm text-foreground pl-3 py-2 font-sans focus:outline-none focus:border-ladder-green min-w-[200px]";
 
-function Chevron() {
+/**
+ * Custom industry dropdown. A native <select> can't dark-theme its open option
+ * list (the browser renders it), so this is a button + dark popup menu matching
+ * the app's other custom menus (e.g. the member-actions kebab).
+ */
+function IndustryDropdown({
+  value,
+  options,
+  onChange,
+}: {
+  value: string | null;
+  options: IndustryOption[];
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const current = options.find((o) => o.value === value);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDocClick(e: globalThis.MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: globalThis.KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  function pick(v: string) {
+    onChange(v);
+    setOpen(false);
+  }
+
   return (
-    <svg
-      aria-hidden="true"
-      width="10"
-      height="6"
-      viewBox="0 0 10 6"
-      fill="none"
-      className="absolute top-1/2 right-3 -translate-y-1/2 pointer-events-none text-muted"
-    >
-      <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className={`inline-flex items-center justify-between gap-3 min-w-[200px] bg-[#111] border px-3 py-2 text-sm font-sans transition-colors focus:outline-none ${
+          open ? "border-ladder-green" : "border-[#2a2a2a] hover:border-[#3a3a3a]"
+        }`}
+      >
+        <span className={value ? "text-foreground" : "text-muted"}>
+          {current?.label ?? "Not set"}
+        </span>
+        <svg
+          aria-hidden="true"
+          width="10"
+          height="6"
+          viewBox="0 0 10 6"
+          fill="none"
+          className="text-muted flex-shrink-0"
+        >
+          <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" />
+        </svg>
+      </button>
+      {open && (
+        <div
+          role="listbox"
+          className="absolute left-0 top-full mt-1 z-30 min-w-[220px] max-h-[280px] overflow-y-auto border border-[#333] bg-[#1a1a1a] py-1 shadow-lg"
+        >
+          <button
+            type="button"
+            role="option"
+            aria-selected={!value}
+            onClick={() => pick("")}
+            className={`w-full text-left px-3 py-1.5 text-sm font-sans transition-colors hover:bg-[#242424] ${
+              !value ? "text-ladder-green" : "text-muted"
+            }`}
+          >
+            Not set
+          </button>
+          {options.map((o) => (
+            <button
+              key={o.value}
+              type="button"
+              role="option"
+              aria-selected={o.value === value}
+              onClick={() => pick(o.value)}
+              className={`w-full text-left px-3 py-1.5 text-sm font-sans transition-colors hover:bg-[#242424] ${
+                o.value === value ? "text-ladder-green" : "text-foreground"
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -37,7 +124,8 @@ function Chevron() {
  *   shows read-only (inherited); otherwise this renders nothing.
  *
  * Owner-only: the write endpoint scopes to the caller's userId, so this is only
- * mounted editable for the score's owner.
+ * mounted editable for the score's owner. `className` lets the host constrain
+ * the card width (e.g. to the image column).
  */
 export function ScoreTags({
   scoreId,
@@ -45,12 +133,14 @@ export function ScoreTags({
   inheritedIndustry,
   initialIndustry,
   initialTags,
+  className = "",
 }: {
   scoreId: string;
   canTag: boolean;
   inheritedIndustry: string | null;
   initialIndustry: string | null;
   initialTags: string[];
+  className?: string;
 }) {
   const [industry, setIndustry] = useState<string | null>(initialIndustry);
   const [tags, setTags] = useState<string[]>(initialTags);
@@ -58,6 +148,8 @@ export function ScoreTags({
   const [tagInput, setTagInput] = useState("");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  const card = `border border-[#333] bg-[#1e1e1e] p-5 mt-8 mb-10 ${className}`;
 
   useEffect(() => {
     if (!canTag) return;
@@ -73,7 +165,7 @@ export function ScoreTags({
   if (!canTag) {
     if (!inheritedIndustry) return null;
     return (
-      <section className={CARD}>
+      <section className={card}>
         <p className="text-[10px] uppercase tracking-widest text-muted font-semibold mb-3">
           Tags
         </p>
@@ -145,7 +237,7 @@ export function ScoreTags({
   }
 
   return (
-    <section className={CARD}>
+    <section className={card}>
       <div className="flex items-baseline justify-between gap-3 mb-1">
         <p className="text-[10px] uppercase tracking-widest text-muted font-semibold">
           Tags
@@ -162,29 +254,16 @@ export function ScoreTags({
       <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
         {/* Industry */}
         <div className="flex items-center gap-3">
-          <label className={FIELD_LABEL} htmlFor={`industry-${scoreId}`}>
-            Industry
-          </label>
-          <div className="relative">
-            <select
-              id={`industry-${scoreId}`}
-              value={industry ?? ""}
-              onChange={(e) => onIndustryChange(e.target.value)}
-              className={SELECT}
-            >
-              <option value="">Not set</option>
-              {options.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-            <Chevron />
-          </div>
+          <label className={FIELD_LABEL}>Industry</label>
+          <IndustryDropdown
+            value={industry}
+            options={options}
+            onChange={onIndustryChange}
+          />
         </div>
 
         {/* Additional tags */}
-        <div className="flex items-center gap-3 flex-1 min-w-[260px]">
+        <div className="flex items-center gap-3 flex-1 min-w-[240px]">
           <label className={FIELD_LABEL}>Additional tags</label>
           <div className="flex flex-wrap items-center gap-2 flex-1 border border-[#2a2a2a] bg-[#111] px-2 py-1.5 min-h-[40px]">
             {tags.map((t) => (

@@ -340,6 +340,9 @@ export default function ScoreDetailPage() {
           inheritedIndustry={inheritedIndustry}
           initialIndustry={data.industry ?? null}
           initialTags={data.tags ?? []}
+          // Constrain to the image column (the score panel is 320px + gap-8),
+          // so the card sits under the image, not full width.
+          className="md:mr-[352px]"
         />
 
         {/* Rung breakdown */}
