@@ -93,6 +93,21 @@ export type StoredScoreEntry = Omit<ScoreEntryInput, "sessionType" | "thumbnail"
   previousScore: number | null;
   /** entry.score - previousScore, rounded to 1 decimal. Null on first scan. */
   uplift: number | null;
+  /**
+   * Per-score industry slug (#429), set after the fact via the tags endpoint on
+   * multi-industry (agency) accounts. When present it drives this score's
+   * learning-store bucket; absent means untagged. Always a controlled-taxonomy
+   * value (src/lib/industries.ts or the add-only registry), never a reserved
+   * bucket. Single-industry accounts inherit the org industry instead and never
+   * set this.
+   */
+  industry?: string;
+  /**
+   * Free-form user tags (#429): the account's own labels for segmenting their
+   * scores. They power the customer's own analytics only and NEVER enter the
+   * de-identified learning store (uncontrolled vocabulary).
+   */
+  tags?: string[];
 };
 
 export type UserStats = {

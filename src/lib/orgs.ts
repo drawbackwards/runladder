@@ -46,8 +46,17 @@ export type OrgPublicMetadata = {
   /**
    * Client industry (e.g. "fintech"), the ONLY client-linked dimension the
    * de-identified learning store keeps (#422). Set in /admin/clients/[orgId].
+   * Only meaningful when industryMode is "single" (the default).
    */
   industry?: string;
+  /**
+   * Account industry mode (#429). "single" (default) means one fixed industry
+   * that every score inherits read-only. "multiple" means an agency or
+   * consultancy that works across industries, so scores are tagged per-screen
+   * and the org has no single `industry`. The internal Drawbackwards org is
+   * always treated as multiple (see isMultiIndustryOrg).
+   */
+  industryMode?: "single" | "multiple";
   /** Contract-termination lifecycle (#398). terminatedAt starts the 30-day
    * purge clock; purgedAt is stamped once the cron has de-identified and
    * deleted the org's Customer Content. */
@@ -77,6 +86,18 @@ export function isInternalOrg(org: OrgLike): boolean {
   const meta = orgMeta(org);
   if (meta.internal === true) return true;
   return (org.name ?? "").trim().toLowerCase() === INTERNAL_ORG_NAME;
+}
+
+/**
+ * True if this account tags industry per score rather than inheriting one fixed
+ * org industry (#429). Agencies and consultancies set industryMode "multiple";
+ * the internal Drawbackwards org is always multi-industry (it designs across
+ * verticals, so no single label is truthful). Single-industry orgs return false
+ * and their scores inherit the org `industry` read-only.
+ */
+export function isMultiIndustryOrg(org: OrgLike): boolean {
+  if (isInternalOrg(org)) return true;
+  return orgMeta(org).industryMode === "multiple";
 }
 
 /**

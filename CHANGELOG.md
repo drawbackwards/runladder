@@ -6,6 +6,18 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.29 / api 1.5.1 (2026-08-11)
+
+**Per-score industry + tags (#429, Phase 1).** Agencies and consultancies (and freelancers on individual Pro) work across industries, so a single org-level industry is wrong for them and gating every scan behind an industry pick would add friction. Instead, multi-industry accounts now **tag each score** after the fact.
+
+- On the **score detail page**, the owner sets the score's **industry** (from the controlled taxonomy, in a custom dark dropdown) and free-form **tags**. Single-industry accounts see the org's industry read-only. Tagging is never required to score.
+- Admins mark an account multi-industry via a new **"Multiple / Agency"** option in the industry picker (Add Team Client + Team Detail), which sets `industryMode: "multiple"`. Individual Pro and the internal Drawbackwards org are multi-industry automatically.
+- **Learning store:** the tagged industry feeds the de-identified aggregate. For multi-industry accounts the live capture is **deferred** until a score is tagged, because records are immutable and could never be re-bucketed from a placeholder. Free-form tags never enter the store.
+- The admin industry dropdowns were rebuilt as the app's custom dark dropdown (the native `<select>` popup can't be dark-themed).
+- Phase 2 (not in this release): by-industry analytics, auto-suggested industry, bulk tagging.
+
+---
+
 ## app 0.5.28 / api 1.5.1 (2026-08-11)
 
 **Security: clear the last two deferred audit items from #456 (#459, #460).** `npm audit` is now at **0 vulnerabilities**.

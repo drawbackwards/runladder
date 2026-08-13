@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth, useUser, RedirectToSignIn } from "@clerk/nextjs";
+import {
+  useAuth,
+  useUser,
+  useOrganization,
+  RedirectToSignIn,
+} from "@clerk/nextjs";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getScoreColor, getLevelColor, getLevel, getNextLevel, getGapToNext, getRungLevel, computePotentialScore } from "@/lib/ladder";
@@ -19,6 +24,7 @@ import {
   DesignSystemCompliance,
   type DesignSystemResultView,
 } from "@/components/DesignSystemCompliance";
+import { ScoreTags } from "@/components/ScoreTags";
 // ScoreAnnotations removed from the score detail flow in v0.4.1.
 // The redline / evaluation feature lives as its own surface
 // (separate page, separate entry point) per the ROADMAP. Component
@@ -58,6 +64,10 @@ type ScoreDetail = {
   screenKey?: string;
   /** Set when the score was logged in an evaluation/audit session. */
   sessionType?: "design" | "evaluation";
+  /** Per-score industry tag (#429), on multi-industry accounts. */
+  industry?: string;
+  /** Free-form user tags (#429). */
+  tags?: string[];
 };
 
 function CategoryBadge({ category }: { category: string }) {
@@ -94,6 +104,7 @@ type RecentScore = {
 export default function ScoreDetailPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
+  const { organization } = useOrganization();
   // Team-context accounts (team / pulse) label a non-public score "Internal"
   // rather than "Private" — it's still visible to the team (#301).
   const isTeam = isTeamScope(
@@ -184,6 +195,27 @@ export default function ScoreDetailPage() {
   const nextLevel = getNextLevel(data.score);
   const gap = getGapToNext(data.score).toFixed(1);
 
+  // Per-score tagging (#429). Multi-industry accounts (agencies, individual
+  // Pro, internal Drawbackwards) tag industry per score; single-industry orgs
+  // inherit the org industry read-only. Only the owner can edit — a Team Lead
+  // viewing a member's score (memberId set) sees it read-only.
+  const tier = (user?.publicMetadata as { tier?: string } | undefined)?.tier;
+  const orgPublic = (organization?.publicMetadata ?? {}) as {
+    industry?: string;
+    industryMode?: string;
+    internal?: boolean;
+  };
+  const isInternalOrg =
+    !!organization &&
+    (orgPublic.internal === true ||
+      (organization.name ?? "").trim().toLowerCase() === "drawbackwards");
+  const multiIndustry = organization
+    ? isInternalOrg || orgPublic.industryMode === "multiple"
+    : tier === "pro";
+  const canTag = !memberId && multiIndustry;
+  const inheritedIndustry =
+    organization && !multiIndustry ? orgPublic.industry ?? null : null;
+
   return (
     <div className="pt-20 font-mono">
       <div className="max-w-6xl mx-auto px-6 py-12">
@@ -227,6 +259,18 @@ export default function ScoreDetailPage() {
                 <span className="text-[#333] text-sm">No preview</span>
               </div>
             )}
+
+            {/* Per-score tags (#429) sit directly under the image, in the image
+                column, so they fill that space instead of a full-width band
+                below the hero. Renders nothing when there's nothing to show. */}
+            <ScoreTags
+              scoreId={data.id}
+              canTag={canTag}
+              inheritedIndustry={inheritedIndustry}
+              initialIndustry={data.industry ?? null}
+              initialTags={data.tags ?? []}
+              className="mt-6"
+            />
           </div>
 
           {/* Right: score panel */}

@@ -8,6 +8,7 @@ import {
   provisioningUserId,
 } from "@/lib/orgs";
 import { isValidIndustry } from "@/lib/industry-registry";
+import { MULTIPLE_INDUSTRY_VALUE } from "@/lib/industries";
 import { TEAM_MONTHLY_POOL, type Tier } from "@/lib/plans";
 import { getTeamMonthlyTotal } from "@/lib/usage";
 
@@ -207,7 +208,11 @@ export async function POST(req: NextRequest) {
   // the client's de-identified learning data and can't be backfilled after
   // a termination purge. Dropdown-only (base list + admin-added registry
   // entries): unknown values are rejected.
-  if (!(await isValidIndustry(industry))) {
+  // "Multiple / Agency" (#429) is a mode, not an industry: it marks the account
+  // multi-industry so its scores are tagged per-screen, with no single org
+  // industry. Any other value must be a real taxonomy slug.
+  const multiIndustry = industry === MULTIPLE_INDUSTRY_VALUE;
+  if (!multiIndustry && !(await isValidIndustry(industry))) {
     return NextResponse.json(
       { error: "Select an industry from the list." },
       { status: 400 },
@@ -233,7 +238,9 @@ export async function POST(req: NextRequest) {
       },
       provisionedBy: adminEmail,
       provisionedAt: Date.now(),
-      industry,
+      ...(multiIndustry
+        ? { industryMode: "multiple" as const }
+        : { industry, industryMode: "single" as const }),
     },
   });
 

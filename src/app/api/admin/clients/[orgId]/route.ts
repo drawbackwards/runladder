@@ -4,6 +4,7 @@ import { getAdminEmail } from "@/lib/admin";
 import { isInternalOrg, orgMeta, orgStatus, provisioningUserId } from "@/lib/orgs";
 import { purgeOrgContent } from "@/lib/data-lifecycle";
 import { isValidIndustry } from "@/lib/industry-registry";
+import { MULTIPLE_INDUSTRY_VALUE } from "@/lib/industries";
 import { redis, currentYearMonth, zrangeAllChunked } from "@/lib/redis";
 import { TEAM_MONTHLY_POOL } from "@/lib/plans";
 import { getMonthlyCost, estimateScoreCostMicroUsd } from "@/lib/token-cost";
@@ -251,6 +252,7 @@ export async function GET(
       createdAt: org.createdAt,
       teamLead: orgMeta(org).teamLead ?? null,
       industry: orgMeta(org).industry ?? null,
+      industryMode: orgMeta(org).industryMode ?? "single",
       terminatedAt: orgMeta(org).terminatedAt ?? null,
       purgedAt: orgMeta(org).purgedAt ?? null,
     },
@@ -331,28 +333,39 @@ export async function PATCH(
 
   if (action === "setIndustry") {
     const industry = body.industry;
-    if (typeof industry !== "string" || !(await isValidIndustry(industry))) {
+    // "Multiple / Agency" (#429) sets industryMode instead of a single industry
+    // and clears any existing industry; any other value is a real taxonomy slug.
+    const multiIndustry = industry === MULTIPLE_INDUSTRY_VALUE;
+    if (
+      typeof industry !== "string" ||
+      (!multiIndustry && !(await isValidIndustry(industry)))
+    ) {
       return NextResponse.json(
         { error: "Select an industry from the list." },
         { status: 400 },
       );
     }
+    const rest = { ...existing };
+    delete rest.industry;
     await client.organizations.updateOrganization(orgId, {
-      publicMetadata: { ...existing, industry },
+      publicMetadata: multiIndustry
+        ? { ...rest, industryMode: "multiple" }
+        : { ...rest, industry, industryMode: "single" },
     });
-    // Bust each member's 24h industry-lookup cache so new scores pick up the
-    // change immediately instead of after the cache expires (#422).
+    // Bust each member's 24h industry-lookup and industry-mode caches so new
+    // scores pick up the change immediately instead of after the cache expires
+    // (#422, #429).
     try {
       const memberships =
         await client.organizations.getOrganizationMembershipList({
           organizationId: orgId,
           limit: 100,
         });
-      const ctxKeys = memberships.data
+      const cacheKeys = memberships.data
         .map((m) => m.publicUserData?.userId)
         .filter((id): id is string => !!id)
-        .map((id) => `learn:ctx:${id}`);
-      if (ctxKeys.length) await redis.del(...ctxKeys);
+        .flatMap((id) => [`learn:ctx:${id}`, `learn:mode:${id}`]);
+      if (cacheKeys.length) await redis.del(...cacheKeys);
     } catch (e) {
       console.error("[setIndustry] ctx-cache bust failed:", e);
     }

@@ -1,16 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { INDUSTRIES } from "@/lib/industries";
+import { useEffect, useRef, useState } from "react";
+import {
+  INDUSTRIES,
+  MULTIPLE_INDUSTRY_VALUE,
+  MULTIPLE_INDUSTRY_LABEL,
+} from "@/lib/industries";
 
 /**
- * Admin industry dropdown (#422) with an add-only "new industry" flow.
+ * Admin industry dropdown (#422, #429). A custom dark dropdown (not a native
+ * <select>, whose open option list the browser renders un-themeable): a button
+ * plus a dark popup that matches the app's other menus.
  *
- * Renders the base list immediately, then swaps in the live list (base +
- * admin-added registry entries) from GET /api/admin/industries. "Add new
- * industry…" reveals an inline input that POSTs to the registry — slugified
- * and deduped server-side — and selects the result. No rename/delete: slugs
- * are stamped into de-identified learning records and must stay stable.
+ * Options: a "Multiple industries (agency)" choice at the top (marks the
+ * account multi-industry so its scores are tagged per-screen, #429), the base
+ * taxonomy + admin-added registry entries (loaded from GET /api/admin/industries),
+ * and an add-only "New industry…" row that POSTs to the registry — slugified
+ * and deduped server-side — and selects the result. No rename/delete: slugs are
+ * stamped into de-identified learning records and must stay stable.
  */
 
 type Option = { value: string; label: string; custom?: boolean };
@@ -21,34 +28,28 @@ export function IndustrySelect({
   onChange,
   selectClassName,
   wrapperClassName = "",
-  chevronClassName = "right-3",
-  inputClassName = "w-64 bg-[#111] border border-[#2a2a2a] text-xs text-foreground px-3 py-2 focus:outline-none focus:border-ladder-green placeholder:text-[#555] font-sans",
+  inputClassName = "w-full bg-[#111] border border-[#333] text-sm text-foreground px-2.5 py-1.5 focus:outline-none focus:border-ladder-green placeholder:text-[#555] font-sans",
 }: {
-  /** Forwarded to the <select> so host-form labels can htmlFor it. */
+  /** Forwarded to the trigger button so host-form labels can htmlFor it. */
   id?: string;
   value: string;
   onChange: (value: string) => void;
-  /** Styling hook so the select matches its host form's inputs. */
+  /** Styling for the trigger button — match the host form's inputs. */
   selectClassName: string;
-  /** Width/layout for the select's positioning wrapper. The chevron pins to
-   * this wrapper's right edge, so a non-full-width select needs its width
-   * HERE (e.g. "w-56") with the select itself w-full — otherwise the arrow
-   * floats outside the field. */
+  /** Width/layout for the positioning wrapper. */
   wrapperClassName?: string;
-  /** Right inset for the custom chevron — match the host input's LEFT
-   * padding so the arrow doesn't hug the edge (native arrows can't move,
-   * so the select is appearance-none with our own chevron). */
+  /** Kept for call-site compatibility; the custom chevron is fixed-position. */
   chevronClassName?: string;
-  /** Styling for the "add new industry" input — match the host form's
-   * inputs (same text size + padding = same height) with a bounded width
-   * so the Add/Cancel buttons sit next to it instead of at the far edge. */
+  /** Styling for the "new industry" input. */
   inputClassName?: string;
 }) {
   const [options, setOptions] = useState<Option[]>([...INDUSTRIES]);
+  const [open, setOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const [newLabel, setNewLabel] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -69,6 +70,28 @@ export function IndustrySelect({
     };
   }, []);
 
+  useEffect(() => {
+    if (!open) return;
+    function onDocClick(e: globalThis.MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        setAdding(false);
+      }
+    }
+    function onKey(e: globalThis.KeyboardEvent) {
+      if (e.key === "Escape") {
+        setOpen(false);
+        setAdding(false);
+      }
+    }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
   async function submitNew() {
     if (busy || !newLabel.trim()) return;
     setBusy(true);
@@ -88,6 +111,7 @@ export function IndustrySelect({
       onChange(option.value);
       setAdding(false);
       setNewLabel("");
+      setOpen(false);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Add failed");
     } finally {
@@ -95,86 +119,114 @@ export function IndustrySelect({
     }
   }
 
+  function pick(v: string) {
+    onChange(v);
+    setOpen(false);
+  }
+
+  const label =
+    value === MULTIPLE_INDUSTRY_VALUE
+      ? MULTIPLE_INDUSTRY_LABEL
+      : (options.find((o) => o.value === value)?.label ?? "Select an industry…");
+
+  const item =
+    "w-full text-left px-3 py-1.5 text-sm font-sans transition-colors hover:bg-[#242424]";
+
   return (
-    <div>
-      <div className={`relative ${wrapperClassName}`}>
-        <select
-          id={id}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className={`${selectClassName} appearance-none pr-9`}
-        >
-          <option value="" disabled>
-            Select an industry…
-          </option>
-          {options.map((i) => (
-            <option key={i.value} value={i.value}>
-              {i.label}
-            </option>
-          ))}
-        </select>
+    <div ref={ref} className={`relative ${wrapperClassName}`}>
+      <button
+        id={id}
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className={`${selectClassName} inline-flex items-center justify-between gap-2 text-left`}
+      >
+        <span className="truncate">{label}</span>
         <svg
           aria-hidden="true"
           width="10"
           height="6"
           viewBox="0 0 10 6"
           fill="none"
-          className={`absolute top-1/2 -translate-y-1/2 pointer-events-none text-muted ${chevronClassName}`}
+          className="text-muted flex-shrink-0"
         >
           <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" />
         </svg>
-      </div>
-      {adding ? (
-        <div className="mt-2 flex items-center gap-3">
-          <input
-            autoFocus
-            value={newLabel}
-            onChange={(e) => setNewLabel(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                submitNew();
-              }
-              if (e.key === "Escape") {
-                setAdding(false);
-                setNewLabel("");
-                setErr(null);
-              }
-            }}
-            placeholder="New industry name"
-            className={inputClassName}
-          />
-          <button
-            type="button"
-            onClick={submitNew}
-            disabled={busy || !newLabel.trim()}
-            className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors disabled:opacity-40"
-          >
-            {busy ? "Adding…" : "Add"}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setAdding(false);
-              setNewLabel("");
-              setErr(null);
-            }}
-            disabled={busy}
-            className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors disabled:opacity-40"
-          >
-            Cancel
-          </button>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setAdding(true)}
-          className="mt-1.5 text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+      </button>
+
+      {open && (
+        <div
+          role="listbox"
+          className="absolute left-0 top-full mt-1 z-30 w-full min-w-[240px] max-h-[320px] overflow-y-auto border border-[#333] bg-[#1a1a1a] py-1 shadow-lg"
         >
-          + Add new industry
-        </button>
+          <button
+            type="button"
+            role="option"
+            aria-selected={value === MULTIPLE_INDUSTRY_VALUE}
+            onClick={() => pick(MULTIPLE_INDUSTRY_VALUE)}
+            className={`${item} ${
+              value === MULTIPLE_INDUSTRY_VALUE
+                ? "text-ladder-green"
+                : "text-foreground"
+            }`}
+          >
+            {MULTIPLE_INDUSTRY_LABEL}
+          </button>
+          <div className="my-1 border-t border-[#2a2a2a]" />
+          {options.map((o) => (
+            <button
+              key={o.value}
+              type="button"
+              role="option"
+              aria-selected={o.value === value}
+              onClick={() => pick(o.value)}
+              className={`${item} ${
+                o.value === value ? "text-ladder-green" : "text-foreground"
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+          <div className="my-1 border-t border-[#2a2a2a]" />
+          {adding ? (
+            <div className="px-3 py-2 flex items-center gap-2">
+              <input
+                autoFocus
+                value={newLabel}
+                onChange={(e) => setNewLabel(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    submitNew();
+                  }
+                }}
+                placeholder="New industry name"
+                className={inputClassName}
+              />
+              <button
+                type="button"
+                onClick={submitNew}
+                disabled={busy || !newLabel.trim()}
+                className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors disabled:opacity-40 whitespace-nowrap"
+              >
+                {busy ? "Adding…" : "Add"}
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setAdding(true)}
+              className={`${item} text-muted`}
+            >
+              + Add new industry…
+            </button>
+          )}
+          {err && (
+            <p className="px-3 py-1 text-xs text-ladder-red font-sans">{err}</p>
+          )}
+        </div>
       )}
-      {err && <p className="mt-1 text-[10px] text-ladder-red font-sans">{err}</p>}
     </div>
   );
 }

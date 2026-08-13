@@ -6,6 +6,7 @@ import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { IndustrySelect } from "@/components/admin/IndustrySelect";
+import { MULTIPLE_INDUSTRY_VALUE } from "@/lib/industries";
 import { Skeleton } from "@/components/Skeleton";
 import { USAGE_SURFACES, USAGE_SURFACE_LABEL, type UsageSurface } from "@/lib/surface";
 
@@ -25,6 +26,7 @@ type OrgInfo = {
   createdAt: number;
   teamLead: { firstName?: string; lastName?: string; email?: string } | null;
   industry: string | null;
+  industryMode?: "single" | "multiple";
   terminatedAt: number | null;
   purgedAt: number | null;
 };
@@ -160,7 +162,11 @@ export default function TeamDetailPage() {
   const [actionErr, setActionErr] = useState<string | null>(null);
   const [terminateOpen, setTerminateOpen] = useState(false);
   const [industrySaved, setIndustrySaved] = useState(false);
-  const industryValue = industryDraft ?? org?.industry ?? "";
+  const industryValue =
+    industryDraft ??
+    (org?.industryMode === "multiple"
+      ? MULTIPLE_INDUSTRY_VALUE
+      : (org?.industry ?? ""));
 
   async function patchOrg(body: Record<string, unknown>): Promise<boolean> {
     setActionBusy(true);

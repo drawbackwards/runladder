@@ -60,6 +60,16 @@ export function industryLabel(value: string | null | undefined): string {
 export const RESERVED_INDUSTRY_VALUES = ["unknown", "internal"] as const;
 
 /**
+ * UI sentinel (NOT a real industry) offered in the industry picker to mark an
+ * account as multi-industry / agency (#429). The admin APIs translate it to
+ * `publicMetadata.industryMode = "multiple"`, which enables per-score tagging
+ * and clears the org's single `industry`. It is never stored as an industry
+ * slug and never becomes a learning-store bucket.
+ */
+export const MULTIPLE_INDUSTRY_VALUE = "multiple";
+export const MULTIPLE_INDUSTRY_LABEL = "Multiple industries (agency)";
+
+/**
  * Tokens for near-duplicate matching: lowercase alphanumeric words, with
  * single-letter fragments merged into the next word so "E-commerce" and
  * "Ecommerce" tokenize identically (["ecommerce"]).

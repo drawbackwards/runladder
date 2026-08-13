@@ -126,6 +126,7 @@ export async function purgeUserContent(
     `user:${userId}:plugin`,
     `learn:captured:${userId}`,
     `learn:ctx:${userId}`,
+    `learn:mode:${userId}`,
   ];
 
   // The Skill token lookup key is hash-addressed; resolve it before the
