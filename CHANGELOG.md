@@ -6,6 +6,12 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.31 / api 1.5.1 (2026-08-11)
+
+**Rename a scored screen (#469).** Scores get an auto-generated screen name that is sometimes wrong. A pencil icon next to the name on the score detail page now opens an inline editor (Enter saves, Esc cancels). Owner-only; preserves the surface suffix so the Web/Figma/Skill tag stays correct. Persists via the owner-scoped `PATCH /api/dashboard/scores/[id]/tags` route, extended to accept `screenName`.
+
+---
+
 ## app 0.5.30 / api 1.5.1 (2026-08-11)
 
 **Personal analytics on the dashboard (#467, Phase A).** The per-score tags (#429) now have a place that reads them back.
