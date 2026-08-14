@@ -552,6 +552,25 @@ export default function DashboardPage() {
     30,
   );
 
+  // Score-history view: list (default) or grid of cards (#471). Remembered
+  // across visits so the choice sticks.
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  useEffect(() => {
+    const v =
+      typeof window !== "undefined"
+        ? window.localStorage.getItem("ladder:scoreView")
+        : null;
+    if (v === "grid" || v === "list") setViewMode(v);
+  }, []);
+  function chooseView(v: "list" | "grid") {
+    setViewMode(v);
+    try {
+      window.localStorage.setItem("ladder:scoreView", v);
+    } catch {
+      // localStorage unavailable — the choice just won't persist
+    }
+  }
+
   if (!isLoaded) return null;
   if (!isSignedIn) return <RedirectToSignIn />;
 
@@ -677,12 +696,126 @@ export default function DashboardPage() {
             ) : (
               <>
                 <ScoreCTACard />
-                <div className="mt-6 mb-3 flex items-center justify-between">
+                <div className="mt-6 mb-3 flex items-center justify-between gap-3">
                   <SectionLabel>Score history</SectionLabel>
-                  <span className="text-[10px] text-muted">
-                    {scores.length} score{scores.length !== 1 ? "s" : ""}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] text-muted">
+                      {scores.length} score{scores.length !== 1 ? "s" : ""}
+                    </span>
+                    <div className="flex items-center border border-[#2a2a2a]">
+                      <button
+                        type="button"
+                        onClick={() => chooseView("list")}
+                        aria-label="List view"
+                        aria-pressed={viewMode === "list"}
+                        title="List view"
+                        className={`p-1.5 transition-colors ${
+                          viewMode === "list"
+                            ? "bg-[#2a2a2a] text-foreground"
+                            : "text-muted hover:text-foreground"
+                        }`}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                          <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => chooseView("grid")}
+                        aria-label="Grid view"
+                        aria-pressed={viewMode === "grid"}
+                        title="Grid view"
+                        className={`p-1.5 transition-colors ${
+                          viewMode === "grid"
+                            ? "bg-[#2a2a2a] text-foreground"
+                            : "text-muted hover:text-foreground"
+                        }`}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                          <rect x="2" y="2" width="5" height="5" />
+                          <rect x="9" y="2" width="5" height="5" />
+                          <rect x="2" y="9" width="5" height="5" />
+                          <rect x="9" y="9" width="5" height="5" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
+                {viewMode === "grid" ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {scores.slice(0, visibleCount).map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="border border-[#2a2a2a] bg-[#1a1a1a] hover:border-[#3a3a3a] transition-colors group relative"
+                    >
+                      <Link
+                        href={`/dashboard/scores/${entry.id}`}
+                        className="block"
+                      >
+                        <div className="aspect-[4/3] border-b border-[#2a2a2a] bg-[#111] overflow-hidden">
+                          {entry.thumbnail ? (
+                            <img
+                              src={`/api/dashboard/scores/${entry.id}/thumbnail?size=md`}
+                              alt=""
+                              loading="lazy"
+                              className="w-full h-full object-cover object-top"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[#333] text-xs">
+                              No preview
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-3">
+                          <ScoreRowTitle
+                            label={entry.screenName || entry.source}
+                            isPublic={entry.isPublic}
+                            isTeam={isTeamScope(tier)}
+                          />
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <span
+                              className="text-lg font-bold tabular-nums"
+                              style={{ color: getScoreColor(entry.score) }}
+                            >
+                              {entry.score.toFixed(1)}
+                            </span>
+                            <span className="text-[10px] text-muted font-sans truncate">
+                              <span style={{ color: getScoreColor(entry.score) }}>
+                                {entry.label}
+                              </span>
+                              <span className="text-[#444] mx-1.5">·</span>
+                              {timeAgo(entry.timestamp)}
+                            </span>
+                            {typeof entry.uplift === "number" && (
+                              <span className="ml-auto flex-shrink-0">
+                                <UpliftBadge uplift={entry.uplift} />
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                      <button
+                        onClick={() => deleteScore(entry.id)}
+                        disabled={deleting === entry.id}
+                        className="absolute top-2 right-2 text-[#888] hover:text-ladder-red bg-[#111]/80 border border-[#2a2a2a] p-1 transition-all disabled:opacity-30 opacity-0 group-hover:opacity-100"
+                        title="Delete score"
+                        aria-label="Delete score"
+                      >
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                ) : (
                 <div className="space-y-1.5">
                   {scores.slice(0, visibleCount).map((entry) => (
                     <div
@@ -766,6 +899,7 @@ export default function DashboardPage() {
                     </div>
                   ))}
                 </div>
+                )}
                 {/* Reveal the next page as this scrolls into view (#448). */}
                 {hasMore && (
                   <div ref={sentinelRef} aria-hidden className="h-1" />

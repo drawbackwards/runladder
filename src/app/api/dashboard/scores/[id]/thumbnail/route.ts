@@ -54,13 +54,16 @@ export async function GET(
   // the dashboard list doesn't download full-size images. Detail views omit
   // `size` and keep the full-resolution blob.
   const size = new URL(req.url).searchParams.get("size");
-  if (size === "sm") {
+  // sm = list rows (~48px), md = grid cards (#471). Both resize on read and
+  // cache per variant; detail views omit `size` and keep the full blob.
+  const box = size === "sm" ? 96 : size === "md" ? 640 : null;
+  if (box) {
     try {
       const input = Buffer.from(await new Response(result.stream).arrayBuffer());
       const small = await sharp(input)
         .rotate()
-        .resize({ width: 96, height: 96, fit: "inside", withoutEnlargement: true })
-        .jpeg({ quality: 72, mozjpeg: true })
+        .resize({ width: box, height: box, fit: "inside", withoutEnlargement: true })
+        .jpeg({ quality: size === "sm" ? 72 : 80, mozjpeg: true })
         .toBuffer();
       return new NextResponse(new Uint8Array(small), {
         headers: { "Content-Type": "image/jpeg", "Cache-Control": cache },
