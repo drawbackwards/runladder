@@ -216,14 +216,14 @@ export function DashboardAnalytics({ scores }: { scores: ScoreLike[] }) {
     <div className="space-y-6">
       {/* Segment by industry (#429 payoff) */}
       {industries.length > 0 && (
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[9px] uppercase tracking-widest text-muted mr-1">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <span className="text-[9px] uppercase tracking-widest text-muted mr-1 shrink-0">
             Segment
           </span>
           <button
             type="button"
             onClick={() => setSegment(null)}
-            className={`text-[11px] uppercase tracking-widest px-3 py-1.5 border transition-colors ${
+            className={`shrink-0 whitespace-nowrap text-[11px] uppercase tracking-widest px-3 py-1.5 border transition-colors ${
               segment === null
                 ? "text-ladder-green border-ladder-green/50 bg-ladder-green/10"
                 : "text-muted border-[#2a2a2a] hover:border-[#3a3a3a]"
@@ -236,7 +236,7 @@ export function DashboardAnalytics({ scores }: { scores: ScoreLike[] }) {
               key={ind}
               type="button"
               onClick={() => setSegment(ind)}
-              className={`text-[11px] uppercase tracking-widest px-3 py-1.5 border transition-colors ${
+              className={`shrink-0 whitespace-nowrap text-[11px] uppercase tracking-widest px-3 py-1.5 border transition-colors ${
                 segment === ind
                   ? "text-ladder-green border-ladder-green/50 bg-ladder-green/10"
                   : "text-muted border-[#2a2a2a] hover:border-[#3a3a3a]"
@@ -268,37 +268,47 @@ export function DashboardAnalytics({ scores }: { scores: ScoreLike[] }) {
         <div className={`${CARD} flex flex-col`}>
           <SectionLabel className="mb-4">Score over time</SectionLabel>
           {trend.length >= 2 ? (
-            <svg
-              viewBox="0 0 100 40"
-              preserveAspectRatio="none"
-              className="w-full flex-1 min-h-[120px]"
-            >
-              {[1, 2, 3, 4].map((g) => (
-                <line
-                  key={g}
-                  x1="0"
-                  x2="100"
-                  y1={40 - (g / 5) * 40}
-                  y2={40 - (g / 5) * 40}
-                  stroke="#2a2a2a"
-                  strokeWidth="1"
+            <div className="flex-1 min-h-[120px] flex gap-2">
+              {/* Y axis: the 0-5 score scale, aligned to the gridlines. */}
+              <div className="flex flex-col justify-between text-[9px] text-muted font-mono text-right w-3 shrink-0">
+                {[5, 4, 3, 2, 1, 0].map((n) => (
+                  <span key={n} className="leading-none">
+                    {n}
+                  </span>
+                ))}
+              </div>
+              <svg
+                viewBox="0 0 100 40"
+                preserveAspectRatio="none"
+                className="flex-1 min-h-[120px]"
+              >
+                {[0, 1, 2, 3, 4, 5].map((g) => (
+                  <line
+                    key={g}
+                    x1="0"
+                    x2="100"
+                    y1={40 - (g / 5) * 40}
+                    y2={40 - (g / 5) * 40}
+                    stroke="#2a2a2a"
+                    strokeWidth="1"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                ))}
+                <polyline
+                  fill="none"
+                  stroke="var(--ladder-green, #6AC89B)"
+                  strokeWidth="2"
                   vectorEffect="non-scaling-stroke"
+                  points={trend
+                    .map((v, i) => {
+                      const x = (i / (trend.length - 1)) * 100;
+                      const y = 40 - (v / 5) * 40;
+                      return `${x},${y}`;
+                    })
+                    .join(" ")}
                 />
-              ))}
-              <polyline
-                fill="none"
-                stroke="var(--ladder-green, #6AC89B)"
-                strokeWidth="2"
-                vectorEffect="non-scaling-stroke"
-                points={trend
-                  .map((v, i) => {
-                    const x = (i / (trend.length - 1)) * 100;
-                    const y = 40 - (v / 5) * 40;
-                    return `${x},${y}`;
-                  })
-                  .join(" ")}
-              />
-            </svg>
+              </svg>
+            </div>
           ) : (
             <div className="flex-1 min-h-[120px] flex items-center">
               <p className="text-xs text-muted font-sans">
@@ -307,7 +317,7 @@ export function DashboardAnalytics({ scores }: { scores: ScoreLike[] }) {
             </div>
           )}
           <p className="text-[10px] text-muted font-mono mt-2">
-            Oldest to newest, 0 to 5.
+            Oldest to newest.
           </p>
         </div>
 
