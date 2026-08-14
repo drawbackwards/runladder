@@ -11,7 +11,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getScoreColor, getLevelColor, getLevel, getNextLevel, getGapToNext, getRungLevel, computePotentialScore } from "@/lib/ladder";
 import { privateScopeLabel, isTeamScope } from "@/lib/score-scope";
-import { surfaceParts } from "@/lib/surface";
+import { surfaceParts, SURFACE_SUFFIX_RE } from "@/lib/surface";
 import type { RungName, RungScores } from "@/lib/ladder";
 import { RungBreakdown } from "@/components/RungBreakdown";
 import { ScoreBar } from "@/components/ScoreBar";
@@ -118,6 +118,9 @@ export default function ScoreDetailPage() {
   // Set when a Team Lead opens this score from a designer's detail page
   // (?member=<userId>). Drives the authorized fetch + the back link (#300).
   const [memberId, setMemberId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState("");
+  const [savingName, setSavingName] = useState(false);
 
   useEffect(() => {
     if (!isSignedIn) return;
@@ -216,6 +219,34 @@ export default function ScoreDetailPage() {
   const inheritedIndustry =
     organization && !multiIndustry ? orgPublic.industry ?? null : null;
 
+  const { name: displayName, surface } = surfaceParts(data.screenName);
+
+  async function saveName() {
+    const draft = nameDraft.trim();
+    if (!draft || !data) {
+      setEditingName(false);
+      return;
+    }
+    // Preserve the surface suffix (e.g. "(figma)") so the surface tag persists.
+    const m = data.screenName.match(SURFACE_SUFFIX_RE);
+    const screenName = m ? `${draft} (${m[1].toLowerCase()})` : draft;
+    setSavingName(true);
+    try {
+      const res = await fetch(`/api/dashboard/scores/${data.id}/tags`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ screenName }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setData({ ...data, screenName: (j.screenName as string) ?? screenName });
+        setEditingName(false);
+      }
+    } finally {
+      setSavingName(false);
+    }
+  }
+
   return (
     <div className="pt-20 font-mono">
       <div className="max-w-6xl mx-auto px-6 py-12">
@@ -278,19 +309,80 @@ export default function ScoreDetailPage() {
             <span className="text-[10px] text-muted uppercase tracking-widest mb-2">Screen Score</span>
             {/* Strip the "(Figma)" / "(Skill)" suffix and render the surface as a
                 tag, matching the dashboard history chip (#299) instead of inline text. */}
-            {(() => {
-              const { name, surface } = surfaceParts(data.screenName);
-              return (
-                <div className="flex items-center gap-2 mb-6">
-                  <p className="text-sm text-foreground font-sans">{name}</p>
+            <div className="flex items-center gap-2 mb-6">
+              {editingName ? (
+                <>
+                  <input
+                    autoFocus
+                    value={nameDraft}
+                    onChange={(e) => setNameDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        saveName();
+                      } else if (e.key === "Escape") {
+                        setEditingName(false);
+                      }
+                    }}
+                    className="flex-1 min-w-0 bg-[#111] border border-[#2a2a2a] text-sm text-foreground px-2 py-1 font-sans focus:outline-none focus:border-ladder-green"
+                  />
+                  <button
+                    type="button"
+                    onClick={saveName}
+                    disabled={savingName || !nameDraft.trim()}
+                    className="text-[10px] uppercase tracking-widest text-ladder-green hover:underline disabled:opacity-40 flex-shrink-0"
+                  >
+                    {savingName ? "Saving…" : "Save"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingName(false)}
+                    className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground flex-shrink-0"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-foreground font-sans">
+                    {displayName}
+                  </p>
                   {surface && (
                     <span className="text-[8px] text-[#888] uppercase tracking-widest border border-[#3a3a3a] px-1.5 py-0.5 flex-shrink-0">
                       {surface}
                     </span>
                   )}
-                </div>
-              );
-            })()}
+                  {!memberId && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNameDraft(displayName);
+                        setEditingName(true);
+                      }}
+                      aria-label="Edit name"
+                      title="Edit name"
+                      className="text-muted hover:text-foreground transition-colors flex-shrink-0"
+                    >
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M11.3 2.7l2 2M2.5 13.5l.6-2.6 8-8 2 2-8 8-2.6.6z"
+                          stroke="currentColor"
+                          strokeWidth="1.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
 
             <div className="flex-1 flex flex-col items-start justify-center">
               <span className="font-mono font-bold text-[4rem] leading-none tabular-nums text-foreground">

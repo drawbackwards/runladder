@@ -59,11 +59,24 @@ export async function PATCH(
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
   const setIndustry = "industry" in body;
   const setTags = "tags" in body;
-  if (!setIndustry && !setTags) {
+  const setName = "screenName" in body;
+  if (!setIndustry && !setTags && !setName) {
     return NextResponse.json(
-      { error: "Provide industry and/or tags" },
+      { error: "Provide industry, tags, or screenName" },
       { status: 400 },
     );
+  }
+
+  let nameValue: string | undefined;
+  if (setName) {
+    const v = body.screenName;
+    if (typeof v !== "string" || !v.trim()) {
+      return NextResponse.json(
+        { error: "Invalid screen name" },
+        { status: 400 },
+      );
+    }
+    nameValue = v.trim().slice(0, 200);
   }
 
   let industryValue: string | null | undefined;
@@ -108,6 +121,7 @@ export async function PATCH(
       if (tagsValue && tagsValue.length > 0) updated.tags = tagsValue;
       else delete updated.tags;
     }
+    if (setName && nameValue) updated.screenName = nameValue;
 
     const timestamp = Number(parsed.timestamp) || Date.now();
     await redis.zrem(key, str);
@@ -132,6 +146,7 @@ export async function PATCH(
       success: true,
       industry: (updated.industry as string) ?? null,
       tags: (updated.tags as string[]) ?? [],
+      screenName: (updated.screenName as string) ?? null,
     });
   }
 
