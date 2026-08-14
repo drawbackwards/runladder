@@ -2,7 +2,7 @@
 title: Feature Inventory
 updatedAt: 2026-08-11
 updatedBy: Sara
-lastPr: 468
+lastPr: 470
 ---
 
 ## How to read this page
@@ -36,6 +36,7 @@ When you ship a feature, add the row here in the same PR. Template:
 | Design rhythm + activity heatmap on personal dashboard (paid only) | Pro / Team / Pulse | Live (#289) | `src/app/dashboard/page.tsx` (gated on `paid`) |
 | Designer detail page: per-score surface tag (Figma/Claude/Web/Skill/Pulse) | Team Lead | Live (#299) | `src/app/dashboard/team/members/[userId]/page.tsx`, `src/lib/surface.ts` |
 | Team Lead opens a member's score detail from the designer page | Team Lead | Live (#300) | `src/app/dashboard/team/members/[userId]/page.tsx`, `src/app/dashboard/scores/[id]/page.tsx`, `src/app/api/dashboard/scores/[id]/route.ts` |
+| Rename a scored screen (#469): a pencil next to the screen name on the score detail page opens an inline editor (Enter saves, Esc cancels). Owner-only; preserves the surface suffix so the Web/Figma/Skill tag stays correct. Persists via the owner-scoped tags PATCH, extended to accept `screenName`. | All signed-in (own scores) | Live (#469) | `src/app/dashboard/scores/[id]/page.tsx`, `src/app/api/dashboard/scores/[id]/tags/route.ts` |
 | Promote a designer to Team Lead ("Make Lead" on the member row; multiple Leads allowed; does not change the org's `teamLead` alert contact) | Team Lead | Live (#423) | `src/app/api/dashboard/team/members/[userId]/promote/route.ts`, `src/app/dashboard/team/page.tsx` |
 | "Potential score if all findings addressed" box (score detail + public `/score`): derives from finding `uplift` summed and floored at the deepest `targetLevel` via `computePotentialScore`, so it reconciles with the "Gap to \<level\>" header; **hides** when findings carry neither signal (e.g. older Figma scans persisted before #343, or any findings with no `uplift`) instead of echoing the current score (PR #380, #343). Plugin `ui.html` has no summed potential — gap line + per-finding `scoreGain → targetLevel`. | All signed-in | Live (PR #380) | `src/lib/ladder.ts` (`computePotentialScore`), `src/app/dashboard/scores/[id]/page.tsx`, `src/app/score/page.tsx` |
 | Evaluations concept hidden for launch: score-screen session-type prompt + pill, member-detail Evaluations tab, team Reviews tab (all scores log as "design") | — | Hidden for launch (#302) | `src/lib/feature-flags.ts` (`SHOW_EVALUATIONS_AND_REVIEWS`), `src/app/score/page.tsx`, `src/app/dashboard/team/members/[userId]/page.tsx`, `src/app/dashboard/team/page.tsx`; supersedes the "Reviews" rows below until relaunch. Admin `/admin/evaluations` (client reports) is a separate tool, left intact. |
