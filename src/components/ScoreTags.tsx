@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import { INDUSTRIES, industryLabel } from "@/lib/industries";
 
 type IndustryOption = { value: string; label: string; custom?: boolean };
@@ -114,6 +109,145 @@ function IndustryDropdown({
 }
 
 /**
+ * Free-form tag field. Collapsed, it shows the first few tags on one line with
+ * a "+N" overflow indicator (no wrapping). Clicking opens a popover to add and
+ * remove the full set, so a score with many tags never blows out the row.
+ */
+function TagField({
+  tags,
+  onAdd,
+  onRemove,
+}: {
+  tags: string[];
+  onAdd: (tag: string) => void;
+  onRemove: (tag: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDocClick(e: globalThis.MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: globalThis.KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  function add() {
+    const t = input.trim();
+    if (!t) return;
+    onAdd(t);
+    setInput("");
+  }
+
+  const preview = tags.slice(0, 3);
+  const extra = tags.length - preview.length;
+
+  return (
+    <div ref={ref} className="relative flex-1 min-w-[220px]">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-label="Edit tags"
+        className={`w-full flex items-center gap-2 border bg-[#111] px-2 py-1.5 min-h-[40px] overflow-hidden text-left transition-colors ${
+          open ? "border-ladder-green" : "border-[#2a2a2a] hover:border-[#3a3a3a]"
+        }`}
+      >
+        {tags.length === 0 ? (
+          <span className="text-sm text-[#555] font-sans px-1">Add tags</span>
+        ) : (
+          <span className="flex items-center gap-2 min-w-0">
+            {preview.map((t) => (
+              <span
+                key={t}
+                className="inline-block border border-[#333] px-2 py-0.5 text-xs text-foreground font-sans whitespace-nowrap"
+              >
+                {t}
+              </span>
+            ))}
+            {extra > 0 && (
+              <span className="text-xs text-muted font-sans whitespace-nowrap">
+                +{extra}
+              </span>
+            )}
+          </span>
+        )}
+        <svg
+          aria-hidden="true"
+          width="10"
+          height="6"
+          viewBox="0 0 10 6"
+          fill="none"
+          className="text-muted flex-shrink-0 ml-auto"
+        >
+          <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute left-0 right-0 top-full mt-1 z-30 border border-[#333] bg-[#1a1a1a] p-3 shadow-lg">
+          <div className="flex items-center gap-2 mb-3">
+            <input
+              autoFocus
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  add();
+                }
+              }}
+              placeholder="Add a tag"
+              className="flex-1 min-w-0 bg-[#111] border border-[#2a2a2a] text-sm text-foreground px-2.5 py-1.5 font-sans focus:outline-none focus:border-ladder-green placeholder:text-[#555]"
+            />
+            <button
+              type="button"
+              onClick={add}
+              disabled={!input.trim()}
+              className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors disabled:opacity-40"
+            >
+              Add
+            </button>
+          </div>
+          {tags.length ? (
+            <div className="flex flex-wrap gap-2 max-h-[180px] overflow-y-auto">
+              {tags.map((t) => (
+                <span
+                  key={t}
+                  className="inline-flex items-center gap-1.5 border border-[#333] px-2 py-0.5 text-xs text-foreground font-sans"
+                >
+                  {t}
+                  <button
+                    type="button"
+                    onClick={() => onRemove(t)}
+                    aria-label={`Remove tag ${t}`}
+                    className="text-muted hover:text-ladder-red transition-colors leading-none"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted font-sans">No tags yet.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
  * Per-score tagging surface (#429). Two modes:
  *
  * - Multi-industry accounts (agencies, individual Pro, internal Drawbackwards):
@@ -145,7 +279,6 @@ export function ScoreTags({
   const [industry, setIndustry] = useState<string | null>(initialIndustry);
   const [tags, setTags] = useState<string[]>(initialTags);
   const [options, setOptions] = useState<IndustryOption[]>([...INDUSTRIES]);
-  const [tagInput, setTagInput] = useState("");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -208,16 +341,12 @@ export function ScoreTags({
     save({ industry: next });
   }
 
-  function addTag() {
-    const t = tagInput.trim();
+  function addTagValue(raw: string) {
+    const t = raw.trim();
     if (!t) return;
-    if (tags.some((x) => x.toLowerCase() === t.toLowerCase())) {
-      setTagInput("");
-      return;
-    }
+    if (tags.some((x) => x.toLowerCase() === t.toLowerCase())) return;
     const next = [...tags, t];
     setTags(next);
-    setTagInput("");
     save({ tags: next });
   }
 
@@ -225,15 +354,6 @@ export function ScoreTags({
     const next = tags.filter((x) => x !== tag);
     setTags(next);
     save({ tags: next });
-  }
-
-  function onTagKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addTag();
-    } else if (e.key === "Backspace" && !tagInput && tags.length > 0) {
-      removeTag(tags[tags.length - 1]);
-    }
   }
 
   return (
@@ -265,31 +385,7 @@ export function ScoreTags({
         {/* Additional tags */}
         <div className="flex items-center gap-3 flex-1 min-w-[240px]">
           <label className={FIELD_LABEL}>Additional tags</label>
-          <div className="flex flex-wrap items-center gap-2 flex-1 border border-[#2a2a2a] bg-[#111] px-2 py-1.5 min-h-[40px] max-h-[88px] overflow-y-auto">
-            {tags.map((t) => (
-              <span
-                key={t}
-                className="inline-flex items-center gap-1.5 border border-[#333] px-2 py-0.5 text-xs text-foreground font-sans"
-              >
-                {t}
-                <button
-                  type="button"
-                  onClick={() => removeTag(t)}
-                  aria-label={`Remove tag ${t}`}
-                  className="text-muted hover:text-ladder-red transition-colors leading-none"
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-            <input
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={onTagKeyDown}
-              placeholder={tags.length ? "" : "Add a tag"}
-              className="flex-1 min-w-[80px] bg-transparent text-sm text-foreground px-1 py-0.5 font-sans focus:outline-none placeholder:text-[#555]"
-            />
-          </div>
+          <TagField tags={tags} onAdd={addTagValue} onRemove={removeTag} />
         </div>
       </div>
 
