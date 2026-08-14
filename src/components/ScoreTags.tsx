@@ -265,7 +265,7 @@ export function ScoreTags({
         {/* Additional tags */}
         <div className="flex items-center gap-3 flex-1 min-w-[240px]">
           <label className={FIELD_LABEL}>Additional tags</label>
-          <div className="flex flex-wrap items-center gap-2 flex-1 border border-[#2a2a2a] bg-[#111] px-2 py-1.5 min-h-[40px]">
+          <div className="flex flex-wrap items-center gap-2 flex-1 border border-[#2a2a2a] bg-[#111] px-2 py-1.5 min-h-[40px] max-h-[88px] overflow-y-auto">
             {tags.map((t) => (
               <span
                 key={t}

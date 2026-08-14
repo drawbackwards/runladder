@@ -263,7 +263,7 @@ export function DashboardAnalytics({ scores }: { scores: ScoreLike[] }) {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Score over time */}
         <div className={CARD}>
           <SectionLabel className="mb-4">Score over time</SectionLabel>
