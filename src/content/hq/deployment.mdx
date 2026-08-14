@@ -1,8 +1,8 @@
 ---
 title: Deployment
-updatedAt: 2026-08-07
+updatedAt: 2026-08-10
 updatedBy: Sara
-lastPr: 447
+lastPr: 458
 ---
 
 ## How this product gets deployed
@@ -40,9 +40,11 @@ feature branch
 Production is deployed by the **`Deploy Production` GitHub Action** (`.github/workflows/deploy-prod.yml`), never by Vercel's git integration (that auto-prod is turned off) and never by a raw local `vercel --prod`.
 
 - Every merge to `main` starts the workflow. Its deploy job targets the **`production-gate` GitHub Environment** (a dedicated environment — *not* Vercel's integration-managed `Production`, which must stay unprotected so Vercel can report its own deploy status), which has **required reviewers**, so the job pauses at **"Waiting for approval."**
-- To ship: open the run under the repo's **Actions** tab (or the PR's checks) and click **Review deployments → Approve and deploy**. Prod ships only then.
+- **Where the approve button lives (this trips people up):** it is on the specific **Actions run**, not on the PR. Get there any of three ways: (1) the **email** GitHub sends required reviewers ("Deployment review requested") has a direct button — easiest; (2) bookmark the workflow's run list — `https://github.com/drawbackwards/runladder/actions/workflows/deploy-prod.yml` — the run with the yellow dot is waiting on you; (3) repo → **Actions** tab → **Deploy Production** → the waiting run. On that run, click **Review deployments → check `production-gate` → Approve and deploy**. Note the button only shows while the run is still waiting — if it already completed/expired, there's nothing to approve (trigger a fresh deploy).
 - If no one approves, prod stays exactly as it is. That is the whole point.
-- Who can approve: the reviewers configured on the `production` Environment (currently Michael and Ward).
+- Who can approve: the reviewers configured on the `production-gate` Environment (currently Michael and Ward).
+
+**Notifications:** every `Deploy Production` run posts to the **#ladder** Slack channel via the GitHub Slack app (subscribed with `/github subscribe drawbackwards/runladder workflows:{name:"Deploy Production"}`). You'll see the run start (Status: Waiting) and a threaded update when it succeeds — so the team has a record of every prod ship.
 
 The Action authenticates to Vercel with a `VERCEL_TOKEN` secret (a **team-scoped** token for the Drawbackwards team — a project-scoped token can't read the settings `vercel` needs) plus `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` repo variables, and runs a single `vercel deploy --prod`. It deploys **without** `--prebuilt` on purpose: several prod env vars (the Redis/KV credentials) are marked **Sensitive**, so a build running in CI can't read them and would crash at page-data collection on `Redis.fromEnv()`. Letting Vercel build server-side gives the build the real environment, exactly like a native git deploy.
 
@@ -51,6 +53,14 @@ The Action authenticates to Vercel with a `VERCEL_TOKEN` secret (a **team-scoped
 1. **Run any data migration against prod.** Prod Redis is a separate instance, so a migration verified on dev must be re-run for prod. Prod Redis credentials are marked *Sensitive* in Vercel and are **not** returned by `vercel env pull`, so a one-off migration runs either through a protected admin route (executing inside the prod runtime) or with credentials pulled from the Upstash console — never by casually copying prod tokens around.
 2. **Stamp the Release Date** on every shipped issue in the GitHub Project "Ladder" (project 5), which moves it into the Released view. See `CLAUDE.md → Release stamping`.
 3. **Post the `/hq` verification handshake** (per `CLAUDE.md`).
+
+## Backups
+
+Production data lives in **Upstash Redis** (`runladder-prod`, pay-as-you-go, `us-east-1`). **Daily Backup is enabled** (2026-08-10, #434) via the Upstash console → the DB → **Backups** tab. It keeps the **single latest** snapshot, overwriting the previous day's — so backups never accumulate — at ~**$0.25/GB-month**, which is trivial since #442 moved thumbnails to Blob and the Redis dataset is small. Before or after any risky data operation (e.g. a migration), take a **manual** snapshot: Backups → **Backup & Export** → *Backup* (not *Export*, which ships to your own external storage).
+
+**Restore:** from the Backups tab. ⚠️ A restore **deletes all existing data in the target DB first**, then restores — it is a deliberate recovery action, not a merge. `runladder-dev` is a separate instance; back it up independently if ever needed.
+
+Longer retention (more than the latest day) requires Upstash's paid **Prod Pack**; not enabled. The 1-day rotation is insurance against accidental loss/corruption, not a long-term archive.
 
 ## History / why it's built this way
 
