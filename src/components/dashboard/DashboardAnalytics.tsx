@@ -131,12 +131,16 @@ const CARD = "border border-[#333] bg-[#1e1e1e] p-6";
  */
 function SegmentDropdown({
   value,
-  industries,
+  options,
   onChange,
+  allLabel,
+  labelFor = (v) => v,
 }: {
   value: string | null;
-  industries: string[];
+  options: string[];
   onChange: (v: string | null) => void;
+  allLabel: string;
+  labelFor?: (v: string) => string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -181,9 +185,7 @@ function SegmentDropdown({
               : "text-foreground border-[#2a2a2a] hover:border-[#3a3a3a]"
         }`}
       >
-        <span className="truncate">
-          {value ? industryLabel(value) : "All industries"}
-        </span>
+        <span className="truncate">{value ? labelFor(value) : allLabel}</span>
         <svg
           aria-hidden="true"
           width="10"
@@ -207,18 +209,18 @@ function SegmentDropdown({
             onClick={() => pick(null)}
             className={`${item} ${value === null ? "text-ladder-green" : "text-foreground"}`}
           >
-            All industries
+            {allLabel}
           </button>
-          {industries.map((ind) => (
+          {options.map((opt) => (
             <button
-              key={ind}
+              key={opt}
               type="button"
               role="option"
-              aria-selected={ind === value}
-              onClick={() => pick(ind)}
-              className={`${item} ${ind === value ? "text-ladder-green" : "text-foreground"}`}
+              aria-selected={opt === value}
+              onClick={() => pick(opt)}
+              className={`${item} ${opt === value ? "text-ladder-green" : "text-foreground"}`}
             >
-              {industryLabel(ind)}
+              {labelFor(opt)}
             </button>
           ))}
         </div>
@@ -228,7 +230,8 @@ function SegmentDropdown({
 }
 
 export function DashboardAnalytics({ scores }: { scores: ScoreLike[] }) {
-  const [segment, setSegment] = useState<string | null>(null);
+  const [industryFilter, setIndustryFilter] = useState<string | null>(null);
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
 
   const industries = useMemo(() => {
     const set = new Set<string>();
@@ -236,9 +239,21 @@ export function DashboardAnalytics({ scores }: { scores: ScoreLike[] }) {
     return [...set].sort();
   }, [scores]);
 
+  const tagList = useMemo(() => {
+    const set = new Set<string>();
+    for (const s of scores)
+      if (Array.isArray(s.tags)) for (const t of s.tags) set.add(t);
+    return [...set].sort();
+  }, [scores]);
+
   const rows = useMemo(
-    () => (segment ? scores.filter((s) => s.industry === segment) : scores),
-    [scores, segment],
+    () =>
+      scores.filter(
+        (s) =>
+          (!industryFilter || s.industry === industryFilter) &&
+          (!tagFilter || (Array.isArray(s.tags) && s.tags.includes(tagFilter))),
+      ),
+    [scores, industryFilter, tagFilter],
   );
 
   const stats = useMemo(() => {
@@ -318,22 +333,45 @@ export function DashboardAnalytics({ scores }: { scores: ScoreLike[] }) {
 
   return (
     <div className="space-y-6">
-      {/* Segment by industry (#429 payoff). Single-select dropdown so the active
-          filter is always visible and the option list never spills. */}
-      {industries.length > 0 && (
-        <div className="flex items-center gap-3">
-          <span className="text-[9px] uppercase tracking-widest text-muted shrink-0">
-            Segment
-          </span>
-          <SegmentDropdown
-            value={segment}
-            industries={industries}
-            onChange={setSegment}
-          />
-          {segment !== null && (
+      {/* Filter by Industry and Tags (#429 payoff). Same terms as the score
+          detail page; single-select dropdowns so the active filter is always
+          visible and the option list never spills. */}
+      {(industries.length > 0 || tagList.length > 0) && (
+        <div className="flex items-center gap-x-6 gap-y-3 flex-wrap">
+          {industries.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-[9px] uppercase tracking-widest text-muted shrink-0">
+                Industry
+              </span>
+              <SegmentDropdown
+                value={industryFilter}
+                options={industries}
+                onChange={setIndustryFilter}
+                allLabel="All industries"
+                labelFor={industryLabel}
+              />
+            </div>
+          )}
+          {tagList.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-[9px] uppercase tracking-widest text-muted shrink-0">
+                Tags
+              </span>
+              <SegmentDropdown
+                value={tagFilter}
+                options={tagList}
+                onChange={setTagFilter}
+                allLabel="All tags"
+              />
+            </div>
+          )}
+          {(industryFilter !== null || tagFilter !== null) && (
             <button
               type="button"
-              onClick={() => setSegment(null)}
+              onClick={() => {
+                setIndustryFilter(null);
+                setTagFilter(null);
+              }}
               className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
             >
               Clear
