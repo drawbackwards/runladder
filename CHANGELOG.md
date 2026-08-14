@@ -6,6 +6,19 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.30 / api 1.5.1 (2026-08-11)
+
+**Personal analytics on the dashboard (#467, Phase A).** The per-score tags (#429) now have a place that reads them back.
+
+- The personal dashboard gains **Overview / Analytics** tabs (matching the Team page pattern) so charts don't clutter the primary Overview.
+- The **Analytics** tab computes charts client-side from the score history the dashboard already loads (no new endpoints): a stat row (screens scored, average, best, avg gain on re-score), **score over time** (with a 0-5 axis), **rung profile**, **top recurring issues**, and **portfolio distribution**.
+- Two single-select filters, **Industry** and **Tags**, slice every chart (the payoff for per-score tagging). Each shows its active selection, turns green when applied, and keeps its full option list in a popover.
+- On the score detail page, the tags field now collapses overflow behind a "+N" expander popover instead of wrapping.
+
+Phases still to come under #467: team-wide analytics on the Performance tab, auto-suggested industry, and bulk tagging.
+
+---
+
 ## app 0.5.29 / api 1.5.1 (2026-08-11)
 
 **Per-score industry + tags (#429, Phase 1).** Agencies and consultancies (and freelancers on individual Pro) work across industries, so a single org-level industry is wrong for them and gating every scan behind an industry pick would add friction. Instead, multi-industry accounts now **tag each score** after the fact.

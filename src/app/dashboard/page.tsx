@@ -18,6 +18,8 @@ import { ActivityHeatmap, type DailyActivity } from "@/components/ActivityHeatma
 import { FREE_LIFETIME_LIMIT } from "@/lib/plans";
 import { SectionLabel } from "@/components/SectionLabel";
 import { Skeleton } from "@/components/Skeleton";
+import { TabButton } from "@/components/Tabs";
+import { DashboardAnalytics } from "@/components/dashboard/DashboardAnalytics";
 import { useViewAs } from "@/lib/dev/view-as";
 import {
   viewAsDashboardData,
@@ -478,6 +480,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [upgradedToPro, setUpgradedToPro] = useState(false);
+  const [tab, setTab] = useState<"overview" | "analytics">("overview");
 
   // Make sure the user's org is the session's active org (invite-based
   // provisioning doesn't auto-activate the way self-serve creation did) so the
@@ -606,7 +609,26 @@ export default function DashboardPage() {
           </h1>
         </div>
 
-        {effectiveData && needsTeamSetup && <TeamSetupBanner />}
+        {/* Dashboard tabs (#467): Overview keeps today's content; Analytics is
+            the new score-analytics surface, so charts don't clutter Overview. */}
+        <div className="border-b border-[#2a2a2a] flex items-center gap-2 mb-8 overflow-x-auto">
+          <TabButton
+            label="Overview"
+            active={tab === "overview"}
+            onClick={() => setTab("overview")}
+          />
+          <TabButton
+            label="Analytics"
+            active={tab === "analytics"}
+            onClick={() => setTab("analytics")}
+          />
+        </div>
+
+        {tab === "analytics" ? (
+          <DashboardAnalytics scores={scores} />
+        ) : (
+          <>
+            {effectiveData && needsTeamSetup && <TeamSetupBanner />}
 
         {/* Reviews is incomplete, so the designer-side "Ask your team for a
             review" CTA is hidden for now. Restore by re-adding
@@ -771,6 +793,8 @@ export default function DashboardPage() {
             <ClaudePromoCard />
           </aside>
         </div>
+          </>
+        )}
       </div>
     </div>
   );
