@@ -265,13 +265,13 @@ export function DashboardAnalytics({ scores }: { scores: ScoreLike[] }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Score over time */}
-        <div className={CARD}>
+        <div className={`${CARD} flex flex-col`}>
           <SectionLabel className="mb-4">Score over time</SectionLabel>
           {trend.length >= 2 ? (
             <svg
               viewBox="0 0 100 40"
               preserveAspectRatio="none"
-              className="w-full h-[120px]"
+              className="w-full flex-1 min-h-[120px]"
             >
               {[1, 2, 3, 4].map((g) => (
                 <line
@@ -281,13 +281,15 @@ export function DashboardAnalytics({ scores }: { scores: ScoreLike[] }) {
                   y1={40 - (g / 5) * 40}
                   y2={40 - (g / 5) * 40}
                   stroke="#2a2a2a"
-                  strokeWidth="0.3"
+                  strokeWidth="1"
+                  vectorEffect="non-scaling-stroke"
                 />
               ))}
               <polyline
                 fill="none"
                 stroke="var(--ladder-green, #6AC89B)"
-                strokeWidth="1"
+                strokeWidth="2"
+                vectorEffect="non-scaling-stroke"
                 points={trend
                   .map((v, i) => {
                     const x = (i / (trend.length - 1)) * 100;
@@ -298,9 +300,11 @@ export function DashboardAnalytics({ scores }: { scores: ScoreLike[] }) {
               />
             </svg>
           ) : (
-            <p className="text-xs text-muted font-sans">
-              Score a few more screens to see your trend.
-            </p>
+            <div className="flex-1 min-h-[120px] flex items-center">
+              <p className="text-xs text-muted font-sans">
+                Score a few more screens to see your trend.
+              </p>
+            </div>
           )}
           <p className="text-[10px] text-muted font-mono mt-2">
             Oldest to newest, 0 to 5.
