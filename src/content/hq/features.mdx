@@ -2,7 +2,7 @@
 title: Feature Inventory
 updatedAt: 2026-08-11
 updatedBy: Sara
-lastPr: 472
+lastPr: 474
 ---
 
 ## How to read this page
@@ -32,7 +32,7 @@ When you ship a feature, add the row here in the same PR. Template:
 | Private / Internal scoring (paid feature; toggle defaults on for paid, free locked to public, off-warning, tier-aware "Private"/"Internal" label) | Pro / Team / Pulse (free = public only) | Live (v0.5.7, [#290](https://github.com/drawbackwards/runladder/issues/290) / [#301](https://github.com/drawbackwards/runladder/issues/301)) | `src/app/score/page.tsx`, `src/lib/score-scope.ts`, `src/app/api/score/route.ts`, `src/app/api/score/stream/route.ts` |
 | Personal dashboard (`/dashboard`) | All signed-in | Live | `src/app/dashboard/` |
 | Personal analytics (#467, Phase A): the dashboard has **Overview / Analytics** tabs; the Analytics tab reads score history client-side into charts (score-over-time with a 0-5 axis, rung profile, top recurring finding categories, portfolio distribution, plus a stat row) and filters them by **Industry** and **Tags** (the #429 tagging payoff), each a single-select dropdown. No new endpoints. Team-wide analytics, auto-suggested industry, and bulk tagging are later #467 phases. | Pro+ / Team | Live (#467 Phase A) | `src/components/dashboard/DashboardAnalytics.tsx`, `src/app/dashboard/page.tsx` |
-| Dashboard score list windows the render (~30 rows, reveals more on scroll via IntersectionObserver) and list-row thumbnails load a small ~96px variant instead of the full 1400px image (#448, follow-up to #442). The full array stays client-side for the activity heatmap; server-side pagination is deferred. **List / grid toggle (#471):** a header control switches between the list and a grid of cards with a larger 640px `md` thumbnail variant (resized on read + cached); the choice persists in localStorage. | All signed-in | Live (#448, #471) | `src/app/dashboard/page.tsx`, `src/hooks/use-infinite-window.ts`, `src/app/api/dashboard/scores/[id]/thumbnail/route.ts` (`?size=sm\|md`), `src/lib/scores.ts` (`scoreThumbnailUrl`) |
+| Dashboard score list windows the render (~30 rows, reveals more on scroll via IntersectionObserver) and list-row thumbnails load a small ~96px variant instead of the full 1400px image (#448, follow-up to #442). The full array stays client-side for the activity heatmap; server-side pagination is deferred. **List / grid toggle (#471):** a header control switches between the list and a grid of cards with a larger 640px `md` thumbnail variant (resized on read + cached); defaults to grid (#473); the choice persists in localStorage. | All signed-in | Live (#448, #471) | `src/app/dashboard/page.tsx`, `src/hooks/use-infinite-window.ts`, `src/app/api/dashboard/scores/[id]/thumbnail/route.ts` (`?size=sm\|md`), `src/lib/scores.ts` (`scoreThumbnailUrl`) |
 | Design rhythm + activity heatmap on personal dashboard (paid only) | Pro / Team / Pulse | Live (#289) | `src/app/dashboard/page.tsx` (gated on `paid`) |
 | Designer detail page: per-score surface tag (Figma/Claude/Web/Skill/Pulse) | Team Lead | Live (#299) | `src/app/dashboard/team/members/[userId]/page.tsx`, `src/lib/surface.ts` |
 | Team Lead opens a member's score detail from the designer page | Team Lead | Live (#300) | `src/app/dashboard/team/members/[userId]/page.tsx`, `src/app/dashboard/scores/[id]/page.tsx`, `src/app/api/dashboard/scores/[id]/route.ts` |

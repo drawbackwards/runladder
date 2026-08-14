@@ -552,9 +552,9 @@ export default function DashboardPage() {
     30,
   );
 
-  // Score-history view: list (default) or grid of cards (#471). Remembered
-  // across visits so the choice sticks.
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  // Score-history view: grid of cards by default (#473), or list. Remembered
+  // across visits, so a user's explicit choice still wins over the default.
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
   useEffect(() => {
     const v =
       typeof window !== "undefined"
