@@ -6,6 +6,12 @@ Version format: `<app>` covers the web app + dashboard. `<api>` covers the Ladde
 
 ---
 
+## app 0.5.32 / api 1.5.1 (2026-08-11)
+
+**Dashboard score history: list / grid view toggle (#471).** The list's thumbnail was too small to recognize a screen at a glance. A toggle in the top-right of the Score history header now switches between the existing **list** and a **grid** of cards with a larger thumbnail (a new 640px `md` thumbnail variant, resized on read and cached) plus name, score, tags, and time. The choice persists in localStorage; reveal-on-scroll windowing and delete work in both views.
+
+---
+
 ## app 0.5.31 / api 1.5.1 (2026-08-11)
 
 **Rename a scored screen (#469).** Scores get an auto-generated screen name that is sometimes wrong. A pencil icon next to the name on the score detail page now opens an inline editor (Enter saves, Esc cancels). Owner-only; preserves the surface suffix so the Web/Figma/Skill tag stays correct. Persists via the owner-scoped `PATCH /api/dashboard/scores/[id]/tags` route, extended to accept `screenName`.
