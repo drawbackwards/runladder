@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { RUNG_DISPLAY_ORDER, getLevelForScore } from "@/lib/ladder";
 import { industryLabel } from "@/lib/industries";
 import { SectionLabel } from "@/components/SectionLabel";
@@ -123,6 +123,110 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 const CARD = "border border-[#333] bg-[#1e1e1e] p-6";
 
+/**
+ * Single-select segment control. The trigger always shows the active filter
+ * (so "what this page is filtered by" is never hidden) and turns green when a
+ * specific industry is applied; the full list lives in a dark popover so many
+ * industries never spill onto the page.
+ */
+function SegmentDropdown({
+  value,
+  industries,
+  onChange,
+}: {
+  value: string | null;
+  industries: string[];
+  onChange: (v: string | null) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDocClick(e: globalThis.MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: globalThis.KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const active = value !== null;
+  const item =
+    "w-full text-left px-3 py-1.5 text-xs uppercase tracking-widest font-sans transition-colors hover:bg-[#242424]";
+
+  function pick(v: string | null) {
+    onChange(v);
+    setOpen(false);
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className={`inline-flex items-center justify-between gap-3 min-w-[220px] border px-3 py-1.5 text-[11px] uppercase tracking-widest transition-colors ${
+          active
+            ? "text-ladder-green border-ladder-green/50 bg-ladder-green/10"
+            : open
+              ? "text-foreground border-ladder-green"
+              : "text-foreground border-[#2a2a2a] hover:border-[#3a3a3a]"
+        }`}
+      >
+        <span className="truncate">
+          {value ? industryLabel(value) : "All industries"}
+        </span>
+        <svg
+          aria-hidden="true"
+          width="10"
+          height="6"
+          viewBox="0 0 10 6"
+          fill="none"
+          className="text-muted flex-shrink-0"
+        >
+          <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" />
+        </svg>
+      </button>
+      {open && (
+        <div
+          role="listbox"
+          className="absolute left-0 top-full mt-1 z-30 min-w-[240px] max-h-[300px] overflow-y-auto border border-[#333] bg-[#1a1a1a] py-1 shadow-lg"
+        >
+          <button
+            type="button"
+            role="option"
+            aria-selected={value === null}
+            onClick={() => pick(null)}
+            className={`${item} ${value === null ? "text-ladder-green" : "text-foreground"}`}
+          >
+            All industries
+          </button>
+          {industries.map((ind) => (
+            <button
+              key={ind}
+              type="button"
+              role="option"
+              aria-selected={ind === value}
+              onClick={() => pick(ind)}
+              className={`${item} ${ind === value ? "text-ladder-green" : "text-foreground"}`}
+            >
+              {industryLabel(ind)}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function DashboardAnalytics({ scores }: { scores: ScoreLike[] }) {
   const [segment, setSegment] = useState<string | null>(null);
 
@@ -214,37 +318,27 @@ export function DashboardAnalytics({ scores }: { scores: ScoreLike[] }) {
 
   return (
     <div className="space-y-6">
-      {/* Segment by industry (#429 payoff) */}
+      {/* Segment by industry (#429 payoff). Single-select dropdown so the active
+          filter is always visible and the option list never spills. */}
       {industries.length > 0 && (
-        <div className="flex items-center gap-2 overflow-x-auto pb-1">
-          <span className="text-[9px] uppercase tracking-widest text-muted mr-1 shrink-0">
+        <div className="flex items-center gap-3">
+          <span className="text-[9px] uppercase tracking-widest text-muted shrink-0">
             Segment
           </span>
-          <button
-            type="button"
-            onClick={() => setSegment(null)}
-            className={`shrink-0 whitespace-nowrap text-[11px] uppercase tracking-widest px-3 py-1.5 border transition-colors ${
-              segment === null
-                ? "text-ladder-green border-ladder-green/50 bg-ladder-green/10"
-                : "text-muted border-[#2a2a2a] hover:border-[#3a3a3a]"
-            }`}
-          >
-            All
-          </button>
-          {industries.map((ind) => (
+          <SegmentDropdown
+            value={segment}
+            industries={industries}
+            onChange={setSegment}
+          />
+          {segment !== null && (
             <button
-              key={ind}
               type="button"
-              onClick={() => setSegment(ind)}
-              className={`shrink-0 whitespace-nowrap text-[11px] uppercase tracking-widest px-3 py-1.5 border transition-colors ${
-                segment === ind
-                  ? "text-ladder-green border-ladder-green/50 bg-ladder-green/10"
-                  : "text-muted border-[#2a2a2a] hover:border-[#3a3a3a]"
-              }`}
+              onClick={() => setSegment(null)}
+              className="text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
             >
-              {industryLabel(ind)}
+              Clear
             </button>
-          ))}
+          )}
         </div>
       )}
 
